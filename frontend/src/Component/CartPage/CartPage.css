@@ -1,0 +1,394 @@
+/* Base Container - Updated for Full Screen */
+.CartPage {
+  position: relative;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2b3e51;
+  padding: 40px;
+  background-color: #ffffff;
+  width: 100%;
+  min-height: 100vh; /* Takes full viewport height */
+  box-sizing: border-box; /* Includes padding in width calculation */
+}
+
+.CartPage-container {
+  display: flex;
+  gap: 40px;
+  align-items: stretch; /* UPDATED: Stretches both left & right sections to equal height */
+  width: 100%; /* Stretch container to full width */
+  max-width: 100%; /* Removes width restrictions */
+}
+
+/* Left Section */
+.CartPage-left {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Updated: Increased Table Header Font Size */
+.CartPage-header {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr 1fr;
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+  font-weight: 700;
+  font-size: 1.4rem; /* Increased from 1.15rem */
+  color: #0d3859;
+}
+
+.CartPage-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.CartPage-item {
+  display: grid;
+  grid-template-columns: 2.5fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Product Info Column */
+.CartPage-col-product {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.CartPage-remove-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.3rem; /* Increased icon size */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: color 0.2s;
+}
+
+.CartPage-remove-btn:hover {
+  color: #ff0000;
+}
+
+.CartPage-product-img {
+  width: 65px; /* Slightly larger image to match text size */
+  height: 75px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+/* Updated: Increased Product Title Font Size */
+.CartPage-product-title {
+  font-weight: 600;
+  font-size: 1.15rem; /* Increased from 0.95rem */
+  color: #0b3453;
+}
+
+/* Updated: Increased Prices and Subtotal Font Size */
+.CartPage-price-text,
+.CartPage-subtotal-text {
+  font-weight: 700;
+  color: #ff5e00;
+  font-size: 1.2rem; /* Increased from 0.95rem */
+}
+
+/* Quantity Box */
+.CartPage-quantity-box {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  border-radius: 25px;
+  padding: 6px 14px;
+  gap: 14px;
+}
+
+.CartPage-qty-btn {
+  background: #f4f4f4;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
+}
+
+.CartPage-qty-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Updated: Increased Quantity Value Text Size */
+.CartPage-qty-value {
+  font-weight: 600;
+  font-size: 1.1rem; /* Increased from 0.9rem */
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Cart Actions Below Table */
+.CartPage-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto; /* UPDATED: Pushes actions to the bottom if container expands */
+  padding-top: 30px;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.CartPage-coupon-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 450px;
+}
+
+.CartPage-coupon-input {
+  border: 1px solid #e0e0e0;
+  padding: 12px 18px;
+  border-radius: 4px;
+  outline: none;
+  font-size: 1rem;
+  width: 100%;
+}
+
+.CartPage-coupon-input::placeholder {
+  color: #aaa;
+}
+
+/* Base Button Styles */
+.CartPage-btn {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem; /* Increased button text size */
+  transition: all 0.3s ease;
+}
+
+/* Slide Animation on Hover (Left-to-Right fill) */
+.CartPage-btn-slide {
+  position: relative;
+  overflow: hidden;
+  background-color: #085a78; /* Original Deep Blue */
+  color: #ffffff;
+  border-radius: 4px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.CartPage-btn-slide span {
+  position: relative;
+  z-index: 2;
+}
+
+.CartPage-btn-slide::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background-color: #ff5e00; /* 2nd Reference Orange Color */
+  transition: transform 0.4s ease-in-out;
+  z-index: 1;
+}
+
+.CartPage-btn-slide:hover::before {
+  transform: translateX(100%);
+}
+
+.CartPage-apply-btn {
+  padding: 12px 28px;
+  height: 48px;
+}
+
+.CartPage-update-btn {
+  background-color: #ff5e00;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 4px;
+}
+
+.CartPage-update-btn:hover {
+  background-color: #e05300;
+}
+
+/* Right Section - Cart Total */
+.CartPage-right {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex; /* UPDATED: Enables flexbox layout to stretch child card */
+}
+
+.CartPage-summary-card {
+  border: 1px solid #ededed;
+  border-radius: 8px;
+  padding: 24px;
+  background-color: #fff;
+  width: 100%;
+  display: flex; /* UPDATED: Flexbox to fill full height */
+  flex-direction: column; /* UPDATED: Stacks children vertically */
+  box-sizing: border-box;
+  height: 385px;
+}
+
+.CartPage-summary-title {
+  font-size: 1.4rem; /* Increased summary title size */
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #111;
+}
+
+.CartPage-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #f2f2f2;
+  font-size: 1.05rem; /* Increased label size */
+  color: #666;
+}
+
+.CartPage-summary-value {
+  font-weight: 600;
+  color: #0b3453;
+}
+
+.CartPage-free-text {
+  color: #0b3453;
+}
+
+.CartPage-total-row {
+  border-bottom: none;
+  padding-top: 15px;
+  margin-bottom: 15px;
+}
+
+.CartPage-total-value {
+  color: #ff5e00;
+  font-weight: 700;
+  font-size: 1.3rem; /* Increased total price size */
+}
+
+.CartPage-checkout-btn {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 30px;
+  font-size: 1.05rem;
+  margin-top: auto; /* UPDATED: Pushes the checkout button to the bottom of the card */
+}
+
+/* Scroll To Top Button */
+.CartPage-scroll-top-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  background-color: #085a78;
+  color: #ffffff;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.4rem;
+  transition: background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.CartPage-scroll-top-btn:hover {
+  background-color: #ff5e00;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .CartPage {
+    padding: 20px;
+  }
+  
+  .CartPage-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .CartPage-right {
+    width: 100%;
+  }
+}
+
+/* Updated Mobile Breakpoint Labels for Increased Text Size */
+@media (max-width: 650px) {
+  .CartPage-header {
+    display: none;
+  }
+  
+  .CartPage-item {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    position: relative;
+    padding-bottom: 20px;
+  }
+
+  .CartPage-col-product {
+    justify-content: flex-start;
+  }
+
+  .CartPage-col-price,
+  .CartPage-col-quantity,
+  .CartPage-col-subtotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem; /* Increased size on mobile */
+  }
+
+  .CartPage-col-price::before {
+    content: "Price:";
+    font-weight: 600;
+    color: #555;
+    font-size: 1.1rem;
+  }
+
+  .CartPage-col-quantity::before {
+    content: "Quantity:";
+    font-weight: 600;
+    color: #555;
+    font-size: 1.1rem;
+  }
+
+  .CartPage-col-subtotal::before {
+    content: "Subtotal:";
+    font-weight: 600;
+    color: #555;
+    font-size: 1.1rem;
+  }
+
+  .CartPage-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .CartPage-coupon-box {
+    max-width: 100%;
+    flex-direction: column;
+  }
+
+  .CartPage-apply-btn,
+  .CartPage-update-btn {
+    width: 100%;
+  }
+}

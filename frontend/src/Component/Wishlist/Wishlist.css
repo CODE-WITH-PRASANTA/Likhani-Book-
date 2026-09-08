@@ -1,0 +1,213 @@
+:root {
+  --primary-dark-blue: #092c4c;
+  --orange-accent: #ff6f28;
+  --green-stock: #18cd26;
+  --text-muted: #7d879c;
+  --border-light: #eff2f5;
+  --bg-scroll-btn: #005f73;
+}
+
+/* Base Wrapper */
+.Wishlist {
+  width: 100%;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  background-color: #ffffff;
+}
+
+.Wishlist__container {
+  max-width: 1700px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Table Design */
+.Wishlist__table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.Wishlist__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+/* Header Styling */
+.Wishlist__header-row {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.Wishlist__th {
+  padding: 18px 12px;
+  font-size: 22px; /* Increased table header size */
+  font-weight: 700;
+  color: var(--primary-dark-blue);
+  white-space: nowrap;
+}
+
+.Wishlist__th--product {
+  padding-left: 0;
+  width: 50%;
+}
+
+.Wishlist__th--price,
+.Wishlist__th--stock,
+.Wishlist__th--subtotal {
+  width: 16.66%;
+}
+
+/* Body Row Styling */
+.Wishlist__row {
+  border-bottom: 1px solid var(--border-light);
+}
+
+.Wishlist__td {
+  padding: 24px 12px;
+  vertical-align: middle;
+  font-size: 18px;
+}
+
+/* Product Info Column */
+.Wishlist__td--product {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 0;
+}
+
+/* Remove Icon Button */
+.Wishlist__remove-btn {
+  background: transparent;
+  border: 1px solid #dcdfe4;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #707070;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
+  flex-shrink: 0;
+}
+
+.Wishlist__remove-btn:hover {
+  border-color: var(--orange-accent);
+  color: var(--orange-accent);
+}
+
+/* Product Image */
+.Wishlist__image-wrapper {
+  width: 75px;
+  height: 85px;
+  flex-shrink: 0;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Wishlist__product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* UPDATED: Product Title Font Size Increased */
+.Wishlist__product-name {
+  font-weight: 600;
+  color: var(--primary-dark-blue);
+  font-size: 20px; /* Increased from 18px */
+  line-height: 1.4;
+}
+
+/* UPDATED: Price & Subtotal Font Sizes Increased */
+.Wishlist__td--price,
+.Wishlist__td--subtotal {
+  font-weight: 700;
+  color: var(--orange-accent);
+  font-size: 20px; /* Increased from 18px */
+}
+
+/* UPDATED: Stock Status Font Size Increased */
+.Wishlist__td--stock {
+  font-weight: 700;
+  font-size: 20px; /* Increased from 18px */
+}
+
+.Wishlist__td--in-stock {
+  color: var(--green-stock);
+}
+
+.Wishlist__td--out-stock {
+  color: var(--orange-accent);
+}
+
+.Wishlist__scroll-top:hover {
+  background-color: var(--primary-dark-blue);
+}
+
+/* Responsive Mobile Layout */
+@media (max-width: 768px) {
+  .Wishlist__table, 
+  .Wishlist__table thead, 
+  .Wishlist__table tbody, 
+  .Wishlist__table th, 
+  .Wishlist__table td, 
+  .Wishlist__table tr {
+    display: block;
+  }
+
+  .Wishlist__table thead {
+    display: none;
+  }
+
+  .Wishlist__row {
+    margin-bottom: 20px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .Wishlist__td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border-light);
+    font-size: 19px;
+  }
+
+  .Wishlist__td:last-child {
+    border-bottom: none;
+  }
+
+  .Wishlist__td--product {
+    padding-top: 0;
+  }
+
+  /* UPDATED: Mobile Labels Size Increased */
+  .Wishlist__td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--primary-dark-blue);
+    font-size: 19px; /* Increased from 17px */
+  }
+
+  .Wishlist__td--product::before {
+    display: none;
+  }
+
+  .Wishlist__scroll-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 100;
+  }
+}
