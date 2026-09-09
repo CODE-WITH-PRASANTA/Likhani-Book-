@@ -1,88 +1,136 @@
 .topbar {
-  height: 70px;
+  height: 64px;
   background-color: #ffffff;
-  border-bottom: 1px solid #eef2f5;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 24px;
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
-.search-container {
+.topbar-left {
   display: flex;
   align-items: center;
-  background-color: #f5f7fa;
-  padding: 8px 16px;
-  border-radius: 20px;
-  width: 320px;
+  gap: 16px;
+  flex: 1;
+  max-width: 480px;
+}
+
+
+
+.menu-toggle-btn:hover {
+  background-color: #e2e8f0;
+  transform: scale(1.02);
+}
+
+.menu-toggle-btn:active {
+  transform: scale(0.96);
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
 }
 
 .search-icon {
-  margin-right: 8px;
-  font-size: 0.9rem;
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 17px;
 }
 
 .search-input {
-  border: none;
-  background: transparent;
-  outline: none;
   width: 100%;
-  font-size: 0.9rem;
+  padding: 9px 16px 9px 38px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s ease;
 }
 
-.topbar-actions {
+.search-input:focus {
+  border-color: #2563eb;
+  background-color: #ffffff;
+}
+
+.topbar-right {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
-.icon-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
+.notification-btn {
   position: relative;
+  background: transparent;
+  border: none;
+  color: #475569;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.15s ease;
 }
 
-.notification-dot {
+.notification-btn:hover {
+  background-color: #f1f5f9;
+}
+
+.badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 8px;
-  height: 8px;
-  background-color: #ff4d4f;
+  top: 3px;
+  right: 3px;
+  background-color: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ffffff;
 }
 
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.user-profile:hover {
+  background-color: #f1f5f9;
 }
 
 .avatar {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.user-info {
-  display: flex;
-  flex-direction: column;
-}
-
 .user-name {
+  font-size: 14px;
   font-weight: 600;
-  font-size: 0.85rem;
-  color: #2c3e50;
+  color: #1e293b;
 }
 
-.user-role {
-  font-size: 0.75rem;
-  color: #8a94a6;
+.chevron-icon {
+  color: #64748b;
+  font-size: 16px;
 }

@@ -1,52 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Sidebar.css';
+import { 
+  LuLayoutDashboard, 
+  LuBook, 
+  LuFolder, 
+  LuShoppingCart, 
+  LuUsers, 
+  LuMessageSquare, 
+  LuTag, 
+  LuStar, 
+  LuSettings,
+  LuBookOpen,
+  LuMenu // 3-bar toggle icon
+} from 'react-icons/lu';
 
-const navItems = [
-  { id: 1, name: 'Home', icon: '🏠' },
-  { id: 2, name: 'Discover', icon: '🔍' },
-  { id: 3, name: 'My Library', icon: '📚' },
-  { id: 4, name: 'Favorites', icon: '❤️' },
+const menuItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: <LuLayoutDashboard /> },
+  { id: 'books', label: 'Books', icon: <LuBook /> },
+  { id: 'categories', label: 'Categories', icon: <LuFolder /> },
+  { id: 'orders', label: 'Orders', icon: <LuShoppingCart /> },
+  { id: 'users', label: 'Users', icon: <LuUsers /> },
+  { id: 'enquiries', label: 'Enquiries', icon: <LuMessageSquare /> },
+  { id: 'coupons', label: 'Coupons', icon: <LuTag /> },
+  { id: 'reviews', label: 'Reviews', icon: <LuStar /> },
+  { id: 'settings', label: 'Settings', icon: <LuSettings /> },
 ];
 
-const categories = [
-  { id: 1, name: 'Fiction', count: 124 },
-  { id: 2, name: 'Non-Fiction', count: 85 },
-  { id: 3, name: 'Sci-Fi & Fantasy', count: 62 },
-  { id: 4, name: 'Biography', count: 41 },
-  { id: 5, name: 'Self-Help', count: 95 },
-  { id: 6, name: 'History', count: 38 },
-];
+const Sidebar = ({ isCollapsedProp, toggleSidebarProp }) => {
+  // Local state to manage collapse/expand internally
+  const [isCollapsed, setIsCollapsed] = useState(isCollapsedProp || false);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-const Sidebar = () => {
+  // Toggle function that handles both internal state and external parent callback if provided
+  const handleToggle = () => {
+    setIsCollapsed((prev) => !prev);
+    if (toggleSidebarProp) {
+      toggleSidebarProp();
+    }
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      {/* Brand Header */}
       <div className="sidebar-brand">
-        <h2>📖 BookHaven</h2>
+        <div className="brand-header-left">
+          <div className="brand-logo">
+            <LuBookOpen />
+          </div>
+          {!isCollapsed && (
+            <div className="brand-info">
+              <h2>Likhani Books</h2>
+              <span>Admin Panel</span>
+            </div>
+          )}
+        </div>
+
+        {/* 3-Bar Toggle Button */}
+        <button 
+          className="toggle-btn" 
+          onClick={handleToggle}
+          aria-label="Toggle Sidebar"
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <LuMenu />
+        </button>
       </div>
 
-      <nav className="sidebar-section">
-        <span className="section-title">MENU</span>
+      {/* Navigation List */}
+      <nav className="sidebar-nav">
         <ul className="nav-list">
-          {navItems.map((item) => (
-            <li key={item.id} className="nav-item">
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-name">{item.name}</span>
+          {menuItems.map((item) => (
+            <li key={item.id}>
+              <button
+                className={`nav-link ${activeTab === item.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(item.id)}
+                title={isCollapsed ? item.label : ''}
+              >
+                <span className="nav-icon">{item.icon}</span>
+                {!isCollapsed && <span className="nav-label">{item.label}</span>}
+              </button>
             </li>
           ))}
         </ul>
       </nav>
 
-      <div className="sidebar-section">
-        <span className="section-title">CATEGORIES</span>
-        <ul className="category-list">
-          {categories.map((cat) => (
-            <li key={cat.id} className="category-item">
-              <span>{cat.name}</span>
-              <span className="category-badge">{cat.count}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Footer Quote */}
+      {!isCollapsed && (
+        <div className="sidebar-footer">
+          <div className="quote-box">
+            <div className="quote-icon">
+              <LuBookOpen />
+            </div>
+            <p className="quote-text">
+              "Books are a uniquely portable magic."
+            </p>
+            <span className="quote-author">— Stephen King</span>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

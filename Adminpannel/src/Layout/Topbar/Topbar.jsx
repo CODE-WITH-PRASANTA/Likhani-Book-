@@ -1,37 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Topbar.css';
+import { LuMenu, LuSearch, LuBell, LuChevronDown } from 'react-icons/lu';
 
-const Topbar = () => {
+const Topbar = ({ onToggleSidebar }) => {
+  const [search, setSearch] = useState('');
+
   return (
     <header className="topbar">
-      {/* Search Bar */}
-      <div className="search-container">
-        <span className="search-icon">🔍</span>
-        <input
-          type="text"
-          placeholder="Search books, authors, ISBN..."
-          className="search-input"
-        />
+      <div className="topbar-left">
+        
+
+        {/* Search Box */}
+        <div className="search-box">
+          <LuSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search books, orders, users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="search-input"
+          />
+        </div>
       </div>
 
-      {/* User Actions */}
-      <div className="topbar-actions">
-        <button className="icon-btn" title="Notifications">
-          🔔<span className="notification-dot"></span>
+      <div className="topbar-right">
+        {/* Notifications */}
+        <button type="button" className="notification-btn" title="Notifications">
+          <LuBell />
+          <span className="badge">5</span>
         </button>
-        <button className="icon-btn" title="Cart">
-          🛒
-        </button>
+
+        {/* User Profile */}
         <div className="user-profile">
           <img
             src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-            alt="User Avatar"
+            alt="Admin"
             className="avatar"
           />
-          <div className="user-info">
-            <span className="user-name">Alex Johnson</span>
-            <span className="user-role">Reader</span>
-          </div>
+          <span className="user-name">Admin</span>
+          <LuChevronDown className="chevron-icon" />
         </div>
       </div>
     </header>
