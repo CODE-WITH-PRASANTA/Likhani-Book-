@@ -1,0 +1,29 @@
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.layout-main {
+  margin-left: 260px; /* Width of Sidebar */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-area {
+  padding: 32px;
+  flex: 1;
+}
+
+.placeholder-content {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
