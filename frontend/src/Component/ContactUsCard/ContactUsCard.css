@@ -1,0 +1,328 @@
+/* Container & Wrapper */
+.ContactUsCard-wrapper {
+  width: 100%;
+  padding: 60px 20px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: #334155;
+}
+
+.ContactUsCard-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+}
+
+/* Grid Layout */
+.ContactUsCard-content-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Left Contact Card */
+.ContactUsCard-info-card {
+  background-color: #055d75;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(5, 93, 117, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.ContactUsCard-info-list {
+  padding: 35px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.ContactUsCard-info-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 24px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.25);
+}
+
+.ContactUsCard-info-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ContactUsCard-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ContactUsCard-icon {
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.ContactUsCard-info-text span {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.ContactUsCard-info-text h4 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+/* Support Image with Play Button Overlay */
+.ContactUsCard-image-container {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+}
+
+.ContactUsCard-support-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.ContactUsCard-image-container:hover .ContactUsCard-support-img {
+  transform: scale(1.06);
+}
+
+.ContactUsCard-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.ContactUsCard-play-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background-color: #055d75;
+}
+
+.ContactUsCard-play-icon {
+  color: #055d75;
+  font-size: 1rem;
+  margin-left: 3px;
+  transition: color 0.3s ease;
+}
+
+.ContactUsCard-play-btn:hover .ContactUsCard-play-icon {
+  color: #ffffff;
+}
+
+/* Right Form Section */
+.ContactUsCard-heading {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0b2545;
+  margin: 0 0 16px 0;
+}
+
+.ContactUsCard-description {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #64748b;
+  margin: 0 0 30px 0;
+}
+
+.ContactUsCard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ContactUsCard-input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ContactUsCard-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ContactUsCard-field-group label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #0b2545;
+}
+
+.ContactUsCard-field-group input,
+.ContactUsCard-field-group textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #334155;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ContactUsCard-field-group input::placeholder,
+.ContactUsCard-field-group textarea::placeholder {
+  color: #94a3b8;
+}
+
+.ContactUsCard-field-group input:focus,
+.ContactUsCard-field-group textarea:focus {
+  border-color: #055d75;
+  box-shadow: 0 0 0 3px rgba(5, 93, 117, 0.1);
+}
+
+.ContactUsCard-submit-btn {
+  align-self: flex-start;
+  background-color: #055d75;
+  color: #ffffff;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.ContactUsCard-submit-btn:hover {
+  background-color: #033f50;
+  transform: translateY(-2px);
+}
+
+.ContactUsCard-arrow-icon {
+  font-size: 0.85rem;
+}
+
+/* Map Section */
+.ContactUsCard-map-container {
+  width: 100%;
+  height: 450px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.ContactUsCard-map-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Modal Popup Styling */
+.ContactUsCard-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.ContactUsCard-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ContactUsCard-modal-close {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  color: #ffffff;
+  font-size: 2.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1010;
+}
+
+.ContactUsCard-video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+}
+
+.ContactUsCard-video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .ContactUsCard-content-grid {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+
+  .ContactUsCard-info-card {
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .ContactUsCard-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ContactUsCard-heading {
+    font-size: 1.8rem;
+  }
+
+  .ContactUsCard-map-container {
+    height: 320px;
+  }
+
+  .ContactUsCard-submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

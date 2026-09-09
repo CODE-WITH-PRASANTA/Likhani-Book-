@@ -1,0 +1,89 @@
+/* Base styles matching the reference image layout */
+.blog-breadcrumb {
+  width: 100%;
+  min-height: 320px;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.blog-breadcrumb-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 2;
+}
+
+.blog-breadcrumb-title {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0d2c44;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
+}
+
+.blog-breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.blog-breadcrumb-link {
+  color: #176b87;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.blog-breadcrumb-link:hover {
+  color: #0d2c44;
+  text-decoration: underline;
+}
+
+.blog-breadcrumb-icon {
+  font-size: 0.75rem;
+  color: #176b87;
+  display: flex;
+  align-items: center;
+}
+
+.blog-breadcrumb-active {
+  color: #176b87;
+}
+
+/* Responsiveness for tablet and mobile screens */
+@media (max-width: 768px) {
+  .blog-breadcrumb {
+    min-height: 250px;
+    padding: 30px 15px;
+  }
+
+  .blog-breadcrumb-title {
+    font-size: 2rem;
+  }
+
+  .blog-breadcrumb-nav {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-breadcrumb {
+    min-height: 200px;
+  }
+
+  .blog-breadcrumb-title {
+    font-size: 1.6rem;
+  }
+}
