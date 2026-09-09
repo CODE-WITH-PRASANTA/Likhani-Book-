@@ -1,0 +1,504 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* मुख्य आउटर रैपर */
+.stock-available-wrapper {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 50px 24px;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #212b36;
+  background-color: #ffffff;
+}
+
+/* मुख्य 2-कॉलम लेआउट */
+.product-details-container {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+/* ====================================================
+   बायाँ भाग: इमेज गैलरी (Main Image & Thumbnails)
+==================================================== */
+.product-gallery-section {
+  flex: 0 0 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.main-image-card {
+  width: 100%;
+  height: 480px;
+  background-color: #f7f9fa;
+  border: 1px solid #eef1f4;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.featured-book-img {
+  max-width: 85%;
+  max-height: 90%;
+  object-fit: contain;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  transition: transform 0.4s ease;
+}
+
+.featured-book-img:hover {
+  transform: scale(1.03);
+}
+
+/* थंबनेल्स पंक्ति */
+.thumbnails-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.thumb-btn {
+  flex: 1;
+  height: 80px;
+  background: #f7f9fa;
+  border: 1px solid #d4dde5;
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.thumb-btn img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.thumb-btn:hover {
+  border-color: #0284a5;
+}
+
+.thumb-btn.active-thumb {
+  border: 1.5px solid #0284a5;
+  box-shadow: 0 2px 8px rgba(2, 132, 165, 0.2);
+}
+
+/* ====================================================
+   दायाँ भाग: प्रोडक्ट विवरण (Info Section)
+==================================================== */
+.product-info-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* हेडर और उपलब्धता */
+.title-availability-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.product-main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #082946;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.stock-status-badge {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #38b000; /* संदर्भ चित्र अनुसार सटीक ग्रीन */
+}
+
+/* स्टार रेटिंग */
+.rating-review-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.stars-group {
+  display: flex;
+  gap: 3px;
+}
+
+.star-icon {
+  font-size: 15px;
+}
+
+.star-icon.filled {
+  color: #ff5700; /* ऑरेंज स्टार्स */
+}
+
+.star-icon.empty {
+  color: #d1d5db;
+}
+
+.customer-review-count {
+  font-size: 0.88rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* विवरण */
+.product-description-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #556270;
+  margin: 0 0 22px 0;
+}
+
+/* भारतीय रुपये में मूल्य */
+.product-price-row {
+  margin-bottom: 24px;
+}
+
+.current-inr-price {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ff5700;
+}
+
+/* ====================================================
+   एक्शन कंट्रोल्स (+ / - काउंटर, बटन, विशलिस्ट)
+==================================================== */
+.product-actions-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+/* मात्रा काउंटर */
+.quantity-counter-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 125px;
+  height: 46px;
+  background-color: #ffffff;
+  border: 1px solid #d4dde5;
+  border-radius: 50px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+.qty-btn {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #4a5568;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background-color: #f0f4f8;
+  color: #082946;
+}
+
+.qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.qty-number {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #082946;
+}
+
+/* Read A Little बटन */
+.read-little-btn {
+  height: 46px;
+  padding: 0 24px;
+  background-color: #ffffff;
+  border: 1.5px solid #025974;
+  color: #025974;
+  border-radius: 50px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.read-little-btn:hover {
+  background-color: #f0f8fa;
+}
+
+/* Add To Cart बटन (लेफ्ट-टू-राइट ऑरेंज होवर) */
+.add-cart-btn {
+  position: relative;
+  height: 46px;
+  padding: 0 28px;
+  background-color: #025974;
+  border: none;
+  outline: none;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(2, 89, 116, 0.2);
+  z-index: 1;
+}
+
+.add-cart-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background-color: #ff5700;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.add-cart-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.btn-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.basket-icon {
+  font-size: 15px;
+}
+
+/* विशलिस्ट और एक्सपैंड सर्कल बटन्स */
+.action-circle-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid #d4dde5;
+  background-color: #ffffff;
+  color: #025974;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.action-circle-btn:hover {
+  border-color: #ff5700;
+  color: #ff5700;
+}
+
+.action-circle-btn.liked {
+  border-color: #ff5700;
+}
+
+/* ====================================================
+   प्रोडक्ट मेटाडेटा ग्रिड बॉक्स (SKU, Tags, etc.)
+==================================================== */
+.product-meta-specs-box {
+  background-color: #f7f9fa;
+  border: 1px solid #eef1f4;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meta-item {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.meta-label {
+  font-weight: 800;
+  color: #082946;
+  margin-right: 6px;
+}
+
+.meta-val {
+  color: #556270;
+  font-weight: 500;
+}
+
+/* ====================================================
+   फीचर्स हाइलाइट बॉक्स (Image 2)
+==================================================== */
+.features-highlight-box {
+  background-color: #f7f9fa;
+  border: 1px solid #eef1f4;
+  border-radius: 12px;
+  padding: 22px 28px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 16px;
+  column-gap: 30px;
+  margin-bottom: 30px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #212b36;
+}
+
+.check-icon {
+  color: #0284a5;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ====================================================
+   'Also Available On' ब्रांड्स लिस्ट
+==================================================== */
+.available-on-container {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.available-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #082946;
+}
+
+.brand-logos-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.brand-logo-item {
+  display: flex;
+  align-items: center;
+}
+
+.amazon-logo {
+  height: 22px;
+  object-fit: contain;
+}
+
+.dropbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1b2559;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* अलर्ट नोटिफिकेशन */
+.cart-popup-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background-color: #082946;
+  color: #ffffff;
+  padding: 14px 24px;
+  border-left: 4px solid #ff5700;
+  border-radius: 6px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  font-size: 0.95rem;
+  font-weight: 600;
+  animation: slideToast 0.3s ease;
+}
+
+@keyframes slideToast {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====================================================
+   रिस्पॉन्सिव मीडिया क्वेरीज (Mobile & Tablet)
+==================================================== */
+@media (max-width: 1024px) {
+  .product-details-container {
+    flex-direction: column;
+  }
+  .product-gallery-section {
+    width: 100%;
+    flex: none;
+  }
+  .main-image-card {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-meta-specs-box {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .features-highlight-box {
+    grid-template-columns: 1fr;
+  }
+  .product-main-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .stock-available-wrapper {
+    padding: 30px 15px;
+  }
+  .product-actions-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .quantity-counter-box {
+    width: 100%;
+  }
+  .read-little-btn,
+  .add-cart-btn {
+    width: 100%;
+  }
+  .product-meta-specs-box {
+    grid-template-columns: 1fr;
+  }
+  .available-on-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+}
