@@ -1,0 +1,262 @@
+.thebookel-section {
+  width: 100%;
+  background-color: #ffffff;
+  padding: 80px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.thebookel-container {
+  width: 100%;
+  max-width: 2000px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+}
+
+/* --- Left Column: Media --- */
+.thebookel-media-col {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.thebookel-image-card {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.thebookel-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* --- Video Play Button with Pulse & Hover Animation --- */
+.thebookel-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 74px;
+  height: 74px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 2;
+}
+
+.thebookel-play-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  animation: thebookel-pulse 2s infinite ease-out;
+  z-index: 1;
+}
+
+.thebookel-play-circle {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+.thebookel-play-icon {
+  font-size: 18px;
+  color: #0d2c44;
+  margin-left: 3px;
+  transition: color 0.35s ease, transform 0.35s ease;
+}
+
+.thebookel-play-btn:hover .thebookel-play-circle {
+  background-color: #0d2c44;
+  transform: scale(1.1);
+  box-shadow: 0 12px 30px rgba(13, 44, 68, 0.35);
+}
+
+.thebookel-play-btn:hover .thebookel-play-icon {
+  color: #ffffff;
+  transform: scale(1.15);
+}
+
+@keyframes thebookel-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* --- Right Column: Content --- */
+.thebookel-text-col {
+  flex: 1;
+}
+
+.thebookel-title {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #0d2c44;
+  line-height: 1.25;
+  margin: 0 0 20px 0;
+  letter-spacing: -0.5px;
+}
+
+.thebookel-description {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #556270;
+  margin: 0 0 16px 0;
+}
+
+.thebookel-link-wrap {
+  margin-top: 24px;
+}
+
+.thebookel-overview-link {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e65c00;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.25s ease;
+}
+
+.thebookel-arrow {
+  display: inline-block;
+  font-size: 1.1rem;
+  transition: transform 0.25s ease;
+}
+
+.thebookel-overview-link:hover {
+  color: #0d2c44;
+}
+
+.thebookel-overview-link:hover .thebookel-arrow {
+  transform: translate(3px, -3px);
+}
+
+/* --- Video Modal Popup --- */
+.thebookel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 20, 30, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.thebookel-modal-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  background-color: #000000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.thebookel-modal-close {
+  position: absolute;
+  top: -42px;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.thebookel-modal-close:hover {
+  color: #e65c00;
+}
+
+.thebookel-video-embed {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+}
+
+.thebookel-video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* --- Responsive Breakpoints --- */
+@media (max-width: 992px) {
+  .thebookel-container {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .thebookel-media-col,
+  .thebookel-text-col {
+    width: 100%;
+  }
+
+  .thebookel-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .thebookel-section {
+    padding: 50px 16px;
+  }
+
+  .thebookel-title {
+    font-size: 1.65rem;
+  }
+
+  .thebookel-play-btn {
+    width: 60px;
+    height: 60px;
+  }
+
+  .thebookel-play-circle {
+    width: 54px;
+    height: 54px;
+  }
+
+  .thebookel-play-icon {
+    font-size: 15px;
+  }
+}
