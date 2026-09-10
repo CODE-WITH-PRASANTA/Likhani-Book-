@@ -2,10 +2,8 @@ import React, { useState, useMemo, useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import {
   FiSearch,
-  FiFilter,
   FiList,
   FiGrid,
-  FiEye,
   FiEdit,
   FiTrash2,
   FiUploadCloud,
@@ -13,7 +11,6 @@ import {
   FiChevronRight,
   FiUser,
   FiMessageSquare,
-  FiMoreVertical,
   FiRotateCcw,
   FiCheckCircle
 } from 'react-icons/fi';
@@ -145,8 +142,8 @@ const BlogPosting = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [activeTab, setActiveTab] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedBlog, setSelectedBlog] = useState(null);
   const [editingId, setEditingId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -294,7 +291,16 @@ const BlogPosting = () => {
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
       setBlogs((prev) => prev.filter((item) => item.id !== id));
+      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
       if (editingId === id) handleReset();
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected blog post(s)?`)) {
+      setBlogs((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
+      if (selectedIds.includes(editingId)) handleReset();
+      setSelectedIds([]);
     }
   };
 
@@ -322,6 +328,26 @@ const BlogPosting = () => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredBlogs.slice(start, start + itemsPerPage);
   }, [filteredBlogs, currentPage]);
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      const currentIds = paginatedBlogs.map((blog) => blog.id);
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...currentIds])));
+    } else {
+      const currentIds = paginatedBlogs.map((blog) => blog.id);
+      setSelectedIds((prev) => prev.filter((id) => !currentIds.includes(id)));
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const isAllPageSelected =
+    paginatedBlogs.length > 0 &&
+    paginatedBlogs.every((blog) => selectedIds.includes(blog.id));
 
   const counts = useMemo(() => {
     return {
@@ -354,7 +380,7 @@ const BlogPosting = () => {
       {/* Page Header */}
       <div className="BlogPosting-header">
         <div>
-          <h1 className="BlogPosting-title">Blog Management</h1>
+          <h1 className="BlogPosting-title">Blog Posting</h1>
           <p className="BlogPosting-subtitle">Manage, add, edit or delete your blog posts</p>
         </div>
       </div>
@@ -589,6 +615,15 @@ const BlogPosting = () => {
             </div>
 
             <div className="BlogPosting-actionsGroup">
+              {selectedIds.length > 0 && (
+                <button
+                  className="BlogPosting-btnBulkDelete"
+                  onClick={handleBulkDelete}
+                >
+                  <FiTrash2 /> Delete Selected ({selectedIds.length})
+                </button>
+              )}
+
               <div className="BlogPosting-searchBox">
                 <FiSearch className="BlogPosting-searchIcon" />
                 <input
@@ -663,13 +698,6 @@ const BlogPosting = () => {
                         </span>
                         <div className="BlogPosting-cardActions">
                           <button
-                            className="BlogPosting-iconBtn view"
-                            onClick={() => setSelectedBlog(blog)}
-                            title="View"
-                          >
-                            <FiEye />
-                          </button>
-                          <button
                             className="BlogPosting-iconBtn edit"
                             onClick={() => handleEdit(blog)}
                             title="Edit"
@@ -682,9 +710,6 @@ const BlogPosting = () => {
                             title="Delete"
                           >
                             <FiTrash2 />
-                          </button>
-                          <button className="BlogPosting-iconBtn more" title="More">
-                            <FiMoreVertical />
                           </button>
                         </div>
                       </div>
@@ -701,7 +726,13 @@ const BlogPosting = () => {
               <table className="BlogPosting-table">
                 <thead>
                   <tr>
-                    <th><input type="checkbox" /></th>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={isAllPageSelected}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
                     <th>#</th>
                     <th>Thumbnail</th>
                     <th>Title</th>
@@ -717,7 +748,13 @@ const BlogPosting = () => {
                   {paginatedBlogs.length > 0 ? (
                     paginatedBlogs.map((blog, idx) => (
                       <tr key={blog.id}>
-                        <td><input type="checkbox" /></td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(blog.id)}
+                            onChange={() => handleSelectOne(blog.id)}
+                          />
+                        </td>
                         <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                         <td>
                           <img
@@ -743,13 +780,6 @@ const BlogPosting = () => {
                         <td>
                           <div className="BlogPosting-cardActions">
                             <button
-                              className="BlogPosting-iconBtn view"
-                              onClick={() => setSelectedBlog(blog)}
-                              title="View"
-                            >
-                              <FiEye />
-                            </button>
-                            <button
                               className="BlogPosting-iconBtn edit"
                               onClick={() => handleEdit(blog)}
                               title="Edit"
@@ -762,9 +792,6 @@ const BlogPosting = () => {
                               title="Delete"
                             >
                               <FiTrash2 />
-                            </button>
-                            <button className="BlogPosting-iconBtn more" title="More">
-                              <FiMoreVertical />
                             </button>
                           </div>
                         </td>
@@ -817,42 +844,6 @@ const BlogPosting = () => {
           </div>
         </div>
       </div>
-
-      {/* Detail Modal */}
-      {selectedBlog && (
-        <div className="BlogPosting-modalOverlay" onClick={() => setSelectedBlog(null)}>
-          <div className="BlogPosting-modalContent" onClick={(e) => e.stopPropagation()}>
-            <div className="BlogPosting-modalHeader">
-              <h2>{selectedBlog.title}</h2>
-              <button
-                className="BlogPosting-modalClose"
-                onClick={() => setSelectedBlog(null)}
-              >
-                &times;
-              </button>
-            </div>
-            <div className="BlogPosting-modalBody">
-              <img
-                src={selectedBlog.image}
-                alt={selectedBlog.title}
-                className="BlogPosting-modalImage"
-              />
-              <p><strong>Category:</strong> {selectedBlog.category}</p>
-              <p><strong>Author:</strong> {selectedBlog.author}</p>
-              <p><strong>Date:</strong> {selectedBlog.date}</p>
-              <p><strong>Status:</strong> {selectedBlog.status}</p>
-              <p><strong>Short Description:</strong> {selectedBlog.shortDescription}</p>
-              <div>
-                <strong>Description:</strong>
-                <div
-                  dangerouslySetInnerHTML={{ __html: selectedBlog.description }}
-                  className="BlogPosting-modalText"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
