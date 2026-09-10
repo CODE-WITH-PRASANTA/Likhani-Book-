@@ -417,7 +417,7 @@ const BlogPosting = () => {
               <label>Description <span>*</span></label>
               <div className="BlogPosting-editorWrapper">
                 <Editor
-                  apiKey="no-api-key"
+                  apiKey="jeq7g2k84sqpi9364o8x9ptqf09aoesaq8jxmp49dl4sh57z"
                   value={formData.description}
                   onEditorChange={handleEditorChange}
                   init={{

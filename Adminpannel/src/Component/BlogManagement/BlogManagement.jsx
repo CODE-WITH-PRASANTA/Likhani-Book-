@@ -1,630 +1,544 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import {
-  FiSearch,
-  FiFilter,
-  FiList,
-  FiGrid,
-  FiEye,
-  FiEdit,
-  FiTrash2,
-  FiUploadCloud,
-  FiChevronLeft,
-  FiChevronRight
-} from 'react-icons/fi';
+  FaSearch,
+  FaFilter,
+  FaList,
+  FaThLarge,
+  FaEye,
+  FaPencilAlt,
+  FaTrashAlt,
+  FaImage,
+  FaChevronLeft,
+  FaChevronRight,
+  FaTimes
+} from 'react-icons/fa';
 import './BlogManagement.css';
 
 const INITIAL_BLOGS = [
   {
     id: 1,
-    image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=150',
+    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=150&q=80',
     title: 'Eu Parturient Dictumst Frames Quam Temper',
+    slug: 'eu-parturient-dictumst-frames-quam-temper',
     category: 'Education',
     date: 'Mar 30, 2024',
     status: 'Published',
-    slug: 'eu-parturient-dictumst',
-    shortDescription: 'A detailed article on modern educational frameworks and learning strategies.',
-    content: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>',
-    tags: ['Education', 'Learning']
+    shortDescription: 'Comprehensive look at modern framing and learning methods.',
+    description: '<p>Eu Parturient Dictumst Frames Quam Temper content goes here...</p>',
+    tags: ['Learning', 'Study']
   },
   {
     id: 2,
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=150',
+    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=150&q=80',
     title: 'The Importance of Early Learning for Kids',
+    slug: 'the-importance-of-early-learning-for-kids',
     category: 'Education',
     date: 'Mar 28, 2024',
     status: 'Published',
-    slug: 'importance-early-learning',
-    shortDescription: 'Exploring foundational cognitive development methods in early childhood.',
-    content: '<p>Early childhood learning lays the groundwork for lifelong success...</p>',
-    tags: ['Education', 'Kids']
+    shortDescription: 'Why early child development plays a critical role in lifelong learning.',
+    description: '<p>The Importance of Early Learning for Kids content goes here...</p>',
+    tags: ['Kids', 'Education']
   },
   {
     id: 3,
-    image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=150',
+    image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=150&q=80',
     title: 'How Play Builds Stronger Minds',
+    slug: 'how-play-builds-stronger-minds',
     category: 'Education',
     date: 'Mar 25, 2024',
     status: 'Draft',
-    slug: 'how-play-builds-stronger-minds',
-    shortDescription: 'Understanding the biological impact of recreational learning on mind growth.',
-    content: '<p>Play stimulates brain development and creative problem solving...</p>',
-    tags: ['Mind', 'Kids']
+    shortDescription: 'Exploring the cognitive benefits of play-based activities.',
+    description: '<p>How Play Builds Stronger Minds content goes here...</p>',
+    tags: ['Mind', 'Play']
   },
   {
     id: 4,
-    image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=150',
+    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=150&q=80',
     title: 'Top 10 Adventure Destinations in 2024',
+    slug: 'top-10-adventure-destinations-in-2024',
     category: 'Adventure',
     date: 'Mar 20, 2024',
     status: 'Published',
-    slug: 'top-10-adventure-destinations-2024',
-    shortDescription: 'Discover scenic mountains, hiking trails, and thrilling spots worldwide.',
-    content: '<p>Adventure awaits across these breathtaking locations...</p>',
+    shortDescription: 'Unveiling the best spots for thrilling outdoor pursuits worldwide.',
+    description: '<p>Top 10 Adventure Destinations in 2024 content goes here...</p>',
     tags: ['Travel', 'Adventure']
   },
   {
     id: 5,
-    image: 'https://images.unsplash.com/photo-1518173946687-a4c8a383392e?w=150',
+    image: 'https://images.unsplash.com/photo-1518173946687-a4c8a383392e?auto=format&fit=crop&w=150&q=80',
     title: 'Romantic Getaways for Couples',
+    slug: 'romantic-getaways-for-couples',
     category: 'Romance',
     date: 'Mar 18, 2024',
     status: 'Published',
-    slug: 'romantic-getaways-for-couples',
-    shortDescription: 'Plan your ultimate romantic escape with these carefully curated destinations.',
-    content: '<p>Plan your couple trip with our luxury list...</p>',
-    tags: ['Romance', 'Travel']
+    shortDescription: 'Escape to tranquil resorts and memorable intimate destinations.',
+    description: '<p>Romantic Getaways for Couples content goes here...</p>',
+    tags: ['Couples', 'Travel']
   },
   {
     id: 6,
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=150',
+    image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=150&q=80',
     title: 'Best Modern Fiction Books to Read',
+    slug: 'best-modern-fiction-books-to-read',
     category: 'Modern Fiction',
     date: 'Mar 15, 2024',
     status: 'Published',
-    slug: 'best-modern-fiction-books',
-    shortDescription: 'A roundup of top contemporary fiction novels grabbing readers’ attention.',
-    content: '<p>Dive into contemporary literary masterpieces...</p>',
+    shortDescription: 'A curated list of contemporary masterpieces that inspire.',
+    description: '<p>Best Modern Fiction Books to Read content goes here...</p>',
     tags: ['Books', 'Fiction']
   },
   {
     id: 7,
-    image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=150',
+    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=150&q=80',
     title: 'Building a Reading Habit in Daily Life',
+    slug: 'building-a-reading-habit-in-daily-life',
     category: 'Contemporary',
     date: 'Mar 12, 2024',
     status: 'Draft',
-    slug: 'building-a-reading-habit',
-    shortDescription: 'Practical routines to help you consume more books consistently every day.',
-    content: '<p>Set realistic goals and build effective daily habits...</p>',
-    tags: ['Habits', 'Books']
+    shortDescription: 'Simple strategies to integrate 30 minutes of reading daily.',
+    description: '<p>Building a Reading Habit in Daily Life content goes here...</p>',
+    tags: ['Reading', 'Habits']
   },
   {
     id: 8,
-    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=150',
+    image: 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=150&q=80',
     title: 'Travel Tips for First Time Travelers',
+    slug: 'travel-tips-for-first-time-travelers',
     category: 'Adventure',
     date: 'Mar 10, 2024',
     status: 'Published',
-    slug: 'travel-tips-first-time-travelers',
-    shortDescription: 'Key advice on packing, navigation, safety, and budget management abroad.',
-    content: '<p>Everything you need to know before stepping on that plane...</p>',
+    shortDescription: 'Essential packing, safety, and itinerary guidance for novices.',
+    description: '<p>Travel Tips for First Time Travelers content goes here...</p>',
     tags: ['Travel', 'Tips']
   }
 ];
 
-const CATEGORIES = ['Education', 'Adventure', 'Romance', 'Modern Fiction', 'Contemporary', 'Lifestyle', 'Technology'];
-const ALL_TAGS = ['Education', 'Learning', 'Kids', 'Mind', 'Travel', 'Adventure', 'Romance', 'Books', 'Fiction', 'Habits', 'Tips', 'Tech'];
+const CATEGORY_OPTIONS = ['Education', 'Adventure', 'Romance', 'Modern Fiction', 'Contemporary'];
+const TAG_OPTIONS = ['Learning', 'Study', 'Kids', 'Mind', 'Play', 'Travel', 'Adventure', 'Books', 'Reading', 'Tips'];
 
 const BlogManagement = () => {
-  // State
+  // Data States
   const [blogs, setBlogs] = useState(INITIAL_BLOGS);
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState('All');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedBlog, setSelectedBlog] = useState(null); // Modal view
+  const [selectedIds, setSelectedIds] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  // Form State
-  const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    shortDescription: '',
-    description: '',
-    featuredImage: null,
-    imagePreview: '',
-    category: '',
-    tags: [],
-    status: 'Published'
-  });
+  // Form States
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [shortDescription, setShortDescription] = useState('');
+  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [status, setStatus] = useState('Published');
+  const [imagePreview, setImagePreview] = useState(null);
 
-  const fileInputRef = useRef(null);
+  // View & Filter States
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // Form Handlers
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // View Modal State
+  const [viewingBlog, setViewingBlog] = useState(null);
 
+  // File Input Ref
+  const fileInputRef = useRef(null);
+
+  // Helper: Slug Generator
   const handleGenerateSlug = () => {
-    if (!formData.title) return;
-    const generated = formData.title
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    setFormData((prev) => ({ ...prev, slug: generated }));
-  };
-
-  const handleEditorChange = (content) => {
-    setFormData((prev) => ({ ...prev, description: content }));
-  };
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert('File size exceeds 2MB max limit.');
-        return;
-      }
-      const previewUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({
-        ...prev,
-        featuredImage: file,
-        imagePreview: previewUrl
-      }));
+    if (title) {
+      const generated = title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      setSlug(generated);
     }
   };
 
-  const handleTagToggle = (tag) => {
-    setFormData((prev) => {
-      const exists = prev.tags.includes(tag);
-      return {
-        ...prev,
-        tags: exists ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag]
-      };
-    });
+  // Tag Handling
+  const handleTagSelect = (e) => {
+    const val = e.target.value;
+    if (val && !selectedTags.includes(val)) {
+      setSelectedTags([...selectedTags, val]);
+    }
   };
 
-  const handleReset = () => {
-    setFormData({
-      title: '',
-      slug: '',
-      shortDescription: '',
-      description: '',
-      featuredImage: null,
-      imagePreview: '',
-      category: '',
-      tags: [],
-      status: 'Published'
-    });
+  const handleRemoveTag = (tagToRemove) => {
+    setSelectedTags(selectedTags.filter((t) => t !== tagToRemove));
+  };
+
+  // Image Upload Handling
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Reset Form
+  const handleResetForm = () => {
+    setTitle('');
+    setSlug('');
+    setShortDescription('');
+    setDescription('');
+    setCategory('');
+    setSelectedTags([]);
+    setStatus('Published');
+    setImagePreview(null);
     setEditingId(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // Create or Update Blog
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.category) {
-      alert('Please fill out all required fields.');
-      return;
-    }
+    if (!title.trim()) return alert('Title is required');
+
+    const blogData = {
+      id: editingId || Date.now(),
+      title,
+      slug: slug || title.toLowerCase().replace(/\s+/g, '-'),
+      category: category || 'Education',
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+      status,
+      shortDescription,
+      description,
+      tags: selectedTags,
+      image: imagePreview || 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=150&q=80'
+    };
 
     if (editingId) {
-      // Update existing
-      setBlogs((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-                ...item,
-                title: formData.title,
-                slug: formData.slug || item.slug,
-                shortDescription: formData.shortDescription,
-                content: formData.description,
-                category: formData.category,
-                tags: formData.tags,
-                status: formData.status,
-                image: formData.imagePreview || item.image
-              }
-            : item
-        )
-      );
+      setBlogs(blogs.map((b) => (b.id === editingId ? blogData : b)));
     } else {
-      // Create new
-      const newPost = {
-        id: Date.now(),
-        image: formData.imagePreview || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=150',
-        title: formData.title,
-        category: formData.category,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        status: formData.status,
-        slug: formData.slug || 'untitled-slug',
-        shortDescription: formData.shortDescription,
-        content: formData.description,
-        tags: formData.tags
-      };
-      setBlogs((prev) => [newPost, ...prev]);
+      setBlogs([blogData, ...blogs]);
     }
 
-    handleReset();
+    handleResetForm();
   };
 
-  // Actions
+  // Action: Edit
   const handleEdit = (blog) => {
     setEditingId(blog.id);
-    setFormData({
-      title: blog.title,
-      slug: blog.slug,
-      shortDescription: blog.shortDescription || '',
-      description: blog.content || '',
-      featuredImage: null,
-      imagePreview: blog.image,
-      category: blog.category,
-      tags: blog.tags || [],
-      status: blog.status
-    });
+    setTitle(blog.title);
+    setSlug(blog.slug);
+    setShortDescription(blog.shortDescription || '');
+    setDescription(blog.description || '');
+    setCategory(blog.category);
+    setSelectedTags(blog.tags || []);
+    setStatus(blog.status);
+    setImagePreview(blog.image);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Action: Delete
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this blog post?')) {
-      setBlogs((prev) => prev.filter((item) => item.id !== id));
-      if (editingId === id) handleReset();
+    if (window.confirm('Are you sure you want to delete this post?')) {
+      setBlogs(blogs.filter((b) => b.id !== id));
+      setSelectedIds(selectedIds.filter((item) => item !== id));
     }
   };
 
-  // Search & Filter Logic
-  const filteredBlogs = useMemo(() => {
-    return blogs.filter((blog) => {
-      const matchesSearch =
-        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        blog.category.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = filterCategory === 'All' || blog.category === filterCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [blogs, searchQuery, filterCategory]);
+  // Checkbox Selection
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(paginatedBlogs.map((b) => b.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((i) => i !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  // Filtering Data
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          blog.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCat = filterCategory ? blog.category === filterCategory : true;
+    const matchesStatus = filterStatus ? blog.status === filterStatus : true;
+    return matchesSearch && matchesCat && matchesStatus;
+  });
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredBlogs.length / itemsPerPage) || 1;
-  const paginatedBlogs = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredBlogs.slice(start, start + itemsPerPage);
-  }, [filteredBlogs, currentPage]);
-
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  // Category Badge Styles
-  const getCategoryClass = (category) => {
-    switch (category) {
-      case 'Education':
-        return 'badge-blue';
-      case 'Adventure':
-        return 'badge-green';
-      case 'Romance':
-        return 'badge-pink';
-      case 'Modern Fiction':
-        return 'badge-purple';
-      case 'Contemporary':
-        return 'badge-orange';
-      default:
-        return 'badge-gray';
-    }
-  };
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedBlogs = filteredBlogs.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="BlogManagement">
-      {/* Header Breadcrumb */}
+      {/* Header */}
       <div className="BlogManagement-header">
-        <h1 className="BlogManagement-title">Blog Management</h1>
-        <p className="BlogManagement-breadcrumb">Dashboard &gt; Blog Management</p>
+        <h1>Blog Management</h1>
+        <p className="BlogManagement-breadcrumb">
+          Dashboard <span>&gt;</span> Blog Management
+        </p>
       </div>
 
-      {/* Main Grid Content */}
       <div className="BlogManagement-container">
-        {/* Left Form Column */}
+        {/* Left Column: Form */}
         <div className="BlogManagement-formCard">
-          <h2 className="BlogManagement-cardTitle">
-            {editingId ? 'Edit Blog Post' : 'Add / Edit Blog Post'}
-          </h2>
+          <h2>{editingId ? 'Edit Blog Post' : 'Add / Edit Blog Post'}</h2>
 
-          <form onSubmit={handleSubmit} className="BlogManagement-form">
-            {/* Title */}
-            <div className="BlogManagement-field">
-              <label>
-                Title <span>*</span>
-              </label>
+          <form onSubmit={handleSubmit}>
+            <div className="BlogManagement-formGroup">
+              <label>Title <span>*</span></label>
               <input
                 type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
                 placeholder="Enter blog title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 required
               />
             </div>
 
-            {/* Slug */}
-            <div className="BlogManagement-field">
-              <label>
-                Slug <span>*</span>
-              </label>
+            <div className="BlogManagement-formGroup">
+              <label>Slug <span>*</span></label>
               <div className="BlogManagement-slugInputGroup">
                 <input
                   type="text"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleInputChange}
                   placeholder="enter-blog-slug"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
                   required
                 />
-                <button
-                  type="button"
-                  className="BlogManagement-btnGenerate"
-                  onClick={handleGenerateSlug}
-                >
+                <button type="button" className="BlogManagement-generateBtn" onClick={handleGenerateSlug}>
                   Generate
                 </button>
               </div>
             </div>
 
-            {/* Short Description (Replaced Excerpt) */}
-            <div className="BlogManagement-field">
-              <label>
-                Short Description <span>*</span>
-              </label>
+            <div className="BlogManagement-formGroup">
+              <label>Short Description <span>*</span></label>
               <textarea
-                name="shortDescription"
-                rows="3"
-                value={formData.shortDescription}
-                onChange={handleInputChange}
                 placeholder="Write a short description..."
+                value={shortDescription}
+                onChange={(e) => setShortDescription(e.target.value)}
+                rows={3}
                 required
               />
             </div>
 
-            {/* Description / TinyMCE Editor (Replaced Content) */}
-            <div className="BlogManagement-field">
-              <label>
-                Description <span>*</span>
-              </label>
-              <div className="BlogManagement-editorWrapper">
-                <Editor
-                  apiKey="no-api-key" // Replace with your TinyMCE API key if available
-                  value={formData.description}
-                  onEditorChange={handleEditorChange}
-                  init={{
-                    height: 220,
-                    menubar: false,
-                    plugins: [
-                      'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                      'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                      'insertdatetime', 'media', 'table', 'preview', 'help', 'wordcount'
-                    ],
-                    toolbar:
-                      'undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat',
-                    content_style: 'body { font-family:Inter,sans-serif; font-size:14px }'
-                  }}
-                />
-              </div>
+            <div className="BlogManagement-formGroup">
+              <label>Description <span>*</span></label>
+              <Editor
+                apiKey="jeq7g2k84sqpi9364o8x9ptqf09aoesaq8jxmp49dl4sh57z"
+                value={description}
+                init={{
+                  height: 200,
+                  menubar: false,
+                  plugins: ['advlist autolink lists link image charmap print preview anchor', 'searchreplace visualblocks code fullscreen'],
+                  toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image'
+                }}
+                onEditorChange={(content) => setDescription(content)}
+              />
             </div>
 
-            {/* Featured Image */}
-            <div className="BlogManagement-field">
-              <label>
-                Featured Image <span>*</span>
-              </label>
+            <div className="BlogManagement-formGroup">
+              <label>Featured Image <span>*</span></label>
               <div
-                className="BlogManagement-dropzone"
+                className="BlogManagement-uploadBox"
                 onClick={() => fileInputRef.current.click()}
               >
                 <input
                   type="file"
                   ref={fileInputRef}
-                  onChange={handleImageUpload}
+                  style={{ display: 'none' }}
                   accept="image/*"
-                  hidden
+                  onChange={handleImageChange}
                 />
-                {formData.imagePreview ? (
-                  <div className="BlogManagement-imagePreviewContainer">
-                    <img
-                      src={formData.imagePreview}
-                      alt="Preview"
-                      className="BlogManagement-imagePreview"
-                    />
-                    <p className="BlogManagement-uploadSubtext">Click to change image</p>
-                  </div>
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Preview" className="BlogManagement-previewImage" />
                 ) : (
                   <>
-                    <FiUploadCloud className="BlogManagement-uploadIcon" />
+                    <FaImage className="BlogManagement-uploadIcon" />
                     <p className="BlogManagement-uploadText">
                       <strong>Click to upload image</strong> or drag and drop
                     </p>
-                    <p className="BlogManagement-uploadSubtext">JPG, PNG, WebP (Max 2MB)</p>
+                    <p className="BlogManagement-uploadHint">JPG, PNG, WebP (Max 2MB)</p>
                   </>
                 )}
               </div>
             </div>
 
-            {/* Category & Tags Row */}
-            <div className="BlogManagement-row">
-              <div className="BlogManagement-field">
-                <label>
-                  Category <span>*</span>
-                </label>
-                <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="" disabled>
-                    Select category
-                  </option>
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
+            <div className="BlogManagement-formRow">
+              <div className="BlogManagement-formGroup">
+                <label>Category <span>*</span></label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)} required>
+                  <option value="">Select category</option>
+                  {CATEGORY_OPTIONS.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
               </div>
 
-              <div className="BlogManagement-field">
+              <div className="BlogManagement-formGroup">
                 <label>Tags</label>
-                <div className="BlogManagement-tagSelector">
-                  <div className="BlogManagement-tagList">
-                    {ALL_TAGS.map((tag) => {
-                      const isSelected = formData.tags.includes(tag);
-                      return (
-                        <span
-                          key={tag}
-                          className={`BlogManagement-tagChip ${isSelected ? 'active' : ''}`}
-                          onClick={() => handleTagToggle(tag)}
-                        >
-                          {tag}
-                        </span>
-                      );
-                    })}
-                  </div>
+                <select value="" onChange={handleTagSelect}>
+                  <option value="">Select or type tags</option>
+                  {TAG_OPTIONS.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+                <div className="BlogManagement-tagsList">
+                  {selectedTags.map((t) => (
+                    <span key={t} className="BlogManagement-tagChip">
+                      {t}
+                      <FaTimes onClick={() => handleRemoveTag(t)} />
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Status Radio Buttons */}
-            <div className="BlogManagement-field">
-              <label>
-                Status <span>*</span>
-              </label>
+            <div className="BlogManagement-formGroup">
+              <label>Status <span>*</span></label>
               <div className="BlogManagement-radioGroup">
-                <label className="BlogManagement-radioLabel">
+                <label>
                   <input
                     type="radio"
                     name="status"
                     value="Published"
-                    checked={formData.status === 'Published'}
-                    onChange={handleInputChange}
+                    checked={status === 'Published'}
+                    onChange={(e) => setStatus(e.target.value)}
                   />
-                  <span>Published</span>
+                  Published
                 </label>
-                <label className="BlogManagement-radioLabel">
+                <label>
                   <input
                     type="radio"
                     name="status"
                     value="Draft"
-                    checked={formData.status === 'Draft'}
-                    onChange={handleInputChange}
+                    checked={status === 'Draft'}
+                    onChange={(e) => setStatus(e.target.value)}
                   />
-                  <span>Draft</span>
+                  Draft
                 </label>
               </div>
             </div>
 
-            {/* Form Action Buttons */}
             <div className="BlogManagement-formActions">
-              <button
-                type="button"
-                className="BlogManagement-btnReset"
-                onClick={handleReset}
-              >
+              <button type="button" className="BlogManagement-resetBtn" onClick={handleResetForm}>
                 Reset
               </button>
-              <button type="submit" className="BlogManagement-btnSubmit">
+              <button type="submit" className="BlogManagement-submitBtn">
                 Submit
               </button>
             </div>
           </form>
         </div>
 
-        {/* Right Table/Grid Column */}
+        {/* Right Column: List / Grid Display */}
         <div className="BlogManagement-listCard">
-          {/* Top Controls */}
           <div className="BlogManagement-listHeader">
-            <h2 className="BlogManagement-cardTitle">All Blog Posts</h2>
+            <h2>All Blog Posts</h2>
 
-            <div className="BlogManagement-toolbar">
-              {/* Search Box */}
+            <div className="BlogManagement-controls">
               <div className="BlogManagement-searchBox">
-                <FiSearch className="BlogManagement-searchIcon" />
+                <FaSearch />
                 <input
                   type="text"
                   placeholder="Search blogs..."
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setCurrentPage(1);
-                  }}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
 
-              {/* Filter Dropdown */}
               <div className="BlogManagement-filterWrapper">
                 <button
-                  className="BlogManagement-btnFilter"
-                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="BlogManagement-filterBtn"
+                  onClick={() => setShowFilterDropdown(!showFilterDropdown)}
                 >
-                  <FiFilter /> Filter
+                  <FaFilter /> Filter
                 </button>
-                {isFilterOpen && (
-                  <div className="BlogManagement-filterMenu">
-                    <div
-                      className={`BlogManagement-filterItem ${filterCategory === 'All' ? 'active' : ''}`}
+
+                {showFilterDropdown && (
+                  <div className="BlogManagement-filterDropdown">
+                    <div className="BlogManagement-filterItem">
+                      <label>Category</label>
+                      <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                      >
+                        <option value="">All Categories</option>
+                        {CATEGORY_OPTIONS.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="BlogManagement-filterItem">
+                      <label>Status</label>
+                      <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                      >
+                        <option value="">All Statuses</option>
+                        <option value="Published">Published</option>
+                        <option value="Draft">Draft</option>
+                      </select>
+                    </div>
+
+                    <button
+                      className="BlogManagement-clearFilterBtn"
                       onClick={() => {
-                        setFilterCategory('All');
-                        setIsFilterOpen(false);
+                        setFilterCategory('');
+                        setFilterStatus('');
+                        setShowFilterDropdown(false);
                       }}
                     >
-                      All Categories
-                    </div>
-                    {CATEGORIES.map((cat) => (
-                      <div
-                        key={cat}
-                        className={`BlogManagement-filterItem ${filterCategory === cat ? 'active' : ''}`}
-                        onClick={() => {
-                          setFilterCategory(cat);
-                          setIsFilterOpen(false);
-                        }}
-                      >
-                        {cat}
-                      </div>
-                    ))}
+                      Clear Filters
+                    </button>
                   </div>
                 )}
               </div>
 
-              {/* View Toggle */}
               <div className="BlogManagement-viewToggle">
                 <button
-                  className={`BlogManagement-toggleBtn ${viewMode === 'list' ? 'active' : ''}`}
+                  className={viewMode === 'list' ? 'active' : ''}
                   onClick={() => setViewMode('list')}
-                  title="List View"
                 >
-                  <FiList />
+                  <FaList />
                 </button>
                 <button
-                  className={`BlogManagement-toggleBtn ${viewMode === 'grid' ? 'active' : ''}`}
+                  className={viewMode === 'grid' ? 'active' : ''}
                   onClick={() => setViewMode('grid')}
-                  title="Grid View"
                 >
-                  <FiGrid />
+                  <FaThLarge />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* List View Table */}
+          {/* Table View */}
           {viewMode === 'list' ? (
             <div className="BlogManagement-tableWrapper">
               <table className="BlogManagement-table">
                 <thead>
                   <tr>
                     <th>
-                      <input type="checkbox" />
+                      <input
+                        type="checkbox"
+                        onChange={handleSelectAll}
+                        checked={
+                          paginatedBlogs.length > 0 &&
+                          paginatedBlogs.every((b) => selectedIds.includes(b.id))
+                        }
+                      />
                     </th>
                     <th>#</th>
                     <th>Image</th>
@@ -636,210 +550,177 @@ const BlogManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedBlogs.length > 0 ? (
-                    paginatedBlogs.map((blog, idx) => (
-                      <tr key={blog.id}>
-                        <td>
-                          <input type="checkbox" />
-                        </td>
-                        <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
-                        <td>
-                          <img
-                            src={blog.image}
-                            alt={blog.title}
-                            className="BlogManagement-tableImage"
-                          />
-                        </td>
-                        <td className="BlogManagement-titleCell">{blog.title}</td>
-                        <td>
-                          <span
-                            className={`BlogManagement-badge ${getCategoryClass(blog.category)}`}
-                          >
-                            {blog.category}
-                          </span>
-                        </td>
-                        <td className="BlogManagement-dateCell">{blog.date}</td>
-                        <td>
-                          <span
-                            className={`BlogManagement-statusBadge ${blog.status.toLowerCase()}`}
-                          >
-                            {blog.status}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="BlogManagement-actions">
-                            <button
-                              className="BlogManagement-actionBtn view"
-                              onClick={() => setSelectedBlog(blog)}
-                              title="View"
-                            >
-                              <FiEye />
-                            </button>
-                            <button
-                              className="BlogManagement-actionBtn edit"
-                              onClick={() => handleEdit(blog)}
-                              title="Edit"
-                            >
-                              <FiEdit />
-                            </button>
-                            <button
-                              className="BlogManagement-actionBtn delete"
-                              onClick={() => handleDelete(blog.id)}
-                              title="Delete"
-                            >
-                              <FiTrash2 />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="8" className="BlogManagement-empty">
-                        No blogs found.
+                  {paginatedBlogs.map((blog, idx) => (
+                    <tr key={blog.id}>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(blog.id)}
+                          onChange={() => handleSelectOne(blog.id)}
+                        />
                       </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            /* Grid View Cards */
-            <div className="BlogManagement-grid">
-              {paginatedBlogs.length > 0 ? (
-                paginatedBlogs.map((blog) => (
-                  <div key={blog.id} className="BlogManagement-gridCard">
-                    <div className="BlogManagement-gridImageWrapper">
-                      <img src={blog.image} alt={blog.title} />
-                      <span
-                        className={`BlogManagement-badge ${getCategoryClass(blog.category)}`}
-                      >
-                        {blog.category}
-                      </span>
-                    </div>
-                    <div className="BlogManagement-gridBody">
-                      <span className="BlogManagement-dateCell">{blog.date}</span>
-                      <h3 className="BlogManagement-gridTitle">{blog.title}</h3>
-                      <p className="BlogManagement-gridDesc">{blog.shortDescription}</p>
-                      <div className="BlogManagement-gridFooter">
-                        <span
-                          className={`BlogManagement-statusBadge ${blog.status.toLowerCase()}`}
-                        >
+                      <td>{startIndex + idx + 1}</td>
+                      <td>
+                        <img src={blog.image} alt={blog.title} className="BlogManagement-tableImg" />
+                      </td>
+                      <td className="BlogManagement-titleCell">{blog.title}</td>
+                      <td>
+                        <span className={`BlogManagement-catBadge ${blog.category.toLowerCase().replace(/\s+/g, '-')}`}>
+                          {blog.category}
+                        </span>
+                      </td>
+                      <td>{blog.date}</td>
+                      <td>
+                        <span className={`BlogManagement-statusBadge ${blog.status.toLowerCase()}`}>
                           {blog.status}
                         </span>
-                        <div className="BlogManagement-actions">
+                      </td>
+                      <td>
+                        <div className="BlogManagement-actionGroup">
                           <button
                             className="BlogManagement-actionBtn view"
-                            onClick={() => setSelectedBlog(blog)}
-                            title="View"
+                            onClick={() => setViewingBlog(blog)}
                           >
-                            <FiEye />
+                            <FaEye />
                           </button>
                           <button
                             className="BlogManagement-actionBtn edit"
                             onClick={() => handleEdit(blog)}
-                            title="Edit"
                           >
-                            <FiEdit />
+                            <FaPencilAlt />
                           </button>
                           <button
                             className="BlogManagement-actionBtn delete"
                             onClick={() => handleDelete(blog.id)}
-                            title="Delete"
                           >
-                            <FiTrash2 />
+                            <FaTrashAlt />
                           </button>
                         </div>
-                      </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            /* Grid View */
+            <div className="BlogManagement-gridWrapper">
+              {paginatedBlogs.map((blog) => (
+                <div key={blog.id} className="BlogManagement-gridCard">
+                  <div className="BlogManagement-gridCardImg">
+                    <img src={blog.image} alt={blog.title} />
+                    <span className={`BlogManagement-statusBadge ${blog.status.toLowerCase()}`}>
+                      {blog.status}
+                    </span>
+                  </div>
+                  <div className="BlogManagement-gridCardBody">
+                    <span className={`BlogManagement-catBadge ${blog.category.toLowerCase().replace(/\s+/g, '-')}`}>
+                      {blog.category}
+                    </span>
+                    <h3>{blog.title}</h3>
+                    <p className="BlogManagement-gridDate">{blog.date}</p>
+                    <p className="BlogManagement-gridDesc">{blog.shortDescription}</p>
+
+                    <div className="BlogManagement-actionGroup">
+                      <button
+                        className="BlogManagement-actionBtn view"
+                        onClick={() => setViewingBlog(blog)}
+                      >
+                        <FaEye />
+                      </button>
+                      <button
+                        className="BlogManagement-actionBtn edit"
+                        onClick={() => handleEdit(blog)}
+                      >
+                        <FaPencilAlt />
+                      </button>
+                      <button
+                        className="BlogManagement-actionBtn delete"
+                        onClick={() => handleDelete(blog.id)}
+                      >
+                        <FaTrashAlt />
+                      </button>
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="BlogManagement-empty">No blogs found.</p>
-              )}
+                </div>
+              ))}
             </div>
           )}
 
-          {/* Pagination Footer */}
-          <div className="BlogManagement-pagination">
-            <span className="BlogManagement-paginationInfo">
-              Showing{' '}
-              {filteredBlogs.length === 0
-                ? 0
-                : (currentPage - 1) * itemsPerPage + 1}{' '}
-              to {Math.min(currentPage * itemsPerPage, filteredBlogs.length)} of{' '}
-              {filteredBlogs.length} posts
+          {/* Footer & Pagination */}
+          <div className="BlogManagement-paginationContainer">
+            <span className="BlogManagement-showingText">
+              Showing {filteredBlogs.length === 0 ? 0 : startIndex + 1} to{' '}
+              {Math.min(startIndex + itemsPerPage, filteredBlogs.length)} of {filteredBlogs.length} posts
             </span>
 
-            <div className="BlogManagement-paginationControls">
+            <div className="BlogManagement-pagination">
               <button
-                className="BlogManagement-pageBtn"
-                onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
               >
-                <FiChevronLeft />
+                <FaChevronLeft />
               </button>
-              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                (page) => (
-                  <button
-                    key={page}
-                    className={`BlogManagement-pageBtn ${currentPage === page ? 'active' : ''}`}
-                    onClick={() => handlePageChange(page)}
-                  >
-                    {page}
-                  </button>
-                )
-              )}
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  className={currentPage === page ? 'active' : ''}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              ))}
+
               <button
-                className="BlogManagement-pageBtn"
-                onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(currentPage + 1)}
               >
-                <FiChevronRight />
+                <FaChevronRight />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick View Modal */}
-      {selectedBlog && (
-        <div className="BlogManagement-modalOverlay" onClick={() => setSelectedBlog(null)}>
-          <div className="BlogManagement-modalContent" onClick={(e) => e.stopPropagation()}>
+      {/* View Modal */}
+      {viewingBlog && (
+        <div className="BlogManagement-modalOverlay" onClick={() => setViewingBlog(null)}>
+          <div className="BlogManagement-modalCard" onClick={(e) => e.stopPropagation()}>
             <div className="BlogManagement-modalHeader">
-              <h2>{selectedBlog.title}</h2>
-              <button
-                className="BlogManagement-modalClose"
-                onClick={() => setSelectedBlog(null)}
-              >
-                &times;
+              <h3>View Blog Post</h3>
+              <button onClick={() => setViewingBlog(null)}>
+                <FaTimes />
               </button>
             </div>
             <div className="BlogManagement-modalBody">
-              <img
-                src={selectedBlog.image}
-                alt={selectedBlog.title}
-                className="BlogManagement-modalImg"
-              />
-              <p>
-                <strong>Category:</strong> {selectedBlog.category}
-              </p>
-              <p>
-                <strong>Date:</strong> {selectedBlog.date}
-              </p>
-              <p>
-                <strong>Status:</strong> {selectedBlog.status}
-              </p>
-              <p>
-                <strong>Short Description:</strong> {selectedBlog.shortDescription}
-              </p>
+              <img src={viewingBlog.image} alt={viewingBlog.title} className="BlogManagement-modalImg" />
+              <h2>{viewingBlog.title}</h2>
+              <div className="BlogManagement-modalMeta">
+                <span className={`BlogManagement-catBadge ${viewingBlog.category.toLowerCase().replace(/\s+/g, '-')}`}>
+                  {viewingBlog.category}
+                </span>
+                <span>{viewingBlog.date}</span>
+                <span className={`BlogManagement-statusBadge ${viewingBlog.status.toLowerCase()}`}>
+                  {viewingBlog.status}
+                </span>
+              </div>
+              <p><strong>Slug:</strong> {viewingBlog.slug}</p>
+              <p><strong>Short Description:</strong> {viewingBlog.shortDescription}</p>
               <div>
                 <strong>Description:</strong>
                 <div
-                  dangerouslySetInnerHTML={{ __html: selectedBlog.content }}
-                  style={{ marginTop: '5px' }}
+                  className="BlogManagement-modalContentArea"
+                  dangerouslySetInnerHTML={{ __html: viewingBlog.description }}
                 />
               </div>
+              {viewingBlog.tags && viewingBlog.tags.length > 0 && (
+                <div className="BlogManagement-tagsList" style={{ marginTop: '10px' }}>
+                  {viewingBlog.tags.map((t) => (
+                    <span key={t} className="BlogManagement-tagChip">{t}</span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
