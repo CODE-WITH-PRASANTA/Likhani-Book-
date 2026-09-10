@@ -10,10 +10,8 @@ import {
   FiFilter,
   FiList,
   FiGrid,
-  FiEye,
   FiEdit,
   FiTrash2,
-  FiMoreVertical,
   FiChevronLeft,
   FiChevronRight,
   FiChevronDown,
@@ -21,7 +19,6 @@ import {
 } from 'react-icons/fi';
 import './Shop.css';
 
-// Initial Books Data
 const INITIAL_BOOKS = [
   {
     id: 1,
@@ -210,7 +207,6 @@ const AUTHORS = ['Hayao Miyazaki', 'John Doe', 'Sarah Smith', 'Michael Brown', '
 const FORMATS = ['Hardcover', 'Paperback', 'E-Book', 'Audiobook'];
 const LANGUAGES = ['English', 'Hindi', 'Bengali', 'Tamil', 'Telugu', 'Marathi'];
 
-// Custom Portal-based Dropdown Component
 const CustomSelect = ({ options, value, onChange, placeholder, className = '' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
@@ -303,12 +299,23 @@ const Shop = () => {
   const [books, setBooks] = useState(INITIAL_BOOKS);
   const [viewMode, setViewMode] = useState('list');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Staged filter values
   const [filterCategory, setFilterCategory] = useState('All Categories');
   const [filterAuthor, setFilterAuthor] = useState('All Authors');
   const [filterStatus, setFilterStatus] = useState('All Status');
+
+  // Applied filter values
+  const [appliedFilters, setAppliedFilters] = useState({
+    category: 'All Categories',
+    author: 'All Authors',
+    status: 'All Status'
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
   const [editingId, setEditingId] = useState(null);
   const [viewingBook, setViewingBook] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -465,8 +472,31 @@ const Shop = () => {
   const handleDelete = (id) => {
     if (window.confirm('Are you sure you want to delete this book?')) {
       setBooks((prev) => prev.filter((b) => b.id !== id));
+      setSelectedIds((prev) => prev.filter((item) => item !== id));
       if (editingId === id) handleReset();
     }
+  };
+
+  // Filter Trigger
+  const handleApplyFilters = () => {
+    setAppliedFilters({
+      category: filterCategory,
+      author: filterAuthor,
+      status: filterStatus
+    });
+    setCurrentPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setFilterCategory('All Categories');
+    setFilterAuthor('All Authors');
+    setFilterStatus('All Status');
+    setAppliedFilters({
+      category: 'All Categories',
+      author: 'All Authors',
+      status: 'All Status'
+    });
+    setCurrentPage(1);
   };
 
   const filteredBooks = useMemo(() => {
@@ -477,17 +507,17 @@ const Shop = () => {
         book.isbn.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory =
-        filterCategory === 'All Categories' || book.category === filterCategory;
+        appliedFilters.category === 'All Categories' || book.category === appliedFilters.category;
 
       const matchesAuthor =
-        filterAuthor === 'All Authors' || book.author === filterAuthor;
+        appliedFilters.author === 'All Authors' || book.author === appliedFilters.author;
 
       const matchesStatus =
-        filterStatus === 'All Status' || book.status === filterStatus;
+        appliedFilters.status === 'All Status' || book.status === appliedFilters.status;
 
       return matchesSearch && matchesCategory && matchesAuthor && matchesStatus;
     });
-  }, [books, searchQuery, filterCategory, filterAuthor, filterStatus]);
+  }, [books, searchQuery, appliedFilters]);
 
   const totalPages = Math.ceil(filteredBooks.length / itemsPerPage) || 1;
 
@@ -495,6 +525,26 @@ const Shop = () => {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredBooks.slice(start, start + itemsPerPage);
   }, [filteredBooks, currentPage]);
+
+  // Select All Handlers
+  const isAllPageSelected =
+    paginatedBooks.length > 0 &&
+    paginatedBooks.every((book) => selectedIds.includes(book.id));
+
+  const handleSelectAll = (e) => {
+    const currentPageIds = paginatedBooks.map((b) => b.id);
+    if (e.target.checked) {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...currentPageIds])));
+    } else {
+      setSelectedIds((prev) => prev.filter((id) => !currentPageIds.includes(id)));
+    }
+  };
+
+  const handleSelectItem = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
 
   const getCategoryBadgeClass = (category) => {
     switch (category) {
@@ -510,7 +560,6 @@ const Shop = () => {
     }
   };
 
-  // Generate pagination links dynamically
   const getPaginationPages = () => {
     const delta = 1;
     const range = [];
@@ -530,7 +579,6 @@ const Shop = () => {
 
   return (
     <div className="Shop">
-      {/* Header */}
       <div className="Shop-header">
         <div className="Shop-headerTitle">
           <FiBookOpen className="Shop-titleIcon" />
@@ -541,7 +589,6 @@ const Shop = () => {
         </div>
       </div>
 
-      {/* Main Grid */}
       <div className="Shop-container">
         {/* Form Section */}
         <div className="Shop-formCard">
@@ -657,7 +704,7 @@ const Shop = () => {
               <label>Full Description <span>*</span></label>
               <div className="Shop-editorWrapper">
                 <Editor
-                  apiKey="no-api-key"
+                  apiKey="jeq7g2k84sqpi9364o8x9ptqf09aoesaq8jxmp49dl4sh57z"
                   value={formData.fullDescription}
                   onEditorChange={handleEditorChange}
                   init={{
@@ -807,6 +854,7 @@ const Shop = () => {
             </div>
           </div>
 
+          {/* Filter Bar */}
           <div className="Shop-filterRow">
             <div className="Shop-searchBox">
               <FiSearch className="Shop-searchIcon" />
@@ -824,10 +872,7 @@ const Shop = () => {
             <CustomSelect
               options={['All Categories', ...CATEGORIES]}
               value={filterCategory}
-              onChange={(val) => {
-                setFilterCategory(val);
-                setCurrentPage(1);
-              }}
+              onChange={setFilterCategory}
               placeholder="Category"
               className="Shop-filterDropdown"
             />
@@ -835,10 +880,7 @@ const Shop = () => {
             <CustomSelect
               options={['All Authors', ...AUTHORS]}
               value={filterAuthor}
-              onChange={(val) => {
-                setFilterAuthor(val);
-                setCurrentPage(1);
-              }}
+              onChange={setFilterAuthor}
               placeholder="Author"
               className="Shop-filterDropdown"
             />
@@ -846,17 +888,19 @@ const Shop = () => {
             <CustomSelect
               options={['All Status', 'Active', 'Inactive']}
               value={filterStatus}
-              onChange={(val) => {
-                setFilterStatus(val);
-                setCurrentPage(1);
-              }}
+              onChange={setFilterStatus}
               placeholder="Status"
               className="Shop-filterDropdown"
             />
 
-            <button className="Shop-btnFilter">
-              <FiFilter /> Filter
-            </button>
+            <div className="Shop-filterButtonGroup">
+              <button className="Shop-btnFilter" onClick={handleApplyFilters}>
+                <FiFilter /> Filter
+              </button>
+              <button className="Shop-btnFilterReset" onClick={handleResetFilters} title="Reset Filters">
+                <FiRotateCcw />
+              </button>
+            </div>
           </div>
 
           {/* List View Table */}
@@ -865,7 +909,13 @@ const Shop = () => {
               <table className="Shop-table">
                 <thead>
                   <tr>
-                    <th><input type="checkbox" /></th>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={isAllPageSelected}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
                     <th>#</th>
                     <th>Book Info</th>
                     <th>Category</th>
@@ -879,10 +929,20 @@ const Shop = () => {
                   {paginatedBooks.length > 0 ? (
                     paginatedBooks.map((book, idx) => (
                       <tr key={book.id}>
-                        <td><input type="checkbox" /></td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(book.id)}
+                            onChange={() => handleSelectItem(book.id)}
+                          />
+                        </td>
                         <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                         <td>
-                          <div className="Shop-bookInfo">
+                          <div
+                            className="Shop-bookInfo clickable"
+                            onClick={() => setViewingBook(book)}
+                            title="Click to view details"
+                          >
                             <img src={book.image} alt={book.title} className="Shop-bookThumb" />
                             <div>
                               <div className="Shop-bookTitle">{book.title}</div>
@@ -905,13 +965,6 @@ const Shop = () => {
                         <td>
                           <div className="Shop-actions">
                             <button
-                              className="Shop-actionBtn view"
-                              onClick={() => setViewingBook(book)}
-                              title="View"
-                            >
-                              <FiEye />
-                            </button>
-                            <button
                               className="Shop-actionBtn edit"
                               onClick={() => handleEdit(book)}
                               title="Edit"
@@ -924,9 +977,6 @@ const Shop = () => {
                               title="Delete"
                             >
                               <FiTrash2 />
-                            </button>
-                            <button className="Shop-actionBtn more" title="More">
-                              <FiMoreVertical />
                             </button>
                           </div>
                         </td>
@@ -946,14 +996,22 @@ const Shop = () => {
               {paginatedBooks.length > 0 ? (
                 paginatedBooks.map((book) => (
                   <div key={book.id} className="Shop-gridCard">
-                    <div className="Shop-gridImageWrapper">
+                    <div
+                      className="Shop-gridImageWrapper clickable"
+                      onClick={() => setViewingBook(book)}
+                    >
                       <img src={book.image} alt={book.title} />
                       <span className={`Shop-badge ${getCategoryBadgeClass(book.category)}`}>
                         {book.category}
                       </span>
                     </div>
                     <div className="Shop-gridBody">
-                      <div className="Shop-gridTitle">{book.title}</div>
+                      <div
+                        className="Shop-gridTitle clickable"
+                        onClick={() => setViewingBook(book)}
+                      >
+                        {book.title}
+                      </div>
                       <div className="Shop-gridAuthor">By {book.author}</div>
                       <div className="Shop-gridPriceRow">
                         <span className="Shop-priceText">₹{book.price.toFixed(2)}</span>
@@ -964,13 +1022,6 @@ const Shop = () => {
                           {book.status}
                         </span>
                         <div className="Shop-actions">
-                          <button
-                            className="Shop-actionBtn view"
-                            onClick={() => setViewingBook(book)}
-                            title="View"
-                          >
-                            <FiEye />
-                          </button>
                           <button
                             className="Shop-actionBtn edit"
                             onClick={() => handleEdit(book)}
@@ -996,7 +1047,7 @@ const Shop = () => {
             </div>
           )}
 
-          {/* Fully Responsive Mobile-Friendly Pagination */}
+          {/* Responsive Pagination */}
           <div className="Shop-pagination">
             <span className="Shop-paginationInfo">
               Showing {filteredBooks.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to{' '}
@@ -1036,7 +1087,7 @@ const Shop = () => {
               </button>
             </div>
 
-            {/* Mobile Compact Pagination */}
+            {/* Mobile Pagination */}
             <div className="Shop-paginationControls mobile">
               <button
                 className="Shop-pageBtn mobileNav"
@@ -1060,7 +1111,7 @@ const Shop = () => {
         </div>
       </div>
 
-      {/* Modal View */}
+      {/* Smooth Animated Modal */}
       {viewingBook && (
         <div className="Shop-modalOverlay" onClick={() => setViewingBook(null)}>
           <div className="Shop-modalContent" onClick={(e) => e.stopPropagation()}>
