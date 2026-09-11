@@ -1,0 +1,646 @@
+/* Base Layout & Reset */
+.TestimonialManagement {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.TestimonialManagement * {
+  box-sizing: border-box;
+}
+
+/* Header */
+.TestimonialManagement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.TestimonialManagement-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.TestimonialManagement-header p {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.TestimonialManagement-addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.TestimonialManagement-addBtn:hover {
+  background-color: #1d4ed8;
+}
+
+/* Main Container Grid */
+.TestimonialManagement-container {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+/* Common Card Styling */
+.TestimonialManagement-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.TestimonialManagement-card h3 {
+  font-size: 1.15rem;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+/* Form Styles */
+.TestimonialManagement-group {
+  margin-bottom: 16px;
+}
+
+.TestimonialManagement-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.TestimonialManagement-group label span {
+  color: #ef4444;
+}
+
+.TestimonialManagement-group input[type="text"],
+.TestimonialManagement-group textarea,
+.TestimonialManagement-statusSelect {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.TestimonialManagement-group input[type="text"]:focus,
+.TestimonialManagement-group textarea:focus,
+.TestimonialManagement-statusSelect:focus {
+  border-color: #2563eb;
+}
+
+/* File Upload Dropzones */
+.TestimonialManagement-uploadBox {
+  margin-bottom: 16px;
+}
+
+.TestimonialManagement-uploadBox label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.TestimonialManagement-uploadBox label:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.TestimonialManagement-uploadIcon {
+  font-size: 1.5rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.TestimonialManagement-uploadBox strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+.TestimonialManagement-uploadBox p {
+  margin: 2px 0 0 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Rating Selector */
+.TestimonialManagement-ratingSelect {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.TestimonialManagement-star {
+  color: #cbd5e1;
+  font-size: 1.1rem;
+}
+
+.TestimonialManagement-star.active {
+  color: #f59e0b;
+}
+
+.TestimonialManagement-ratingText {
+  margin-left: 8px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* Color Accent Dots */
+.TestimonialManagement-colorPicker {
+  display: flex;
+  gap: 10px;
+}
+
+.TestimonialManagement-colorDot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.15s ease;
+}
+
+.TestimonialManagement-colorDot.active {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px #2563eb;
+  transform: scale(1.1);
+}
+
+/* Form Action Buttons */
+.TestimonialManagement-formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.TestimonialManagement-btnReset,
+.TestimonialManagement-btnSave {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+}
+
+.TestimonialManagement-btnReset {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.TestimonialManagement-btnReset:hover {
+  background-color: #e2e8f0;
+}
+
+.TestimonialManagement-btnSave {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.TestimonialManagement-btnSave:hover {
+  background-color: #1d4ed8;
+}
+
+/* Controls Bar (Top of List Card) */
+.TestimonialManagement-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.TestimonialManagement-viewToggle {
+  display: flex;
+  background-color: #f1f5f9;
+  padding: 3px;
+  border-radius: 6px;
+  gap: 2px;
+}
+
+.TestimonialManagement-viewToggle button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.TestimonialManagement-viewToggle button.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Search & Filter Bar */
+.TestimonialManagement-filterBar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.TestimonialManagement-searchBox {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.TestimonialManagement-searchBox svg {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+}
+
+.TestimonialManagement-searchBox input {
+  width: 100%;
+  padding: 9px 12px 9px 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.TestimonialManagement-statusSelect {
+  width: auto;
+  min-width: 130px;
+}
+
+/* Table Responsive Wrapper */
+.TestimonialManagement-tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.TestimonialManagement-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* Ensures table doesn't get squished */
+}
+
+.TestimonialManagement-table th,
+.TestimonialManagement-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+}
+
+.TestimonialManagement-table th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.TestimonialManagement-clientCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.TestimonialManagement-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.TestimonialManagement-clientName {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.TestimonialManagement-clientRole {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.TestimonialManagement-msgCell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #475569;
+}
+
+.TestimonialManagement-tableRating {
+  display: flex;
+  gap: 2px;
+}
+
+/* Status Badges */
+.TestimonialManagement-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.TestimonialManagement-badge.active {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.TestimonialManagement-badge.inactive {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+/* Action Icon Buttons */
+.TestimonialManagement-actionBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.TestimonialManagement-actionBtns button {
+  border: none;
+  background: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #64748b;
+  transition: background-color 0.15s ease;
+}
+
+.TestimonialManagement-actionBtns button.view:hover {
+  background-color: #e0f2fe;
+  color: #0284c7;
+}
+
+.TestimonialManagement-actionBtns button.edit:hover {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.TestimonialManagement-actionBtns button.delete:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Grid View Styles */
+.TestimonialManagement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.TestimonialManagement-gridCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.TestimonialManagement-gridHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.TestimonialManagement-gridHeader h4 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.TestimonialManagement-gridHeader p {
+  margin: 2px 0 0 0;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.TestimonialManagement-gridMsg {
+  font-size: 0.85rem;
+  color: #334155;
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+}
+
+.TestimonialManagement-gridFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* Pagination */
+.TestimonialManagement-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.TestimonialManagement-pageBtns {
+  display: flex;
+  gap: 4px;
+}
+
+.TestimonialManagement-pageBtns button {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.TestimonialManagement-pageBtns button.active {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.TestimonialManagement-pageBtns button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* View Modal */
+.TestimonialManagement-modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.TestimonialManagement-modal {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 450px;
+  padding: 20px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.TestimonialManagement-modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.TestimonialManagement-modalHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.TestimonialManagement-modalHeader button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.TestimonialManagement-modalBody {
+  text-align: center;
+}
+
+.TestimonialManagement-modalAvatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.TestimonialManagement-modalBody h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.TestimonialManagement-modalBody .role {
+  margin: 4px 0 12px 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.TestimonialManagement-modalBody .rating {
+  margin-bottom: 12px;
+}
+
+.TestimonialManagement-modalBody .message {
+  font-style: italic;
+  color: #334155;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+
+/* ==========================================================================
+   MEDIA QUERIES (RESPONSIVE BREAKPOINTS)
+   ========================================================================== */
+
+/* Tablets & Small Laptops (1024px and down) */
+@media screen and (max-width: 1024px) {
+  .TestimonialManagement-container {
+    grid-template-columns: 1fr; /* Stack form and list vertically */
+  }
+}
+
+/* Mobile Devices (600px and down) */
+@media screen and (max-width: 600px) {
+  .TestimonialManagement {
+    padding: 12px;
+  }
+
+  .TestimonialManagement-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .TestimonialManagement-addBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .TestimonialManagement-filterBar {
+    flex-direction: column;
+  }
+
+  .TestimonialManagement-statusSelect {
+    width: 100%;
+  }
+
+  .TestimonialManagement-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .TestimonialManagement-viewToggle {
+    width: 100%;
+  }
+
+  .TestimonialManagement-viewToggle button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .TestimonialManagement-pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+}
