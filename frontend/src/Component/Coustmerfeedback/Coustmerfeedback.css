@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* मुख्य सेक्शन कंटेनर */
+.feedback-section {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+/* हेडर */
+.feedback-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.feedback-title {
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #062b48;
+  margin: 0 0 14px 0;
+  letter-spacing: -0.5px;
+}
+
+.feedback-subtitle {
+  font-size: 0.95rem;
+  color: #637381;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* स्लाइडर व्यूपोर्ट */
+.feedback-carousel-viewport {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  padding: 10px 0 25px 0;
+}
+
+/* 1-by-1 ट्रैक - धीमा और स्मूथ स्लाइडिंग */
+.feedback-slider-track {
+  display: flex;
+  gap: 24px;
+  /* 1.2s की बहुत स्मूथ और धीमी गति */
+  transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+/* कार्ड डिज़ाइन - एक साथ 3 कार्ड्स दिखेंगे */
+.feedback-card {
+  /* 3 कार्ड्स और उनके बीच का गैप (24px) घटाकर चौड़ाई */
+  flex: 0 0 calc((100% - 48px) / 3);
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f2f5;
+  padding: 32px 28px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feedback-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.09);
+}
+
+/* पहले कार्ड पर ऑरेंज टॉप बॉर्डर */
+.feedback-card.has-orange-border {
+  border-top: 3.5px solid #ff5a00;
+}
+
+/* कोटेशन टेक्स्ट */
+.feedback-quote {
+  font-size: 0.92rem;
+  color: #556270;
+  line-height: 1.65;
+  font-weight: 500;
+  margin: 0 0 32px 0;
+}
+
+/* कार्ड का फुटर */
+.feedback-footer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 16px;
+  padding-top: 10px;
+}
+
+/* बॉटम-लेफ्ट कट-आउट और यूजर इमेज */
+.avatar-container {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  position: relative;
+  z-index: 2;
+  border: 2px solid #ffffff;
+}
+
+.corner-cutout {
+  position: absolute;
+  left: -28px;
+  bottom: -24px;
+  width: 65px;
+  height: 65px;
+  clip-path: polygon(0 0, 100% 100%, 0 100%);
+  z-index: 1;
+}
+
+.accent-teal .corner-cutout {
+  background: linear-gradient(135deg, #0284a5 0%, #00607a 100%);
+}
+
+.accent-black .corner-cutout {
+  background: #25282d;
+}
+
+/* यूजर विवरण */
+.author-details {
+  flex: 1;
+}
+
+.author-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a2229;
+  margin: 0 0 3px 0;
+}
+
+.author-role {
+  font-size: 0.8rem;
+  color: #7b8794;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* स्टार रेटिंग */
+.star-rating {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  font-size: 15px;
+}
+
+.star.filled {
+  color: #ff6400;
+}
+
+.star.empty {
+  color: #d1d5db;
+}
+
+/* कंपनी लोगो */
+.company-logo-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.company-logo {
+  max-height: 25px;
+  max-width: 90px;
+  object-fit: contain;
+}
+
+/* डॉट्स इंडिकेटर */
+.feedback-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #d8e2e9;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.4s ease;
+}
+
+.dot.active {
+  background-color: #0284a5;
+  width: 24px;
+  border-radius: 20px;
+}
+
+/* ====================================================
+   रिस्पॉन्सिव मीडिया क्वेरीज (Mobile & Tablet)
+==================================================== */
+
+/* टैबलेट (एक बार में 2 कार्ड्स) */
+@media (max-width: 1024px) {
+  .feedback-card {
+    flex: 0 0 calc((100% - 24px) / 2);
+  }
+}
+
+/* मोबाइल (एक बार में 1 कार्ड) */
+@media (max-width: 680px) {
+  .feedback-section {
+    padding: 40px 16px;
+  }
+  .feedback-title {
+    font-size: 1.6rem;
+  }
+  .feedback-subtitle {
+    font-size: 0.85rem;
+  }
+  .feedback-card {
+    flex: 0 0 100%;
+    padding: 24px 20px 20px 20px;
+  }
+}
