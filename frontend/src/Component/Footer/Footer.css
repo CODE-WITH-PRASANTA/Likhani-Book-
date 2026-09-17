@@ -1,11 +1,22 @@
 /* ===================================================
-   FOOTER ROOT & MAIN WRAPPER (Full Screen / Edge-to-Edge)
+   FOOTER ROOT & MAIN WRAPPER
 =================================================== */
+
 .footer-wrapper {
   background-color: #0b1528;
   color: #a4b3cd;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+
   position: relative;
   width: 100%;
   box-sizing: border-box;
@@ -17,7 +28,10 @@
   box-sizing: border-box;
 }
 
-/* Removed fixed 1240px cap so layout flows edge-to-edge */
+/* ===================================================
+   FOOTER CONTAINER
+=================================================== */
+
 .footer-container {
   width: 100%;
   max-width: 100%;
@@ -28,6 +42,7 @@
 /* ===================================================
    TOP CONTACT BAR
 =================================================== */
+
 .footer-top-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -48,9 +63,11 @@
   border-radius: 50%;
   background-color: rgba(255, 114, 40, 0.12);
   color: #ff7228;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 1.4rem;
   transition: all 0.3s ease;
 }
@@ -93,6 +110,7 @@
 /* ===================================================
    DIVIDER
 =================================================== */
+
 .footer-divider {
   width: 100%;
   height: 1px;
@@ -103,6 +121,7 @@
 /* ===================================================
    MAIN 4-COLUMN CONTENT
 =================================================== */
+
 .footer-main-grid {
   display: grid;
   grid-template-columns: 1.3fr 1fr 1fr 1.2fr;
@@ -137,14 +156,16 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Column 1: Brand & Large Logo */
+/* ===================================================
+   BRAND
+=================================================== */
+
 .footer-brand-header {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
 }
 
-/* Increased logo size and padded white container style matching screenshot */
 .footer-brand-logo-img {
   width: auto;
   max-width: 150px;
@@ -163,6 +184,10 @@
   max-width: 380px;
 }
 
+/* ===================================================
+   SOCIAL LINKS
+=================================================== */
+
 .footer-social-links {
   display: flex;
   gap: 10px;
@@ -173,13 +198,17 @@
   width: 40px;
   height: 40px;
   border-radius: 8px;
+
   background-color: rgba(255, 255, 255, 0.06);
   color: #ffffff;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 1.05rem;
   text-decoration: none;
+
   transition: all 0.3s ease;
 }
 
@@ -188,6 +217,10 @@
   color: #ffffff;
   transform: translateY(-3px);
 }
+
+/* ===================================================
+   PAPER PLANE
+=================================================== */
 
 .footer-paper-plane-wrapper {
   position: relative;
@@ -204,16 +237,21 @@
   position: absolute;
   right: 6px;
   top: 6px;
+
   color: #ff7228;
   transform: rotate(45deg);
   font-size: 1.1rem;
 }
 
-/* Links (Columns 2 & 3) */
+/* ===================================================
+   LINKS
+=================================================== */
+
 .footer-links {
   list-style: none;
   padding: 0;
   margin: 0;
+
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -223,9 +261,11 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
   color: #93a4c1;
   font-size: 0.95rem;
   text-decoration: none;
+
   transition: all 0.2s ease;
 }
 
@@ -244,7 +284,10 @@
   color: #ff7228;
 }
 
-/* Column 4: Newsletter */
+/* ===================================================
+   NEWSLETTER
+=================================================== */
+
 .footer-newsletter-text {
   font-size: 0.95rem;
   line-height: 1.7;
@@ -261,12 +304,16 @@
 .footer-newsletter-form input {
   width: 100%;
   padding: 14px 50px 14px 18px;
+
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.12);
+
   background-color: rgba(255, 255, 255, 0.05);
   color: #ffffff;
+
   font-size: 0.95rem;
   outline: none;
+
   transition: border-color 0.2s ease;
 }
 
@@ -281,18 +328,26 @@
 .footer-submit-btn {
   position: absolute;
   right: 6px;
+
   width: 40px;
   height: 40px;
+
   border-radius: 6px;
   border: none;
+
   background-color: #ff7228;
   color: #ffffff;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .footer-submit-btn:hover {
@@ -300,10 +355,12 @@
 }
 
 /* ===================================================
-   BOTTOM COPYRIGHT & PAYMENT (Full Width)
+   BOTTOM COPYRIGHT & PAYMENT
 =================================================== */
+
 .footer-bottom-bar {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+
   padding: 22px 4%;
   width: 100%;
 }
@@ -312,9 +369,11 @@
   width: 100%;
   max-width: 100%;
   margin: 0;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   flex-wrap: wrap;
   gap: 16px;
 }
@@ -325,91 +384,59 @@
   color: #7b8fae;
 }
 
-.footer-copyright-text span {
+/* ===================================================
+   PR WEBSTOCK LINK
+=================================================== */
+
+.footer-company-link {
   color: #ffffff;
   font-weight: 600;
+  text-decoration: none;
+
+  display: inline-block;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
 }
 
-.footer-payment-badges {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-card-badge {
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 4px 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: 0.5px;
-}
-
-.footer-visa {
-  font-style: italic;
-  font-weight: 900;
-}
-
-.footer-mastercard {
-  position: relative;
-  width: 44px;
-  padding: 0;
-}
-
-.footer-circle {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  position: absolute;
-}
-
-.footer-red-circle {
-  background-color: #eb001b;
-  left: 10px;
-  z-index: 1;
-}
-
-.footer-yellow-circle {
-  background-color: #f79e1b;
-  right: 10px;
-  opacity: 0.9;
-}
-
-.footer-payoneer span {
+.footer-company-link:hover {
   color: #ff7228;
-}
-
-.footer-dots {
-  letter-spacing: 2px;
-  font-size: 0.9rem;
+  text-decoration: none;
 }
 
 /* ===================================================
    SCROLL TO TOP BUTTON
 =================================================== */
+
 .footer-scroll-to-top-btn {
   position: fixed;
+
   bottom: 30px;
   right: 30px;
+
   width: 45px;
   height: 45px;
+
   border-radius: 50%;
   border: none;
+
   background-color: #ff7228;
   color: #ffffff;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 1.4rem;
   cursor: pointer;
+
   box-shadow: 0 4px 14px rgba(255, 114, 40, 0.35);
-  transition: transform 0.3s ease, background-color 0.2s ease;
+
+  transition:
+    transform 0.3s ease,
+    background-color 0.2s ease;
+
   z-index: 999;
 }
 
@@ -419,8 +446,9 @@
 }
 
 /* ===================================================
-   RESPONSIVE BREAKPOINTS
+   RESPONSIVE - TABLET
 =================================================== */
+
 @media (max-width: 1024px) {
   .footer-top-bar {
     grid-template-columns: repeat(2, 1fr);
@@ -432,7 +460,15 @@
   }
 }
 
+/* ===================================================
+   RESPONSIVE - MOBILE
+=================================================== */
+
 @media (max-width: 640px) {
+  .footer-container {
+    padding: 45px 5% 30px;
+  }
+
   .footer-top-bar {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -447,5 +483,17 @@
     flex-direction: column;
     text-align: center;
     justify-content: center;
+  }
+
+  .footer-payment-badges {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .footer-scroll-to-top-btn {
+    width: 42px;
+    height: 42px;
+    right: 18px;
+    bottom: 18px;
   }
 }

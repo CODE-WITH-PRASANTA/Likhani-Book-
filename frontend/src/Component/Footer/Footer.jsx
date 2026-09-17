@@ -28,8 +28,12 @@ const Footer = () => {
         setShowTopBtn(false);
       }
     };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -41,6 +45,7 @@ const Footer = () => {
 
   const handleSubscribe = (e) => {
     e.preventDefault();
+
     if (email.trim()) {
       alert(`Subscribed successfully with: ${email}`);
       setEmail("");
@@ -50,17 +55,25 @@ const Footer = () => {
   return (
     <footer className="footer-wrapper">
       <div className="footer-container">
+
         {/* ================= TOP CONTACT INFO BAR ================= */}
         <div className="footer-top-bar">
+
           {/* Call Us */}
           <div className="footer-contact-item">
             <div className="footer-contact-icon-box">
               <FiPhoneCall />
             </div>
+
             <div className="footer-contact-text">
-              <span className="footer-contact-label">Call Us 7/24</span>
+              <span className="footer-contact-label">
+                Call Us 7/24
+              </span>
+
               <h4 className="footer-contact-value">
-                <a href="tel:+2085550112">+208-555-0112</a>
+                <a href="tel:+2085550112">
+                  +208-555-0112
+                </a>
               </h4>
             </div>
           </div>
@@ -70,10 +83,16 @@ const Footer = () => {
             <div className="footer-contact-icon-box">
               <FiMail />
             </div>
+
             <div className="footer-contact-text">
-              <span className="footer-contact-label">Make a Quote</span>
+              <span className="footer-contact-label">
+                Make a Quote
+              </span>
+
               <h4 className="footer-contact-value">
-                <a href="mailto:example@gmail.com">example@gmail.com</a>
+                <a href="mailto:example@gmail.com">
+                  example@gmail.com
+                </a>
               </h4>
             </div>
           </div>
@@ -83,9 +102,15 @@ const Footer = () => {
             <div className="footer-contact-icon-box">
               <FiClock />
             </div>
+
             <div className="footer-contact-text">
-              <span className="footer-contact-label">Opening Hour</span>
-              <h4 className="footer-contact-value">Sunday - Fri: 9 AM - 6 PM</h4>
+              <span className="footer-contact-label">
+                Opening Hour
+              </span>
+
+              <h4 className="footer-contact-value">
+                Sunday - Fri: 9 AM - 6 PM
+              </h4>
             </div>
           </div>
 
@@ -94,20 +119,28 @@ const Footer = () => {
             <div className="footer-contact-icon-box">
               <FiMapPin />
             </div>
+
             <div className="footer-contact-text">
-              <span className="footer-contact-label">Location</span>
-              <h4 className="footer-contact-value">4517 Washington Ave.</h4>
+              <span className="footer-contact-label">
+                Location
+              </span>
+
+              <h4 className="footer-contact-value">
+                4517 Washington Ave.
+              </h4>
             </div>
           </div>
         </div>
 
         {/* Divider */}
-        <div className="footer-divider" />
+        <div className="footer-divider"></div>
 
         {/* ================= MAIN 4-COLUMN FOOTER CONTENT ================= */}
         <div className="footer-main-grid">
+
           {/* Column 1: Brand / Description / Socials */}
           <div className="footer-col footer-brand-col">
+
             <div className="footer-brand-header">
               <img
                 src={logoImg}
@@ -120,29 +153,54 @@ const Footer = () => {
             </div>
 
             <p className="footer-brand-description">
-              Phasellus ultricies aliquam volutpat ullamcorper laoreet neque, a
-              lacinia curabitur lacinia mollis.
+              Phasellus ultricies aliquam volutpat ullamcorper laoreet
+              neque, a lacinia curabitur lacinia mollis.
             </p>
 
             {/* Social Icons */}
             <div className="footer-social-links">
-              <a href="#facebook" aria-label="Facebook" className="footer-social-box">
+
+              <a
+                href="#facebook"
+                aria-label="Facebook"
+                className="footer-social-box"
+              >
                 <FiFacebook />
               </a>
-              <a href="#twitter" aria-label="Twitter" className="footer-social-box">
+
+              <a
+                href="#twitter"
+                aria-label="Twitter"
+                className="footer-social-box"
+              >
                 <FiTwitter />
               </a>
-              <a href="#youtube" aria-label="YouTube" className="footer-social-box">
+
+              <a
+                href="#youtube"
+                aria-label="YouTube"
+                className="footer-social-box"
+              >
                 <FiYoutube />
               </a>
-              <a href="#linkedin" aria-label="LinkedIn" className="footer-social-box">
+
+              <a
+                href="#linkedin"
+                aria-label="LinkedIn"
+                className="footer-social-box"
+              >
                 <FiLinkedin />
               </a>
+
             </div>
 
             {/* Decorative Paper Plane */}
             <div className="footer-paper-plane-wrapper">
-              <svg className="footer-plane-trail" viewBox="0 0 160 50">
+
+              <svg
+                className="footer-plane-trail"
+                viewBox="0 0 160 50"
+              >
                 <path
                   d="M0,35 Q 40,0 70,30 T 130,25"
                   fill="none"
@@ -151,92 +209,125 @@ const Footer = () => {
                   strokeDasharray="4 4"
                 />
               </svg>
+
               <div className="footer-paper-plane-icon">
                 <FiSend />
               </div>
+
             </div>
           </div>
 
           {/* Column 2: Customer Support */}
           <div className="footer-col">
+
             <h3 className="footer-col-title">
               Customer Support
+
               <div className="footer-title-underline">
                 <span className="footer-orange-bar"></span>
                 <span className="footer-light-bar"></span>
               </div>
             </h3>
+
             <ul className="footer-links">
+
               <li>
                 <a href="#store-list">
-                  <FiChevronsRight className="footer-link-arrow" /> Store List
+                  <FiChevronsRight className="footer-link-arrow" />
+                  Store List
                 </a>
               </li>
+
               <li>
                 <a href="#opening-hours">
-                  <FiChevronsRight className="footer-link-arrow" /> Opening Hours
+                  <FiChevronsRight className="footer-link-arrow" />
+                  Opening Hours
                 </a>
               </li>
+
               <li>
                 <a href="#contact-us">
-                  <FiChevronsRight className="footer-link-arrow" /> Contact Us
+                  <FiChevronsRight className="footer-link-arrow" />
+                  Contact Us
                 </a>
               </li>
+
               <li>
                 <a href="#return-policy">
-                  <FiChevronsRight className="footer-link-arrow" /> Return Policy
+                  <FiChevronsRight className="footer-link-arrow" />
+                  Return Policy
                 </a>
               </li>
+
             </ul>
           </div>
 
           {/* Column 3: Categories */}
           <div className="footer-col">
+
             <h3 className="footer-col-title">
               Categories
+
               <div className="footer-title-underline">
                 <span className="footer-orange-bar"></span>
                 <span className="footer-light-bar"></span>
               </div>
             </h3>
+
             <ul className="footer-links">
+
               <li>
                 <a href="#novel-books">
-                  <FiChevronsRight className="footer-link-arrow" /> Novel Books
+                  <FiChevronsRight className="footer-link-arrow" />
+                  Novel Books
                 </a>
               </li>
+
               <li>
                 <a href="#poetry-books">
-                  <FiChevronsRight className="footer-link-arrow" /> Poetry Books
+                  <FiChevronsRight className="footer-link-arrow" />
+                  Poetry Books
                 </a>
               </li>
+
               <li>
                 <a href="#political-books">
-                  <FiChevronsRight className="footer-link-arrow" /> Political Books
+                  <FiChevronsRight className="footer-link-arrow" />
+                  Political Books
                 </a>
               </li>
+
               <li>
                 <a href="#history-books">
-                  <FiChevronsRight className="footer-link-arrow" /> History Books
+                  <FiChevronsRight className="footer-link-arrow" />
+                  History Books
                 </a>
               </li>
+
             </ul>
           </div>
 
           {/* Column 4: Newsletter */}
           <div className="footer-col">
+
             <h3 className="footer-col-title">
               Newsletter
+
               <div className="footer-title-underline">
                 <span className="footer-orange-bar"></span>
                 <span className="footer-light-bar"></span>
               </div>
             </h3>
+
             <p className="footer-newsletter-text">
-              Sign up to our weekly newsletter to get the latest book releases and updates.
+              Sign up to our weekly newsletter to get the latest book
+              releases and updates.
             </p>
 
-            <form className="footer-newsletter-form" onSubmit={handleSubscribe}>
+            <form
+              className="footer-newsletter-form"
+              onSubmit={handleSubscribe}
+            >
               <input
                 type="email"
                 placeholder="Enter Email Address"
@@ -244,6 +335,7 @@ const Footer = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+
               <button
                 type="submit"
                 aria-label="Subscribe"
@@ -252,31 +344,31 @@ const Footer = () => {
                 <FiSend />
               </button>
             </form>
+
           </div>
         </div>
       </div>
 
       {/* ================= BOTTOM COPYRIGHT BAR ================= */}
       <div className="footer-bottom-bar">
+
         <div className="footer-bottom-content">
+
           <p className="footer-copyright-text">
-            &copy; {new Date().getFullYear()} All Rights Reserved by <span>Bookle</span>
+            &copy; {new Date().getFullYear()} All Rights Reserved by{" "}
+
+            {/* PR WEBSTOCK WEBSITE LINK */}
+            <a
+              href="https://prwebstock.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-company-link"
+            >
+              PR WEBSTOCK
+            </a>
           </p>
 
-          {/* Payment Badges */}
-          <div className="footer-payment-badges">
-            <div className="footer-card-badge footer-visa">VISA</div>
-            <div className="footer-card-badge footer-mastercard">
-              <span className="footer-circle footer-red-circle"></span>
-              <span className="footer-circle footer-yellow-circle"></span>
-            </div>
-            <div className="footer-card-badge footer-payoneer">
-              Pay<span>oneer</span>
-            </div>
-            <div className="footer-card-badge footer-generic">
-              <span className="footer-dots">••••</span>
-            </div>
-          </div>
+      
         </div>
       </div>
 
@@ -290,6 +382,7 @@ const Footer = () => {
           <FiChevronUp />
         </button>
       )}
+
     </footer>
   );
 };

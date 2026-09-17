@@ -1,0 +1,369 @@
+/* =========================================
+   WISHLIST BREADCRUMB
+========================================= */
+
+.wishlist-breadcrumb {
+  width: 100%;
+  min-height: 320px;
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 50px 20px;
+
+  box-sizing: border-box;
+
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
+}
+
+/* =========================================
+   OVERLAY
+========================================= */
+
+.wishlist-breadcrumb-overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  z-index: 1;
+}
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.wishlist-breadcrumb-container {
+  width: 100%;
+  max-width: 1200px;
+
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  margin: 0 auto;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.wishlist-breadcrumb-title {
+  margin: 0 0 12px;
+
+  color: #0d2c44;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+
+  letter-spacing: -0.5px;
+
+  text-transform: capitalize;
+}
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.wishlist-breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  white-space: nowrap;
+}
+
+/* =========================================
+   HOME LINK
+========================================= */
+
+.wishlist-breadcrumb-link {
+  color: #176b87;
+
+  text-decoration: none;
+
+  transition:
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.wishlist-breadcrumb-link:hover {
+  color: #0d2c44;
+  text-decoration: underline;
+}
+
+.wishlist-breadcrumb-link:focus-visible {
+  outline: 2px solid #176b87;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* =========================================
+   CHEVRON ICON
+========================================= */
+
+.wishlist-breadcrumb-icon {
+  flex-shrink: 0;
+
+  width: 10px;
+  height: 10px;
+
+  color: #176b87;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================
+   ACTIVE ITEM
+========================================= */
+
+.wishlist-breadcrumb-active {
+  color: #176b87;
+
+  font-weight: 500;
+}
+
+/* =========================================
+   LARGE DESKTOP
+========================================= */
+
+@media (min-width: 1600px) {
+  .wishlist-breadcrumb {
+    min-height: 340px;
+    padding: 60px 30px;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 46px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    font-size: 17px;
+  }
+}
+
+/* =========================================
+   DESKTOP / LAPTOP
+========================================= */
+
+@media (max-width: 1200px) {
+  .wishlist-breadcrumb {
+    min-height: 300px;
+    padding: 45px 25px;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 40px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    font-size: 15px;
+  }
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 992px) {
+  .wishlist-breadcrumb {
+    min-height: 280px;
+    padding: 40px 20px;
+
+    background-position: center center;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    gap: 8px;
+    font-size: 15px;
+  }
+
+  .wishlist-breadcrumb-icon {
+    width: 9px;
+    height: 9px;
+  }
+}
+
+/* =========================================
+   SMALL TABLET
+========================================= */
+
+@media (max-width: 768px) {
+  .wishlist-breadcrumb {
+    min-height: 250px;
+
+    padding: 35px 18px;
+
+    background-position: center center;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 32px;
+    line-height: 1.25;
+
+    margin-bottom: 9px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    gap: 7px;
+    font-size: 14px;
+  }
+
+  .wishlist-breadcrumb-icon {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 576px) {
+  .wishlist-breadcrumb {
+    min-height: 220px;
+
+    padding: 30px 15px;
+
+    background-position: center center;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    gap: 7px;
+    font-size: 14px;
+  }
+
+  .wishlist-breadcrumb-icon {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+  .wishlist-breadcrumb {
+    min-height: 200px;
+
+    padding: 25px 12px;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 25px;
+
+    letter-spacing: -0.3px;
+
+    margin-bottom: 7px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .wishlist-breadcrumb-icon {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+/* =========================================
+   VERY SMALL DEVICES
+========================================= */
+
+@media (max-width: 360px) {
+  .wishlist-breadcrumb {
+    min-height: 180px;
+
+    padding: 22px 10px;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 22px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .wishlist-breadcrumb-icon {
+    width: 6px;
+    height: 6px;
+  }
+}
+
+/* =========================================
+   LANDSCAPE MOBILE
+========================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .wishlist-breadcrumb {
+    min-height: 190px;
+    padding: 25px 15px;
+  }
+
+  .wishlist-breadcrumb-title {
+    font-size: 26px;
+  }
+
+  .wishlist-breadcrumb-nav {
+    font-size: 13px;
+  }
+}

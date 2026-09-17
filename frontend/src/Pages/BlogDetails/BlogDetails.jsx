@@ -5,8 +5,8 @@ import BlogDetailsCard from '../../Component/BlogDetailsCard/BlogDetailsCard'
 const BlogDetails = () => {
   return (
     <div>
-<BlogDetailsBreadcrumb/>
-<BlogDetailsCard/>
+         <BlogDetailsBreadcrumb/>
+         <BlogDetailsCard/>
     </div>
   )
 }
