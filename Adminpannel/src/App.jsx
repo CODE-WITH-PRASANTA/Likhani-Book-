@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Mainlayout from './Layout/Mainlayout/Mainlayout';
-import Dashboard from '../Dashboard/Dashboard';
-import Enquiries from '../Enquiries/Enquiries';
-import TestimonialManagement from '../TestimonialManagement/TestimonialManagement';
+import Dashboard from './Components/Dashboard/Dashboard';
+import Enquiries from './Components/Enquiries/Enquiries';
+import Order from './Components/Order/Order';
+import TestimonialManagement from './Components/TestimonialManagement/TestimonialManagement';
+import Gallery from './Components/Gallery/Gallery';
+
 
 const App = () => {
   return (
@@ -11,15 +14,17 @@ const App = () => {
       <Routes>
         {/* MainLayout wraps all sub-routes */}
         <Route path="/" element={<Mainlayout />}>
-          {/* Default page when visiting "/" */}
+          {/* Default redirect when visiting "/" */}
           <Route index element={<Navigate to="/dashboard" replace />} />
 
-          {/* Sibling child routes rendered in Mainlayout's <Outlet /> */}
+          {/* Child routes rendered in Mainlayout's <Outlet /> */}
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="enquiries" element={<Enquiries />} />
+          <Route path="orders" element={<Order />} />
+          <Route path="gallery" element={<Gallery/>} />
           <Route path="testimonial" element={<TestimonialManagement />} />
 
-
+        
         </Route>
       </Routes>
     </BrowserRouter>

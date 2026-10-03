@@ -17,6 +17,7 @@ import Shopdeatils from "./Pages/Shopdeatils/Shopdeatils";
 import Aboutus from "./Pages/Aboutus/Aboutus";
 import Wishlist from "./Pages/Wishlist/Wishlist";
 import AddToCart from "./Pages/AddToCart/AddToCart";
+import BlogDetails from "./Pages/BlogDetails/BlogDetails";
 
 const SimplePage = ({ title }) => {
   return (
@@ -88,6 +89,10 @@ const App = () => {
         <Route
           path="/cart"
           element={<AddToCart />}
+        />
+        <Route
+          path="/BlogDetails"
+          element={<BlogDetails />}
         />
 
         {/* Signup */}
