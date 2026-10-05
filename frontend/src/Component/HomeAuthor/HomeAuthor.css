@@ -1,0 +1,300 @@
+/* ==========================================================================
+   HomeAuthor — Premium 4D Modern UI & CSS Architecture
+   ========================================================================== */
+
+.home-author {
+  --ha-bg: #f8fafc;
+  --ha-white: #ffffff;
+  --ha-dark: #0f172a;
+  --ha-muted: #64748b;
+  --ha-primary: #0a3b49;
+  --ha-primary-hover: #14657a;
+  --ha-gold: #d4af37;
+  --ha-border: #e2e8f0;
+  --ha-radius: 20px;
+
+  width: 100%;
+  background: var(--ha-bg);
+  padding: 1.5rem 1.5rem 4.5rem 1.5rem;
+  box-sizing: border-box;
+  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  color: var(--ha-dark);
+}
+
+.home-author__wrapper {
+  max-width: 1320px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ---------- Header & Subtitle ---------- */
+
+.home-author__header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.home-author__heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+  color: var(--ha-primary);
+  margin: 0 0 0.6rem 0;
+}
+
+.home-author__subtext {
+  font-size: 0.92rem;
+  color: var(--ha-muted);
+  line-height: 1.6;
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+/* ---------- Carousel & Navigation Arrows ---------- */
+
+.home-author__carousel-container {
+  position: relative;
+  width: 100%;
+  padding: 0 2.5rem;
+  box-sizing: border-box;
+}
+
+.home-author__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-60%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--ha-primary);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 8px 20px rgba(10, 59, 73, 0.25);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-author__arrow:hover {
+  background: var(--ha-gold);
+  transform: translateY(-60%) scale(1.08);
+  box-shadow: 0 12px 25px rgba(212, 175, 55, 0.4);
+}
+
+.home-author__arrow--left {
+  left: 0;
+}
+
+.home-author__arrow--right {
+  right: 0;
+}
+
+/* ---------- Track Overflow & Grid ---------- */
+
+.home-author__track-overflow {
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 1rem 0;
+}
+
+.home-author__track-overflow::-webkit-scrollbar {
+  display: none;
+}
+
+.home-author__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(20% - 19.2px);
+  gap: 24px;
+}
+
+/* ---------- Author Card ---------- */
+
+.home-author__card {
+  scroll-snap-align: start;
+  background: var(--ha-white);
+  border-radius: var(--ha-radius);
+  border: 1px solid var(--ha-border);
+  padding: 2rem 1.25rem 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-author__card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 45px rgba(10, 59, 73, 0.08);
+  border-color: rgba(10, 59, 73, 0.15);
+}
+
+.home-author__card--active {
+  border-color: var(--ha-primary);
+  box-shadow: 0 15px 35px rgba(10, 59, 73, 0.08);
+}
+
+/* ---------- Avatar & Wreath ---------- */
+
+.home-author__avatar-container {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-author__wreath-ring {
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  animation: haRotateRing 25s linear infinite;
+}
+
+@keyframes haRotateRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.home-author__wreath-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.home-author__image-wrap {
+  width: 115px;
+  height: 115px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e2e8f0;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.home-author__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-author__card:hover .home-author__img {
+  transform: scale(1.08);
+}
+
+/* ---------- Dotted Info Box ---------- */
+
+.home-author__info-box {
+  width: 100%;
+  border: 1.5px dashed var(--ha-border);
+  border-radius: 14px;
+  padding: 1rem 0.5rem;
+  text-align: center;
+  background: #fafafa;
+  transition: all 0.3s ease;
+}
+
+.home-author__card:hover .home-author__info-box,
+.home-author__info-box--active {
+  border-color: var(--ha-primary);
+  background: rgba(10, 59, 73, 0.02);
+}
+
+.home-author__name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--ha-dark);
+  margin: 0 0 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-author__books {
+  font-size: 0.78rem;
+  color: var(--ha-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ---------- Pagination Dots ---------- */
+
+.home-author__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.home-author__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ha-muted);
+  opacity: 0.3;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.home-author__dot--active {
+  opacity: 1;
+  background: var(--ha-primary);
+  transform: scale(1.3);
+}
+
+/* ==========================================================
+   Responsive Breakpoints
+   ========================================================== */
+
+@media (max-width: 1200px) {
+  .home-author__track {
+    grid-auto-columns: calc(25% - 18px);
+  }
+}
+
+@media (max-width: 992px) {
+  .home-author__track {
+    grid-auto-columns: calc(33.333% - 16px);
+  }
+}
+
+@media (max-width: 768px) {
+  .home-author__carousel-container {
+    padding: 0 1rem;
+  }
+
+  .home-author__track {
+    grid-auto-columns: calc(50% - 12px);
+  }
+
+  .home-author__arrow {
+    width: 38px;
+    height: 38px;
+  }
+
+  .home-author__arrow--left {
+    left: -4px;
+  }
+
+  .home-author__arrow--right {
+    right: -4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-author__track {
+    grid-auto-columns: 100%;
+  }
+}
