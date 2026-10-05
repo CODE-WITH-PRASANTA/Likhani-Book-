@@ -1,0 +1,1868 @@
+/* =========================================================
+   GALLERY PREMIUM ADMIN PANEL
+   ========================================================= */
+
+.GalleryContainer {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 28px 34px 40px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f7faff 0%,
+      #f1f6ff 50%,
+      #f9fbff 100%
+    );
+
+  color: #102d57;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+/* =========================================================
+   STATISTICS
+   ========================================================= */
+
+.GalleryStats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 20px;
+}
+
+.GalleryStatCard {
+  min-height: 112px;
+
+  padding: 18px 20px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #fbfdff
+    );
+
+  border: 1px solid #dce7f5;
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 8px 28px rgba(31, 72, 120, 0.07);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.GalleryStatCard:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 14px 32px rgba(31, 72, 120, 0.12);
+}
+
+.GalleryStatIcon {
+  width: 58px;
+  height: 58px;
+
+  flex: 0 0 58px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 27px;
+}
+
+.GalleryStatBlue {
+  color: #0868f7;
+
+  background:
+    linear-gradient(
+      145deg,
+      #eaf3ff,
+      #dceaff
+    );
+}
+
+.GalleryStatRed {
+  color: #ff4053;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffedf0,
+      #ffe1e6
+    );
+}
+
+.GalleryStatContent {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.GalleryStatContent span {
+  color: #7286a3;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.GalleryStatContent strong {
+  margin-top: 3px;
+
+  color: #092e60;
+
+  font-size: 28px;
+
+  line-height: 1.05;
+
+  font-weight: 850;
+
+  letter-spacing: -0.6px;
+}
+
+.GalleryStatContent small {
+  margin-top: 6px;
+
+  font-size: 11px;
+
+  font-weight: 750;
+}
+
+.GalleryGreenText {
+  color: #00a55a;
+}
+
+.GalleryRedText {
+  color: #ff3749;
+}
+
+
+/* =========================================================
+   COMMON CARDS
+   ========================================================= */
+
+.GalleryFormCard,
+.GalleryListCard {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  background:
+    rgba(255, 255, 255, 0.98);
+
+  border: 1px solid #d9e5f3;
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 8px 30px rgba(25, 62, 110, 0.065);
+}
+
+.GalleryFormCard {
+  padding: 20px 22px 22px;
+
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
+
+.GallerySectionHeader {
+  display: flex;
+  align-items: center;
+}
+
+.GallerySectionTitle {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  color: #0867f5;
+}
+
+.GallerySectionTitle svg {
+  width: 27px;
+  height: 27px;
+
+  padding: 4px;
+
+  box-sizing: border-box;
+
+  border-radius: 50%;
+
+  background: #e7f1ff;
+
+  stroke-width: 2.5;
+}
+
+.GallerySectionTitle h2 {
+  margin: 0;
+
+  color: #0864ee;
+
+  font-size: 21px;
+
+  font-weight: 850;
+
+  letter-spacing: -0.3px;
+}
+
+.GalleryDivider {
+  height: 1px;
+
+  margin: 14px 0 19px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #d6e4f3,
+      #e8eef6
+    );
+}
+
+
+/* =========================================================
+   FORM GRID
+   ========================================================= */
+
+.GalleryFormGrid {
+  display: grid;
+
+  grid-template-columns:
+    1.25fr 0.72fr 1.15fr;
+
+  gap: 22px;
+
+  align-items: start;
+}
+
+.GalleryFormGroup {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.GalleryFormGroup label {
+  color: #18385f;
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
+.GalleryFormGroup label span {
+  color: #ff3d4e;
+}
+
+.GalleryFormGroup input,
+.GalleryFormGroup select {
+  width: 100%;
+
+  height: 44px;
+
+  box-sizing: border-box;
+
+  padding: 0 14px;
+
+  border: 1px solid #cfdeee;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  color: #304a69;
+
+  background: #ffffff;
+
+  font-size: 12px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.GalleryFormGroup input::placeholder {
+  color: #8a9bb2;
+}
+
+.GalleryFormGroup input:hover,
+.GalleryFormGroup select:hover {
+  border-color: #a9c6e9;
+}
+
+.GalleryFormGroup input:focus,
+.GalleryFormGroup select:focus {
+  border-color: #0969f7;
+
+  box-shadow:
+    0 0 0 4px rgba(9, 105, 247, 0.08);
+}
+
+.GallerySelectWrapper {
+  position: relative;
+}
+
+.GallerySelectWrapper select {
+  appearance: none;
+
+  padding-right: 42px;
+
+  cursor: pointer;
+}
+
+.GallerySelectWrapper svg {
+  position: absolute;
+
+  right: 13px;
+
+  top: 14px;
+
+  pointer-events: none;
+
+  color: #58718f;
+
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   UPLOAD AREA
+   ========================================================= */
+
+.GalleryUploadBox {
+  height: 96px;
+
+  box-sizing: border-box;
+
+  border: 1.5px dashed #9fc5f5;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfdff,
+      #f4f9ff
+    );
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.GalleryUploadBox:hover {
+  border-color: #096af7;
+
+  background: #f1f7ff;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(9, 106, 247, 0.05);
+}
+
+.GalleryUploadBox > svg {
+  color: #0870ff;
+
+  font-size: 31px;
+
+  stroke-width: 1.8;
+}
+
+.GalleryUploadBox strong {
+  color: #0765ed;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.GalleryUploadBox > span {
+  color: #7890ad;
+
+  font-size: 9px;
+}
+
+.GalleryUploadPreview {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+}
+
+.GalleryUploadPreview img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+.GalleryUploadOverlay {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  color: #ffffff;
+
+  background:
+    rgba(4, 60, 132, 0.62);
+
+  opacity: 0;
+
+  transition: opacity 0.25s ease;
+}
+
+.GalleryUploadPreview:hover
+  .GalleryUploadOverlay {
+  opacity: 1;
+}
+
+.GalleryUploadOverlay svg {
+  font-size: 24px;
+}
+
+.GalleryUploadOverlay span {
+  font-size: 11px;
+
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   SAVE BUTTON
+   ========================================================= */
+
+.GallerySaveButton {
+  height: 43px;
+
+  min-width: 136px;
+
+  margin-top: 18px;
+
+  padding: 0 23px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #086cf8,
+      #0759dc
+    );
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 9px 20px rgba(8, 101, 242, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.GallerySaveButton svg {
+  font-size: 16px;
+}
+
+.GallerySaveButton:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 13px 25px rgba(8, 101, 242, 0.28);
+}
+
+.GallerySaveButton:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   GALLERY LIST HEADER
+   ========================================================= */
+
+.GalleryListCard {
+  overflow: hidden;
+}
+
+.GalleryListHeader {
+  padding: 19px 21px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.GalleryListTitle {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.GalleryListIcon {
+  color: #0868f7;
+
+  font-size: 27px;
+
+  display: flex;
+}
+
+.GalleryListTitle h2 {
+  margin: 0;
+
+  color: #0862e9;
+
+  font-size: 21px;
+
+  font-weight: 850;
+
+  letter-spacing: -0.3px;
+}
+
+.GalleryListTitle span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c91ac;
+
+  font-size: 11px;
+
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
+
+.GalleryFilters {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.GallerySearchBox,
+.GalleryFilterSelect {
+  height: 40px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d2dfed;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  display: flex;
+
+  align-items: center;
+}
+
+.GallerySearchBox {
+  width: 230px;
+
+  padding: 0 12px;
+
+  gap: 9px;
+}
+
+.GallerySearchBox svg {
+  color: #68809e;
+
+  font-size: 17px;
+}
+
+.GallerySearchBox input {
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #304867;
+
+  font-size: 11px;
+}
+
+.GallerySearchBox input::placeholder {
+  color: #8496ae;
+}
+
+.GalleryFilterSelect {
+  width: 145px;
+
+  position: relative;
+}
+
+.GalleryFilterSelect select {
+  width: 100%;
+  height: 100%;
+
+  border: none;
+
+  outline: none;
+
+  appearance: none;
+
+  padding: 0 35px 0 12px;
+
+  background: transparent;
+
+  color: #405975;
+
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+.GalleryFilterSelect svg {
+  position: absolute;
+
+  right: 11px;
+
+  color: #637995;
+
+  font-size: 14px;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.GalleryTableWrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.GalleryTable {
+  width: 100%;
+
+  min-width: 980px;
+
+  border-collapse: collapse;
+}
+
+.GalleryTable thead {
+  background:
+    linear-gradient(
+      90deg,
+      #edf5ff,
+      #f5f9fd
+    );
+}
+
+.GalleryTable th {
+  height: 43px;
+
+  padding: 0 13px;
+
+  color: #24466f;
+
+  border-top: 1px solid #dbe7f4;
+
+  border-bottom: 1px solid #dbe7f4;
+
+  text-align: left;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.GalleryTable td {
+  height: 69px;
+
+  padding: 7px 13px;
+
+  border-bottom: 1px solid #e4ecf5;
+
+  color: #49627f;
+
+  font-size: 11px;
+
+  vertical-align: middle;
+}
+
+.GalleryTable tbody tr {
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.GalleryTable tbody tr:hover {
+  background: #f8fbff;
+}
+
+.GalleryTable input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+
+  accent-color: #0865f2;
+
+  cursor: pointer;
+}
+
+.GalleryTableImage {
+  width: 94px;
+  height: 49px;
+
+  overflow: hidden;
+
+  border-radius: 7px;
+
+  border: 1px solid #dce7f3;
+
+  background: #edf3fa;
+
+  box-shadow:
+    0 3px 9px rgba(20, 60, 110, 0.08);
+}
+
+.GalleryTableImage img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition:
+    transform 0.3s ease;
+}
+
+.GalleryTable tbody tr:hover
+.GalleryTableImage img {
+  transform: scale(1.05);
+}
+
+.GalleryTableTitle {
+  color: #234363;
+
+  font-size: 12px;
+
+  font-weight: 750;
+}
+
+.GalleryCategoryBadge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 27px;
+
+  padding: 0 11px;
+
+  border-radius: 6px;
+
+  font-size: 10px;
+
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+.GalleryCategoryInfrastructure {
+  color: #0865e8;
+
+  background: #e4f0ff;
+}
+
+.GalleryCategoryEvents {
+  color: #8240d5;
+
+  background: #f0e4ff;
+}
+
+.GalleryCategoryAcademics {
+  color: #079b59;
+
+  background: #def8ea;
+}
+
+.GalleryCategorySports {
+  color: #d91aae;
+
+  background: #ffe4fa;
+}
+
+.GalleryCategoryActivities {
+  color: #df8800;
+
+  background: #fff0d5;
+}
+
+.GalleryDate {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.GalleryDate strong {
+  color: #3d5774;
+
+  font-size: 10px;
+
+  font-weight: 750;
+}
+
+.GalleryDate span {
+  color: #8294aa;
+
+  font-size: 9px;
+}
+
+.GallerySize {
+  color: #667e9a;
+
+  font-size: 10px;
+
+  font-weight: 650;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.GalleryActions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.GalleryActionButton {
+  width: 38px;
+  height: 36px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.GalleryActionButton svg {
+  font-size: 17px;
+}
+
+.GalleryActionButton:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 6px 13px rgba(30, 70, 120, 0.12);
+}
+
+.GalleryViewButton {
+  color: #0865f2;
+
+  background: #e7f1ff;
+}
+
+.GalleryEditButton {
+  color: #e99000;
+
+  background: #fff0d2;
+}
+
+.GalleryDeleteButton {
+  color: #ef394b;
+
+  background: #ffe6e9;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.GalleryEmptyState {
+  height: 250px !important;
+
+  text-align: center !important;
+}
+
+.GalleryEmptyIcon {
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 12px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #1770f5;
+
+  background: #eaf3ff;
+
+  font-size: 30px;
+}
+
+.GalleryEmptyState h3 {
+  margin: 0;
+
+  color: #294b70;
+
+  font-size: 16px;
+}
+
+.GalleryEmptyState p {
+  margin: 6px 0 0;
+
+  color: #8497b0;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.GalleryTableFooter {
+  min-height: 62px;
+
+  padding: 0 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  border-top: 1px solid #e0e9f3;
+}
+
+.GalleryTableFooter > span {
+  color: #7087a5;
+
+  font-size: 10px;
+
+  font-weight: 500;
+}
+
+.GalleryPagination {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+.GalleryPagination button {
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid #d6e2ef;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #48617e;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.GalleryPagination button:hover:not(:disabled) {
+  border-color: #0865f2;
+
+  color: #0865f2;
+
+  transform: translateY(-1px);
+}
+
+.GalleryPagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+.GalleryPagination .GalleryPageActive {
+  color: #ffffff;
+
+  border-color: #0865f2;
+
+  background:
+    linear-gradient(
+      135deg,
+      #086cf8,
+      #0758da
+    );
+
+  box-shadow:
+    0 6px 13px rgba(8, 101, 242, 0.22);
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.GalleryModalOverlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 99999;
+
+  padding: 20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow-y: auto;
+
+  background:
+    rgba(8, 25, 52, 0.58);
+
+  backdrop-filter: blur(8px);
+
+  animation:
+    GalleryOverlayIn
+    0.22s ease;
+}
+
+@keyframes GalleryOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.GalleryViewModal,
+.GalleryEditModal,
+.GalleryDeleteModal {
+  width: 100%;
+
+  background: #ffffff;
+
+  border-radius: 17px;
+
+  border: 1px solid #dfe8f3;
+
+  box-shadow:
+    0 30px 90px rgba(3, 25, 60, 0.28);
+
+  animation:
+    GalleryModalIn
+    0.28s
+    cubic-bezier(
+      0.2,
+      0.8,
+      0.2,
+      1
+    );
+}
+
+@keyframes GalleryModalIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px)
+      scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+.GalleryViewModal {
+  max-width: 720px;
+}
+
+.GalleryEditModal {
+  max-width: 680px;
+}
+
+.GalleryDeleteModal {
+  max-width: 430px;
+
+  padding: 34px;
+}
+
+
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
+.GalleryModalHeader {
+  padding: 20px 23px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  border-bottom: 1px solid #e6edf5;
+}
+
+.GalleryModalHeader span {
+  color: #0965ef;
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  letter-spacing: 1px;
+}
+
+.GalleryModalHeader h2 {
+  margin: 5px 0 0;
+
+  color: #17365e;
+
+  font-size: 22px;
+
+  font-weight: 850;
+}
+
+.GalleryCloseButton {
+  width: 38px;
+  height: 38px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #f0f4f9;
+
+  color: #5c708c;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.GalleryCloseButton svg {
+  font-size: 19px;
+}
+
+.GalleryCloseButton:hover {
+  color: #0865f2;
+
+  background: #e7f1ff;
+}
+
+
+/* =========================================================
+   VIEW MODAL
+   ========================================================= */
+
+.GalleryViewImage {
+  width: calc(100% - 46px);
+
+  height: 330px;
+
+  margin: 22px auto;
+
+  overflow: hidden;
+
+  border-radius: 11px;
+
+  background: #edf3fa;
+}
+
+.GalleryViewImage img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+}
+
+.GalleryViewDetails {
+  padding: 0 23px 21px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 10px;
+}
+
+.GalleryViewDetails > div {
+  padding: 13px;
+
+  border: 1px solid #e2eaf3;
+
+  border-radius: 8px;
+
+  background: #f9fbfd;
+}
+
+.GalleryViewDetails span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #8999ad;
+
+  font-size: 9px;
+}
+
+.GalleryViewDetails strong {
+  display: block;
+
+  color: #304c6d;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   EDIT MODAL
+   ========================================================= */
+
+.GalleryEditBody {
+  padding: 22px;
+
+  display: grid;
+
+  grid-template-columns: 220px 1fr;
+
+  gap: 24px;
+}
+
+.GalleryEditPreview {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.GalleryEditPreview > img {
+  width: 100%;
+  height: 155px;
+
+  object-fit: cover;
+
+  border-radius: 9px;
+
+  border: 1px solid #dce7f3;
+}
+
+.GalleryChangeImageButton {
+  height: 38px;
+
+  border-radius: 7px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  color: #0865f2;
+
+  background: #eaf3ff;
+
+  font-size: 10px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.GalleryChangeImageButton input {
+  display: none;
+}
+
+.GalleryEditFields {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 17px;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+   ========================================================= */
+
+.GalleryModalFooter {
+  padding: 15px 23px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  border-top: 1px solid #e7edf5;
+}
+
+.GalleryModalSecondary,
+.GalleryModalPrimary,
+.GalleryConfirmDelete {
+  height: 40px;
+
+  padding: 0 18px;
+
+  border-radius: 8px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  font-size: 11px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.GalleryModalSecondary {
+  border: 1px solid #d9e3ef;
+
+  background: #ffffff;
+
+  color: #4f6682;
+}
+
+.GalleryModalSecondary:hover {
+  background: #f6f9fc;
+}
+
+.GalleryModalPrimary {
+  border: none;
+
+  background:
+    linear-gradient(
+      135deg,
+      #086bf5,
+      #0758da
+    );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 6px 15px rgba(8, 101, 242, 0.22);
+}
+
+.GalleryModalPrimary:hover {
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   DELETE MODAL
+   ========================================================= */
+
+.GalleryDeleteIcon {
+  width: 68px;
+  height: 68px;
+
+  margin: 0 auto 16px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #f03c4c;
+
+  background: #ffe8eb;
+
+  font-size: 29px;
+}
+
+.GalleryDeleteModal h2 {
+  margin: 0;
+
+  color: #1e3655;
+
+  font-size: 21px;
+
+  font-weight: 850;
+
+  text-align: center;
+}
+
+.GalleryDeleteModal p {
+  margin: 10px 0 23px;
+
+  color: #778ba5;
+
+  font-size: 11px;
+
+  line-height: 1.7;
+
+  text-align: center;
+}
+
+.GalleryDeleteActions {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 9px;
+}
+
+.GalleryConfirmDelete {
+  border: none;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f34857,
+      #df3041
+    );
+}
+
+.GalleryConfirmDelete:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 15px rgba(239, 57, 75, 0.2);
+}
+
+
+/* =========================================================
+   LARGE LAPTOP
+   ========================================================= */
+
+@media (max-width: 1300px) {
+
+  .GalleryContainer {
+    padding: 24px 25px 35px;
+  }
+
+  .GalleryStats {
+    gap: 14px;
+  }
+
+  .GalleryStatCard {
+    padding: 16px;
+  }
+
+  .GalleryFormGrid {
+    grid-template-columns:
+      1fr 0.75fr 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1050px) {
+
+  .GalleryContainer {
+    padding: 22px 18px 30px;
+  }
+
+  .GalleryStats {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .GalleryFormGrid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .GalleryUploadGroup {
+    grid-column: span 2;
+  }
+
+  .GalleryUploadBox {
+    height: 105px;
+  }
+
+  .GalleryListHeader {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .GalleryFilters {
+    width: 100%;
+  }
+
+  .GallerySearchBox {
+    flex: 1;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .GalleryContainer {
+    padding: 16px 11px 25px;
+  }
+
+  .GalleryHeader {
+    gap: 12px;
+
+    margin-bottom: 18px;
+  }
+
+  .GalleryHeaderIcon {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 15px;
+
+    font-size: 25px;
+  }
+
+  .GalleryHeaderContent h1 {
+    font-size: 28px;
+  }
+
+  .GalleryHeaderContent p {
+    font-size: 11px;
+  }
+
+  .GalleryStats {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+  }
+
+  .GalleryStatCard {
+    min-height: 94px;
+
+    padding: 15px;
+  }
+
+  .GalleryStatIcon {
+    width: 50px;
+    height: 50px;
+
+    flex-basis: 50px;
+
+    font-size: 23px;
+  }
+
+  .GalleryStatContent strong {
+    font-size: 24px;
+  }
+
+  .GalleryFormCard {
+    padding: 16px 14px 18px;
+  }
+
+  .GalleryFormGrid {
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+  }
+
+  .GalleryUploadGroup {
+    grid-column: span 1;
+  }
+
+  .GalleryUploadBox {
+    height: 115px;
+  }
+
+  .GallerySaveButton {
+    width: 100%;
+  }
+
+  .GalleryListHeader {
+    padding: 16px 14px;
+  }
+
+  .GalleryFilters {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .GallerySearchBox {
+    width: auto;
+
+    grid-column: span 2;
+  }
+
+  .GalleryFilterSelect {
+    width: 100%;
+  }
+
+  .GalleryTableFooter {
+    padding: 13px 14px;
+
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .GalleryPagination {
+    width: 100%;
+
+    overflow-x: auto;
+
+    padding-bottom: 3px;
+  }
+
+  .GalleryModalOverlay {
+    padding: 10px;
+
+    align-items: flex-start;
+  }
+
+  .GalleryViewModal,
+  .GalleryEditModal,
+  .GalleryDeleteModal {
+    margin-top: 10px;
+  }
+
+  .GalleryViewImage {
+    height: 230px;
+
+    width: calc(100% - 28px);
+  }
+
+  .GalleryViewDetails {
+    padding: 0 14px 16px;
+
+    grid-template-columns: 1fr;
+  }
+
+  .GalleryEditBody {
+    padding: 15px;
+
+    grid-template-columns: 1fr;
+  }
+
+  .GalleryEditPreview > img {
+    height: 210px;
+  }
+
+  .GalleryModalHeader {
+    padding: 16px;
+  }
+
+  .GalleryModalHeader h2 {
+    font-size: 19px;
+  }
+
+  .GalleryModalFooter {
+    padding: 13px 16px;
+  }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .GalleryContainer {
+    padding: 12px 8px 20px;
+  }
+
+  .GalleryHeaderIcon {
+    width: 45px;
+    height: 45px;
+
+    border-radius: 13px;
+
+    font-size: 22px;
+  }
+
+  .GalleryHeaderContent h1 {
+    font-size: 25px;
+  }
+
+  .GalleryHeaderContent p {
+    font-size: 9px;
+  }
+
+  .GallerySectionTitle h2,
+  .GalleryListTitle h2 {
+    font-size: 18px;
+  }
+
+  .GalleryStatContent strong {
+    font-size: 22px;
+  }
+
+  .GalleryStatContent span {
+    font-size: 11px;
+  }
+
+  .GalleryFilters {
+    grid-template-columns: 1fr;
+  }
+
+  .GallerySearchBox {
+    grid-column: span 1;
+  }
+
+  .GalleryDeleteModal {
+    padding: 25px 17px;
+  }
+
+  .GalleryDeleteActions {
+    flex-direction: column;
+  }
+
+  .GalleryDeleteActions button {
+    width: 100%;
+  }
+
+}

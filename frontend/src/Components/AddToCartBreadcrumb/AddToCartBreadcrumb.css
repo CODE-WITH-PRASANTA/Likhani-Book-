@@ -1,0 +1,434 @@
+/* =========================================
+   ADD TO CART BREADCRUMB
+   Fully Responsive - All Devices
+   ========================================= */
+
+.AddToCartBreadcrumb-section {
+  width: 100%;
+  min-height: 320px;
+
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+
+  padding: 40px 20px;
+
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Optional soft overlay for better readability */
+.AddToCartBreadcrumb-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  pointer-events: none;
+}
+
+/* =========================================
+   CONTAINER
+   ========================================= */
+
+.AddToCartBreadcrumb-container {
+  width: 100%;
+  max-width: 1200px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  position: relative;
+  z-index: 2;
+
+  margin: 0 auto;
+}
+
+/* =========================================
+   TITLE
+   ========================================= */
+
+.AddToCartBreadcrumb-title {
+  margin: 0 0 12px 0;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+
+  line-height: 1.2;
+
+  font-weight: 700;
+
+  color: #0d2c44;
+
+  letter-spacing: -0.5px;
+
+  text-align: center;
+
+  overflow-wrap: break-word;
+}
+
+/* =========================================
+   BREADCRUMB NAVIGATION
+   ========================================= */
+
+.AddToCartBreadcrumb-nav {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  flex-wrap: wrap;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+
+  font-size: clamp(0.8rem, 2vw, 0.95rem);
+
+  line-height: 1.5;
+
+  font-weight: 500;
+
+  text-align: center;
+}
+
+/* =========================================
+   HOME LINK
+   ========================================= */
+
+.AddToCartBreadcrumb-link {
+  color: #176b87;
+
+  text-decoration: none;
+
+  display: inline-flex;
+  align-items: center;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.AddToCartBreadcrumb-link:hover {
+  color: #0d2c44;
+
+  text-decoration: underline;
+
+  transform: translateY(-1px);
+}
+
+.AddToCartBreadcrumb-link:focus-visible {
+  outline: 2px solid #176b87;
+  outline-offset: 4px;
+
+  border-radius: 3px;
+}
+
+/* =========================================
+   CHEVRON ICON
+   ========================================= */
+
+.AddToCartBreadcrumb-icon {
+  font-size: 0.7rem;
+
+  color: #176b87;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+/* =========================================
+   ACTIVE BREADCRUMB
+   ========================================= */
+
+.AddToCartBreadcrumb-active {
+  color: #176b87;
+
+  display: inline-flex;
+  align-items: center;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   LARGE DESKTOP
+   1440px+
+   ========================================= */
+
+@media (min-width: 1440px) {
+  .AddToCartBreadcrumb-section {
+    min-height: 340px;
+
+    padding: 50px 30px;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 2.7rem;
+
+    margin-bottom: 14px;
+  }
+
+  .AddToCartBreadcrumb-nav {
+    font-size: 1rem;
+
+    gap: 10px;
+  }
+
+  .AddToCartBreadcrumb-icon {
+    font-size: 0.72rem;
+  }
+}
+
+/* =========================================
+   DESKTOP / LAPTOP
+   1025px - 1439px
+   ========================================= */
+
+@media (min-width: 1025px) and (max-width: 1439px) {
+  .AddToCartBreadcrumb-section {
+    min-height: 320px;
+
+    padding: 40px 24px;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 2.5rem;
+  }
+}
+
+/* =========================================
+   TABLET LANDSCAPE
+   769px - 1024px
+   ========================================= */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .AddToCartBreadcrumb-section {
+    min-height: 280px;
+
+    padding: 35px 20px;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 2.2rem;
+
+    margin-bottom: 11px;
+  }
+
+  .AddToCartBreadcrumb-nav {
+    font-size: 0.92rem;
+
+    gap: 8px;
+  }
+}
+
+/* =========================================
+   TABLET PORTRAIT
+   481px - 768px
+   ========================================= */
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .AddToCartBreadcrumb-section {
+    min-height: 250px;
+
+    padding: 30px 18px;
+
+    background-position: center center;
+  }
+
+  .AddToCartBreadcrumb-container {
+    max-width: 700px;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 2rem;
+
+    line-height: 1.2;
+
+    margin-bottom: 10px;
+  }
+
+  .AddToCartBreadcrumb-nav {
+    font-size: 0.875rem;
+
+    gap: 8px;
+  }
+
+  .AddToCartBreadcrumb-icon {
+    font-size: 0.65rem;
+  }
+}
+
+/* =========================================
+   MOBILE
+   361px - 480px
+   ========================================= */
+
+@media (min-width: 361px) and (max-width: 480px) {
+  .AddToCartBreadcrumb-section {
+    min-height: 210px;
+
+    padding: 28px 15px;
+
+    background-position: center center;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 1.7rem;
+
+    line-height: 1.2;
+
+    margin-bottom: 9px;
+
+    letter-spacing: -0.3px;
+  }
+
+  .AddToCartBreadcrumb-nav {
+    font-size: 0.82rem;
+
+    gap: 7px;
+  }
+
+  .AddToCartBreadcrumb-icon {
+    font-size: 0.6rem;
+  }
+}
+
+/* =========================================
+   SMALL MOBILE
+   320px - 360px
+   ========================================= */
+
+@media (max-width: 360px) {
+  .AddToCartBreadcrumb-section {
+    min-height: 190px;
+
+    padding: 24px 12px;
+
+    background-position: center center;
+  }
+
+  .AddToCartBreadcrumb-container {
+    width: 100%;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 1.5rem;
+
+    line-height: 1.2;
+
+    margin-bottom: 8px;
+
+    letter-spacing: -0.2px;
+  }
+
+  .AddToCartBreadcrumb-nav {
+    font-size: 0.78rem;
+
+    gap: 6px;
+
+    max-width: 100%;
+  }
+
+  .AddToCartBreadcrumb-icon {
+    font-size: 0.55rem;
+  }
+}
+
+/* =========================================
+   VERY SMALL DEVICES
+   280px - 319px
+   ========================================= */
+
+@media (max-width: 319px) {
+  .AddToCartBreadcrumb-section {
+    min-height: 175px;
+
+    padding: 20px 10px;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 1.35rem;
+
+    margin-bottom: 7px;
+  }
+
+  .AddToCartBreadcrumb-nav {
+    font-size: 0.72rem;
+
+    gap: 5px;
+  }
+
+  .AddToCartBreadcrumb-icon {
+    font-size: 0.5rem;
+  }
+}
+
+/* =========================================
+   LANDSCAPE MOBILE
+   ========================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .AddToCartBreadcrumb-section {
+    min-height: 190px;
+
+    padding: 25px 15px;
+  }
+
+  .AddToCartBreadcrumb-title {
+    font-size: 1.7rem;
+
+    margin-bottom: 8px;
+  }
+
+  .AddToCartBreadcrumb-nav {
+    font-size: 0.8rem;
+  }
+}
+
+/* =========================================
+   ACCESSIBILITY
+   ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .AddToCartBreadcrumb-link {
+    transition: none;
+  }
+
+  .AddToCartBreadcrumb-link:hover {
+    transform: none;
+  }
+}

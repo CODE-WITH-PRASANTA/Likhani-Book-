@@ -1,12 +1,12 @@
 import React from 'react'
-import BlogBreadcrumb from '../../Component/BlogBreadcrumb/BlogBreadcrumb'
-import BlogCard from '../../Component/BlogCard/BlogCard'
+import BlogBreadcrumb from '../../Components/BlogBreadcrumb/BlogBreadcrumb'
+import BlogCard from '../../Components/BlogCard/BlogCard'
 
 const Blog = () => {
   return (
     <div>
-<BlogBreadcrumb/>
-<BlogCard/>
+        <BlogBreadcrumb/>
+        <BlogCard/>
     </div>
   )
 }

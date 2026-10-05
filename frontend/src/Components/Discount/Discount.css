@@ -1,0 +1,301 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+
+.discount-banner-wrapper {
+  width: 100%;
+  padding: 30px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+
+.discount-container {
+  position: relative;
+  width: 100%;
+  max-width: 1350px;
+  height: 330px; 
+  background: radial-gradient(circle at 60% 50%, #d8ecf8 0%, #bddcf0 55%, #b1d4eb 100%);
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.04);
+}
+
+/* बायाँ भाग - बुक्स इमेज को बड़ा दिखाने के लिए */
+.discount-left-books {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 38%; /* चौड़ाई बढ़ाकर 38% की गई */
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.books-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* पूरी हाइट और स्पेस को भरेगा */
+  object-position: left center;
+  display: block;
+}
+
+/* मध्य भाग - टेक्स्ट और बटन */
+.discount-center-content {
+  flex: 1;
+  text-align: center;
+  margin-left: 32%; /* बुक्स इमेज को ओवरलैप न करने के लिए स्पेस */
+  margin-right: 24%;
+  padding: 0 20px;
+  z-index: 3;
+}
+
+.discount-title {
+  color: #ffffff;
+  font-size: 2.3rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 0 0 26px 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(70, 110, 140, 0.15);
+}
+
+/* शॉप नाउ बटन */
+.shop-now-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  border: none;
+  outline: none;
+  padding: 14px 34px;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  z-index: 1;
+}
+
+/* लेफ्ट टू राइट ऑरेंज होवर इफ़ेक्ट */
+.shop-now-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background-color: #ff6a00;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.shop-now-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.btn-text {
+  position: relative;
+  color: #333333;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: color 0.3s ease;
+}
+
+.shop-now-btn:hover .btn-text {
+  color: #ffffff;
+}
+
+.arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.shop-now-btn:hover .arrow {
+  transform: translateX(5px);
+}
+
+.shop-now-btn:active {
+  transform: scale(0.98);
+}
+
+/* दायाँ भाग - लड़की की इमेज */
+.discount-right-girl {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  width: 30%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.girl-img {
+  height: 94%; /* बैनर की ऊँचाई के अनुसार बड़ा आकार */
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  object-position: bottom right;
+  display: block;
+}
+
+/* फ्लोटिंग एनिमेशन */
+.floating-animation {
+  animation: floatEffect 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes floatEffect {
+  0% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-12px);
+  }
+}
+
+/* बैकग्राउंड डेकोरेशन (Stars, Plane & Path) */
+.bg-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  color: #f7ce46;
+  font-size: 18px;
+  animation: twinkle 2.5s infinite ease-in-out alternate;
+}
+
+.star-1 { top: 22%; right: 3%; }
+.star-2 { bottom: 25%; right: 29%; font-size: 13px; }
+.star-3 { top: 18%; right: 33%; font-size: 15px; opacity: 0.85; }
+
+.paper-plane {
+  position: absolute;
+  top: 54%;
+  right: 27%;
+  font-size: 20px;
+  color: #5b99cd;
+  transform: rotate(-25deg);
+}
+
+.dotted-path {
+  position: absolute;
+  bottom: 0;
+  right: 17%;
+  width: 220px;
+  height: 220px;
+  opacity: 0.6;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.3; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1.15); }
+}
+
+/* रिस्पॉन्सिव स्टाइल (Responsive Design) */
+
+/* लैपटॉप और स्मॉल डेस्कटॉप */
+@media (max-width: 1100px) {
+  .discount-container {
+    height: 330px;
+  }
+  .discount-title {
+    font-size: 1.85rem;
+  }
+  .discount-left-books {
+    width: 35%;
+  }
+  .discount-right-girl {
+    width: 28%;
+  }
+  .discount-center-content {
+    margin-left: 30%;
+    margin-right: 25%;
+  }
+}
+
+/* टैबलेट */
+@media (max-width: 900px) {
+  .discount-container {
+    height: 300px;
+  }
+  .discount-title {
+    font-size: 1.5rem;
+    margin-bottom: 18px;
+  }
+  .discount-left-books {
+    width: 32%;
+  }
+  .discount-right-girl {
+    width: 28%;
+  }
+  .discount-center-content {
+    margin-left: 28%;
+    margin-right: 24%;
+  }
+  .dotted-path,
+  .paper-plane {
+    display: none;
+  }
+}
+
+/* मोबाइल स्क्रीन्स */
+@media (max-width: 650px) {
+  .discount-container {
+    height: auto;
+    min-height: auto;
+    flex-direction: column;
+    padding: 30px 15px 0 15px;
+  }
+
+  .discount-left-books {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    margin-bottom: 15px;
+  }
+
+  .books-img {
+    border-radius: 12px;
+  }
+
+  .discount-center-content {
+    margin: 0 0 25px 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  .discount-title {
+    font-size: 1.45rem;
+  }
+
+  .discount-right-girl {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    justify-content: center;
+  }
+
+  .girl-img {
+    height: 100%;
+    object-position: bottom center;
+  }
+}

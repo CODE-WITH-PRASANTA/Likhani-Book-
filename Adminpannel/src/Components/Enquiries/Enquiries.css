@@ -1,0 +1,780 @@
+:root {
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #eef2ff;
+  --bg-main: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+
+  --badge-blue-bg: #e0f2fe;
+  --badge-blue-txt: #0369a1;
+  --badge-green-bg: #dcfce7;
+  --badge-green-txt: #15803d;
+  --badge-orange-bg: #fef3c7;
+  --badge-orange-txt: #b45309;
+  --badge-purple-bg: #f3e8ff;
+  --badge-purple-txt: #6b21a8;
+  --badge-pink-bg: #fce7f3;
+  --badge-pink-txt: #be185d;
+  --badge-red-bg: #ffe4e6;
+  --badge-red-txt: #be123c;
+  --badge-gray-bg: #f1f5f9;
+  --badge-gray-txt: #475569;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+
+/* Page Base Styling - Prevents unwanted page scrollbar */
+.Enquiries {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header Section */
+.Enquiries-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.Enquiries-titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.Enquiries-iconWrapper {
+  background: linear-gradient(135deg, var(--primary), #6366f1);
+  color: #ffffff;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.Enquiries-headerTitleIcon {
+  font-size: 22px;
+}
+
+.Enquiries-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.Enquiries-subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 4px 0 0 0;
+}
+
+.Enquiries-exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.Enquiries-exportBtn:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Stats Cards Grid */
+.Enquiries-statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.Enquiries-statCard {
+  background: var(--card-bg);
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.Enquiries-statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.Enquiries-statIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.Enquiries-statCard--blue .Enquiries-statIcon {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.Enquiries-statCard--green .Enquiries-statIcon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.Enquiries-statCard--orange .Enquiries-statIcon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.Enquiries-statCard--red .Enquiries-statIcon {
+  background: #ffe4e6;
+  color: #e11d48;
+}
+
+.Enquiries-statCount {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.Enquiries-statLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* Filter Card */
+.Enquiries-filterCard {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.Enquiries-searchGroup {
+  position: relative;
+  width: 100%;
+}
+
+.Enquiries-searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.Enquiries-searchInput {
+  width: 100%;
+  padding: 10px 14px 10px 42px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  background-color: var(--bg-main);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.Enquiries-searchInput:focus {
+  border-color: var(--primary);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.Enquiries-filterControls {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.Enquiries-controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 160px;
+}
+
+.Enquiries-controlLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.Enquiries-selectInput {
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  background-color: #ffffff;
+  color: var(--text-main);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.Enquiries-selectInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.Enquiries-dateInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.Enquiries-dateIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.Enquiries-dateInput {
+  width: 100%;
+  padding: 9px 12px 9px 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  outline: none;
+  color: var(--text-main);
+  box-sizing: border-box;
+}
+
+.Enquiries-dateInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.Enquiries-resetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-main);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 40px;
+}
+
+.Enquiries-resetBtn:hover {
+  background-color: #e2e8f0;
+  color: var(--text-main);
+}
+
+/* Table Section */
+.Enquiries-tableCard {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.Enquiries-tableResponsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.Enquiries-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.Enquiries-table th {
+  background-color: var(--bg-main);
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.Enquiries-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.Enquiries-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.Enquiries-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.Enquiries-rowSelected {
+  background-color: var(--primary-light) !important;
+}
+
+.Enquiries-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.Enquiries-fontBold {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.Enquiries-fontMedium {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.Enquiries-textMuted {
+  color: var(--text-muted);
+}
+
+.Enquiries-messageCell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.Enquiries-dateCell {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.Enquiries-timeText {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Badges */
+.Enquiries-typeBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.Enquiries-typeBadge--bookInfo { background: var(--badge-blue-bg); color: var(--badge-blue-txt); }
+.Enquiries-typeBadge--order { background: var(--badge-purple-bg); color: var(--badge-purple-txt); }
+.Enquiries-typeBadge--price { background: var(--badge-orange-bg); color: var(--badge-orange-txt); }
+.Enquiries-typeBadge--product { background: var(--badge-green-bg); color: var(--badge-green-txt); }
+.Enquiries-typeBadge--shipping { background: var(--badge-pink-bg); color: var(--badge-pink-txt); }
+.Enquiries-typeBadge--refund { background: var(--badge-red-bg); color: var(--badge-red-txt); }
+.Enquiries-typeBadge--payment { background: #fee2e2; color: #991b1b; }
+.Enquiries-typeBadge--other { background: var(--badge-gray-bg); color: var(--badge-gray-txt); }
+
+.Enquiries-statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.Enquiries-statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.Enquiries-statusBadge--new {
+  background: var(--badge-blue-bg);
+  color: var(--badge-blue-txt);
+}
+.Enquiries-statusBadge--new .Enquiries-statusDot { background: var(--badge-blue-txt); }
+
+.Enquiries-statusBadge--inProgress {
+  background: var(--badge-orange-bg);
+  color: var(--badge-orange-txt);
+}
+.Enquiries-statusBadge--inProgress .Enquiries-statusDot { background: var(--badge-orange-txt); }
+
+.Enquiries-statusBadge--closed {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-txt);
+}
+.Enquiries-statusBadge--closed .Enquiries-statusDot { background: var(--badge-green-txt); }
+
+/* Table Action Buttons */
+.Enquiries-actionGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.Enquiries-actionBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+}
+
+.Enquiries-actionBtn:hover {
+  transform: translateY(-1px);
+}
+
+.Enquiries-actionBtn--view:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.Enquiries-actionBtn--reply:hover {
+  background-color: var(--badge-green-bg);
+  color: var(--badge-green-txt);
+  border-color: var(--badge-green-txt);
+}
+
+.Enquiries-actionBtn--delete:hover {
+  background-color: var(--badge-red-bg);
+  color: var(--badge-red-txt);
+  border-color: var(--badge-red-txt);
+}
+
+/* Empty State */
+.Enquiries-emptyRow {
+  text-align: center;
+  padding: 40px 16px !important;
+}
+
+.Enquiries-emptyText {
+  color: var(--text-muted);
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+.Enquiries-inlineResetBtn {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Table Footer & Pagination */
+.Enquiries-tableFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.Enquiries-showingText {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.Enquiries-showingText span {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.Enquiries-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.Enquiries-pageBtn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: #ffffff;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.Enquiries-pageBtn:hover:not(:disabled) {
+  background-color: var(--bg-main);
+  border-color: #cbd5e1;
+}
+
+.Enquiries-pageBtn--active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.Enquiries-pageBtn--active:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+.Enquiries-pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Modal Styling */
+.Enquiries-modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.Enquiries-modalCard {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 560px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.Enquiries-modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-main);
+}
+
+.Enquiries-modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.Enquiries-closeModalBtn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  transition: background 0.2s ease;
+}
+
+.Enquiries-closeModalBtn:hover {
+  background: #e2e8f0;
+  color: var(--text-main);
+}
+
+.Enquiries-modalBody {
+  padding: 20px;
+}
+
+.Enquiries-modalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.Enquiries-modalDetailBox {
+  background-color: var(--bg-main);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+}
+
+.Enquiries-modalLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.Enquiries-modalVal {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.Enquiries-modalMessage {
+  background-color: var(--bg-main);
+  padding: 14px;
+  border-radius: var(--radius-md);
+}
+
+.Enquiries-subjectTxt {
+  margin: 4px 0 0 0;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.Enquiries-msgTxt {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.Enquiries-formGroup {
+  margin-bottom: 16px;
+}
+
+.Enquiries-formLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 6px;
+}
+
+.Enquiries-textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.Enquiries-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.Enquiries-modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.Enquiries-cancelBtn {
+  background-color: var(--bg-main);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.Enquiries-cancelBtn:hover {
+  background-color: #e2e8f0;
+}
+
+.Enquiries-submitBtn {
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.Enquiries-submitBtn:hover {
+  background-color: var(--primary-hover);
+}
