@@ -1,12 +1,12 @@
 import React from 'react'
-import FaqBreadCrumb from '../../Component/FaqBreadCrumb/FaqBreadCrumb'
-import FaqCard from '../../Component/FaqCard/FaqCard'
+import FaqBreadCrumb from '../../Components/FaqBreadCrumb/FaqBreadCrumb'
+import FaqCard from '../../Components/FaqCard/FaqCard'
 
 const Faq = () => {
   return (
     <div>
-<FaqBreadCrumb/>
-<FaqCard/>
+      <FaqBreadCrumb/>
+      <FaqCard/>
     </div>
   )
 }

@@ -1,12 +1,12 @@
 import React from 'react'
-import ContactUsBreadcrumb from '../../Component/ContactUsBreadcrumb/ContactUsBreadcrumb'
-import ContactUsCard from '../../Component/ContactUsCard/ContactUsCard'
+import ContactUsBreadcrumb from '../../Components/ContactUsBreadcrumb/ContactUsBreadcrumb'
+import ContactUsCard from '../../Components/ContactUsCard/ContactUsCard'
 
 const ContactUs = () => {
   return (
     <div>
-<ContactUsBreadcrumb/>
-<ContactUsCard/>
+      <ContactUsBreadcrumb/>
+      <ContactUsCard/>
     </div>
   )
 }

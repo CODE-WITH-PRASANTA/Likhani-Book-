@@ -6,6 +6,8 @@ import Enquiries from './Components/Enquiries/Enquiries';
 import Order from './Components/Order/Order';
 import TestimonialManagement from './Components/TestimonialManagement/TestimonialManagement';
 import Gallery from './Components/Gallery/Gallery';
+import Categories from './Components/Categories/Categories';
+import Books from './Components/Books/Books';
 
 
 const App = () => {
@@ -23,6 +25,8 @@ const App = () => {
           <Route path="orders" element={<Order />} />
           <Route path="gallery" element={<Gallery/>} />
           <Route path="testimonial" element={<TestimonialManagement />} />
+          <Route path="categories" element={<Categories/>} />
+          <Route path="books" element={<Books/>} />
 
         
         </Route>

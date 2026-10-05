@@ -1,7 +1,7 @@
 import React from 'react'
-import Shopdetailsbreadcrumb from '../../Component/Shopdetailsbreadcrumb/Shopdetailsbreadcrumb'
-import Stockavailbale from '../../Component/Stockavailbale/Stockavailbale'
-import Relatedproduct from '../../Component/Relatedproduct/Relatedproduct'
+import Shopdetailsbreadcrumb from '../../Components/Shopdetailsbreadcrumb/Shopdetailsbreadcrumb'
+import Stockavailbale from '../../Components/Stockavailbale/Stockavailbale'
+import Relatedproduct from '../../Components/Relatedproduct/Relatedproduct'
 
 const Shopdeatils = () => {
   return (

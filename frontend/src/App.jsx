@@ -5,11 +5,11 @@ import {
   Route,
 } from "react-router-dom";
 
-import Topbar from "./Component/Topbar/Topbar";
-import Navbar from "./Component/Navbar/Navbar";
-import Footer from "./Component/Footer/Footer";
+import Topbar from "./Components/Topbar/Topbar";
+import Navbar from "./Components/Navbar/Navbar";
+import Footer from "./Components/Footer/Footer";
 
-import CartPage from "./Component/CartPage/CartPage";
+import CartPage from "./Components/CartPage/CartPage";
 import ContactUs from "./Pages/ContactUs/ContactUs";
 import Faq from "./Pages/Faq/Faq";
 import Blog from "./Pages/Blog/Blog";
@@ -90,6 +90,12 @@ const App = () => {
           path="/cart"
           element={<AddToCart />}
         />
+
+        <Route
+          path="/cart-page"
+          element={<CartPage/>}
+        />
+
         <Route
           path="/BlogDetails"
           element={<BlogDetails />}

@@ -1,6 +1,6 @@
 import React from 'react'
-import BlogDetailsBreadcrumb from '../../Component/BlogDetailsBreadcrumb/BlogDetailsBreadcrumb'
-import BlogDetailsCard from '../../Component/BlogDetailsCard/BlogDetailsCard'
+import BlogDetailsBreadcrumb from '../../Components/BlogDetailsBreadcrumb/BlogDetailsBreadcrumb'
+import BlogDetailsCard from '../../Components/BlogDetailsCard/BlogDetailsCard'
 
 const BlogDetails = () => {
   return (

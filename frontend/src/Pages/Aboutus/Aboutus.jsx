@@ -1,9 +1,9 @@
 import React from 'react'
-import Aboutbreadcrumb from '../../Component/Aboutbreadcrumb/Aboutbreadcrumb'
-import Thebookel from '../../Component/Thebookel/Thebookel'
-import Discount from '../../Component/Discount/Discount'
-import Coustmerfeedback from '../../Component/Coustmerfeedback/Coustmerfeedback'
-import FeatureAuthor from '../../Component/FeatureAuthor/FeatureAuthor'
+import Aboutbreadcrumb from '../../Components/Aboutbreadcrumb/Aboutbreadcrumb'
+import Thebookel from '../../Components/Thebookel/Thebookel'
+import Discount from '../../Components/Discount/Discount'
+import Coustmerfeedback from '../../Components/Coustmerfeedback/Coustmerfeedback'
+import FeatureAuthor from '../../Components/FeatureAuthor/FeatureAuthor'
 
 const Aboutus = () => {
   return (
