@@ -1,0 +1,2401 @@
+/* ============================================================
+   COUPONS ADMIN PAGE
+   Premium Responsive UI
+============================================================ */
+
+.Coupons {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+
+  padding: 28px 34px 38px !important;
+
+  margin: 0 !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fafc 0%,
+      #f4f7fb 100%
+    );
+
+  color: #17243b;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  box-sizing: border-box;
+}
+
+.Coupons *,
+.Coupons *::before,
+.Coupons *::after {
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.Coupons__header {
+  width: 100%;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 22px;
+}
+
+.Coupons__heading {
+  min-width: 0;
+}
+
+.Coupons__title {
+  margin: 0;
+
+  color: #101d35;
+
+  font-size: 30px;
+
+  line-height: 1.12;
+
+  font-weight: 800;
+
+  letter-spacing: -0.8px;
+}
+
+.Coupons__subtitle {
+  margin: 7px 0 0;
+
+  color: #64758e;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+.Coupons__headerRight {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 10px;
+
+  flex-shrink: 0;
+}
+
+.Coupons__breadcrumb {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  color: #1774e8;
+
+  font-size: 12px;
+
+  font-weight: 550;
+}
+
+.Coupons__breadcrumb strong {
+  color: #64748b;
+
+  font-weight: 700;
+}
+
+.Coupons__addButton {
+  min-height: 48px;
+
+  padding: 0 20px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  border: 0;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #207cf0,
+      #1268dd
+    );
+
+  color: #fff;
+
+  font-size: 14px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 27px
+    rgba(23, 111, 228, 0.25);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.Coupons__addButton:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 32px
+    rgba(23, 111, 228, 0.32);
+}
+
+.Coupons__addButton:active {
+  transform: translateY(0);
+}
+
+
+/* ============================================================
+   STATISTICS
+============================================================ */
+
+.Coupons__stats {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 17px;
+}
+
+.Coupons__statCard {
+  min-height: 94px;
+
+  position: relative;
+
+  overflow: hidden;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 15px;
+
+  border: 1px solid;
+
+  border-radius: 13px;
+
+  box-shadow:
+    0 4px 14px
+    rgba(30, 52, 82, 0.025);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.Coupons__statCard:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 26px
+    rgba(30, 52, 82, 0.075);
+}
+
+.Coupons__statCard--blue {
+  border-color: #d5e4fa;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f2f7ff,
+      #edf5ff
+    );
+}
+
+.Coupons__statCard--green {
+  border-color: #ccebdc;
+
+  background:
+    linear-gradient(
+      135deg,
+      #effcf5,
+      #e9faf1
+    );
+}
+
+.Coupons__statCard--orange {
+  border-color: #f4dfc8;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff9f2,
+      #fff5eb
+    );
+}
+
+.Coupons__statCard--red {
+  border-color: #f3d5db;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff5f6,
+      #fff0f2
+    );
+}
+
+.Coupons__statIcon {
+  width: 48px;
+
+  height: 48px;
+
+  flex: 0 0 48px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 11px;
+
+  position: relative;
+
+  z-index: 2;
+}
+
+.Coupons__statCard--blue
+.Coupons__statIcon {
+  color: #7747e9;
+
+  background: #e9ddff;
+}
+
+.Coupons__statCard--green
+.Coupons__statIcon {
+  color: #08ae67;
+
+  background: #d5f5e4;
+}
+
+.Coupons__statCard--orange
+.Coupons__statIcon {
+  color: #f28a00;
+
+  background: #ffe8ce;
+}
+
+.Coupons__statCard--red
+.Coupons__statIcon {
+  color: #ee4050;
+
+  background: #ffe0e5;
+}
+
+.Coupons__statContent {
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.Coupons__statContent span {
+  color: #687991;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
+
+.Coupons__statContent strong {
+  color: #101d35;
+
+  font-size: 27px;
+
+  line-height: 1;
+
+  font-weight: 800;
+}
+
+.Coupons__statWatermark {
+  position: absolute;
+
+  right: 17px;
+
+  bottom: 10px;
+
+  width: 48px;
+
+  height: 48px;
+
+  color: currentColor;
+
+  opacity: 0.13;
+}
+
+
+/* ============================================================
+   TOOLBAR
+============================================================ */
+
+.Coupons__toolbar {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  margin-bottom: 12px;
+}
+
+.Coupons__filters {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  flex: 1;
+}
+
+.Coupons__search {
+  width: 345px;
+
+  height: 40px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 12px;
+
+  border: 1px solid #d8e1ec;
+
+  border-radius: 9px;
+
+  background: #fff;
+
+  color: #71839b;
+
+  box-shadow:
+    0 2px 7px
+    rgba(24, 47, 78, 0.025);
+
+  transition: 0.2s ease;
+}
+
+.Coupons__search:focus-within {
+  border-color: #8cbcf5;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(35, 123, 235, 0.08);
+}
+
+.Coupons__search input {
+  width: 100%;
+
+  min-width: 0;
+
+  height: 100%;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  color: #2b3c56;
+
+  font-size: 12px;
+}
+
+.Coupons__search input::placeholder {
+  color: #8493a9;
+}
+
+.Coupons__clearSearch {
+  width: 22px;
+
+  height: 22px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  background: #eef2f7;
+
+  color: #718198;
+
+  cursor: pointer;
+}
+
+.Coupons__select {
+  width: 137px;
+
+  height: 40px;
+
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  border: 1px solid #d8e1ec;
+
+  border-radius: 9px;
+
+  background: #fff;
+}
+
+.Coupons__select--discount {
+  width: 155px;
+}
+
+.Coupons__select--sort {
+  width: 155px;
+}
+
+.Coupons__select select {
+  width: 100%;
+
+  height: 100%;
+
+  padding:
+    0 32px 0 12px;
+
+  appearance: none;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  color: #53657d;
+
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.Coupons__select > svg {
+  position: absolute;
+
+  right: 10px;
+
+  color: #75859a;
+
+  pointer-events: none;
+}
+
+.Coupons__toolbarRight {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+}
+
+.Coupons__selected {
+  min-height: 40px;
+
+  padding: 0 9px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  border: 1px solid #cfe2ff;
+
+  border-radius: 8px;
+
+  background: #eef6ff;
+
+  color: #1674e8;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+.Coupons__selected button {
+  width: 20px;
+
+  height: 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  background: #dcecff;
+
+  color: #2471d4;
+
+  cursor: pointer;
+}
+
+.Coupons__exportButton {
+  height: 40px;
+
+  padding: 0 15px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  border: 1px solid #d7e0eb;
+
+  border-radius: 9px;
+
+  background: #fff;
+
+  color: #273b58;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.Coupons__exportButton:hover {
+  border-color: #b9cbe0;
+
+  background: #f8fbff;
+}
+
+
+/* ============================================================
+   TABLE
+============================================================ */
+
+.Coupons__tableCard {
+  width: 100%;
+
+  overflow: hidden;
+
+  border: 1px solid #dce4ee;
+
+  border-radius: 12px;
+
+  background: #fff;
+
+  box-shadow:
+    0 5px 20px
+    rgba(30, 51, 79, 0.035);
+}
+
+.Coupons__tableWrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.Coupons__table {
+  width: 100%;
+
+  min-width: 1440px;
+
+  border-collapse: collapse;
+}
+
+.Coupons__table thead {
+  background:
+    linear-gradient(
+      180deg,
+      #f8fafc,
+      #f5f8fb
+    );
+}
+
+.Coupons__table th {
+  height: 48px;
+
+  padding: 0 10px;
+
+  border-bottom: 1px solid #dfe6ef;
+
+  color: #263751;
+
+  text-align: left;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.Coupons__table td {
+  height: 66px;
+
+  padding: 8px 10px;
+
+  border-bottom: 1px solid #edf1f5;
+
+  color: #52637c;
+
+  font-size: 10px;
+
+  white-space: nowrap;
+
+  vertical-align: middle;
+}
+
+.Coupons__table th:first-child,
+.Coupons__table td:first-child {
+  padding-left: 14px;
+}
+
+.Coupons__table th:last-child,
+.Coupons__table td:last-child {
+  padding-right: 14px;
+}
+
+.Coupons__table tbody tr {
+  transition:
+    background 0.18s ease;
+}
+
+.Coupons__table tbody tr:hover {
+  background: #f9fbfe;
+}
+
+.Coupons__rowSelected {
+  background: #f1f7ff !important;
+}
+
+
+/* ============================================================
+   CHECKBOX
+============================================================ */
+
+.Coupons__table input[type="checkbox"] {
+  width: 17px;
+
+  height: 17px;
+
+  margin: 0;
+
+  appearance: none;
+
+  border: 1.4px solid #c5d0df;
+
+  border-radius: 4px;
+
+  background: #fff;
+
+  cursor: pointer;
+
+  position: relative;
+}
+
+.Coupons__table
+input[type="checkbox"]:checked {
+  border-color: #1775eb;
+
+  background: #1775eb;
+}
+
+.Coupons__table
+input[type="checkbox"]:checked::after {
+  content: "";
+
+  position: absolute;
+
+  left: 5px;
+
+  top: 2px;
+
+  width: 5px;
+
+  height: 9px;
+
+  border-right: 2px solid #fff;
+
+  border-bottom: 2px solid #fff;
+
+  transform: rotate(45deg);
+}
+
+
+/* ============================================================
+   COUPON CODE
+============================================================ */
+
+.Coupons__number {
+  color: #5f718b;
+
+  font-weight: 650;
+}
+
+.Coupons__code {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 28px;
+
+  padding: 0 9px;
+
+  border-radius: 7px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #e8f4ff,
+      #dceeff
+    );
+
+  color: #1375e8;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.2px;
+}
+
+
+/* ============================================================
+   TITLE
+============================================================ */
+
+.Coupons__titleCell {
+  min-width: 155px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.Coupons__titleCell strong {
+  color: #26364f;
+
+  font-size: 10px;
+
+  font-weight: 750;
+}
+
+.Coupons__titleCell span {
+  color: #8492a7;
+
+  font-size: 8px;
+
+  line-height: 1.35;
+}
+
+
+/* ============================================================
+   DISCOUNT
+============================================================ */
+
+.Coupons__discount {
+  min-height: 27px;
+
+  padding: 0 9px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 6px;
+
+  font-size: 9px;
+
+  font-weight: 750;
+}
+
+.Coupons__discount--percentage {
+  color: #1675e8;
+
+  background: #e7f2ff;
+}
+
+.Coupons__discount--fixed {
+  color: #ef5864;
+
+  background: #ffe6e9;
+}
+
+.Coupons__discount--shipping {
+  color: #0baa68;
+
+  background: #def8ea;
+}
+
+.Coupons__discountValue {
+  color: #273750;
+
+  font-size: 10px;
+}
+
+.Coupons__minimumOrder,
+.Coupons__usageLimit {
+  color: #50627b;
+
+  font-size: 10px;
+}
+
+
+/* ============================================================
+   USAGE
+============================================================ */
+
+.Coupons__usage {
+  width: 78px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.Coupons__usageTop {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 5px;
+}
+
+.Coupons__usageTop strong {
+  color: #3b4d67;
+
+  font-size: 10px;
+}
+
+.Coupons__usageTop span {
+  color: #8190a5;
+
+  font-size: 8px;
+}
+
+.Coupons__usageBar {
+  width: 100%;
+
+  height: 6px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background: #e7ebf1;
+}
+
+.Coupons__usageBar span {
+  display: block;
+
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #1976eb,
+      #258cff
+    );
+
+  transition:
+    width 0.4s ease;
+}
+
+
+/* ============================================================
+   VALIDITY
+============================================================ */
+
+.Coupons__validity {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  color: #718199;
+
+  font-size: 9px;
+}
+
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+.Coupons__status {
+  min-height: 29px;
+
+  padding: 5px 9px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 5px;
+
+  border: 0;
+
+  border-radius: 7px;
+
+  font-size: 9px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.Coupons__status:hover {
+  transform: translateY(-1px);
+}
+
+.Coupons__status--active {
+  color: #07a35e;
+
+  background: #def8e9;
+}
+
+.Coupons__status--scheduled {
+  color: #e98a00;
+
+  background: #fff0d5;
+}
+
+.Coupons__status--expired {
+  color: #e7434e;
+
+  background: #ffe4e7;
+}
+
+
+/* ============================================================
+   ACTIONS
+============================================================ */
+
+.Coupons__actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+.Coupons__action {
+  width: 35px;
+
+  height: 35px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.17s ease,
+    box-shadow 0.17s ease;
+}
+
+.Coupons__action:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 5px 12px
+    rgba(20, 50, 90, 0.1);
+}
+
+.Coupons__action--view {
+  color: #1474e8;
+
+  background: #e9f3ff;
+}
+
+.Coupons__action--edit {
+  color: #1474e8;
+
+  background: #e6f1ff;
+}
+
+.Coupons__action--delete {
+  color: #ef414b;
+
+  background: #ffe7e9;
+}
+
+
+/* ============================================================
+   TABLE FOOTER
+============================================================ */
+
+.Coupons__tableFooter {
+  min-height: 62px;
+
+  padding: 0 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.Coupons__showing {
+  color: #71819a;
+
+  font-size: 10px;
+}
+
+.Coupons__pagination {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+.Coupons__pagination button {
+  width: 34px;
+
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px solid #dfe6ef;
+
+  border-radius: 7px;
+
+  background: #fff;
+
+  color: #63748d;
+
+  font-size: 10px;
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+.Coupons__pagination
+button:hover:not(:disabled) {
+  border-color: #bcd2ee;
+
+  background: #f5f9ff;
+
+  color: #1674e9;
+}
+
+.Coupons__pagination
+button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+.Coupons__pagination
+button.Coupons__page--active {
+  border-color: #1876ed;
+
+  background: #1876ed;
+
+  color: #fff;
+
+  box-shadow:
+    0 5px 12px
+    rgba(24, 118, 237, 0.2);
+}
+
+.Coupons__dots {
+  color: #7a8aa0;
+
+  font-size: 12px;
+}
+
+
+/* ============================================================
+   EMPTY
+============================================================ */
+
+.Coupons__empty {
+  height: 280px !important;
+
+  text-align: center;
+}
+
+.Coupons__emptyContent {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.Coupons__emptyIcon {
+  width: 62px;
+
+  height: 62px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color: #6e8eb8;
+
+  background: #edf4ff;
+}
+
+.Coupons__emptyContent h3 {
+  margin: 2px 0 0;
+
+  color: #1c2b43;
+
+  font-size: 16px;
+}
+
+.Coupons__emptyContent p {
+  margin: 0;
+
+  color: #8492a6;
+
+  font-size: 11px;
+}
+
+.Coupons__emptyContent button {
+  margin-top: 6px;
+
+  padding: 8px 14px;
+
+  border: 0;
+
+  border-radius: 7px;
+
+  background: #eaf3ff;
+
+  color: #1474e8;
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   MODAL OVERLAY
+============================================================ */
+
+.Coupons__overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 99999;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 25px;
+
+  background:
+    rgba(16, 28, 47, 0.59);
+
+  backdrop-filter: blur(9px);
+
+  -webkit-backdrop-filter: blur(9px);
+
+  animation:
+    CouponsOverlayIn
+    0.2s ease both;
+}
+
+@keyframes CouponsOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.Coupons__formModal,
+.Coupons__viewModal,
+.Coupons__deleteModal {
+  animation:
+    CouponsModalIn
+    0.28s
+    cubic-bezier(
+      0.2,
+      0.8,
+      0.2,
+      1
+    )
+    both;
+}
+
+@keyframes CouponsModalIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(20px)
+      scale(0.975);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* ============================================================
+   FORM MODAL
+============================================================ */
+
+.Coupons__formModal {
+  width: min(700px, 100%);
+
+  max-height:
+    calc(100vh - 50px);
+
+  overflow-y: auto;
+
+  border-radius: 18px;
+
+  background: #fff;
+
+  box-shadow:
+    0 35px 90px
+    rgba(12, 29, 54, 0.3);
+}
+
+.Coupons__modalHeader {
+  min-height: 94px;
+
+  padding: 21px 24px;
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 18px;
+
+  border-bottom: 1px solid #e9eef4;
+}
+
+.Coupons__eyebrow {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #1975e8;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.1px;
+}
+
+.Coupons__modalHeader h2 {
+  margin: 0;
+
+  color: #17243b;
+
+  font-size: 22px;
+
+  font-weight: 780;
+}
+
+.Coupons__modalHeader p {
+  margin: 5px 0 0;
+
+  color: #77869d;
+
+  font-size: 11px;
+}
+
+.Coupons__closeButton {
+  width: 39px;
+
+  height: 39px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  background: #f1f4f8;
+
+  color: #687990;
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+.Coupons__closeButton:hover {
+  background: #e8edf3;
+
+  color: #243750;
+}
+
+.Coupons__form {
+  padding: 23px 24px 25px;
+}
+
+.Coupons__formGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.Coupons__field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin-bottom: 14px;
+}
+
+.Coupons__field label {
+  color: #33445f;
+
+  font-size: 11px;
+
+  font-weight: 750;
+}
+
+.Coupons__field small {
+  color: #e84b52;
+
+  font-size: 9px;
+}
+
+.Coupons__inputWrapper,
+.Coupons__selectWrapper {
+  height: 44px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 0 12px;
+
+  border: 1px solid #dce4ef;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  color: #8190a6;
+
+  transition: 0.18s ease;
+}
+
+.Coupons__inputWrapper:focus-within,
+.Coupons__selectWrapper:focus-within,
+.Coupons__field textarea:focus {
+  border-color: #8bbcf2;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(27, 117, 232, 0.07);
+}
+
+.Coupons__inputWrapper input {
+  width: 100%;
+
+  height: 100%;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  color: #293b56;
+
+  font-size: 11px;
+}
+
+.Coupons__field textarea {
+  width: 100%;
+
+  min-height: 88px;
+
+  padding: 12px;
+
+  resize: vertical;
+
+  border: 1px solid #dce4ef;
+
+  border-radius: 8px;
+
+  outline: 0;
+
+  background: #fff;
+
+  color: #293b56;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+
+  transition: 0.18s ease;
+}
+
+.Coupons__selectWrapper {
+  position: relative;
+}
+
+.Coupons__selectWrapper select {
+  width: 100%;
+
+  height: 100%;
+
+  appearance: none;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  color: #293b56;
+
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+.Coupons__selectWrapper > svg {
+  position: absolute;
+
+  right: 11px;
+
+  pointer-events: none;
+}
+
+.Coupons__formFooter {
+  padding-top: 17px;
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  border-top: 1px solid #edf1f5;
+}
+
+.Coupons__cancelButton,
+.Coupons__saveButton,
+.Coupons__deleteButton {
+  min-height: 42px;
+
+  padding: 0 17px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.Coupons__cancelButton {
+  border: 1px solid #dbe3ed;
+
+  background: #fff;
+
+  color: #5d6d84;
+}
+
+.Coupons__saveButton {
+  border: 1px solid #1674e9;
+
+  background: #1674e9;
+
+  color: #fff;
+
+  box-shadow:
+    0 7px 17px
+    rgba(22, 116, 233, 0.18);
+}
+
+
+/* ============================================================
+   VIEW MODAL
+============================================================ */
+
+.Coupons__viewModal {
+  width: min(720px, 100%);
+
+  max-height:
+    calc(100vh - 50px);
+
+  overflow: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+
+  border-radius: 19px;
+
+  background: #fff;
+
+  box-shadow:
+    0 35px 95px
+    rgba(12, 29, 54, 0.31);
+}
+
+.Coupons__viewBody {
+  overflow-y: auto;
+
+  padding: 24px;
+}
+
+
+/* ============================================================
+   COUPON HERO
+============================================================ */
+
+.Coupons__couponHero {
+  min-height: 115px;
+
+  padding: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  border: 1px solid #dce6f0;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f5f9ff,
+      #f8fbff
+    );
+}
+
+.Coupons__couponIcon {
+  width: 68px;
+
+  height: 68px;
+
+  flex: 0 0 68px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 14px;
+
+  color: #7345e8;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eadfff,
+      #dfd2ff
+    );
+
+  box-shadow:
+    0 7px 17px
+    rgba(112, 68, 229, 0.12);
+}
+
+.Coupons__couponHeroInfo {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.Coupons__couponHeroInfo span {
+  color: #8291a6;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.Coupons__couponHeroInfo h3 {
+  margin: 0;
+
+  color: #16243c;
+
+  font-size: 22px;
+
+  letter-spacing: 0.3px;
+}
+
+.Coupons__couponHeroInfo p {
+  margin: 0;
+
+  color: #6e7e96;
+
+  font-size: 11px;
+}
+
+.Coupons__couponHero
+.Coupons__status {
+  margin-left: auto;
+}
+
+
+/* ============================================================
+   DETAIL GRID
+============================================================ */
+
+.Coupons__detailGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-top: 14px;
+}
+
+.Coupons__detailCard {
+  min-height: 86px;
+
+  padding: 12px;
+
+  display: grid;
+
+  grid-template-columns:
+    39px 1fr;
+
+  grid-template-rows:
+    auto auto;
+
+  column-gap: 10px;
+
+  border: 1px solid #dfe7f0;
+
+  border-radius: 11px;
+
+  background: #fff;
+}
+
+.Coupons__detailIcon {
+  width: 39px;
+
+  height: 39px;
+
+  grid-row: 1 / 3;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 9px;
+
+  color: #1976e9;
+
+  background: #eaf3ff;
+}
+
+.Coupons__detailCard span {
+  color: #8592a7;
+
+  font-size: 9px;
+}
+
+.Coupons__detailCard strong {
+  color: #263750;
+
+  font-size: 11px;
+
+  line-height: 1.35;
+}
+
+
+/* ============================================================
+   DESCRIPTION
+============================================================ */
+
+.Coupons__viewDescription {
+  margin-top: 13px;
+
+  padding: 14px;
+
+  border: 1px solid #dfe7f0;
+
+  border-radius: 11px;
+
+  background: #fbfcfe;
+}
+
+.Coupons__viewDescription span {
+  color: #7e8da3;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.Coupons__viewDescription p {
+  margin: 6px 0 0;
+
+  color: #465873;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   VIEW USAGE
+============================================================ */
+
+.Coupons__viewUsage {
+  margin-top: 13px;
+
+  padding: 14px;
+
+  border: 1px solid #dfe7f0;
+
+  border-radius: 11px;
+
+  background: #fff;
+}
+
+.Coupons__viewUsageHeader {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 8px;
+}
+
+.Coupons__viewUsageHeader span {
+  color: #61728a;
+
+  font-size: 10px;
+
+  font-weight: 700;
+}
+
+.Coupons__viewUsageHeader strong {
+  color: #1674e8;
+
+  font-size: 11px;
+}
+
+.Coupons__viewUsageBar {
+  width: 100%;
+
+  height: 8px;
+
+  overflow: hidden;
+
+  border-radius: 99px;
+
+  background: #e7ebf1;
+}
+
+.Coupons__viewUsageBar span {
+  display: block;
+
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #1875eb,
+      #3b94ff
+    );
+}
+
+
+/* ============================================================
+   VIEW FOOTER
+============================================================ */
+
+.Coupons__viewFooter {
+  min-height: 72px;
+
+  padding: 13px 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  border-top: 1px solid #edf1f5;
+
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   DELETE MODAL
+============================================================ */
+
+.Coupons__deleteModal {
+  width: min(420px, 100%);
+
+  padding: 32px;
+
+  text-align: center;
+
+  border-radius: 18px;
+
+  background: #fff;
+
+  box-shadow:
+    0 35px 90px
+    rgba(12, 29, 54, 0.3);
+}
+
+.Coupons__deleteIcon {
+  width: 64px;
+
+  height: 64px;
+
+  margin: 0 auto 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color: #eb4a50;
+
+  background: #ffe8ea;
+}
+
+.Coupons__deleteModal h2 {
+  margin: 0;
+
+  color: #18253c;
+
+  font-size: 22px;
+}
+
+.Coupons__deleteModal p {
+  margin: 9px auto 22px;
+
+  max-width: 320px;
+
+  color: #7b899e;
+
+  font-size: 11px;
+
+  line-height: 1.7;
+}
+
+.Coupons__deleteModal p strong {
+  color: #36465f;
+}
+
+.Coupons__deleteActions {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 8px;
+}
+
+.Coupons__deleteButton {
+  border: 1px solid #ee4d53;
+
+  background: #ee4d53;
+
+  color: #fff;
+}
+
+
+/* ============================================================
+   LARGE TABLET
+============================================================ */
+
+@media (max-width: 1300px) {
+  .Coupons {
+    padding-left: 25px !important;
+
+    padding-right: 25px !important;
+  }
+
+  .Coupons__search {
+    width: 260px;
+  }
+
+  .Coupons__select {
+    width: 120px;
+  }
+
+  .Coupons__select--discount {
+    width: 135px;
+  }
+
+  .Coupons__select--sort {
+    width: 140px;
+  }
+
+  .Coupons__table {
+    min-width: 1360px;
+  }
+}
+
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 1080px) {
+  .Coupons__stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .Coupons__toolbar {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .Coupons__filters {
+    width: 100%;
+
+    flex-wrap: wrap;
+  }
+
+  .Coupons__search {
+    width: 100%;
+  }
+
+  .Coupons__select {
+    flex: 1;
+  }
+
+  .Coupons__select--discount,
+  .Coupons__select--sort {
+    width: auto;
+  }
+
+  .Coupons__toolbarRight {
+    justify-content: flex-end;
+  }
+}
+
+
+/* ============================================================
+   TABLET / SMALL LAPTOP
+============================================================ */
+
+@media (max-width: 800px) {
+  .Coupons {
+    padding:
+      22px 18px 28px !important;
+  }
+
+  .Coupons__header {
+    align-items: flex-start;
+  }
+
+  .Coupons__title {
+    font-size: 27px;
+  }
+
+  .Coupons__subtitle {
+    font-size: 13px;
+  }
+
+  .Coupons__stats {
+    gap: 11px;
+  }
+
+  .Coupons__filters {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .Coupons__search {
+    grid-column: 1 / -1;
+  }
+
+  .Coupons__select,
+  .Coupons__select--discount,
+  .Coupons__select--sort {
+    width: 100%;
+  }
+
+  .Coupons__formModal,
+  .Coupons__viewModal {
+    width: 100%;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 600px) {
+  .Coupons {
+    padding:
+      17px 12px 24px !important;
+  }
+
+  .Coupons__header {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 13px;
+  }
+
+  .Coupons__headerRight {
+    align-items: stretch;
+  }
+
+  .Coupons__breadcrumb {
+    justify-content: flex-end;
+  }
+
+  .Coupons__addButton {
+    width: 100%;
+  }
+
+  .Coupons__stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .Coupons__statCard {
+    min-height: 88px;
+
+    padding: 12px;
+  }
+
+  .Coupons__statIcon {
+    width: 41px;
+
+    height: 41px;
+
+    flex-basis: 41px;
+  }
+
+  .Coupons__statContent span {
+    font-size: 10px;
+  }
+
+  .Coupons__statContent strong {
+    font-size: 23px;
+  }
+
+  .Coupons__statWatermark {
+    width: 39px;
+
+    height: 39px;
+
+    right: 9px;
+  }
+
+  .Coupons__filters {
+    grid-template-columns: 1fr;
+  }
+
+  .Coupons__search {
+    grid-column: auto;
+
+    height: 43px;
+  }
+
+  .Coupons__select,
+  .Coupons__select--discount,
+  .Coupons__select--sort {
+    height: 43px;
+  }
+
+  .Coupons__toolbarRight {
+    width: 100%;
+
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .Coupons__selected,
+  .Coupons__exportButton {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+  .Coupons__tableFooter {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    padding: 13px;
+  }
+
+  .Coupons__pagination {
+    width: 100%;
+
+    justify-content: flex-end;
+  }
+
+  .Coupons__overlay {
+    padding: 10px;
+  }
+
+  .Coupons__formModal,
+  .Coupons__viewModal {
+    max-height:
+      calc(100vh - 20px);
+
+    border-radius: 15px;
+  }
+
+  .Coupons__modalHeader {
+    padding: 18px;
+  }
+
+  .Coupons__modalHeader h2 {
+    font-size: 19px;
+  }
+
+  .Coupons__form {
+    padding: 18px;
+  }
+
+  .Coupons__formGrid {
+    grid-template-columns: 1fr;
+
+    gap: 0;
+  }
+
+  .Coupons__viewBody {
+    padding: 18px;
+  }
+
+  .Coupons__couponHero {
+    flex-wrap: wrap;
+  }
+
+  .Coupons__couponHero
+  .Coupons__status {
+    margin-left: 0;
+  }
+
+  .Coupons__detailGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .Coupons__viewFooter {
+    padding:
+      11px 18px;
+  }
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+============================================================ */
+
+@media (max-width: 430px) {
+  .Coupons {
+    padding:
+      14px 9px 20px !important;
+  }
+
+  .Coupons__title {
+    font-size: 25px;
+  }
+
+  .Coupons__subtitle {
+    font-size: 12px;
+  }
+
+  .Coupons__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .Coupons__statCard {
+    min-height: 82px;
+  }
+
+  .Coupons__formFooter,
+  .Coupons__deleteActions {
+    flex-direction: column;
+  }
+
+  .Coupons__formFooter button,
+  .Coupons__deleteActions button,
+  .Coupons__viewFooter button {
+    width: 100%;
+  }
+
+  .Coupons__viewFooter {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+}

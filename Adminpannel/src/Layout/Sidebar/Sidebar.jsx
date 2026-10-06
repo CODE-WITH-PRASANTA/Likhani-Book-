@@ -17,6 +17,7 @@ const menuItems = [
   { id: 'gallery', label: 'Gallery', path: '/gallery', icon: <LuGalleryHorizontal/> },
   { id: 'users', label: 'Users', path: '/users', icon: <LuUsers /> },
   { id: 'enquiries', label: 'Enquiries', path: '/enquiries', icon: <LuMessageSquare /> },
+  { id: 'supports', label: 'Supports', path: '/supports', icon: <LuMessageCircle /> },
   { id: 'coupons', label: 'Coupons', path: '/coupons', icon: <LuTag /> },
   { id: 'reviews', label: 'Reviews', path: '/reviews', icon: <LuStar /> },
   { id: 'testimonials', label: 'Testimonials', path: '/testimonial', icon: <LuMessageCircle /> },

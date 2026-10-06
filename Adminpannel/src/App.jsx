@@ -8,6 +8,10 @@ import TestimonialManagement from './Components/TestimonialManagement/Testimonia
 import Gallery from './Components/Gallery/Gallery';
 import Categories from './Components/Categories/Categories';
 import Books from './Components/Books/Books';
+import Users from './Components/Users/Users';
+import Reviews from './Components/Reviews/Reviews';
+import Coupons from './Components/Coupons/Coupons';
+import Supports from './Components/Supports/Supports';
 
 
 const App = () => {
@@ -27,6 +31,10 @@ const App = () => {
           <Route path="testimonial" element={<TestimonialManagement />} />
           <Route path="categories" element={<Categories/>} />
           <Route path="books" element={<Books/>} />
+          <Route path="users" element={<Users/>} />
+          <Route path="reviews" element={<Reviews/>} />
+          <Route path="coupons" element={<Coupons/>} />
+          <Route path="supports" element={<Supports/>} />
 
         
         </Route>

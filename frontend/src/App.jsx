@@ -19,6 +19,9 @@ import Aboutus from "./Pages/Aboutus/Aboutus";
 import Wishlist from "./Pages/Wishlist/Wishlist";
 import AddToCart from "./Pages/AddToCart/AddToCart";
 import BlogDetails from "./Pages/BlogDetails/BlogDetails";
+import FloatingIcons from "./Components/FloatingIcons/FloatingIcons";
+import FloatingSupport from "./Components/FloatingSupport/FloatingSupport";
+import FloatingForm from "./Components/FloatingForm/FloatingForm";
 
 const SimplePage = ({ title }) => {
   return (
@@ -45,10 +48,10 @@ const App = () => {
 
       <Routes>
        <Route path="/blog" element={<Blog/>}/>
-<Route path="/blogdetails" element={<BlogDetails/>}/>
-<Route path="/contactus" element={<ContactUs/>}/>
-<Route path="/faq" element={<Faq/>}/>
-<Route path="/home"element={<Home/>}/>
+        <Route path="/blogdetails" element={<BlogDetails/>}/>
+        <Route path="/contactus" element={<ContactUs/>}/>
+        <Route path="/faq" element={<Faq/>}/>
+        <Route path="/"element={<Home/>}/>
         {/* Home */}
         <Route
           path="/"
@@ -120,7 +123,14 @@ const App = () => {
         />
       </Routes>
 
+           <FloatingForm/>
+
       <Footer />
+
+          <FloatingIcons/>
+
+         <FloatingSupport/>
+
     </BrowserRouter>
   );
 };

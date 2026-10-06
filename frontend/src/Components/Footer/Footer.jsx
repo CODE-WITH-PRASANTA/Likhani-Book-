@@ -372,17 +372,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Floating Scroll-To-Top Button */}
-      {showTopBtn && (
-        <button
-          onClick={scrollToTop}
-          className="footer-scroll-to-top-btn"
-          aria-label="Back to Top"
-        >
-          <FiChevronUp />
-        </button>
-      )}
-
     </footer>
   );
 };

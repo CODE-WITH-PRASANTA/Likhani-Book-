@@ -1,0 +1,1628 @@
+/* =========================================================
+   LIKHANI BOOKS
+   PREMIUM COMPACT FLOATING FORM
+   FINAL VERSION
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.likhani-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 15px;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(31, 109, 143, 0.12),
+      transparent 38%
+    ),
+    rgba(7, 22, 34, 0.74);
+
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+
+  overflow-y: auto;
+
+  animation:
+    likhaniOverlayIn
+    0.28s
+    ease
+    both;
+}
+
+.likhani-overlay-closing {
+  animation:
+    likhaniOverlayOut
+    0.3s
+    ease
+    both;
+}
+
+/* =========================================================
+   MAIN CARD
+   WIDTH REDUCED
+   HEIGHT PRESERVED
+========================================================= */
+
+.likhani-card {
+  position: relative;
+
+  width: min(480px, 100%);
+
+  max-height: calc(100vh - 45px);
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.9);
+
+  border-radius: 26px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #fcfdfe 60%,
+      #f1f8fa 100%
+    );
+
+  box-shadow:
+    0 40px 90px
+      rgba(3, 23, 38, 0.36),
+    0 15px 38px
+      rgba(13, 72, 96, 0.15),
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.95);
+
+  animation:
+    likhaniCardIn
+    0.45s
+    cubic-bezier(
+      0.16,
+      1,
+      0.3,
+      1
+    )
+    both;
+}
+
+.likhani-card-closing {
+  animation:
+    likhaniCardOut
+    0.3s
+    ease
+    both;
+}
+
+/* =========================================================
+   DECORATIVE ORBS
+========================================================= */
+
+.likhani-orb {
+  position: absolute;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  z-index: 0;
+
+  filter: blur(1px);
+}
+
+.likhani-orb-one {
+  width: 220px;
+  height: 220px;
+
+  top: -145px;
+  right: -75px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(49, 132, 159, 0.12),
+      rgba(49, 132, 159, 0)
+    );
+}
+
+.likhani-orb-two {
+  width: 190px;
+  height: 190px;
+
+  left: -125px;
+  bottom: -120px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(74, 146, 126, 0.1),
+      rgba(74, 146, 126, 0)
+    );
+}
+
+/* =========================================================
+   DOT PATTERN
+========================================================= */
+
+.likhani-grid-pattern {
+  position: absolute;
+
+  width: 135px;
+  height: 95px;
+
+  top: 0;
+  right: 0;
+
+  opacity: 0.32;
+
+  pointer-events: none;
+
+  background-image:
+    radial-gradient(
+      #4c91a8 1px,
+      transparent 1px
+    );
+
+  background-size: 10px 10px;
+
+  mask-image:
+    linear-gradient(
+      to bottom left,
+      black,
+      transparent
+    );
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom left,
+      black,
+      transparent
+    );
+}
+
+/* =========================================================
+   CLOSE BUTTON
+========================================================= */
+
+.likhani-close {
+  position: absolute;
+
+  z-index: 50;
+
+  top: 13px;
+  right: 13px;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid
+    rgba(205, 219, 226, 0.95);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  box-shadow:
+    0 7px 20px
+      rgba(18, 59, 76, 0.12);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.likhani-close:hover {
+  transform:
+    rotate(90deg)
+    scale(1.05);
+
+  background: #ffffff;
+
+  box-shadow:
+    0 11px 26px
+      rgba(18, 59, 76, 0.18);
+}
+
+.likhani-close:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.likhani-close span {
+  position: absolute;
+
+  width: 17px;
+  height: 2px;
+
+  border-radius: 10px;
+
+  background: #526b79;
+}
+
+.likhani-close span:first-child {
+  transform: rotate(45deg);
+}
+
+.likhani-close span:last-child {
+  transform: rotate(-45deg);
+}
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.likhani-main {
+  position: relative;
+
+  z-index: 2;
+
+  padding:
+    24px
+    30px
+    19px;
+}
+
+/* =========================================================
+   TOP BRAND AREA
+========================================================= */
+
+.likhani-top {
+  position: relative;
+
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-right: 36px;
+
+  margin-bottom: 12px;
+}
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.likhani-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  position: relative;
+
+  z-index: 5;
+}
+
+.likhani-brand-logo {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px;
+
+  border:
+    1px solid
+    #d9e7ec;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #f2f8fa
+    );
+
+  box-shadow:
+    0 8px 20px
+      rgba(19, 71, 89, 0.09);
+}
+
+.likhani-brand-logo img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+.likhani-brand-text {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.likhani-brand-text strong {
+  color: #17394d;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 18px;
+
+  line-height: 1;
+
+  font-weight: 800;
+
+  letter-spacing: -0.2px;
+}
+
+.likhani-brand-text span {
+  color: #8a9da8;
+
+  font-size: 7px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.15px;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   COMPACT BOOK VISUAL
+========================================================= */
+
+.likhani-mini-visual {
+  position: relative;
+
+  width: 110px;
+  height: 72px;
+
+  flex-shrink: 0;
+}
+
+.likhani-mini-ring {
+  position: absolute;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(40, 124, 151, 0.14);
+}
+
+.ring-one {
+  width: 88px;
+  height: 88px;
+
+  right: -5px;
+  top: -8px;
+}
+
+.ring-two {
+  width: 65px;
+  height: 65px;
+
+  right: 7px;
+  top: 4px;
+
+  border-color:
+    rgba(255, 255, 255, 0.88);
+}
+
+/* =========================================================
+   SMALL LOGO IMAGE
+========================================================= */
+
+.likhani-mini-image {
+  position: absolute;
+
+  z-index: 4;
+
+  width: 65px;
+  height: 65px;
+
+  right: 12px;
+  top: 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.9);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.74);
+
+  box-shadow:
+    0 10px 23px
+      rgba(26, 81, 102, 0.13);
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  animation:
+    likhaniFloat
+    5s
+    ease-in-out
+    infinite;
+}
+
+.likhani-mini-image::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 6px;
+
+  border:
+    1px dashed
+    rgba(36, 115, 145, 0.23);
+
+  border-radius: 50%;
+}
+
+.likhani-mini-image img {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  filter:
+    drop-shadow(
+      0 7px 8px
+      rgba(19, 61, 79, 0.11)
+    );
+}
+
+/* =========================================================
+   FLOATING MINI BOOKS
+========================================================= */
+
+.likhani-mini-book {
+  position: absolute;
+
+  z-index: 6;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color:
+    rgba(255, 255, 255, 0.96);
+
+  font-size: 5px;
+
+  font-weight: 900;
+
+  letter-spacing: 0.35px;
+
+  border-radius: 4px;
+
+  box-shadow:
+    0 6px 12px
+      rgba(29, 70, 84, 0.15);
+}
+
+.book-blue {
+  width: 28px;
+  height: 40px;
+
+  left: 3px;
+  top: 16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2c718e,
+      #124b65
+    );
+
+  transform: rotate(-16deg);
+}
+
+.book-gold {
+  width: 25px;
+  height: 36px;
+
+  left: 21px;
+  top: 26px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #c68d48,
+      #97652f
+    );
+
+  transform: rotate(9deg);
+}
+
+/* =========================================================
+   STARS
+========================================================= */
+
+.likhani-mini-star {
+  position: absolute;
+
+  z-index: 8;
+
+  color: #4e91a6;
+
+  opacity: 0.7;
+
+  font-size: 11px;
+
+  animation:
+    likhaniStarFloat
+    4s
+    ease-in-out
+    infinite;
+}
+
+.star-left {
+  left: 0;
+  top: 1px;
+}
+
+.star-right {
+  right: 0;
+  bottom: 1px;
+
+  font-size: 8px;
+
+  animation-delay: 1s;
+}
+
+/* =========================================================
+   HEADING
+========================================================= */
+
+.likhani-heading {
+  position: relative;
+
+  z-index: 5;
+
+  margin-bottom: 14px;
+}
+
+.likhani-eyebrow {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 5px;
+
+  color: #81929e;
+
+  font-size: 6.5px;
+
+  font-weight: 900;
+
+  letter-spacing: 1.55px;
+}
+
+.likhani-eyebrow-line {
+  width: 26px;
+  height: 2.5px;
+
+  border-radius: 5px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #176384,
+      #4a98b2
+    );
+}
+
+.likhani-heading h2 {
+  margin: 0;
+
+  color: #132737;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 36px;
+
+  line-height: 0.98;
+
+  font-weight: 800;
+
+  letter-spacing: -1.3px;
+}
+
+.likhani-heading h2 span {
+  color: #196f93;
+}
+
+.likhani-heading p {
+  max-width: 370px;
+
+  margin:
+    7px 0 0;
+
+  color: #778995;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.likhani-form {
+  position: relative;
+
+  z-index: 5;
+
+  width: 100%;
+}
+
+.likhani-field {
+  margin-bottom: 8px;
+}
+
+.likhani-field label {
+  display: block;
+
+  margin:
+    0 0 5px 2px;
+
+  color: #2d414e;
+
+  font-size: 9px;
+
+  line-height: 1.2;
+
+  font-weight: 800;
+
+  letter-spacing: 0.05px;
+}
+
+.likhani-field label em {
+  color: #d43e49;
+
+  font-style: normal;
+
+  margin-left: 2px;
+}
+
+/* =========================================================
+   INPUT BOX
+========================================================= */
+
+.likhani-input {
+  width: 100%;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding:
+    0 12px;
+
+  border:
+    1px solid
+    #d9e4e9;
+
+  border-radius: 11px;
+
+  background:
+    rgba(250, 252, 253, 0.96);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.likhani-input:hover {
+  border-color: #b8d0da;
+
+  background: #ffffff;
+}
+
+.likhani-input:focus-within {
+  border-color: #287d9f;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+      rgba(40, 125, 159, 0.08),
+    0 6px 17px
+      rgba(31, 103, 130, 0.045);
+
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   INPUT ICON
+========================================================= */
+
+.likhani-input svg {
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+
+  color: #78909e;
+
+  transition:
+    color 0.2s ease;
+}
+
+.likhani-input:focus-within svg {
+  color: #247798;
+}
+
+/* =========================================================
+   INPUT TEXT
+   IMPORTANT: LARGE + READABLE
+========================================================= */
+
+.likhani-input input {
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+
+  padding: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #1d3444;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  /* Increased from 9px */
+  font-size: 13px;
+
+  line-height: 1;
+
+  font-weight: 600;
+
+  letter-spacing: 0.05px;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================================================
+   PLACEHOLDER
+========================================================= */
+
+.likhani-input input::placeholder {
+  color: #91a3ad;
+
+  opacity: 1;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
+
+/* =========================================================
+   INPUT FOCUS
+========================================================= */
+
+.likhani-input input:focus {
+  color: #17384b;
+}
+
+/* =========================================================
+   DISABLED INPUT
+========================================================= */
+
+.likhani-input input:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.72;
+}
+
+/* =========================================================
+   SUBMIT BUTTON
+========================================================= */
+
+.likhani-submit {
+  width: 100%;
+  height: 45px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  margin-top: 3px;
+
+  padding:
+    0 17px;
+
+  border: 0;
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #145c7d 0%,
+      #1d7697 52%,
+      #2686a4 100%
+    );
+
+  color: #ffffff;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.05px;
+
+  box-shadow:
+    0 11px 25px
+      rgba(22, 99, 132, 0.23);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
+}
+
+.likhani-submit:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 15px 31px
+      rgba(22, 99, 132, 0.3);
+
+  filter: brightness(1.04);
+}
+
+.likhani-submit:active {
+  transform: translateY(0);
+}
+
+.likhani-submit:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.72;
+
+  transform: none;
+}
+
+/* =========================================================
+   ARROW
+========================================================= */
+
+.likhani-arrow {
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.likhani-submit:hover .likhani-arrow {
+  transform: translateX(3px);
+
+  background:
+    rgba(255, 255, 255, 0.23);
+}
+
+.likhani-arrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.likhani-spinner {
+  width: 16px;
+  height: 16px;
+
+  border:
+    2px solid
+    rgba(255, 255, 255, 0.32);
+
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation:
+    likhaniSpin
+    0.7s
+    linear
+    infinite;
+}
+
+/* =========================================================
+   SECURITY
+========================================================= */
+
+.likhani-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  margin-top: 7px;
+
+  color: #8999a4;
+
+  font-size: 7px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.05px;
+}
+
+.likhani-security svg {
+  width: 12px;
+  height: 12px;
+
+  color: #287997;
+}
+
+/* =========================================================
+   BOTTOM GREEN LEAVES
+========================================================= */
+
+.likhani-bottom-accent {
+  position: absolute;
+
+  left: -8px;
+  bottom: -14px;
+
+  width: 105px;
+  height: 53px;
+
+  pointer-events: none;
+
+  z-index: 4;
+}
+
+.likhani-bottom-accent span {
+  position: absolute;
+
+  display: block;
+
+  border-radius:
+    100% 0 100% 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #91c78a,
+      #3f8a6d
+    );
+
+  transform-origin:
+    bottom left;
+}
+
+.likhani-bottom-accent span:nth-child(1) {
+  width: 33px;
+  height: 15px;
+
+  left: 10px;
+  bottom: 18px;
+
+  transform: rotate(-24deg);
+}
+
+.likhani-bottom-accent span:nth-child(2) {
+  width: 28px;
+  height: 13px;
+
+  left: 36px;
+  bottom: 27px;
+
+  transform: rotate(21deg);
+}
+
+.likhani-bottom-accent span:nth-child(3) {
+  width: 25px;
+  height: 12px;
+
+  left: 55px;
+  bottom: 15px;
+
+  transform: rotate(-8deg);
+}
+
+.likhani-bottom-accent span:nth-child(4) {
+  width: 20px;
+  height: 10px;
+
+  left: 73px;
+  bottom: 24px;
+
+  transform: rotate(23deg);
+}
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes likhaniOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes likhaniOverlayOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes likhaniCardIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(25px)
+      scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@keyframes likhaniCardOut {
+  from {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+  to {
+    opacity: 0;
+
+    transform:
+      translateY(17px)
+      scale(0.97);
+  }
+}
+
+@keyframes likhaniFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes likhaniStarFloat {
+  0%,
+  100% {
+    transform:
+      translateY(0)
+      rotate(0deg);
+  }
+
+  50% {
+    transform:
+      translateY(-4px)
+      rotate(12deg);
+  }
+}
+
+@keyframes likhaniSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 700px) {
+  .likhani-overlay {
+    padding: 12px;
+  }
+
+  .likhani-card {
+    width: min(480px, 100%);
+
+    max-height:
+      calc(100vh - 30px);
+
+    border-radius: 24px;
+  }
+
+  .likhani-main {
+    padding:
+      23px
+      25px
+      18px;
+  }
+
+  .likhani-top {
+    min-height: 68px;
+
+    padding-right: 34px;
+
+    margin-bottom: 11px;
+  }
+
+  .likhani-brand-logo {
+    width: 46px;
+    height: 46px;
+  }
+
+  .likhani-brand-text strong {
+    font-size: 17px;
+  }
+
+  .likhani-brand-text span {
+    font-size: 6.5px;
+  }
+
+  .likhani-mini-visual {
+    width: 100px;
+    height: 68px;
+  }
+
+  .likhani-mini-image {
+    width: 60px;
+    height: 60px;
+
+    right: 8px;
+  }
+
+  .ring-one {
+    width: 80px;
+    height: 80px;
+
+    right: -2px;
+  }
+
+  .ring-two {
+    width: 59px;
+    height: 59px;
+
+    right: 8px;
+  }
+
+  .likhani-heading h2 {
+    font-size: 34px;
+  }
+
+  /* Readable tablet input */
+
+  .likhani-input input {
+    font-size: 12.5px;
+  }
+
+  .likhani-input input::placeholder {
+    font-size: 11.5px;
+  }
+
+  .likhani-field label {
+    font-size: 8.5px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 540px) {
+  .likhani-overlay {
+    padding: 9px;
+  }
+
+  .likhani-card {
+    width: 100%;
+
+    max-height:
+      calc(100vh - 18px);
+
+    border-radius: 21px;
+  }
+
+  .likhani-main {
+    padding:
+      22px
+      18px
+      17px;
+  }
+
+  .likhani-close {
+    top: 10px;
+    right: 10px;
+
+    width: 37px;
+    height: 37px;
+  }
+
+  .likhani-top {
+    min-height: 62px;
+
+    padding-right: 31px;
+
+    margin-bottom: 12px;
+  }
+
+  .likhani-brand {
+    gap: 8px;
+  }
+
+  .likhani-brand-logo {
+    width: 42px;
+    height: 42px;
+
+    padding: 5px;
+
+    border-radius: 11px;
+  }
+
+  .likhani-brand-text {
+    gap: 2px;
+  }
+
+  .likhani-brand-text strong {
+    font-size: 16px;
+  }
+
+  .likhani-brand-text span {
+    font-size: 6px;
+
+    letter-spacing: 0.9px;
+  }
+
+  .likhani-mini-visual {
+    width: 67px;
+    height: 60px;
+  }
+
+  .likhani-mini-image {
+    width: 54px;
+    height: 54px;
+
+    right: -1px;
+    top: 3px;
+
+    padding: 6px;
+  }
+
+  .ring-one {
+    width: 70px;
+    height: 70px;
+
+    right: -8px;
+    top: -5px;
+  }
+
+  .ring-two {
+    width: 51px;
+    height: 51px;
+
+    right: 2px;
+    top: 5px;
+  }
+
+  .likhani-mini-book {
+    display: none;
+  }
+
+  .star-left {
+    left: 0;
+    top: 2px;
+
+    font-size: 8px;
+  }
+
+  .star-right {
+    right: -2px;
+    bottom: 0;
+
+    font-size: 7px;
+  }
+
+  .likhani-heading {
+    margin-bottom: 13px;
+  }
+
+  .likhani-eyebrow {
+    font-size: 6px;
+
+    letter-spacing: 1.2px;
+  }
+
+  .likhani-eyebrow-line {
+    width: 22px;
+    height: 2px;
+  }
+
+  .likhani-heading h2 {
+    font-size: 32px;
+
+    letter-spacing: -1.1px;
+  }
+
+  .likhani-heading p {
+    max-width: 310px;
+
+    margin-top: 6px;
+
+    font-size: 8.5px;
+  }
+
+  .likhani-field {
+    margin-bottom: 7px;
+  }
+
+  .likhani-field label {
+    font-size: 8.5px;
+
+    margin-bottom: 4px;
+  }
+
+  .likhani-input {
+    height: 41px;
+
+    gap: 9px;
+
+    padding:
+      0 10px;
+
+    border-radius: 10px;
+  }
+
+  .likhani-input svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* IMPORTANT:
+     Mobile entered text remains readable */
+
+  .likhani-input input {
+    font-size: 12px;
+  }
+
+  .likhani-input input::placeholder {
+    font-size: 11px;
+  }
+
+  .likhani-submit {
+    height: 44px;
+
+    border-radius: 10px;
+
+    font-size: 10px;
+  }
+
+  .likhani-arrow {
+    width: 25px;
+    height: 25px;
+  }
+
+  .likhani-arrow svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .likhani-security {
+    margin-top: 6px;
+
+    font-size: 6px;
+  }
+
+  .likhani-security svg {
+    width: 11px;
+    height: 11px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+  .likhani-overlay {
+    padding: 6px;
+  }
+
+  .likhani-card {
+    max-height:
+      calc(100vh - 12px);
+
+    border-radius: 18px;
+  }
+
+  .likhani-main {
+    padding:
+      20px
+      14px
+      15px;
+  }
+
+  .likhani-top {
+    min-height: 58px;
+
+    margin-bottom: 10px;
+  }
+
+  .likhani-brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .likhani-brand-text strong {
+    font-size: 14px;
+  }
+
+  .likhani-brand-text span {
+    font-size: 5.4px;
+  }
+
+  .likhani-mini-visual {
+    width: 56px;
+  }
+
+  .likhani-mini-image {
+    width: 48px;
+    height: 48px;
+  }
+
+  .ring-one {
+    width: 62px;
+    height: 62px;
+  }
+
+  .ring-two {
+    width: 46px;
+    height: 46px;
+  }
+
+  .likhani-heading h2 {
+    font-size: 29px;
+  }
+
+  .likhani-heading p {
+    font-size: 8px;
+  }
+
+  .likhani-input {
+    height: 39px;
+  }
+
+  /* Small screen readable text */
+
+  .likhani-input input {
+    font-size: 11.5px;
+  }
+
+  .likhani-input input::placeholder {
+    font-size: 10.5px;
+  }
+
+  .likhani-field label {
+    font-size: 8px;
+  }
+
+  .likhani-submit {
+    height: 42px;
+  }
+
+  .likhani-close {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .likhani-overlay,
+  .likhani-card,
+  .likhani-mini-image,
+  .likhani-mini-star,
+  .likhani-spinner {
+    animation: none !important;
+  }
+
+  .likhani-submit,
+  .likhani-close,
+  .likhani-input {
+    transition: none !important;
+  }
+}

@@ -1,13 +1,13 @@
 import React from 'react'
-import HeroSection from '../../Component/HeroSection/HeroSection'
-import HomeBook from '../../Component/HomeBook/HomeBook'
-import TopBook from '../../Component/TopBook/TopBook'
-import BookleBook from '../../Component/BookleBook/BookleBook'
-import RatingBook from '../../Component/RatingBook/RatingBook'
-import TopSelling from '../../Component/TopSelling/TopSelling'
-import HomeReview from '../../Component/HomeReview/HomeReview'
-import HomeAuthor from '../../Component/HomeAuthor/HomeAuthor'
-import HomeNews from '../../Component/HomeNews/HomeNews'
+import HeroSection from '../../Components/HeroSection/HeroSection'
+import HomeBook from '../../Components/HomeBook/HomeBook'
+import TopBook from '../../Components/TopBook/TopBook'
+import BookleBook from '../../Components/BookleBook/BookleBook'
+import RatingBook from '../../Components/RatingBook/RatingBook'
+import TopSelling from '../../Components/TopSelling/TopSelling'
+import HomeReview from '../../Components/HomeReview/HomeReview'
+import HomeAuthor from '../../Components/HomeAuthor/HomeAuthor'
+import HomeNews from '../../Components/HomeNews/HomeNews'
 
 const Home = () => {
   return (
