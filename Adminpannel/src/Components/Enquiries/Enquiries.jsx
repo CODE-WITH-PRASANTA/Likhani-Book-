@@ -1,5 +1,12 @@
-import React, { useState, useMemo } from 'react';
-import './Enquiries.css';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import Swal from "sweetalert2";
+
 import {
   FiMessageSquare,
   FiMail,
@@ -14,363 +21,772 @@ import {
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
-  FiX
-} from 'react-icons/fi';
+  FiX,
+  FiRefreshCw,
+} from "react-icons/fi";
 
-const initialEnquiriesData = [
-  {
-    id: 1,
-    name: 'Rohan Mehta',
-    email: 'rohan@gmail.com',
-    phone: '+91 9876543210',
-    type: 'Book Information',
-    subject: 'Availability of Book',
-    message: 'Is Castle The Sky available in hardcover?',
-    date: 'Sep 10, 2024',
-    time: '10:15 AM',
-    rawDate: '2024-09-10',
-    status: 'New'
-  },
-  {
-    id: 2,
-    name: 'Priya Sharma',
-    email: 'priya@gmail.com',
-    phone: '+91 9123456780',
-    type: 'Order Related',
-    subject: 'Order Status',
-    message: 'Can you tell me the status of my order #1234?',
-    date: 'Sep 09, 2024',
-    time: '04:20 PM',
-    rawDate: '2024-09-09',
-    status: 'In Progress'
-  },
-  {
-    id: 3,
-    name: 'Amit Kumar',
-    email: 'amit@gmail.com',
-    phone: '+91 9988776655',
-    type: 'Price Query',
-    subject: 'Discount on Bulk Order',
-    message: 'Do you offer any discount for bulk purchase?',
-    date: 'Sep 09, 2024',
-    time: '12:05 PM',
-    rawDate: '2024-09-09',
-    status: 'New'
-  },
-  {
-    id: 4,
-    name: 'Sneha Patil',
-    email: 'sneha@gmail.com',
-    phone: '+91 8877665544',
-    type: 'Product Suggestion',
-    subject: 'Book Recommendation',
-    message: 'Suggest some good books for children aged 10-12.',
-    date: 'Sep 08, 2024',
-    time: '03:45 PM',
-    rawDate: '2024-09-08',
-    status: 'Closed'
-  },
-  {
-    id: 5,
-    name: 'David John',
-    email: 'david@gmail.com',
-    phone: '+91 7766554433',
-    type: 'Shipping',
-    subject: 'Delivery Time',
-    message: 'How long will it take to deliver to Mumbai?',
-    date: 'Sep 08, 2024',
-    time: '11:30 AM',
-    rawDate: '2024-09-08',
-    status: 'In Progress'
-  },
-  {
-    id: 6,
-    name: 'Neha Verma',
-    email: 'neha@gmail.com',
-    phone: '+91 7654321098',
-    type: 'Return & Refund',
-    subject: 'Return Policy',
-    message: 'What is your return policy for books?',
-    date: 'Sep 07, 2024',
-    time: '05:10 PM',
-    rawDate: '2024-09-07',
-    status: 'New'
-  },
-  {
-    id: 7,
-    name: 'Arjun Rao',
-    email: 'arjun@gmail.com',
-    phone: '+91 7012345678',
-    type: 'Payment Issue',
-    subject: 'Payment Failed',
-    message: 'My payment was failed but amount is deducted.',
-    date: 'Sep 06, 2024',
-    time: '02:25 PM',
-    rawDate: '2024-09-06',
-    status: 'In Progress'
-  },
-  {
-    id: 8,
-    name: 'Pooja Singh',
-    email: 'pooja@gmail.com',
-    phone: '+91 8123456789',
-    type: 'Book Information',
-    subject: 'ISBN Details',
-    message: 'Can you share the ISBN for The Alchemist?',
-    date: 'Sep 06, 2024',
-    time: '10:40 AM',
-    rawDate: '2024-09-06',
-    status: 'New'
-  },
-  {
-    id: 9,
-    name: 'Karan Malhotra',
-    email: 'karan@gmail.com',
-    phone: '+91 9001234567',
-    type: 'Other',
-    subject: 'Gift Wrapping',
-    message: 'Do you provide gift wrapping service?',
-    date: 'Sep 05, 2024',
-    time: '04:15 PM',
-    rawDate: '2024-09-05',
-    status: 'Closed'
-  },
-  {
-    id: 10,
-    name: 'Lisa Brown',
-    email: 'lisa@gmail.com',
-    phone: '+91 9988112233',
-    type: 'Product Suggestion',
-    subject: 'Best Selling Books',
-    message: 'What are the current best selling books?',
-    date: 'Sep 04, 2024',
-    time: '11:05 AM',
-    rawDate: '2024-09-04',
-    status: 'New'
-  },
-  {
-    id: 11,
-    name: 'Vikram Sethi',
-    email: 'vikram@gmail.com',
-    phone: '+91 9811223344',
-    type: 'Order Related',
-    subject: 'Cancellation Request',
-    message: 'I want to cancel my recent order.',
-    date: 'Sep 03, 2024',
-    time: '09:00 AM',
-    rawDate: '2024-09-03',
-    status: 'New'
-  },
-  {
-    id: 12,
-    name: 'Ananya Roy',
-    email: 'ananya@gmail.com',
-    phone: '+91 9722334455',
-    type: 'Shipping',
-    subject: 'Express Delivery',
-    message: 'Is express delivery available for Bangalore?',
-    date: 'Sep 02, 2024',
-    time: '01:15 PM',
-    rawDate: '2024-09-02',
-    status: 'Closed'
-  }
+import API from "../../api/axios";
+
+import "./Enquiries.css";
+
+const ITEMS_PER_PAGE = 8;
+
+const TYPES = [
+  "General Enquiry",
+  "Book Information",
+  "Order Related",
+  "Price Query",
+  "Product Suggestion",
+  "Shipping",
+  "Return & Refund",
+  "Payment Issue",
+  "Other",
+];
+
+const STATUSES = [
+  "New",
+  "In Progress",
+  "Closed",
 ];
 
 const Enquiries = () => {
-  // Main Data States
-  const [enquiries, setEnquiries] = useState(initialEnquiriesData);
-  const [selectedIds, setSelectedIds] = useState([]);
+  // =====================================================
+  // DATA
+  // =====================================================
 
-  // Filter & Search States
-  const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [dateRangeFilter, setDateRangeFilter] = useState('');
+  const [enquiries, setEnquiries] =
+    useState([]);
 
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8; // Optimized for full visibility without overflow
+  const [loading, setLoading] =
+    useState(true);
 
-  // Modal States
-  const [viewModalData, setViewModalData] = useState(null);
-  const [replyModalData, setReplyModalData] = useState(null);
-  const [replyMessage, setReplyMessage] = useState('');
-  const [updatedStatus, setUpdatedStatus] = useState('');
+  const [refreshing, setRefreshing] =
+    useState(false);
 
-  // Compute Summary Statistics dynamically
-  const stats = useMemo(() => {
-    return {
-      total: enquiries.length,
-      newCount: enquiries.filter((e) => e.status === 'New').length,
-      inProgressCount: enquiries.filter((e) => e.status === 'In Progress').length,
-      closedCount: enquiries.filter((e) => e.status === 'Closed').length
-    };
-  }, [enquiries]);
+  const [selectedIds, setSelectedIds] =
+    useState([]);
 
-  // Filtered Enquiries
-  const filteredEnquiries = useMemo(() => {
-    return enquiries.filter((item) => {
-      const matchesSearch =
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.subject.toLowerCase().includes(searchQuery.toLowerCase());
+  // =====================================================
+  // FILTERS
+  // =====================================================
 
-      const matchesType = typeFilter === 'All' || item.type === typeFilter;
-      const matchesStatus = statusFilter === 'All' || item.status === statusFilter;
-      const matchesDate = !dateRangeFilter || item.rawDate === dateRangeFilter;
+  const [searchQuery, setSearchQuery] =
+    useState("");
 
-      return matchesSearch && matchesType && matchesStatus && matchesDate;
+  const [typeFilter, setTypeFilter] =
+    useState("All");
+
+  const [statusFilter, setStatusFilter] =
+    useState("All");
+
+  const [dateRangeFilter, setDateRangeFilter] =
+    useState("");
+
+  const [currentPage, setCurrentPage] =
+    useState(1);
+
+  const [pagination, setPagination] =
+    useState({
+      page: 1,
+      limit: ITEMS_PER_PAGE,
+      total: 0,
+      totalPages: 1,
     });
-  }, [enquiries, searchQuery, typeFilter, statusFilter, dateRangeFilter]);
 
-  // Pagination Calculations
-  const totalPages = Math.ceil(filteredEnquiries.length / itemsPerPage) || 1;
-  const currentItems = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredEnquiries.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredEnquiries, currentPage, itemsPerPage]);
+  // =====================================================
+  // MODALS
+  // =====================================================
 
-  // Select All Checkbox Handler
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedIds(currentItems.map((item) => item.id));
+  const [viewModalData, setViewModalData] =
+    useState(null);
+
+  const [replyModalData, setReplyModalData] =
+    useState(null);
+
+  const [replyMessage, setReplyMessage] =
+    useState("");
+
+  const [updatedStatus, setUpdatedStatus] =
+    useState("New");
+
+  const [actionLoading, setActionLoading] =
+    useState(false);
+
+  // =====================================================
+  // FETCH
+  // =====================================================
+
+  const fetchEnquiries = useCallback(
+    async (showLoader = true) => {
+      try {
+        if (showLoader) {
+          setLoading(true);
+        } else {
+          setRefreshing(true);
+        }
+
+        const response =
+          await API.get("/enquiries", {
+            params: {
+              search: searchQuery,
+              type: typeFilter,
+              status: statusFilter,
+              page: currentPage,
+              limit: ITEMS_PER_PAGE,
+            },
+          });
+
+        const result = response.data;
+
+        setEnquiries(
+          Array.isArray(result?.data)
+            ? result.data
+            : []
+        );
+
+        setPagination(
+          result?.pagination || {
+            page: currentPage,
+            limit: ITEMS_PER_PAGE,
+            total: 0,
+            totalPages: 1,
+          }
+        );
+
+        // Keep current page valid
+        if (
+          result?.pagination?.totalPages &&
+          currentPage >
+            result.pagination.totalPages
+        ) {
+          setCurrentPage(
+            result.pagination.totalPages
+          );
+        }
+      } catch (error) {
+        console.error(
+          "FETCH ENQUIRIES ERROR:",
+          error
+        );
+
+        Swal.fire({
+          icon: "error",
+          title: "Unable to load enquiries",
+          text:
+            error?.response?.data?.message ||
+            "Please check your backend server.",
+        });
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [
+      searchQuery,
+      typeFilter,
+      statusFilter,
+      currentPage,
+    ]
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchEnquiries();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [fetchEnquiries]);
+
+  // =====================================================
+  // STATS
+  // =====================================================
+
+  const stats = useMemo(() => {
+    const total =
+      pagination.total || 0;
+
+    const newCount =
+      enquiries.filter(
+        (item) =>
+          item.status === "New"
+      ).length;
+
+    const inProgressCount =
+      enquiries.filter(
+        (item) =>
+          item.status === "In Progress"
+      ).length;
+
+    const closedCount =
+      enquiries.filter(
+        (item) =>
+          item.status === "Closed"
+      ).length;
+
+    return {
+      total,
+      newCount,
+      inProgressCount,
+      closedCount,
+    };
+  }, [enquiries, pagination.total]);
+
+  // =====================================================
+  // DATE FORMAT
+  // =====================================================
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    const parsedDate =
+      new Date(date);
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+      return "-";
+    }
+
+    return parsedDate.toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
+  };
+
+  const formatTime = (date) => {
+    if (!date) return "";
+
+    const parsedDate =
+      new Date(date);
+
+    if (
+      Number.isNaN(
+        parsedDate.getTime()
+      )
+    ) {
+      return "";
+    }
+
+    return parsedDate.toLocaleTimeString(
+      "en-IN",
+      {
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    );
+  };
+
+  // =====================================================
+  // SELECT ALL
+  // =====================================================
+
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      setSelectedIds(
+        enquiries.map(
+          (item) => item._id
+        )
+      );
     } else {
       setSelectedIds([]);
     }
   };
 
-  // Individual Row Checkbox Handler
+  // =====================================================
+  // SELECT ROW
+  // =====================================================
+
   const handleSelectRow = (id) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((item) => item !== id));
-    } else {
-      setSelectedIds([...selectedIds, id]);
+    setSelectedIds((previous) =>
+      previous.includes(id)
+        ? previous.filter(
+            (item) => item !== id
+          )
+        : [...previous, id]
+    );
+  };
+
+  // =====================================================
+  // DELETE SINGLE
+  // =====================================================
+
+  const handleDelete = async (id) => {
+    const result =
+      await Swal.fire({
+        icon: "warning",
+        title: "Delete enquiry?",
+        text: "This enquiry will be permanently deleted.",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#ef4444",
+      });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+
+      await API.delete(
+        `/enquiries/${id}`
+      );
+
+      setSelectedIds((previous) =>
+        previous.filter(
+          (item) => item !== id
+        )
+      );
+
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Enquiry deleted successfully.",
+        timer: 1300,
+        showConfirmButton: false,
+      });
+
+      await fetchEnquiries(false);
+    } catch (error) {
+      console.error(
+        "DELETE ENQUIRY ERROR:",
+        error
+      );
+
+      Swal.fire({
+        icon: "error",
+        title: "Delete failed",
+        text:
+          error?.response?.data?.message ||
+          "Unable to delete enquiry.",
+      });
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  // Delete Action
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this enquiry?')) {
-      setEnquiries((prev) => prev.filter((item) => item.id !== id));
-      setSelectedIds((prev) => prev.filter((itemId) => itemId !== id));
+  // =====================================================
+  // BULK DELETE
+  // =====================================================
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) {
+      return;
+    }
+
+    const result =
+      await Swal.fire({
+        icon: "warning",
+        title: `Delete ${selectedIds.length} enquiries?`,
+        text: "This action cannot be undone.",
+        showCancelButton: true,
+        confirmButtonText: "Delete All",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#ef4444",
+      });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+
+      await API.delete(
+        "/enquiries/bulk",
+        {
+          data: {
+            ids: selectedIds,
+          },
+        }
+      );
+
+      setSelectedIds([]);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Selected enquiries deleted successfully.",
+        timer: 1300,
+        showConfirmButton: false,
+      });
+
+      await fetchEnquiries(false);
+    } catch (error) {
+      console.error(
+        "BULK DELETE ERROR:",
+        error
+      );
+
+      Swal.fire({
+        icon: "error",
+        title: "Delete failed",
+        text:
+          error?.response?.data?.message ||
+          "Unable to delete selected enquiries.",
+      });
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  // Reset Filters
+  // =====================================================
+  // VIEW
+  // =====================================================
+
+  const handleView = (item) => {
+    setViewModalData(item);
+  };
+
+  // =====================================================
+  // OPEN REPLY
+  // =====================================================
+
+  const handleOpenReply = (item) => {
+    setReplyModalData(item);
+
+    setUpdatedStatus(
+      item.status || "New"
+    );
+
+    setReplyMessage(
+      item.adminReply || ""
+    );
+  };
+
+  // =====================================================
+  // UPDATE STATUS / REPLY
+  // =====================================================
+
+  const handleReplySubmit = async (
+    event
+  ) => {
+    event.preventDefault();
+
+    if (!replyModalData?._id) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+
+      const response =
+        await API.put(
+          `/enquiries/${replyModalData._id}`,
+          {
+            status: updatedStatus,
+            adminReply:
+              replyMessage.trim(),
+          }
+        );
+
+      const updated =
+        response.data?.data;
+
+      if (updated) {
+        setEnquiries((previous) =>
+          previous.map((item) =>
+            item._id === updated._id
+              ? updated
+              : item
+          )
+        );
+      }
+
+      setReplyModalData(null);
+      setReplyMessage("");
+
+      await Swal.fire({
+        icon: "success",
+        title: "Updated",
+        text: "Enquiry status/reply updated successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      await fetchEnquiries(false);
+    } catch (error) {
+      console.error(
+        "UPDATE ENQUIRY ERROR:",
+        error
+      );
+
+      Swal.fire({
+        icon: "error",
+        title: "Update failed",
+        text:
+          error?.response?.data?.message ||
+          "Unable to update enquiry.",
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // =====================================================
+  // RESET FILTERS
+  // =====================================================
+
   const handleResetFilters = () => {
-    setSearchQuery('');
-    setTypeFilter('All');
-    setStatusFilter('All');
-    setDateRangeFilter('');
+    setSearchQuery("");
+    setTypeFilter("All");
+    setStatusFilter("All");
+    setDateRangeFilter("");
     setCurrentPage(1);
   };
 
-  // CSV Export Functionality
+  // =====================================================
+  // CSV
+  // =====================================================
+
   const handleExportCSV = () => {
-    const headers = ['#', 'Name', 'Email', 'Phone', 'Type', 'Subject', 'Message', 'Date', 'Time', 'Status'];
-    const rows = filteredEnquiries.map((item, index) => [
-      index + 1,
-      `"${item.name}"`,
-      `"${item.email}"`,
-      `"${item.phone}"`,
-      `"${item.type}"`,
-      `"${item.subject}"`,
-      `"${item.message}"`,
-      `"${item.date}"`,
-      `"${item.time}"`,
-      `"${item.status}"`
-    ]);
+    if (!enquiries.length) {
+      Swal.fire({
+        icon: "info",
+        title: "Nothing to export",
+        text: "There are no enquiries on this page.",
+      });
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `enquiries_export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Helper Badge Class for Enquiry Types
-  const getTypeBadgeClass = (type) => {
-    switch (type) {
-      case 'Book Information':
-        return 'Enquiries-typeBadge--bookInfo';
-      case 'Order Related':
-        return 'Enquiries-typeBadge--order';
-      case 'Price Query':
-        return 'Enquiries-typeBadge--price';
-      case 'Product Suggestion':
-        return 'Enquiries-typeBadge--product';
-      case 'Shipping':
-        return 'Enquiries-typeBadge--shipping';
-      case 'Return & Refund':
-        return 'Enquiries-typeBadge--refund';
-      case 'Payment Issue':
-        return 'Enquiries-typeBadge--payment';
-      default:
-        return 'Enquiries-typeBadge--other';
+      return;
     }
-  };
 
-  // Helper Status Badge Class
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case 'New':
-        return 'Enquiries-statusBadge--new';
-      case 'In Progress':
-        return 'Enquiries-statusBadge--inProgress';
-      case 'Closed':
-        return 'Enquiries-statusBadge--closed';
-      default:
-        return '';
-    }
-  };
+    const headers = [
+      "#",
+      "Name",
+      "Email",
+      "Phone",
+      "Address",
+      "Type",
+      "Subject",
+      "Message",
+      "Status",
+      "Date",
+    ];
 
-  // Modal Submit (Reply/Status Update)
-  const handleReplySubmit = (e) => {
-    e.preventDefault();
-    if (!replyModalData) return;
+    const escapeCSV = (value) =>
+      `"${String(
+        value ?? ""
+      ).replace(/"/g, '""')}"`;
 
-    setEnquiries((prev) =>
-      prev.map((item) => (item.id === replyModalData.id ? { ...item, status: updatedStatus } : item))
+    const rows = enquiries.map(
+      (item, index) => [
+        index + 1,
+        escapeCSV(item.name),
+        escapeCSV(item.email),
+        escapeCSV(item.phone),
+        escapeCSV(item.address),
+        escapeCSV(item.type),
+        escapeCSV(item.subject),
+        escapeCSV(item.message),
+        escapeCSV(item.status),
+        escapeCSV(
+          formatDate(item.createdAt)
+        ),
+      ]
     );
 
-    alert(`Reply sent to ${replyModalData.email} and status updated to "${updatedStatus}"!`);
-    setReplyModalData(null);
-    setReplyMessage('');
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) =>
+        row.join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob(
+      [csvContent],
+      {
+        type: "text/csv;charset=utf-8;",
+      }
+    );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+      `enquiries_${new Date()
+        .toISOString()
+        .slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
   };
+
+  // =====================================================
+  // TYPE CLASS
+  // =====================================================
+
+  const getTypeBadgeClass = (type) => {
+    switch (type) {
+      case "Book Information":
+        return "Enquiries-typeBadge--bookInfo";
+
+      case "Order Related":
+        return "Enquiries-typeBadge--order";
+
+      case "Price Query":
+        return "Enquiries-typeBadge--price";
+
+      case "Product Suggestion":
+        return "Enquiries-typeBadge--product";
+
+      case "Shipping":
+        return "Enquiries-typeBadge--shipping";
+
+      case "Return & Refund":
+        return "Enquiries-typeBadge--refund";
+
+      case "Payment Issue":
+        return "Enquiries-typeBadge--payment";
+
+      default:
+        return "Enquiries-typeBadge--other";
+    }
+  };
+
+  // =====================================================
+  // STATUS CLASS
+  // =====================================================
+
+  const getStatusBadgeClass = (
+    status
+  ) => {
+    switch (status) {
+      case "New":
+        return "Enquiries-statusBadge--new";
+
+      case "In Progress":
+        return "Enquiries-statusBadge--inProgress";
+
+      case "Closed":
+        return "Enquiries-statusBadge--closed";
+
+      default:
+        return "";
+    }
+  };
+
+  // =====================================================
+  // DATE FILTER
+  // =====================================================
+
+  const visibleEnquiries =
+    dateRangeFilter
+      ? enquiries.filter((item) => {
+          if (!item.createdAt) {
+            return false;
+          }
+
+          const itemDate =
+            new Date(item.createdAt)
+              .toISOString()
+              .slice(0, 10);
+
+          return (
+            itemDate === dateRangeFilter
+          );
+        })
+      : enquiries;
+
+  // =====================================================
+  // RENDER
+  // =====================================================
 
   return (
     <div className="Enquiries">
-      {/* Page Top Header */}
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
       <div className="Enquiries-header">
+
         <div>
           <div className="Enquiries-titleRow">
+
             <div className="Enquiries-iconWrapper">
-              <FiMessageSquare className="Enquiries-headerTitleIcon" />
+              <FiMessageSquare />
             </div>
-            <h1 className="Enquiries-title">Customer Enquiries</h1>
+
+            <h1 className="Enquiries-title">
+              Customer Enquiries
+            </h1>
+
           </div>
+
           <p className="Enquiries-subtitle">
-            Manage, respond to, and keep track of inquiries across your bookstore platform.
+            Manage, respond to, and keep
+            track of customer enquiries.
           </p>
         </div>
-        <button className="Enquiries-exportBtn" onClick={handleExportCSV}>
-          <FiDownload className="Enquiries-btnIcon" /> Export CSV
-        </button>
+
+        <div className="Enquiries-headerActions">
+
+          <button
+            className="Enquiries-refreshBtn"
+            onClick={() =>
+              fetchEnquiries(false)
+            }
+            disabled={refreshing}
+          >
+            <FiRefreshCw
+              className={
+                refreshing
+                  ? "Enquiries-spin"
+                  : ""
+              }
+            />
+
+            Refresh
+          </button>
+
+          <button
+            className="Enquiries-exportBtn"
+            onClick={handleExportCSV}
+          >
+            <FiDownload />
+            Export CSV
+          </button>
+
+        </div>
+
       </div>
 
-      {/* Top Stat Cards */}
+      {/* =================================================
+          STATS
+      ================================================= */}
+
       <div className="Enquiries-statsGrid">
+
         <div className="Enquiries-statCard Enquiries-statCard--blue">
           <div className="Enquiries-statIcon">
             <FiMessageSquare />
           </div>
+
           <div>
-            <div className="Enquiries-statCount">{stats.total}</div>
-            <div className="Enquiries-statLabel">Total Enquiries</div>
+            <div className="Enquiries-statCount">
+              {stats.total}
+            </div>
+
+            <div className="Enquiries-statLabel">
+              Total Enquiries
+            </div>
           </div>
         </div>
 
@@ -378,9 +794,15 @@ const Enquiries = () => {
           <div className="Enquiries-statIcon">
             <FiMail />
           </div>
+
           <div>
-            <div className="Enquiries-statCount">{stats.newCount}</div>
-            <div className="Enquiries-statLabel">New Enquiries</div>
+            <div className="Enquiries-statCount">
+              {stats.newCount}
+            </div>
+
+            <div className="Enquiries-statLabel">
+              New Enquiries
+            </div>
           </div>
         </div>
 
@@ -388,9 +810,15 @@ const Enquiries = () => {
           <div className="Enquiries-statIcon">
             <FiClock />
           </div>
+
           <div>
-            <div className="Enquiries-statCount">{stats.inProgressCount}</div>
-            <div className="Enquiries-statLabel">In Progress</div>
+            <div className="Enquiries-statCount">
+              {stats.inProgressCount}
+            </div>
+
+            <div className="Enquiries-statLabel">
+              In Progress
+            </div>
           </div>
         </div>
 
@@ -398,348 +826,787 @@ const Enquiries = () => {
           <div className="Enquiries-statIcon">
             <FiCheckCircle />
           </div>
+
           <div>
-            <div className="Enquiries-statCount">{stats.closedCount}</div>
-            <div className="Enquiries-statLabel">Closed</div>
+            <div className="Enquiries-statCount">
+              {stats.closedCount}
+            </div>
+
+            <div className="Enquiries-statLabel">
+              Closed
+            </div>
           </div>
         </div>
+
       </div>
 
-      {/* Filter and Search Bar Section */}
+      {/* =================================================
+          FILTER
+      ================================================= */}
+
       <div className="Enquiries-filterCard">
+
         <div className="Enquiries-searchGroup">
-          <FiSearch className="Enquiries-searchIcon" />
+
+          <FiSearch />
+
           <input
             type="text"
             className="Enquiries-searchInput"
-            placeholder="Search by customer, email, subject..."
+            placeholder="Search by customer, email, phone, subject..."
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
+            onChange={(event) => {
+              setSearchQuery(
+                event.target.value
+              );
+
               setCurrentPage(1);
             }}
           />
+
         </div>
 
         <div className="Enquiries-filterControls">
+
           <div className="Enquiries-controlGroup">
-            <label className="Enquiries-controlLabel">Enquiry Type</label>
+
+            <label>
+              Enquiry Type
+            </label>
+
             <select
-              className="Enquiries-selectInput"
               value={typeFilter}
-              onChange={(e) => {
-                setTypeFilter(e.target.value);
+              onChange={(event) => {
+                setTypeFilter(
+                  event.target.value
+                );
+
                 setCurrentPage(1);
               }}
             >
-              <option value="All">All Types</option>
-              <option value="Book Information">Book Information</option>
-              <option value="Order Related">Order Related</option>
-              <option value="Price Query">Price Query</option>
-              <option value="Product Suggestion">Product Suggestion</option>
-              <option value="Shipping">Shipping</option>
-              <option value="Return & Refund">Return & Refund</option>
-              <option value="Payment Issue">Payment Issue</option>
-              <option value="Other">Other</option>
+              <option value="All">
+                All Types
+              </option>
+
+              {TYPES.map((type) => (
+                <option
+                  key={type}
+                  value={type}
+                >
+                  {type}
+                </option>
+              ))}
             </select>
+
           </div>
 
           <div className="Enquiries-controlGroup">
-            <label className="Enquiries-controlLabel">Status</label>
+
+            <label>
+              Status
+            </label>
+
             <select
-              className="Enquiries-selectInput"
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
+              onChange={(event) => {
+                setStatusFilter(
+                  event.target.value
+                );
+
                 setCurrentPage(1);
               }}
             >
-              <option value="All">All Statuses</option>
-              <option value="New">New</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Closed">Closed</option>
+              <option value="All">
+                All Statuses
+              </option>
+
+              {STATUSES.map(
+                (status) => (
+                  <option
+                    key={status}
+                    value={status}
+                  >
+                    {status}
+                  </option>
+                )
+              )}
             </select>
+
           </div>
 
           <div className="Enquiries-controlGroup">
-            <label className="Enquiries-controlLabel">Date Range</label>
+
+            <label>
+              Date
+            </label>
+
             <div className="Enquiries-dateInputWrapper">
-              <FiCalendar className="Enquiries-dateIcon" />
+
+              <FiCalendar />
+
               <input
                 type="date"
-                className="Enquiries-dateInput"
                 value={dateRangeFilter}
-                onChange={(e) => {
-                  setDateRangeFilter(e.target.value);
+                onChange={(event) => {
+                  setDateRangeFilter(
+                    event.target.value
+                  );
+
                   setCurrentPage(1);
                 }}
               />
+
             </div>
+
           </div>
 
-          <button className="Enquiries-resetBtn" onClick={handleResetFilters} title="Reset all filters">
-            <FiFilter className="Enquiries-btnIcon" /> Reset
+          <button
+            className="Enquiries-resetBtn"
+            onClick={handleResetFilters}
+          >
+            <FiFilter />
+            Reset
           </button>
+
         </div>
+
       </div>
 
-      {/* Main Enquiries Table Card */}
+      {/* =================================================
+          BULK ACTION
+      ================================================= */}
+
+      {selectedIds.length > 0 && (
+        <div className="Enquiries-bulkBar">
+
+          <span>
+            {selectedIds.length} selected
+          </span>
+
+          <button
+            onClick={handleBulkDelete}
+            disabled={actionLoading}
+          >
+            <FiTrash2 />
+            Delete Selected
+          </button>
+
+        </div>
+      )}
+
+      {/* =================================================
+          TABLE
+      ================================================= */}
+
       <div className="Enquiries-tableCard">
+
         <div className="Enquiries-tableResponsive">
+
           <table className="Enquiries-table">
+
             <thead>
+
               <tr>
-                <th style={{ width: '38px', textAlign: 'center' }}>
+
+                <th>
                   <input
                     type="checkbox"
-                    className="Enquiries-checkbox"
                     checked={
-                      currentItems.length > 0 &&
-                      currentItems.every((item) => selectedIds.includes(item.id))
+                      enquiries.length > 0 &&
+                      enquiries.every(
+                        (item) =>
+                          selectedIds.includes(
+                            item._id
+                          )
+                      )
                     }
-                    onChange={handleSelectAll}
+                    onChange={
+                      handleSelectAll
+                    }
                   />
                 </th>
-                <th style={{ width: '45px' }}>#</th>
+
+                <th>#</th>
+
                 <th>Customer</th>
+
                 <th>Email</th>
+
                 <th>Phone</th>
+
                 <th>Type</th>
+
                 <th>Subject</th>
-                <th>Message Preview</th>
+
+                <th>Message</th>
+
                 <th>Date</th>
+
                 <th>Status</th>
-                <th style={{ textAlign: 'center', width: '110px' }}>Actions</th>
+
+                <th>Actions</th>
+
               </tr>
+
             </thead>
+
             <tbody>
-              {currentItems.length > 0 ? (
-                currentItems.map((item, idx) => (
-                  <tr key={item.id} className={selectedIds.includes(item.id) ? 'Enquiries-rowSelected' : ''}>
-                    <td style={{ textAlign: 'center' }}>
-                      <input
-                        type="checkbox"
-                        className="Enquiries-checkbox"
-                        checked={selectedIds.includes(item.id)}
-                        onChange={() => handleSelectRow(item.id)}
-                      />
-                    </td>
-                    <td className="Enquiries-textMuted">
-                      {(currentPage - 1) * itemsPerPage + idx + 1}
-                    </td>
-                    <td className="Enquiries-fontBold">{item.name}</td>
-                    <td className="Enquiries-textMuted">{item.email}</td>
-                    <td className="Enquiries-textMuted">{item.phone}</td>
-                    <td>
-                      <span className={`Enquiries-typeBadge ${getTypeBadgeClass(item.type)}`}>
-                        {item.type}
-                      </span>
-                    </td>
-                    <td className="Enquiries-fontMedium">{item.subject}</td>
-                    <td className="Enquiries-messageCell" title={item.message}>
-                      {item.message}
-                    </td>
-                    <td>
-                      <div className="Enquiries-dateCell">
-                        <span>{item.date}</span>
-                        <span className="Enquiries-timeText">{item.time}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`Enquiries-statusBadge ${getStatusBadgeClass(item.status)}`}>
-                        <span className="Enquiries-statusDot"></span>
-                        {item.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="Enquiries-actionGroup">
-                        <button
-                          className="Enquiries-actionBtn Enquiries-actionBtn--view"
-                          title="View Details"
-                          onClick={() => setViewModalData(item)}
+
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="11"
+                    className="Enquiries-emptyRow"
+                  >
+                    Loading enquiries...
+                  </td>
+                </tr>
+              ) : visibleEnquiries.length >
+                0 ? (
+                visibleEnquiries.map(
+                  (item, index) => (
+                    <tr
+                      key={item._id}
+                    >
+
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(
+                            item._id
+                          )}
+                          onChange={() =>
+                            handleSelectRow(
+                              item._id
+                            )
+                          }
+                        />
+                      </td>
+
+                      <td>
+                        {(currentPage -
+                          1) *
+                          ITEMS_PER_PAGE +
+                          index +
+                          1}
+                      </td>
+
+                      <td className="Enquiries-fontBold">
+                        {item.name}
+                      </td>
+
+                      <td>
+                        {item.email}
+                      </td>
+
+                      <td>
+                        {item.phone}
+                      </td>
+
+                      <td>
+                        <span
+                          className={`Enquiries-typeBadge ${getTypeBadgeClass(
+                            item.type
+                          )}`}
                         >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="Enquiries-actionBtn Enquiries-actionBtn--reply"
-                          title="Reply / Change Status"
-                          onClick={() => {
-                            setReplyModalData(item);
-                            setUpdatedStatus(item.status);
-                          }}
+                          {item.type ||
+                            "General Enquiry"}
+                        </span>
+                      </td>
+
+                      <td>
+                        {item.subject ||
+                          "Website Enquiry"}
+                      </td>
+
+                      <td
+                        className="Enquiries-messageCell"
+                        title={
+                          item.message
+                        }
+                      >
+                        {item.message ||
+                          "-"}
+                      </td>
+
+                      <td>
+                        <div className="Enquiries-dateCell">
+                          <span>
+                            {formatDate(
+                              item.createdAt
+                            )}
+                          </span>
+
+                          <span className="Enquiries-timeText">
+                            {formatTime(
+                              item.createdAt
+                            )}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`Enquiries-statusBadge ${getStatusBadgeClass(
+                            item.status
+                          )}`}
                         >
-                          <FiCornerUpLeft />
-                        </button>
-                        <button
-                          className="Enquiries-actionBtn Enquiries-actionBtn--delete"
-                          title="Delete Enquiry"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          <span className="Enquiries-statusDot" />
+
+                          {item.status}
+                        </span>
+                      </td>
+
+                      <td>
+
+                        <div className="Enquiries-actionGroup">
+
+                          <button
+                            className="Enquiries-actionBtn Enquiries-actionBtn--view"
+                            title="View Details"
+                            onClick={() =>
+                              handleView(
+                                item
+                              )
+                            }
+                          >
+                            <FiEye />
+                          </button>
+
+                          <button
+                            className="Enquiries-actionBtn Enquiries-actionBtn--reply"
+                            title="Reply / Update"
+                            onClick={() =>
+                              handleOpenReply(
+                                item
+                              )
+                            }
+                          >
+                            <FiCornerUpLeft />
+                          </button>
+
+                          <button
+                            className="Enquiries-actionBtn Enquiries-actionBtn--delete"
+                            title="Delete"
+                            onClick={() =>
+                              handleDelete(
+                                item._id
+                              )
+                            }
+                          >
+                            <FiTrash2 />
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+                  )
+                )
               ) : (
                 <tr>
-                  <td colSpan="11" className="Enquiries-emptyRow">
-                    <p className="Enquiries-emptyText">No enquiries found matching your search criteria.</p>
-                    <button className="Enquiries-inlineResetBtn" onClick={handleResetFilters}>
+                  <td
+                    colSpan="11"
+                    className="Enquiries-emptyRow"
+                  >
+                    <p>
+                      No enquiries found.
+                    </p>
+
+                    <button
+                      onClick={
+                        handleResetFilters
+                      }
+                    >
                       Clear Filters
                     </button>
                   </td>
                 </tr>
               )}
+
             </tbody>
+
           </table>
+
         </div>
 
-        {/* Table Footer with Pagination */}
+        {/* =================================================
+            PAGINATION
+        ================================================= */}
+
         <div className="Enquiries-tableFooter">
-          <div className="Enquiries-showingText">
-            Showing{' '}
-            <span>
-              {filteredEnquiries.length === 0
+
+          <div>
+            Showing{" "}
+            <strong>
+              {pagination.total === 0
                 ? 0
-                : (currentPage - 1) * itemsPerPage + 1}{' '}
-              - {Math.min(currentPage * itemsPerPage, filteredEnquiries.length)}
-            </span>{' '}
-            of <span>{filteredEnquiries.length}</span> enquiries
+                : (currentPage - 1) *
+                    ITEMS_PER_PAGE +
+                  1}
+            </strong>{" "}
+            -{" "}
+            <strong>
+              {Math.min(
+                currentPage *
+                  ITEMS_PER_PAGE,
+                pagination.total
+              )}
+            </strong>{" "}
+            of{" "}
+            <strong>
+              {pagination.total}
+            </strong>
           </div>
 
           <div className="Enquiries-pagination">
+
             <button
-              className="Enquiries-pageBtn"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={
+                currentPage <= 1
+              }
+              onClick={() =>
+                setCurrentPage(
+                  (previous) =>
+                    Math.max(
+                      previous - 1,
+                      1
+                    )
+                )
+              }
             >
               <FiChevronLeft />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            {Array.from(
+              {
+                length:
+                  pagination.totalPages ||
+                  1,
+              },
+              (_, index) =>
+                index + 1
+            ).map((page) => (
               <button
-                key={pageNum}
-                className={`Enquiries-pageBtn ${
-                  currentPage === pageNum ? 'Enquiries-pageBtn--active' : ''
-                }`}
-                onClick={() => setCurrentPage(pageNum)}
+                key={page}
+                className={
+                  currentPage === page
+                    ? "Enquiries-pageBtn--active"
+                    : ""
+                }
+                onClick={() =>
+                  setCurrentPage(page)
+                }
               >
-                {pageNum}
+                {page}
               </button>
             ))}
 
             <button
-              className="Enquiries-pageBtn"
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={
+                currentPage >=
+                pagination.totalPages
+              }
+              onClick={() =>
+                setCurrentPage(
+                  (previous) =>
+                    Math.min(
+                      previous + 1,
+                      pagination.totalPages
+                    )
+                )
+              }
             >
               <FiChevronRight />
             </button>
+
           </div>
+
         </div>
+
       </div>
 
-      {/* VIEW DETAILS MODAL */}
+      {/* =================================================
+          VIEW MODAL
+      ================================================= */}
+
       {viewModalData && (
-        <div className="Enquiries-modalOverlay" onClick={() => setViewModalData(null)}>
-          <div className="Enquiries-modalCard" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="Enquiries-modalOverlay"
+          onClick={() =>
+            setViewModalData(null)
+          }
+        >
+
+          <div
+            className="Enquiries-modalCard"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+
             <div className="Enquiries-modalHeader">
-              <h3>Enquiry Details</h3>
-              <button className="Enquiries-closeModalBtn" onClick={() => setViewModalData(null)}>
+
+              <h3>
+                Enquiry Details
+              </h3>
+
+              <button
+                onClick={() =>
+                  setViewModalData(null)
+                }
+              >
                 <FiX />
               </button>
+
             </div>
+
             <div className="Enquiries-modalBody">
+
               <div className="Enquiries-modalGrid">
-                <div className="Enquiries-modalDetailBox">
-                  <span className="Enquiries-modalLabel">Customer Name</span>
-                  <p className="Enquiries-modalVal">{viewModalData.name}</p>
+
+                <div>
+                  <span>
+                    Customer Name
+                  </span>
+
+                  <p>
+                    {viewModalData.name}
+                  </p>
                 </div>
-                <div className="Enquiries-modalDetailBox">
-                  <span className="Enquiries-modalLabel">Email Address</span>
-                  <p className="Enquiries-modalVal">{viewModalData.email}</p>
+
+                <div>
+                  <span>
+                    Email Address
+                  </span>
+
+                  <p>
+                    {viewModalData.email}
+                  </p>
                 </div>
-                <div className="Enquiries-modalDetailBox">
-                  <span className="Enquiries-modalLabel">Phone Number</span>
-                  <p className="Enquiries-modalVal">{viewModalData.phone}</p>
+
+                <div>
+                  <span>
+                    Phone Number
+                  </span>
+
+                  <p>
+                    {viewModalData.phone}
+                  </p>
                 </div>
-                <div className="Enquiries-modalDetailBox">
-                  <span className="Enquiries-modalLabel">Enquiry Type</span>
-                  <p className="Enquiries-modalVal">{viewModalData.type}</p>
+
+                <div>
+                  <span>
+                    Address
+                  </span>
+
+                  <p>
+                    {viewModalData.address ||
+                      "-"}
+                  </p>
                 </div>
-                <div className="Enquiries-modalDetailBox">
-                  <span className="Enquiries-modalLabel">Date & Time</span>
-                  <p className="Enquiries-modalVal">{viewModalData.date} at {viewModalData.time}</p>
+
+                <div>
+                  <span>
+                    Type
+                  </span>
+
+                  <p>
+                    {viewModalData.type}
+                  </p>
                 </div>
-                <div className="Enquiries-modalDetailBox">
-                  <span className="Enquiries-modalLabel">Current Status</span>
-                  <p className="Enquiries-modalVal">{viewModalData.status}</p>
+
+                <div>
+                  <span>
+                    Status
+                  </span>
+
+                  <p>
+                    {viewModalData.status}
+                  </p>
                 </div>
+
               </div>
+
               <div className="Enquiries-modalMessage">
-                <span className="Enquiries-modalLabel">Subject</span>
-                <p className="Enquiries-subjectTxt">{viewModalData.subject}</p>
-                <span className="Enquiries-modalLabel" style={{ marginTop: '12px', display: 'block' }}>
-                  Full Message
+
+                <span>
+                  Subject
                 </span>
-                <p className="Enquiries-msgTxt">{viewModalData.message}</p>
+
+                <p>
+                  {viewModalData.subject}
+                </p>
+
+                <span>
+                  Message
+                </span>
+
+                <p>
+                  {viewModalData.message ||
+                    "-"}
+                </p>
+
+                {viewModalData.adminReply && (
+                  <>
+                    <span>
+                      Admin Reply
+                    </span>
+
+                    <p>
+                      {
+                        viewModalData.adminReply
+                      }
+                    </p>
+                  </>
+                )}
+
               </div>
+
             </div>
+
           </div>
+
         </div>
       )}
 
-      {/* REPLY / EDIT STATUS MODAL */}
+      {/* =================================================
+          REPLY / EDIT MODAL
+      ================================================= */}
+
       {replyModalData && (
-        <div className="Enquiries-modalOverlay" onClick={() => setReplyModalData(null)}>
-          <div className="Enquiries-modalCard" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="Enquiries-modalOverlay"
+          onClick={() =>
+            setReplyModalData(null)
+          }
+        >
+
+          <div
+            className="Enquiries-modalCard"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+
             <div className="Enquiries-modalHeader">
-              <h3>Reply to {replyModalData.name}</h3>
-              <button className="Enquiries-closeModalBtn" onClick={() => setReplyModalData(null)}>
+
+              <h3>
+                Update Enquiry
+              </h3>
+
+              <button
+                onClick={() =>
+                  setReplyModalData(null)
+                }
+              >
                 <FiX />
               </button>
+
             </div>
-            <form onSubmit={handleReplySubmit} className="Enquiries-modalBody">
+
+            <form
+              className="Enquiries-modalBody"
+              onSubmit={
+                handleReplySubmit
+              }
+            >
+
               <div className="Enquiries-formGroup">
-                <label className="Enquiries-formLabel">Update Status</label>
+
+                <label>
+                  Customer
+                </label>
+
+                <input
+                  type="text"
+                  value={
+                    replyModalData.name
+                  }
+                  disabled
+                />
+
+              </div>
+
+              <div className="Enquiries-formGroup">
+
+                <label>
+                  Update Status
+                </label>
+
                 <select
-                  className="Enquiries-selectInput"
                   value={updatedStatus}
-                  onChange={(e) => setUpdatedStatus(e.target.value)}
+                  onChange={(event) =>
+                    setUpdatedStatus(
+                      event.target.value
+                    )
+                  }
                 >
-                  <option value="New">New</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Closed">Closed</option>
+                  {STATUSES.map(
+                    (status) => (
+                      <option
+                        key={status}
+                        value={status}
+                      >
+                        {status}
+                      </option>
+                    )
+                  )}
                 </select>
+
               </div>
+
               <div className="Enquiries-formGroup">
-                <label className="Enquiries-formLabel">Reply Message</label>
+
+                <label>
+                  Reply Message
+                </label>
+
                 <textarea
-                  className="Enquiries-textarea"
-                  rows="4"
-                  placeholder="Type your official response to the customer..."
+                  rows="5"
                   value={replyMessage}
-                  onChange={(e) => setReplyMessage(e.target.value)}
-                  required
-                ></textarea>
+                  onChange={(event) =>
+                    setReplyMessage(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Write your response..."
+                />
+
               </div>
+
               <div className="Enquiries-modalFooter">
+
                 <button
                   type="button"
-                  className="Enquiries-cancelBtn"
-                  onClick={() => setReplyModalData(null)}
+                  onClick={() =>
+                    setReplyModalData(null)
+                  }
                 >
                   Cancel
                 </button>
-                <button type="submit" className="Enquiries-submitBtn">
-                  Send Response & Update
+
+                <button
+                  type="submit"
+                  disabled={
+                    actionLoading
+                  }
+                >
+                  {actionLoading
+                    ? "Updating..."
+                    : "Update Enquiry"}
                 </button>
+
               </div>
+
             </form>
+
           </div>
+
         </div>
       )}
+
     </div>
   );
 };

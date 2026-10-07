@@ -5,11 +5,15 @@ const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const path = require("path");
 
-const connectDB = require("./config/db");
+// Correct relative path to src/config/db
+const connectDB = require("./src/config/db");
 
 dotenv.config();
 
 const app = express();
+
+const supportRoutes = require("./src/routes/supportRoutes");
+const enquiryRoutes = require("./src/routes/enquiryRoutes");
 
 /* ==============================
    DATABASE
@@ -18,12 +22,13 @@ const app = express();
 connectDB();
 
 /* ==============================
-   MIDDLEWARE
+   MIDDLEWARE (CORS Dynamic)
 ============================== */
 
+// origin: true allows both user frontend and admin panel ports (5173, 5174, etc.)
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: true,
     credentials: true,
   })
 );
@@ -39,7 +44,7 @@ app.use(morgan("dev"));
 
 app.use(
   "/uploads",
-  express.static(path.join(__dirname, "uploads"))
+  express.static(path.join(__dirname, "src", "uploads"))
 );
 
 /* ==============================
@@ -57,13 +62,12 @@ app.get("/", (req, res) => {
    API ROUTES
 ============================== */
 
-// Add your routes here
-// Example:
-// const authRoutes = require("./routes/auth.routes");
-// app.use("/api/auth", authRoutes);
+
+app.use("/api/supports", supportRoutes);
+app.use("/api/enquiries", enquiryRoutes);
 
 /* ==============================
-   404
+   404 HANDLER
 ============================== */
 
 app.use((req, res) => {

@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
 import Swal from "sweetalert2";
+
+import API from "../../api/axios";
+
 import "./FloatingForm.css";
 
 import bookImage from "../../assets/booklogo.webp";
@@ -15,36 +22,46 @@ const FloatingForm = ({
   isOpen: controlledIsOpen,
   onClose,
 }) => {
-  const [internalOpen, setInternalOpen] = useState(true);
-  const [formData, setFormData] = useState(EMPTY_FORM);
-  const [status, setStatus] = useState("idle");
-  const [isClosing, setIsClosing] = useState(false);
+  const [internalOpen, setInternalOpen] =
+    useState(true);
 
-  const isControlled = controlledIsOpen !== undefined;
+  const [formData, setFormData] =
+    useState(EMPTY_FORM);
+
+  const [status, setStatus] =
+    useState("idle");
+
+  const [isClosing, setIsClosing] =
+    useState(false);
+
+  const isControlled =
+    controlledIsOpen !== undefined;
 
   const isVisible = isControlled
     ? controlledIsOpen
     : internalOpen;
 
-  /* =========================================================
-     BODY SCROLL LOCK
-  ========================================================= */
+  // =====================================================
+  // BODY SCROLL
+  // =====================================================
 
   useEffect(() => {
     if (!isVisible) return;
 
-    const previousOverflow = document.body.style.overflow;
+    const previousOverflow =
+      document.body.style.overflow;
 
     document.body.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow =
+        previousOverflow;
     };
   }, [isVisible]);
 
-  /* =========================================================
-     ESCAPE KEY
-  ========================================================= */
+  // =====================================================
+  // ESCAPE
+  // =====================================================
 
   useEffect(() => {
     if (!isVisible) return;
@@ -55,19 +72,28 @@ const FloatingForm = ({
       }
     };
 
-    window.addEventListener("keydown", handleEscape);
+    window.addEventListener(
+      "keydown",
+      handleEscape
+    );
 
     return () => {
-      window.removeEventListener("keydown", handleEscape);
+      window.removeEventListener(
+        "keydown",
+        handleEscape
+      );
     };
   }, [isVisible, status]);
 
-  /* =========================================================
-     CLOSE FORM
-  ========================================================= */
+  // =====================================================
+  // CLOSE
+  // =====================================================
 
   const handleClose = (force = false) => {
-    if (status === "submitting" && !force) {
+    if (
+      status === "submitting" &&
+      !force
+    ) {
       return;
     }
 
@@ -87,12 +113,15 @@ const FloatingForm = ({
     }, 300);
   };
 
-  /* =========================================================
-     INPUT CHANGE
-  ========================================================= */
+  // =====================================================
+  // CHANGE
+  // =====================================================
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const {
+      name,
+      value,
+    } = event.target;
 
     setFormData((previous) => ({
       ...previous,
@@ -100,9 +129,9 @@ const FloatingForm = ({
     }));
   };
 
-  /* =========================================================
-     FORM SUBMIT
-  ========================================================= */
+  // =====================================================
+  // SUBMIT
+  // =====================================================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -111,16 +140,28 @@ const FloatingForm = ({
       return;
     }
 
-    const name = formData.name.trim();
-    const email = formData.email.trim();
-    const phone = formData.phone.trim();
-    const address = formData.address.trim();
+    const name =
+      formData.name.trim();
 
-    /* =======================================================
-       REQUIRED VALIDATION
-    ======================================================= */
+    const email =
+      formData.email.trim();
 
-    if (!name || !email || !phone || !address) {
+    const phone =
+      formData.phone.trim();
+
+    const address =
+      formData.address.trim();
+
+    // ===================================================
+    // VALIDATION
+    // ===================================================
+
+    if (
+      !name ||
+      !email ||
+      !phone ||
+      !address
+    ) {
       Swal.fire({
         icon: "warning",
         title: "Please fill all fields",
@@ -131,10 +172,6 @@ const FloatingForm = ({
 
       return;
     }
-
-    /* =======================================================
-       EMAIL VALIDATION
-    ======================================================= */
 
     const emailPattern =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -151,11 +188,8 @@ const FloatingForm = ({
       return;
     }
 
-    /* =======================================================
-       PHONE VALIDATION
-    ======================================================= */
-
-    const phoneDigits = phone.replace(/\D/g, "");
+    const phoneDigits =
+      phone.replace(/\D/g, "");
 
     if (phoneDigits.length < 10) {
       Swal.fire({
@@ -172,45 +206,57 @@ const FloatingForm = ({
     try {
       setStatus("submitting");
 
-      /* Premium loading state */
-      await new Promise((resolve) =>
-        setTimeout(resolve, 900)
-      );
+      // =================================================
+      // SEND TO MONGODB THROUGH BACKEND
+      // =================================================
 
-      /* =====================================================
-         SAVE LOCALLY
-      ===================================================== */
-
-      const existingLeads = JSON.parse(
-        localStorage.getItem("likhaniContactLeads") || "[]"
-      );
-
-      const newLead = {
-        id: Date.now(),
+      const payload = {
         name,
         email,
         phone,
         address,
-        createdAt: new Date().toISOString(),
+
+        type: "General Enquiry",
+
+        subject: "Website Enquiry",
+
+        message:
+          `Customer enquiry submitted from website. ` +
+          `Address: ${address}`,
       };
 
-      localStorage.setItem(
-        "likhaniContactLeads",
-        JSON.stringify([
-          ...existingLeads,
-          newLead,
-        ])
+      const response = await API.post(
+        "/enquiries",
+        payload
       );
 
-      /* =====================================================
-         RESET FORM
-      ===================================================== */
+      console.log(
+        "ENQUIRY CREATED:",
+        response.data
+      );
+
+      // =================================================
+      // GOOGLE ADS CONVERSION
+      // =================================================
+
+      if (
+        typeof window.trackContactConversion ===
+        "function"
+      ) {
+        window.trackContactConversion(
+          response.data?.enquiry?._id
+        );
+      }
+
+      // =================================================
+      // RESET
+      // =================================================
 
       setFormData(EMPTY_FORM);
 
-      /* =====================================================
-         SUCCESS MESSAGE
-      ===================================================== */
+      // =================================================
+      // SUCCESS
+      // =================================================
 
       Swal.fire({
         icon: "success",
@@ -226,81 +272,78 @@ const FloatingForm = ({
         handleClose(true);
       }, 250);
     } catch (error) {
-      console.error("Form error:", error);
+      console.error(
+        "ENQUIRY SUBMISSION ERROR:",
+        error
+      );
 
       setStatus("idle");
 
       Swal.fire({
         icon: "error",
         title: "Something went wrong",
-        text: "Please try again.",
+        text:
+          error?.response?.data?.message ||
+          "Unable to submit your enquiry. Please try again.",
         confirmButtonText: "Try Again",
         confirmButtonColor: "#176b8d",
       });
     }
   };
 
-  /* =========================================================
-     HIDDEN
-  ========================================================= */
+  // =====================================================
+  // HIDDEN
+  // =====================================================
 
   if (!isVisible) {
     return null;
   }
 
-  /* =========================================================
-     UI
-  ========================================================= */
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
     <div
       className={`likhani-overlay ${
-        isClosing ? "likhani-overlay-closing" : ""
+        isClosing
+          ? "likhani-overlay-closing"
+          : ""
       }`}
       onClick={() => handleClose()}
     >
       <div
         className={`likhani-card ${
-          isClosing ? "likhani-card-closing" : ""
+          isClosing
+            ? "likhani-card-closing"
+            : ""
         }`}
-        onClick={(event) => event.stopPropagation()}
+        onClick={(event) =>
+          event.stopPropagation()
+        }
         role="dialog"
         aria-modal="true"
         aria-labelledby="likhani-form-title"
       >
-        {/* ===================================================
-            PREMIUM BACKGROUND DECORATION
-        =================================================== */}
-
         <div className="likhani-orb likhani-orb-one" />
         <div className="likhani-orb likhani-orb-two" />
 
         <div className="likhani-grid-pattern" />
 
-        {/* ===================================================
-            CLOSE BUTTON
-        =================================================== */}
-
         <button
           type="button"
           className="likhani-close"
           onClick={() => handleClose()}
-          disabled={status === "submitting"}
+          disabled={
+            status === "submitting"
+          }
           aria-label="Close form"
         >
           <span />
           <span />
         </button>
 
-        {/* ===================================================
-            SINGLE UNIFIED CONTENT
-        =================================================== */}
-
         <div className="likhani-main">
-
-          {/* =================================================
-              TOP BRAND / VISUAL
-          ================================================= */}
 
           <div className="likhani-top">
 
@@ -314,7 +357,9 @@ const FloatingForm = ({
               </div>
 
               <div className="likhani-brand-text">
-                <strong>Likhani Books</strong>
+                <strong>
+                  Likhani Books
+                </strong>
 
                 <span>
                   READ · DISCOVER · INSPIRE
@@ -326,6 +371,7 @@ const FloatingForm = ({
             <div className="likhani-mini-visual">
 
               <div className="likhani-mini-ring ring-one" />
+
               <div className="likhani-mini-ring ring-two" />
 
               <div className="likhani-mini-book book-blue">
@@ -355,10 +401,6 @@ const FloatingForm = ({
 
           </div>
 
-          {/* =================================================
-              HEADING
-          ================================================= */}
-
           <div className="likhani-heading">
 
             <div className="likhani-eyebrow">
@@ -374,15 +416,12 @@ const FloatingForm = ({
             </h2>
 
             <p>
-              Share your details with us and our
-              team will get back to you shortly.
+              Share your details with us
+              and our team will get back
+              to you shortly.
             </p>
 
           </div>
-
-          {/* =================================================
-              FORM
-          ================================================= */}
 
           <form
             className="likhani-form"
@@ -424,7 +463,9 @@ const FloatingForm = ({
                   onChange={handleChange}
                   placeholder="Enter your name"
                   autoComplete="name"
-                  disabled={status === "submitting"}
+                  disabled={
+                    status === "submitting"
+                  }
                 />
 
               </div>
@@ -467,7 +508,9 @@ const FloatingForm = ({
                   onChange={handleChange}
                   placeholder="Enter your email"
                   autoComplete="email"
-                  disabled={status === "submitting"}
+                  disabled={
+                    status === "submitting"
+                  }
                 />
 
               </div>
@@ -503,7 +546,9 @@ const FloatingForm = ({
                   placeholder="Enter your phone number"
                   autoComplete="tel"
                   inputMode="tel"
-                  disabled={status === "submitting"}
+                  disabled={
+                    status === "submitting"
+                  }
                 />
 
               </div>
@@ -544,7 +589,9 @@ const FloatingForm = ({
                   onChange={handleChange}
                   placeholder="Enter your address"
                   autoComplete="street-address"
-                  disabled={status === "submitting"}
+                  disabled={
+                    status === "submitting"
+                  }
                 />
 
               </div>
@@ -556,9 +603,10 @@ const FloatingForm = ({
             <button
               type="submit"
               className="likhani-submit"
-              disabled={status === "submitting"}
+              disabled={
+                status === "submitting"
+              }
             >
-
               {status === "idle" ? (
                 <>
                   <span>
@@ -566,19 +614,7 @@ const FloatingForm = ({
                   </span>
 
                   <span className="likhani-arrow">
-
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M5 12h14" />
-                      <path d="m13 6 6 6-6 6" />
-                    </svg>
-
+                    →
                   </span>
                 </>
               ) : (
@@ -590,35 +626,16 @@ const FloatingForm = ({
                   </span>
                 </>
               )}
-
             </button>
 
-            {/* SECURITY */}
-
             <div className="likhani-security">
-
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-
-                <path d="m9 12 2 2 4-4" />
-              </svg>
-
               <span>
-                Your information stays private & secure
+                🔒 Your information stays
+                private & secure
               </span>
-
             </div>
 
           </form>
-
-          {/* =================================================
-              BOTTOM ACCENT
-          ================================================= */}
 
           <div className="likhani-bottom-accent">
             <span />

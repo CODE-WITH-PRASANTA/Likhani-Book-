@@ -1,54 +1,105 @@
+/* =========================================================
+   ENQUIRIES PAGE
+   COMPLETE RESPONSIVE CSS
+   ========================================================= */
+
 :root {
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-light: #eef2ff;
-  --bg-main: #f8fafc;
-  --card-bg: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
+  --Enquiries-primary: #4f46e5;
+  --Enquiries-primary-hover: #4338ca;
+  --Enquiries-primary-light: #eef2ff;
 
-  --badge-blue-bg: #e0f2fe;
-  --badge-blue-txt: #0369a1;
-  --badge-green-bg: #dcfce7;
-  --badge-green-txt: #15803d;
-  --badge-orange-bg: #fef3c7;
-  --badge-orange-txt: #b45309;
-  --badge-purple-bg: #f3e8ff;
-  --badge-purple-txt: #6b21a8;
-  --badge-pink-bg: #fce7f3;
-  --badge-pink-txt: #be185d;
-  --badge-red-bg: #ffe4e6;
-  --badge-red-txt: #be123c;
-  --badge-gray-bg: #f1f5f9;
-  --badge-gray-txt: #475569;
+  --Enquiries-bg: #f8fafc;
+  --Enquiries-card: #ffffff;
 
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --Enquiries-text: #0f172a;
+  --Enquiries-text-secondary: #334155;
+  --Enquiries-muted: #64748b;
+
+  --Enquiries-border: #e2e8f0;
+  --Enquiries-border-dark: #cbd5e1;
+
+  --Enquiries-blue: #0284c7;
+  --Enquiries-blue-bg: #e0f2fe;
+
+  --Enquiries-green: #16a34a;
+  --Enquiries-green-bg: #dcfce7;
+
+  --Enquiries-orange: #d97706;
+  --Enquiries-orange-bg: #fef3c7;
+
+  --Enquiries-red: #e11d48;
+  --Enquiries-red-bg: #ffe4e6;
+
+  --Enquiries-purple: #7c3aed;
+  --Enquiries-purple-bg: #f3e8ff;
+
+  --Enquiries-pink: #db2777;
+  --Enquiries-pink-bg: #fce7f3;
+
+  --Enquiries-gray-bg: #f1f5f9;
+  --Enquiries-gray-text: #475569;
+
+  --Enquiries-shadow-sm:
+    0 1px 2px rgba(15, 23, 42, 0.05);
+
+  --Enquiries-shadow-md:
+    0 8px 24px rgba(15, 23, 42, 0.08);
+
+  --Enquiries-shadow-lg:
+    0 20px 60px rgba(15, 23, 42, 0.18);
+
+  --Enquiries-radius-sm: 6px;
+  --Enquiries-radius-md: 10px;
+  --Enquiries-radius-lg: 16px;
+
+  --Enquiries-transition: 0.2s ease;
 }
 
-/* Page Base Styling - Prevents unwanted page scrollbar */
-.Enquiries {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+.Enquiries,
+.Enquiries * {
   box-sizing: border-box;
 }
 
-/* Header Section */
+.Enquiries {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  margin: 0 auto;
+
+  background: var(--Enquiries-bg);
+  color: var(--Enquiries-text);
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  line-height: 1.5;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .Enquiries-header {
+  width: 100%;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  gap: 16px;
+  justify-content: space-between;
+
+  gap: 20px;
+  margin-bottom: 22px;
+
   flex-wrap: wrap;
 }
 
@@ -59,427 +110,972 @@
 }
 
 .Enquiries-iconWrapper {
-  background: linear-gradient(135deg, var(--primary), #6366f1);
-  color: #ffffff;
-  padding: 8px;
-  border-radius: var(--radius-md);
+  width: 46px;
+  height: 46px;
+
+  flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--Enquiries-primary),
+      #6366f1
+    );
+
+  border-radius: var(--Enquiries-radius-md);
+
+  box-shadow:
+    0 8px 20px rgba(79, 70, 229, 0.25);
 }
 
-.Enquiries-headerTitleIcon {
-  font-size: 22px;
+.Enquiries-iconWrapper svg {
+  width: 23px;
+  height: 23px;
 }
 
 .Enquiries-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-main);
   margin: 0;
-  letter-spacing: -0.02em;
+
+  color: var(--Enquiries-text);
+
+  font-size: 25px;
+  line-height: 1.2;
+  font-weight: 800;
+
+  letter-spacing: -0.03em;
 }
 
 .Enquiries-subtitle {
-  color: var(--text-muted);
+  margin: 5px 0 0;
+
+  color: var(--Enquiries-muted);
+
   font-size: 14px;
-  margin: 4px 0 0 0;
+  line-height: 1.5;
 }
 
+.Enquiries-headerActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   COMMON HEADER BUTTONS
+   ========================================================= */
+
+.Enquiries-refreshBtn,
 .Enquiries-exportBtn {
+  min-height: 40px;
+
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+
   gap: 8px;
-  background-color: var(--card-bg);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 14px;
+
+  padding: 9px 16px;
+
+  border-radius: var(--Enquiries-radius-md);
+
+  font-size: 13px;
+  font-weight: 700;
+
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+
+  transition:
+    transform var(--Enquiries-transition),
+    background var(--Enquiries-transition),
+    border-color var(--Enquiries-transition),
+    color var(--Enquiries-transition),
+    box-shadow var(--Enquiries-transition);
+
+  white-space: nowrap;
 }
 
-.Enquiries-exportBtn:hover {
-  background-color: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary);
+.Enquiries-refreshBtn {
+  background: #ffffff;
+  color: var(--Enquiries-text);
+  border: 1px solid var(--Enquiries-border);
+
+  box-shadow: var(--Enquiries-shadow-sm);
+}
+
+.Enquiries-refreshBtn:hover:not(:disabled) {
+  color: var(--Enquiries-primary);
+  border-color: var(--Enquiries-primary);
+  background: var(--Enquiries-primary-light);
+
   transform: translateY(-1px);
 }
 
-/* Stats Cards Grid */
+.Enquiries-refreshBtn:active:not(:disabled),
+.Enquiries-exportBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.Enquiries-refreshBtn:disabled,
+.Enquiries-exportBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.Enquiries-exportBtn {
+  background: var(--Enquiries-primary);
+  color: #ffffff;
+  border: 1px solid var(--Enquiries-primary);
+
+  box-shadow:
+    0 5px 14px rgba(79, 70, 229, 0.2);
+}
+
+.Enquiries-exportBtn:hover {
+  background: var(--Enquiries-primary-hover);
+  border-color: var(--Enquiries-primary-hover);
+
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 18px rgba(79, 70, 229, 0.25);
+}
+
+.Enquiries-refreshBtn svg,
+.Enquiries-exportBtn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Refresh animation */
+
+.Enquiries-spin {
+  animation: EnquiriesSpin 0.8s linear infinite;
+}
+
+@keyframes EnquiriesSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   STATS
+   ========================================================= */
+
 .Enquiries-statsGrid {
+  width: 100%;
+
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
   gap: 16px;
+
   margin-bottom: 20px;
 }
 
 .Enquiries-statCard {
-  background: var(--card-bg);
-  padding: 16px 20px;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
+  min-width: 0;
+
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  gap: 15px;
+
+  padding: 18px;
+
+  background: var(--Enquiries-card);
+
+  border: 1px solid var(--Enquiries-border);
+
+  border-radius: var(--Enquiries-radius-lg);
+
+  box-shadow: var(--Enquiries-shadow-sm);
+
+  transition:
+    transform var(--Enquiries-transition),
+    box-shadow var(--Enquiries-transition);
 }
 
 .Enquiries-statCard:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--Enquiries-shadow-md);
 }
 
 .Enquiries-statIcon {
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-md);
+
+  flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+
+  border-radius: 12px;
+
+  font-size: 21px;
+}
+
+.Enquiries-statIcon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .Enquiries-statCard--blue .Enquiries-statIcon {
-  background: #e0f2fe;
-  color: #0284c7;
+  color: var(--Enquiries-blue);
+  background: var(--Enquiries-blue-bg);
 }
 
 .Enquiries-statCard--green .Enquiries-statIcon {
-  background: #dcfce7;
-  color: #16a34a;
+  color: var(--Enquiries-green);
+  background: var(--Enquiries-green-bg);
 }
 
 .Enquiries-statCard--orange .Enquiries-statIcon {
-  background: #fef3c7;
-  color: #d97706;
+  color: var(--Enquiries-orange);
+  background: var(--Enquiries-orange-bg);
 }
 
 .Enquiries-statCard--red .Enquiries-statIcon {
-  background: #ffe4e6;
-  color: #e11d48;
+  color: var(--Enquiries-red);
+  background: var(--Enquiries-red-bg);
 }
 
 .Enquiries-statCount {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-main);
+  margin: 0;
+
+  color: var(--Enquiries-text);
+
+  font-size: 23px;
   line-height: 1.1;
+
+  font-weight: 800;
 }
 
 .Enquiries-statLabel {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 2px;
-  font-weight: 500;
+  margin-top: 4px;
+
+  color: var(--Enquiries-muted);
+
+  font-size: 12px;
+  font-weight: 600;
 }
 
-/* Filter Card */
+/* =========================================================
+   FILTER CARD
+   ========================================================= */
+
 .Enquiries-filterCard {
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  padding: 16px;
-  margin-bottom: 20px;
+  width: 100%;
+
   display: flex;
   flex-direction: column;
+
   gap: 16px;
-  box-shadow: var(--shadow-sm);
+
+  padding: 17px;
+
+  margin-bottom: 20px;
+
+  background: var(--Enquiries-card);
+
+  border: 1px solid var(--Enquiries-border);
+  border-radius: var(--Enquiries-radius-lg);
+
+  box-shadow: var(--Enquiries-shadow-sm);
 }
+
+/* Search */
 
 .Enquiries-searchGroup {
-  position: relative;
   width: 100%;
+  position: relative;
+
+  display: flex;
+  align-items: center;
 }
 
-.Enquiries-searchIcon {
+.Enquiries-searchGroup > svg {
   position: absolute;
   left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  font-size: 18px;
+
+  width: 18px;
+  height: 18px;
+
+  color: var(--Enquiries-muted);
+
+  pointer-events: none;
 }
 
 .Enquiries-searchInput {
   width: 100%;
+  min-height: 43px;
+
   padding: 10px 14px 10px 42px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  font-size: 14px;
-  background-color: var(--bg-main);
+
+  color: var(--Enquiries-text);
+
+  background: #f8fafc;
+
+  border: 1px solid var(--Enquiries-border);
+  border-radius: var(--Enquiries-radius-md);
+
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  box-sizing: border-box;
+
+  font-size: 14px;
+
+  transition:
+    border-color var(--Enquiries-transition),
+    box-shadow var(--Enquiries-transition),
+    background var(--Enquiries-transition);
+}
+
+.Enquiries-searchInput::placeholder {
+  color: #94a3b8;
+}
+
+.Enquiries-searchInput:hover {
+  border-color: var(--Enquiries-border-dark);
 }
 
 .Enquiries-searchInput:focus {
-  border-color: var(--primary);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  background: #ffffff;
+
+  border-color: var(--Enquiries-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+/* Filter controls */
+
 .Enquiries-filterControls {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  align-items: flex-end;
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr))
+    auto;
+
+  gap: 14px;
+
+  align-items: end;
 }
 
 .Enquiries-controlGroup {
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
+
   gap: 6px;
-  flex: 1;
-  min-width: 160px;
 }
 
+.Enquiries-controlGroup label,
 .Enquiries-controlLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
+  display: block;
+
+  margin: 0;
+
+  color: var(--Enquiries-muted);
+
+  font-size: 11px;
+  font-weight: 800;
+
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+
+  letter-spacing: 0.05em;
 }
 
-.Enquiries-selectInput {
+.Enquiries-selectInput,
+.Enquiries-controlGroup select {
+  width: 100%;
+  min-height: 41px;
+
   padding: 9px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  font-size: 14px;
-  background-color: #ffffff;
-  color: var(--text-main);
+
+  color: var(--Enquiries-text);
+
+  background: #ffffff;
+
+  border: 1px solid var(--Enquiries-border);
+  border-radius: var(--Enquiries-radius-md);
+
   outline: none;
+
+  font-size: 13px;
+
   cursor: pointer;
-  transition: all 0.2s ease;
+
+  transition:
+    border-color var(--Enquiries-transition),
+    box-shadow var(--Enquiries-transition);
 }
 
-.Enquiries-selectInput:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+.Enquiries-selectInput:hover,
+.Enquiries-controlGroup select:hover {
+  border-color: var(--Enquiries-border-dark);
 }
+
+.Enquiries-selectInput:focus,
+.Enquiries-controlGroup select:focus {
+  border-color: var(--Enquiries-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Date */
 
 .Enquiries-dateInputWrapper {
   position: relative;
+
+  width: 100%;
+
   display: flex;
   align-items: center;
+}
+
+.Enquiries-dateInputWrapper > svg {
+  position: absolute;
+  left: 12px;
+
+  width: 16px;
+  height: 16px;
+
+  color: var(--Enquiries-muted);
+
+  pointer-events: none;
 }
 
 .Enquiries-dateIcon {
   position: absolute;
   left: 12px;
-  color: var(--text-muted);
-  font-size: 16px;
+
+  color: var(--Enquiries-muted);
+
   pointer-events: none;
 }
 
-.Enquiries-dateInput {
+.Enquiries-dateInput,
+.Enquiries-controlGroup input[type="date"] {
   width: 100%;
+  min-height: 41px;
+
   padding: 9px 12px 9px 36px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  font-size: 14px;
+
+  color: var(--Enquiries-text);
+
+  background: #ffffff;
+
+  border: 1px solid var(--Enquiries-border);
+  border-radius: var(--Enquiries-radius-md);
+
   outline: none;
-  color: var(--text-main);
-  box-sizing: border-box;
+
+  font-size: 13px;
+
+  transition:
+    border-color var(--Enquiries-transition),
+    box-shadow var(--Enquiries-transition);
 }
 
-.Enquiries-dateInput:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+.Enquiries-dateInput:focus,
+.Enquiries-controlGroup input[type="date"]:focus {
+  border-color: var(--Enquiries-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(79, 70, 229, 0.1);
 }
+
+/* Reset */
 
 .Enquiries-resetBtn {
+  min-height: 41px;
+
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background-color: var(--bg-main);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  padding: 10px 16px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 9px 16px;
+
+  color: var(--Enquiries-muted);
+
+  background: #ffffff;
+
+  border: 1px solid var(--Enquiries-border);
+
+  border-radius: var(--Enquiries-radius-md);
+
   font-size: 13px;
+  font-weight: 700;
+
   cursor: pointer;
-  transition: all 0.2s ease;
-  height: 40px;
+
+  transition:
+    color var(--Enquiries-transition),
+    background var(--Enquiries-transition),
+    border-color var(--Enquiries-transition);
 }
 
 .Enquiries-resetBtn:hover {
-  background-color: #e2e8f0;
-  color: var(--text-main);
+  color: var(--Enquiries-primary);
+
+  background: var(--Enquiries-primary-light);
+
+  border-color: #c7d2fe;
 }
 
-/* Table Section */
+.Enquiries-resetBtn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* =========================================================
+   BULK ACTION BAR
+   ========================================================= */
+
+.Enquiries-bulkBar {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 12px 16px;
+
+  margin-bottom: 16px;
+
+  color: #3730a3;
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef2ff,
+      #e0e7ff
+    );
+
+  border: 1px solid #c7d2fe;
+
+  border-radius: var(--Enquiries-radius-lg);
+
+  animation: EnquiriesFadeDown 0.2s ease;
+}
+
+.Enquiries-bulkBar span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.Enquiries-bulkBar button {
+  min-height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 8px 14px;
+
+  color: #ffffff;
+
+  background: #dc2626;
+
+  border: 1px solid #dc2626;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background var(--Enquiries-transition),
+    transform var(--Enquiries-transition);
+}
+
+.Enquiries-bulkBar button:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.Enquiries-bulkBar button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.Enquiries-bulkBar svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
 .Enquiries-tableCard {
-  background: var(--card-bg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  width: 100%;
+
   overflow: hidden;
+
+  background: var(--Enquiries-card);
+
+  border: 1px solid var(--Enquiries-border);
+
+  border-radius: var(--Enquiries-radius-lg);
+
+  box-shadow: var(--Enquiries-shadow-sm);
 }
 
 .Enquiries-tableResponsive {
   width: 100%;
+
   overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.Enquiries-tableResponsive::-webkit-scrollbar {
+  height: 7px;
+}
+
+.Enquiries-tableResponsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.Enquiries-tableResponsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 
 .Enquiries-table {
   width: 100%;
-  border-collapse: collapse;
+
+  min-width: 1150px;
+
+  border-collapse: separate;
+  border-spacing: 0;
+
   text-align: left;
-  font-size: 14px;
+
+  font-size: 13px;
+}
+
+/* Table Head */
+
+.Enquiries-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+
+  padding: 13px 15px;
+
+  color: #475569;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid var(--Enquiries-border);
+
+  font-size: 11px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.045em;
+
   white-space: nowrap;
 }
 
-.Enquiries-table th {
-  background-color: var(--bg-main);
-  color: var(--text-muted);
-  font-weight: 600;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
+/* Table Body */
 
-.Enquiries-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-color);
+.Enquiries-table tbody td {
+  padding: 13px 15px;
+
+  color: var(--Enquiries-text-secondary);
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #f1f5f9;
+
   vertical-align: middle;
 }
 
 .Enquiries-table tbody tr {
-  transition: background-color 0.15s ease;
+  transition:
+    background var(--Enquiries-transition);
 }
 
-.Enquiries-table tbody tr:hover {
-  background-color: #f8fafc;
+.Enquiries-table tbody tr:hover td {
+  background: #fafbff;
 }
 
-.Enquiries-rowSelected {
-  background-color: var(--primary-light) !important;
+.Enquiries-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
-.Enquiries-checkbox {
+/* Selected row */
+
+.Enquiries-rowSelected td {
+  background: #eef2ff !important;
+}
+
+/* Checkbox */
+
+.Enquiries-checkbox,
+.Enquiries-table input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  accent-color: var(--primary);
+
+  margin: 0;
+
+  accent-color: var(--Enquiries-primary);
+
   cursor: pointer;
-  border-radius: 4px;
 }
 
+/* Text */
+
 .Enquiries-fontBold {
-  font-weight: 600;
-  color: var(--text-main);
+  color: var(--Enquiries-text) !important;
+  font-weight: 700;
 }
 
 .Enquiries-fontMedium {
-  font-weight: 500;
-  color: var(--text-main);
+  color: var(--Enquiries-text) !important;
+  font-weight: 600;
 }
 
 .Enquiries-textMuted {
-  color: var(--text-muted);
+  color: var(--Enquiries-muted) !important;
 }
 
+/* Message */
+
 .Enquiries-messageCell {
+  width: 220px;
   max-width: 220px;
+
+  color: var(--Enquiries-muted) !important;
+
   overflow: hidden;
+
   text-overflow: ellipsis;
+
   white-space: nowrap;
-  color: var(--text-muted);
 }
+
+/* Date */
 
 .Enquiries-dateCell {
   display: flex;
   flex-direction: column;
+
+  gap: 2px;
+
   line-height: 1.2;
+
+  white-space: nowrap;
 }
 
 .Enquiries-timeText {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
+  color: var(--Enquiries-muted);
+
+  font-size: 11px;
 }
 
-/* Badges */
+/* =========================================================
+   TYPE BADGES
+   ========================================================= */
+
 .Enquiries-typeBadge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 25px;
+
   padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  line-height: 1;
+
+  white-space: nowrap;
 }
 
-.Enquiries-typeBadge--bookInfo { background: var(--badge-blue-bg); color: var(--badge-blue-txt); }
-.Enquiries-typeBadge--order { background: var(--badge-purple-bg); color: var(--badge-purple-txt); }
-.Enquiries-typeBadge--price { background: var(--badge-orange-bg); color: var(--badge-orange-txt); }
-.Enquiries-typeBadge--product { background: var(--badge-green-bg); color: var(--badge-green-txt); }
-.Enquiries-typeBadge--shipping { background: var(--badge-pink-bg); color: var(--badge-pink-txt); }
-.Enquiries-typeBadge--refund { background: var(--badge-red-bg); color: var(--badge-red-txt); }
-.Enquiries-typeBadge--payment { background: #fee2e2; color: #991b1b; }
-.Enquiries-typeBadge--other { background: var(--badge-gray-bg); color: var(--badge-gray-txt); }
+.Enquiries-typeBadge--bookInfo {
+  color: #0369a1;
+  background: #e0f2fe;
+}
+
+.Enquiries-typeBadge--order {
+  color: #6d28d9;
+  background: #ede9fe;
+}
+
+.Enquiries-typeBadge--price {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.Enquiries-typeBadge--product {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.Enquiries-typeBadge--shipping {
+  color: #be185d;
+  background: #fce7f3;
+}
+
+.Enquiries-typeBadge--refund {
+  color: #be123c;
+  background: #ffe4e6;
+}
+
+.Enquiries-typeBadge--payment {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.Enquiries-typeBadge--other {
+  color: #475569;
+  background: #f1f5f9;
+}
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
 
 .Enquiries-statusBadge {
   display: inline-flex;
   align-items: center;
+
   gap: 6px;
+
+  min-height: 25px;
+
   padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  white-space: nowrap;
 }
 
 .Enquiries-statusDot {
   width: 6px;
   height: 6px;
+
+  flex-shrink: 0;
+
   border-radius: 50%;
 }
 
 .Enquiries-statusBadge--new {
-  background: var(--badge-blue-bg);
-  color: var(--badge-blue-txt);
+  color: #0369a1;
+  background: #e0f2fe;
 }
-.Enquiries-statusBadge--new .Enquiries-statusDot { background: var(--badge-blue-txt); }
+
+.Enquiries-statusBadge--new
+.Enquiries-statusDot {
+  background: #0284c7;
+}
 
 .Enquiries-statusBadge--inProgress {
-  background: var(--badge-orange-bg);
-  color: var(--badge-orange-txt);
+  color: #b45309;
+  background: #fef3c7;
 }
-.Enquiries-statusBadge--inProgress .Enquiries-statusDot { background: var(--badge-orange-txt); }
+
+.Enquiries-statusBadge--inProgress
+.Enquiries-statusDot {
+  background: #d97706;
+}
 
 .Enquiries-statusBadge--closed {
-  background: var(--badge-green-bg);
-  color: var(--badge-green-txt);
+  color: #15803d;
+  background: #dcfce7;
 }
-.Enquiries-statusBadge--closed .Enquiries-statusDot { background: var(--badge-green-txt); }
 
-/* Table Action Buttons */
+.Enquiries-statusBadge--closed
+.Enquiries-statusDot {
+  background: #16a34a;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
 .Enquiries-actionGroup {
   display: flex;
   align-items: center;
   justify-content: center;
+
   gap: 6px;
 }
 
 .Enquiries-actionBtn {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: #ffffff;
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  padding: 0;
+
+  color: var(--Enquiries-muted);
+
+  background: #ffffff;
+
+  border: 1px solid var(--Enquiries-border);
+
+  border-radius: 8px;
+
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-muted);
+
+  transition:
+    transform var(--Enquiries-transition),
+    color var(--Enquiries-transition),
+    background var(--Enquiries-transition),
+    border-color var(--Enquiries-transition);
+}
+
+.Enquiries-actionBtn svg {
+  width: 15px;
+  height: 15px;
 }
 
 .Enquiries-actionBtn:hover {
@@ -487,294 +1083,1043 @@
 }
 
 .Enquiries-actionBtn--view:hover {
-  background-color: var(--primary-light);
-  color: var(--primary);
-  border-color: var(--primary);
+  color: var(--Enquiries-primary);
+  background: var(--Enquiries-primary-light);
+  border-color: #a5b4fc;
 }
 
 .Enquiries-actionBtn--reply:hover {
-  background-color: var(--badge-green-bg);
-  color: var(--badge-green-txt);
-  border-color: var(--badge-green-txt);
+  color: var(--Enquiries-green);
+  background: var(--Enquiries-green-bg);
+  border-color: #86efac;
 }
 
 .Enquiries-actionBtn--delete:hover {
-  background-color: var(--badge-red-bg);
-  color: var(--badge-red-txt);
-  border-color: var(--badge-red-txt);
+  color: #dc2626;
+  background: #fee2e2;
+  border-color: #fca5a5;
 }
 
-/* Empty State */
+/* =========================================================
+   EMPTY / LOADING
+   ========================================================= */
+
 .Enquiries-emptyRow {
-  text-align: center;
-  padding: 40px 16px !important;
+  height: 180px;
+
+  text-align: center !important;
+
+  color: var(--Enquiries-muted) !important;
+
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .Enquiries-emptyText {
-  color: var(--text-muted);
-  font-size: 15px;
-  margin-bottom: 12px;
+  margin: 0 0 12px;
+
+  color: var(--Enquiries-muted);
+
+  font-size: 14px;
 }
 
 .Enquiries-inlineResetBtn {
-  background-color: var(--primary-light);
-  color: var(--primary);
-  border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 36px;
+
+  padding: 8px 15px;
+
+  color: var(--Enquiries-primary);
+
+  background: var(--Enquiries-primary-light);
+
+  border: 1px solid #c7d2fe;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 700;
+
   cursor: pointer;
+
+  transition:
+    background var(--Enquiries-transition),
+    transform var(--Enquiries-transition);
 }
 
-/* Table Footer & Pagination */
+.Enquiries-inlineResetBtn:hover {
+  background: #e0e7ff;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   TABLE FOOTER
+   ========================================================= */
+
 .Enquiries-tableFooter {
+  width: 100%;
+
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background-color: #ffffff;
-  border-top: 1px solid var(--border-color);
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 14px 18px;
+
+  background: #ffffff;
+
+  border-top: 1px solid var(--Enquiries-border);
+
   flex-wrap: wrap;
-  gap: 12px;
 }
 
 .Enquiries-showingText {
-  font-size: 13px;
-  color: var(--text-muted);
+  margin: 0;
+
+  color: var(--Enquiries-muted);
+
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .Enquiries-showingText span {
-  font-weight: 600;
-  color: var(--text-main);
+  color: var(--Enquiries-text);
+
+  font-weight: 800;
 }
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
 
 .Enquiries-pagination {
   display: flex;
   align-items: center;
-  gap: 4px;
+
+  gap: 5px;
+
+  flex-wrap: wrap;
 }
 
 .Enquiries-pageBtn {
-  min-width: 32px;
-  height: 32px;
-  padding: 0 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background-color: #ffffff;
-  color: var(--text-main);
-  display: flex;
+  min-width: 34px;
+  height: 34px;
+
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 500;
+
+  padding: 0 8px;
+
+  color: var(--Enquiries-text);
+
+  background: #ffffff;
+
+  border: 1px solid var(--Enquiries-border);
+
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 700;
+
   cursor: pointer;
-  transition: all 0.2s ease;
+
+  transition:
+    color var(--Enquiries-transition),
+    background var(--Enquiries-transition),
+    border-color var(--Enquiries-transition),
+    transform var(--Enquiries-transition);
+}
+
+.Enquiries-pageBtn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .Enquiries-pageBtn:hover:not(:disabled) {
-  background-color: var(--bg-main);
-  border-color: #cbd5e1;
+  color: var(--Enquiries-primary);
+
+  background: var(--Enquiries-primary-light);
+
+  border-color: #c7d2fe;
+
+  transform: translateY(-1px);
 }
 
 .Enquiries-pageBtn--active {
-  background-color: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  font-weight: 600;
+  color: #ffffff !important;
+
+  background: var(--Enquiries-primary) !important;
+
+  border-color: var(--Enquiries-primary) !important;
 }
 
 .Enquiries-pageBtn--active:hover {
-  background-color: var(--primary-hover) !important;
+  background: var(--Enquiries-primary-hover) !important;
 }
 
 .Enquiries-pageBtn:disabled {
   opacity: 0.4;
+
   cursor: not-allowed;
+
+  transform: none;
 }
 
-/* Modal Styling */
+/* =========================================================
+   MODAL OVERLAY
+   ========================================================= */
+
 .Enquiries-modalOverlay {
   position: fixed;
+
   inset: 0;
-  background-color: rgba(15, 23, 42, 0.4);
-  backdrop-filter: blur(4px);
+
+  z-index: 9999;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+
   padding: 20px;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  overflow-y: auto;
+
+  animation: EnquiriesOverlayIn 0.2s ease;
 }
 
-.Enquiries-modalCard {
-  background: #ffffff;
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 560px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalSlideUp {
+@keyframes EnquiriesOverlayIn {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.98);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
-.Enquiries-modalHeader {
+/* =========================================================
+   MODAL CARD
+   ========================================================= */
+
+.Enquiries-modalCard {
+  position: relative;
+
+  width: 100%;
+  max-width: 620px;
+
+  max-height: calc(100vh - 40px);
+
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  border-radius: 18px;
+
+  box-shadow: var(--Enquiries-shadow-lg);
+
+  animation:
+    EnquiriesModalIn
+    0.25s
+    cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes EnquiriesModalIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(18px)
+      scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
+.Enquiries-modalHeader {
+  min-height: 64px;
+
+  display: flex;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-main);
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 15px 20px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8fafc,
+      #ffffff
+    );
+
+  border-bottom: 1px solid var(--Enquiries-border);
 }
 
 .Enquiries-modalHeader h3 {
   margin: 0;
+
+  color: var(--Enquiries-text);
+
   font-size: 18px;
-  font-weight: 700;
-  color: var(--text-main);
+  line-height: 1.3;
+
+  font-weight: 800;
 }
 
 .Enquiries-closeModalBtn {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex;
+  width: 34px;
+  height: 34px;
+
+  flex-shrink: 0;
+
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  padding: 0;
+
+  color: var(--Enquiries-muted);
+
+  background: transparent;
+
+  border: 1px solid transparent;
+
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  transition: background 0.2s ease;
+
+  cursor: pointer;
+
+  transition:
+    color var(--Enquiries-transition),
+    background var(--Enquiries-transition),
+    border-color var(--Enquiries-transition),
+    transform var(--Enquiries-transition);
+}
+
+.Enquiries-closeModalBtn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .Enquiries-closeModalBtn:hover {
-  background: #e2e8f0;
-  color: var(--text-main);
+  color: #dc2626;
+
+  background: #fee2e2;
+
+  border-color: #fecaca;
+
+  transform: rotate(3deg);
 }
+
+/* =========================================================
+   MODAL BODY
+   ========================================================= */
 
 .Enquiries-modalBody {
   padding: 20px;
+
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
+
+.Enquiries-modalBody::-webkit-scrollbar {
+  width: 6px;
+}
+
+.Enquiries-modalBody::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.Enquiries-modalBody::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* =========================================================
+   MODAL DETAILS
+   ========================================================= */
 
 .Enquiries-modalGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 14px;
 }
 
 .Enquiries-modalDetailBox {
-  background-color: var(--bg-main);
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
+  min-width: 0;
+
+  padding: 12px 13px;
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 10px;
+
+  transition:
+    background var(--Enquiries-transition),
+    border-color var(--Enquiries-transition);
+}
+
+.Enquiries-modalDetailBox:hover {
+  background: #f1f5f9;
+
+  border-color: #e2e8f0;
 }
 
 .Enquiries-modalLabel {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: var(--Enquiries-muted);
+
+  font-size: 10px;
+  font-weight: 800;
+
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+
+  letter-spacing: 0.05em;
 }
 
 .Enquiries-modalVal {
-  margin: 4px 0 0 0;
-  font-size: 14px;
+  margin: 0;
+
+  color: var(--Enquiries-text);
+
+  font-size: 13px;
+  line-height: 1.5;
+
   font-weight: 600;
-  color: var(--text-main);
+
+  overflow-wrap: anywhere;
 }
 
+/* =========================================================
+   MODAL MESSAGE
+   ========================================================= */
+
 .Enquiries-modalMessage {
-  background-color: var(--bg-main);
-  padding: 14px;
-  border-radius: var(--radius-md);
+  width: 100%;
+
+  padding: 15px;
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 10px;
 }
 
 .Enquiries-subjectTxt {
-  margin: 4px 0 0 0;
-  font-weight: 600;
+  margin: 4px 0 12px;
+
+  color: var(--Enquiries-text);
+
   font-size: 14px;
-  color: var(--text-main);
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
 }
 
 .Enquiries-msgTxt {
-  margin: 4px 0 0 0;
-  font-size: 14px;
-  color: #334155;
-  line-height: 1.5;
+  margin: 0;
+
+  color: var(--Enquiries-text-secondary);
+
+  font-size: 13px;
+  line-height: 1.65;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
+/* =========================================================
+   FORM
+   ========================================================= */
+
 .Enquiries-formGroup {
-  margin-bottom: 16px;
+  width: 100%;
+
+  margin-bottom: 17px;
+}
+
+.Enquiries-formGroup:last-child {
+  margin-bottom: 0;
 }
 
 .Enquiries-formLabel {
   display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--Enquiries-text);
+
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text-main);
-  margin-bottom: 6px;
+  font-weight: 700;
 }
 
 .Enquiries-textarea {
+  display: block;
+
   width: 100%;
-  padding: 10px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  font-size: 14px;
-  font-family: inherit;
+  min-height: 130px;
+
+  padding: 12px 13px;
+
+  color: var(--Enquiries-text);
+
+  background: #ffffff;
+
+  border: 1px solid var(--Enquiries-border);
+
+  border-radius: 10px;
+
   outline: none;
-  box-sizing: border-box;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  line-height: 1.6;
+
   resize: vertical;
+
+  transition:
+    border-color var(--Enquiries-transition),
+    box-shadow var(--Enquiries-transition);
+}
+
+.Enquiries-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.Enquiries-textarea:hover {
+  border-color: var(--Enquiries-border-dark);
 }
 
 .Enquiries-textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  border-color: var(--Enquiries-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(79, 70, 229, 0.1);
 }
+
+/* =========================================================
+   MODAL FOOTER
+   ========================================================= */
 
 .Enquiries-modalFooter {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+
+  gap: 9px;
+
+  margin-top: 18px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid #eef2f7;
+}
+
+.Enquiries-cancelBtn,
+.Enquiries-submitBtn {
+  min-height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 9px 17px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background var(--Enquiries-transition),
+    color var(--Enquiries-transition),
+    border-color var(--Enquiries-transition),
+    transform var(--Enquiries-transition);
 }
 
 .Enquiries-cancelBtn {
-  background-color: var(--bg-main);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-  padding: 9px 16px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
+  color: var(--Enquiries-text-secondary);
+
+  background: #f8fafc;
+
+  border: 1px solid var(--Enquiries-border);
 }
 
 .Enquiries-cancelBtn:hover {
-  background-color: #e2e8f0;
+  background: #f1f5f9;
+
+  border-color: var(--Enquiries-border-dark);
+
+  transform: translateY(-1px);
 }
 
 .Enquiries-submitBtn {
-  background-color: var(--primary);
   color: #ffffff;
-  border: none;
-  padding: 9px 18px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+
+  background: var(--Enquiries-primary);
+
+  border: 1px solid var(--Enquiries-primary);
+
+  box-shadow:
+    0 5px 14px rgba(79, 70, 229, 0.18);
 }
 
 .Enquiries-submitBtn:hover {
-  background-color: var(--primary-hover);
+  background: var(--Enquiries-primary-hover);
+
+  border-color: var(--Enquiries-primary-hover);
+
+  transform: translateY(-1px);
+}
+
+.Enquiries-submitBtn:disabled,
+.Enquiries-cancelBtn:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* =========================================================
+   FOCUS ACCESSIBILITY
+   ========================================================= */
+
+.Enquiries button:focus-visible,
+.Enquiries input:focus-visible,
+.Enquiries select:focus-visible,
+.Enquiries textarea:focus-visible {
+  outline: 3px solid rgba(79, 70, 229, 0.18);
+
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   SMALL ANIMATIONS
+   ========================================================= */
+
+@keyframes EnquiriesFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 1200px
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .Enquiries {
+    padding: 20px;
+  }
+
+  .Enquiries-statsGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .Enquiries-filterControls {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .Enquiries-resetBtn {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 992px
+   ========================================================= */
+
+@media (max-width: 992px) {
+  .Enquiries {
+    padding: 18px;
+  }
+
+  .Enquiries-header {
+    align-items: flex-start;
+  }
+
+  .Enquiries-headerActions {
+    width: 100%;
+
+    justify-content: flex-start;
+  }
+
+  .Enquiries-filterControls {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .Enquiries-modalCard {
+    max-width: 580px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 768px
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .Enquiries {
+    padding: 14px;
+  }
+
+  .Enquiries-header {
+    margin-bottom: 17px;
+  }
+
+  .Enquiries-title {
+    font-size: 21px;
+  }
+
+  .Enquiries-subtitle {
+    font-size: 13px;
+  }
+
+  .Enquiries-iconWrapper {
+    width: 42px;
+    height: 42px;
+  }
+
+  .Enquiries-headerActions {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    width: 100%;
+  }
+
+  .Enquiries-refreshBtn,
+  .Enquiries-exportBtn {
+    width: 100%;
+  }
+
+  .Enquiries-statsGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+  }
+
+  .Enquiries-statCard {
+    padding: 14px;
+  }
+
+  .Enquiries-statIcon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .Enquiries-statCount {
+    font-size: 20px;
+  }
+
+  .Enquiries-statLabel {
+    font-size: 11px;
+  }
+
+  .Enquiries-filterControls {
+    grid-template-columns: 1fr;
+  }
+
+  .Enquiries-resetBtn {
+    width: 100%;
+  }
+
+  .Enquiries-bulkBar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .Enquiries-bulkBar button {
+    width: 100%;
+  }
+
+  .Enquiries-tableFooter {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .Enquiries-pagination {
+    width: 100%;
+
+    justify-content: flex-start;
+  }
+
+  .Enquiries-modalOverlay {
+    padding: 12px;
+  }
+
+  .Enquiries-modalCard {
+    max-height: calc(100vh - 24px);
+
+    border-radius: 15px;
+  }
+
+  .Enquiries-modalGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .Enquiries-modalHeader {
+    padding: 14px 16px;
+  }
+
+  .Enquiries-modalBody {
+    padding: 16px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 576px
+   ========================================================= */
+
+@media (max-width: 576px) {
+  .Enquiries {
+    padding: 10px;
+  }
+
+  .Enquiries-titleRow {
+    align-items: flex-start;
+  }
+
+  .Enquiries-title {
+    font-size: 19px;
+  }
+
+  .Enquiries-subtitle {
+    font-size: 12px;
+  }
+
+  .Enquiries-iconWrapper {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 9px;
+  }
+
+  .Enquiries-headerActions {
+    grid-template-columns: 1fr;
+  }
+
+  .Enquiries-statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .Enquiries-statCard {
+    padding: 13px;
+  }
+
+  .Enquiries-filterCard {
+    padding: 12px;
+
+    border-radius: 13px;
+  }
+
+  .Enquiries-searchInput {
+    min-height: 42px;
+
+    font-size: 13px;
+  }
+
+  .Enquiries-tableCard {
+    border-radius: 13px;
+  }
+
+  .Enquiries-table {
+    min-width: 1050px;
+  }
+
+  .Enquiries-tableFooter {
+    padding: 12px;
+  }
+
+  .Enquiries-pagination {
+    gap: 4px;
+  }
+
+  .Enquiries-pageBtn {
+    min-width: 31px;
+    height: 31px;
+
+    padding: 0 6px;
+  }
+
+  .Enquiries-modalOverlay {
+    padding: 8px;
+  }
+
+  .Enquiries-modalCard {
+    max-height: calc(100vh - 16px);
+
+    border-radius: 13px;
+  }
+
+  .Enquiries-modalHeader h3 {
+    font-size: 16px;
+  }
+
+  .Enquiries-modalBody {
+    padding: 13px;
+  }
+
+  .Enquiries-modalFooter {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+  }
+
+  .Enquiries-cancelBtn,
+  .Enquiries-submitBtn {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 400px
+   ========================================================= */
+
+@media (max-width: 400px) {
+  .Enquiries {
+    padding: 8px;
+  }
+
+  .Enquiries-titleRow {
+    gap: 9px;
+  }
+
+  .Enquiries-title {
+    font-size: 17px;
+  }
+
+  .Enquiries-subtitle {
+    font-size: 11px;
+  }
+
+  .Enquiries-iconWrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .Enquiries-iconWrapper svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .Enquiries-statCard {
+    gap: 11px;
+  }
+
+  .Enquiries-statIcon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .Enquiries-statCount {
+    font-size: 18px;
+  }
+
+  .Enquiries-statLabel {
+    font-size: 10px;
+  }
+
+  .Enquiries-modalGrid {
+    gap: 8px;
+  }
+
+  .Enquiries-modalDetailBox {
+    padding: 10px;
+  }
+
+  .Enquiries-modalMessage {
+    padding: 11px;
+  }
+}
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+  .Enquiries {
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .Enquiries-headerActions,
+  .Enquiries-filterCard,
+  .Enquiries-bulkBar,
+  .Enquiries-actionGroup,
+  .Enquiries-tableFooter {
+    display: none !important;
+  }
+
+  .Enquiries-tableCard {
+    border: none;
+    box-shadow: none;
+  }
+
+  .Enquiries-tableResponsive {
+    overflow: visible;
+  }
+
+  .Enquiries-table {
+    min-width: 0;
+  }
+
+  .Enquiries-modalOverlay {
+    display: none !important;
+  }
 }

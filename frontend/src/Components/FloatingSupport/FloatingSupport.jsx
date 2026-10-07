@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./FloatingSupport.css";
+
+// Direct backend URL with fallback
+const API_ENDPOINT =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/supports";
 
 const FloatingSupport = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,6 +14,7 @@ const FloatingSupport = () => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email: "",
     message: "",
   });
 
@@ -20,49 +26,83 @@ const FloatingSupport = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const name = formData.name.trim();
     const phone = formData.phone.trim();
+    const email = formData.email.trim();
     const message = formData.message.trim();
 
-    if (!name || !phone || !message) {
+    if (!name || !phone || !email || !message) {
       setSubmitStatus({ success: false, message: "Please fill out all fields." });
       return;
     }
 
     if (!/^[0-9]{10}$/.test(phone)) {
-      setSubmitStatus({ success: false, message: "Please enter a valid 10-digit mobile number." });
+      setSubmitStatus({
+        success: false,
+        message: "Please enter a valid 10-digit mobile number.",
+      });
       return;
     }
 
     setIsSubmitting(true);
     setSubmitStatus({ success: null, message: "" });
 
-    // Prepare SMS body
-    const smsMessage =
-      `Hello sir, I need help.\n\n` +
-      `Name: ${name}\n` +
-      `Mobile: +91 ${phone}\n` +
-      `Message: ${message}`;
+    try {
+      const response = await axios.post(
+        API_ENDPOINT,
+        {
+          name,
+          mobile: `+91 ${phone}`,
+          email,
+          message,
+          status: "New",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
 
-    const smsUrl = `sms:+919668892441?body=${encodeURIComponent(smsMessage)}`;
+      if (response.data && response.data.success) {
+        setSubmitStatus({
+          success: true,
+          message: "Thank you! Your inquiry has been submitted successfully.",
+        });
 
-    // Show temporary success feedback before redirecting
-    setSubmitStatus({
-      success: true,
-      message: "Opening SMS client...",
-    });
+        setFormData({ name: "", phone: "", email: "", message: "" });
 
-    setFormData({ name: "", phone: "", message: "" });
+        // Auto close modal after successful response
+        setTimeout(() => {
+          setIsOpen(false);
+          setSubmitStatus({ success: null, message: "" });
+        }, 1800);
+      } else {
+        setSubmitStatus({
+          success: false,
+          message: response.data?.message || "Failed to submit request.",
+        });
+      }
+    } catch (error) {
+      console.error("Support form submission error:", error);
 
-    setTimeout(() => {
+      const errorMessage =
+        error.response?.data?.message ||
+        (error.message === "Network Error"
+          ? "Unable to reach server. Please ensure backend is running on port 5000."
+          : "Failed to submit. Please try again later.");
+
+      setSubmitStatus({
+        success: false,
+        message: errorMessage,
+      });
+    } finally {
       setIsSubmitting(false);
-      setIsOpen(false);
-      setSubmitStatus({ success: null, message: "" });
-      window.location.href = smsUrl;
-    }, 700);
+    }
   };
 
   const handleClose = () => {
@@ -185,7 +225,12 @@ const FloatingSupport = () => {
                   <span className="FloatingSupport__inputIcon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.7" />
-                      <path d="M5 20C5.8 16.8 8.1 15 12 15C15.9 15 18.2 16.8 19 20" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                      <path
+                        d="M5 20C5.8 16.8 8.1 15 12 15C15.9 15 18.2 16.8 19 20"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        strokeLinecap="round"
+                      />
                     </svg>
                   </span>
                   <input
@@ -224,6 +269,43 @@ const FloatingSupport = () => {
                 </div>
               </div>
 
+              {/* Email */}
+              <div className="FloatingSupport__field">
+                <label htmlFor="support-email">Email Address</label>
+                <div className="FloatingSupport__inputWrap">
+                  <span className="FloatingSupport__inputIcon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect
+                        x="3"
+                        y="5"
+                        width="18"
+                        height="14"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                      />
+                      <path
+                        d="M3 7L12 13L21 7"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </span>
+                  <input
+                    id="support-email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email"
+                    autoComplete="email"
+                    disabled={isSubmitting}
+                    required
+                  />
+                </div>
+              </div>
+
               {/* Message */}
               <div className="FloatingSupport__field">
                 <label htmlFor="support-message">Message</label>
@@ -248,12 +330,27 @@ const FloatingSupport = () => {
                 type="submit"
                 className="FloatingSupport__submit"
                 disabled={isSubmitting}
-                style={{ opacity: isSubmitting ? 0.75 : 1, cursor: isSubmitting ? "not-allowed" : "pointer" }}
+                style={{
+                  opacity: isSubmitting ? 0.75 : 1,
+                  cursor: isSubmitting ? "not-allowed" : "pointer",
+                }}
               >
-                <span>{isSubmitting ? "Redirecting..." : "Send Message"}</span>
+                <span>{isSubmitting ? "Submitting..." : "Send Message"}</span>
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M22 2L11 13"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M22 2L15 22L11 13L2 9L22 2Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
 
