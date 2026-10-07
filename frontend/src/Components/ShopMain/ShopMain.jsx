@@ -132,6 +132,7 @@ const PRICE_MIN = 100;
 const PRICE_MAX = 5000;
 const ITEMS_PER_PAGE = 8;
 
+const MOBILE_ITEMS_PER_PAGE = 4;
 
 const formatPrice = (value) => `₹${value.toLocaleString("en-IN")}`;
 
