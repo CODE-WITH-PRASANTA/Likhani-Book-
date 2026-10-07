@@ -1,0 +1,129 @@
+/* Container & Background */
+.shop-breadcrumb {
+  width: 100%;
+  min-height: 320px;
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+/* Semi-transparent overlay to ensure text stands out clearly */
+.shop-breadcrumb-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.45); /* Change to rgba(0,0,0,0.4) if using dark theme */
+  z-index: 1;
+}
+
+/* Content wrapper */
+.shop-breadcrumb-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* Title styling */
+.shop-breadcrumb-title {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0d2c44;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+/* Breadcrumb Navigation */
+.shop-breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.shop-breadcrumb-link {
+  color: #176b87;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.shop-breadcrumb-link:hover,
+.shop-breadcrumb-link:focus-visible {
+  color: #0d2c44;
+  text-decoration: underline;
+}
+
+.shop-breadcrumb-icon {
+  font-size: 0.75rem;
+  color: #176b87;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.shop-breadcrumb-active {
+  color: #176b87;
+  font-weight: 600;
+}
+
+/* -------------------------------------
+   Responsive Breakpoints
+------------------------------------- */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .shop-breadcrumb {
+    min-height: 250px;
+    padding: 30px 15px;
+  }
+
+  .shop-breadcrumb-title {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+
+  .shop-breadcrumb-nav {
+    font-size: 0.875rem;
+    gap: 6px;
+  }
+
+  .shop-breadcrumb-icon {
+    font-size: 0.7rem;
+  }
+}
+
+/* Mobile Screens */
+@media (max-width: 480px) {
+  .shop-breadcrumb {
+    min-height: 190px;
+    padding: 24px 12px;
+  }
+
+  .shop-breadcrumb-title {
+    font-size: 1.6rem;
+    letter-spacing: -0.3px;
+  }
+
+  .shop-breadcrumb-nav {
+    font-size: 0.8125rem;
+    gap: 5px;
+  }
+
+  .shop-breadcrumb-icon {
+    font-size: 0.65rem;
+  }
+}

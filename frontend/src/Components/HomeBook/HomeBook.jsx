@@ -384,10 +384,10 @@ const HomeBook = () => {
                     <h3 className="home-book__title">{book.title}</h3>
 
                     <p className="home-book__price">
-                      <span className="home-book__price-current">${book.price.toFixed(2)}</span>
+                      <span className="home-book__price-current">₹{book.price.toFixed(2)}</span>
                       {book.originalPrice && (
                         <span className="home-book__price-original">
-                          ${book.originalPrice.toFixed(2)}
+                          ₹{book.originalPrice.toFixed(2)}
                         </span>
                       )}
                     </p>
@@ -477,9 +477,9 @@ const HomeBook = () => {
                 </div>
 
                 <div className="hb-modal__price-box">
-                  <span className="hb-modal__current-price">${modalBook.price.toFixed(2)}</span>
+                  <span className="hb-modal__current-price">₹{modalBook.price.toFixed(2)}</span>
                   {modalBook.originalPrice && (
-                    <span className="hb-modal__orig-price">${modalBook.originalPrice.toFixed(2)}</span>
+                    <span className="hb-modal__orig-price">₹{modalBook.originalPrice.toFixed(2)}</span>
                   )}
                   {modalBook.discount && (
                     <span className="hb-modal__save-badge">Save {modalBook.discount}%</span>
@@ -514,7 +514,7 @@ const HomeBook = () => {
                       setModalBook(null);
                     }}
                   >
-                    <FaShoppingBasket /> Add To Cart — ${modalBook.price.toFixed(2)}
+                    <FaShoppingBasket /> Add To Cart — ₹{modalBook.price.toFixed(2)}
                   </button>
                   <button
                     type="button"

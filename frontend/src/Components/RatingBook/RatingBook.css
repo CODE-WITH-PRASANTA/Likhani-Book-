@@ -1,125 +1,226 @@
-/* ==========================================================================
-   RatingBook — Premium Modern UI Styles & Mobile Pagination Extensions
-   ========================================================================== */
+/* =========================================================
+   RATING BOOK
+   PREMIUM MODERN BOOKSTORE UI
+   ========================================================= */
 
 .rating-book {
-  --rb-bg: #f8fafc;
+  --rb-bg: #f7f9fc;
   --rb-white: #ffffff;
-  --rb-dark: #0f172a;
-  --rb-muted: #64748b;
-  --rb-primary: #0a3b49;
-  --rb-primary-hover: #14657a;
-  --rb-accent: #ff6b35;
-  --rb-gold: #fbbf24;
-  --rb-border: #e2e8f0;
-  --rb-radius: 20px;
+  --rb-dark: #071b2d;
+  --rb-text: #132337;
+  --rb-muted: #718096;
+  --rb-primary: #073f52;
+  --rb-primary-dark: #052d3a;
+  --rb-primary-light: #e5f4fa;
+  --rb-blue: #0088c9;
+  --rb-gold: #f6b51d;
+  --rb-border: #dce5ec;
+  --rb-success: #16a879;
 
   width: 100%;
-  background: var(--rb-bg);
-  padding: 4rem 1.5rem;
+  max-width: 100%;
   box-sizing: border-box;
-  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  padding: 60px 24px;
+  background: var(--rb-bg);
   color: var(--rb-dark);
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
 }
+
+.rating-book *,
+.rating-book *::before,
+.rating-book *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   MAIN WRAPPER
+   ========================================================= */
 
 .rating-book__wrapper {
-  max-width: 1320px;
+  width: 100%;
+  max-width: 1380px;
   margin: 0 auto;
+  padding: 42px;
   background: var(--rb-white);
-  border-radius: var(--rb-radius);
   border: 1px solid var(--rb-border);
-  padding: 2.5rem clamp(1.25rem, 3vw, 2.5rem);
-  box-shadow: 0 20px 45px rgba(10, 59, 73, 0.05);
+  border-radius: 28px;
+  box-shadow: 0 22px 60px rgba(7, 63, 82, 0.07);
+  overflow: hidden;
 }
 
-/* Header & View More Button */
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .rating-book__header {
+  width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 2rem;
-  gap: 1rem;
+  gap: 30px;
+  margin-bottom: 32px;
+}
+
+.rating-book__heading-area {
+  min-width: 0;
+}
+
+.rating-book__eyebrow {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--rb-blue);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.18em;
 }
 
 .rating-book__heading {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
-  font-weight: 700;
-  color: var(--rb-dark);
   margin: 0;
+  color: var(--rb-dark);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(32px, 3.2vw, 48px);
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.035em;
 }
 
+.rating-book__subtitle {
+  margin: 9px 0 0;
+  color: var(--rb-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   VIEW MORE BUTTON
+   ========================================================= */
+
 .rating-book__view-more-btn {
+  flex: 0 0 auto;
+  min-height: 50px;
+  padding: 0 20px 0 22px;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  background: var(--rb-white);
-  border: 1.5px solid var(--rb-border);
-  color: var(--rb-dark);
-  font-weight: 600;
-  font-size: 0.9rem;
-  padding: 0.6rem 1.35rem;
+  justify-content: center;
+  gap: 11px;
+
+  border: 1px solid var(--rb-border);
   border-radius: 999px;
+
+  background: #ffffff;
+  color: var(--rb-dark);
+
+  font-size: 14px;
+  font-weight: 800;
+
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  box-shadow: 0 7px 20px rgba(7, 27, 45, 0.06);
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .rating-book__view-more-btn:hover {
+  color: #ffffff;
   background: var(--rb-primary);
-  color: var(--rb-white);
   border-color: var(--rb-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(10, 59, 73, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(7, 63, 82, 0.2);
 }
 
 .rating-book__arrow-icon {
+  font-size: 12px;
   transition: transform 0.3s ease;
 }
 
 .rating-book__view-more-btn:hover .rating-book__arrow-icon {
-  transform: translateX(4px);
+  transform: translateX(5px);
 }
 
-/* Grid Layout (Desktop: 2 columns showing all 6 items) */
+/* =========================================================
+   PRODUCT GRID
+   ========================================================= */
+
+.rating-book__grid-container {
+  width: 100%;
+  min-width: 0;
+}
+
 .rating-book__grid {
+  width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
 }
 
-/* Single Card */
+/* =========================================================
+   MOBILE ITEM
+   ========================================================= */
+
+.rating-book__mobile-item {
+  min-width: 0;
+}
+
+/* =========================================================
+   PRODUCT CARD
+   ========================================================= */
+
 .rating-book__card {
-  background: var(--rb-white);
-  border-radius: 16px;
-  border: 1px solid var(--rb-border);
-  padding: 1.25rem;
+  width: 100%;
+  min-width: 0;
+  min-height: 245px;
+
   display: grid;
-  grid-template-columns: 130px 1fr;
-  gap: 1.25rem;
+  grid-template-columns: 162px minmax(0, 1fr);
   align-items: center;
+
+  gap: 22px;
+  padding: 20px;
+
   position: relative;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease;
+
+  background: #ffffff;
+  border: 1px solid var(--rb-border);
+  border-radius: 20px;
+
+  box-shadow: 0 8px 26px rgba(7, 27, 45, 0.035);
+
+  overflow: hidden;
+
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease,
+    border-color 0.3s ease;
 }
 
 .rating-book__card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(10, 59, 73, 0.08);
-  border-color: rgba(10, 59, 73, 0.2);
+  border-color: rgba(7, 63, 82, 0.25);
+  box-shadow: 0 18px 40px rgba(7, 63, 82, 0.1);
 }
 
-/* Thumbnail & Actions */
+/* =========================================================
+   BOOK IMAGE
+   ========================================================= */
+
 .rating-book__media {
+  width: 162px;
+  height: 195px;
+  min-width: 162px;
+
   position: relative;
-  width: 130px;
-  height: 155px;
-  border-radius: 12px;
-  background: #f1f5f9;
+
+  border-radius: 14px;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+  background: #eef3f6;
 }
 
 .rating-book__img-frame {
@@ -130,40 +231,65 @@
 .rating-book__img {
   width: 100%;
   height: 100%;
+
+  display: block;
+
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  transition:
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.4s ease;
 }
 
 .rating-book__card:hover .rating-book__img {
   transform: scale(1.08);
+  filter: brightness(0.93);
 }
+
+/* =========================================================
+   QUICK ACTIONS
+   ========================================================= */
 
 .rating-book__quick-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
+
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  z-index: 3;
+  gap: 7px;
+
+  z-index: 5;
 }
 
 .rating-book__quick-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
+  width: 35px;
+  height: 35px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.94);
   color: var(--rb-dark);
-  font-size: 0.75rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.16);
+
   opacity: 0;
-  transform: translateX(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+  transform: translateX(14px);
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
 }
 
 .rating-book__card:hover .rating-book__quick-btn {
@@ -171,85 +297,125 @@
   transform: translateX(0);
 }
 
-.rating-book__quick-btn:nth-child(1) { transition-delay: 0.05s; }
-.rating-book__quick-btn:nth-child(2) { transition-delay: 0.1s; }
-.rating-book__quick-btn:nth-child(3) { transition-delay: 0.15s; }
+.rating-book__quick-btn:nth-child(1) {
+  transition-delay: 0.03s;
+}
+
+.rating-book__quick-btn:nth-child(2) {
+  transition-delay: 0.07s;
+}
+
+.rating-book__quick-btn:nth-child(3) {
+  transition-delay: 0.11s;
+}
 
 .rating-book__quick-btn:hover,
 .rating-book__quick-btn--active {
   background: var(--rb-primary);
-  color: #fff;
+  color: #ffffff;
 }
 
-/* Content Information */
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
 .rating-book__content {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-width: 0;
 }
 
 .rating-book__genre {
-  font-size: 0.75rem;
-  color: var(--rb-muted);
+  margin-bottom: 8px;
+
+  color: #53718a;
+
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.2rem;
 }
 
 .rating-book__title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.05rem;
-  font-weight: 600;
+  width: 100%;
+  margin: 0 0 9px;
+
   color: var(--rb-dark);
-  margin: 0 0 0.35rem 0;
-  white-space: nowrap;
+
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 19px;
+  line-height: 1.25;
+  font-weight: 700;
+
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .rating-book__price-row {
-  margin-bottom: 0.5rem;
+  margin-bottom: 11px;
 }
 
 .rating-book__price {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #0284c7;
+  color: var(--rb-blue);
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 800;
 }
 
+/* =========================================================
+   AUTHOR + RATING
+   ========================================================= */
+
 .rating-book__author-rating {
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.85rem;
-  gap: 0.5rem;
+
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .rating-book__author-wrap {
+  min-width: 0;
+
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  min-width: 0;
+  gap: 8px;
 }
 
 .rating-book__avatar {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--rb-primary);
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  display: flex;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: var(--rb-primary);
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .rating-book__author-name {
-  font-size: 0.78rem;
+  min-width: 0;
+
   color: var(--rb-muted);
+
+  font-size: 13px;
+  font-weight: 600;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -257,151 +423,933 @@
 
 .rating-book__stars {
   display: inline-flex;
-  gap: 2px;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
 }
 
 .rating-book__star {
-  font-size: 0.75rem;
-  color: #cbd5e1;
+  color: #d5dee5;
+  font-size: 13px;
 }
 
 .rating-book__star--active {
   color: var(--rb-gold);
 }
 
+/* =========================================================
+   ADD TO CART
+   ========================================================= */
+
 .rating-book__cart-btn {
   width: 100%;
-  background: #e0f2fe;
-  color: #0369a1;
-  border: none;
-  font-weight: 600;
-  font-size: 0.82rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 999px;
-  cursor: pointer;
+  min-height: 42px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  transition: all 0.3s ease;
+  gap: 8px;
+
+  padding: 0 16px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: #e0f2fc;
+  color: #0077b5;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .rating-book__cart-btn:hover {
   background: var(--rb-primary);
-  color: #fff;
+  color: #ffffff;
+
   transform: translateY(-2px);
+
+  box-shadow: 0 9px 20px rgba(7, 63, 82, 0.18);
 }
 
 .rating-book__cart-btn--added {
-  background: #10b981 !important;
-  color: #fff !important;
+  background: var(--rb-success) !important;
+  color: #ffffff !important;
 }
 
-/* Mobile Pagination Controls */
+.rating-book__btn-icon {
+  font-size: 13px;
+}
+
+/* =========================================================
+   MOBILE NAV
+   ========================================================= */
+
 .rating-book__mobile-nav {
   display: none;
 }
 
-/* ==========================================================
-   Responsive Breakpoints & Mobile 1-by-1 Pagination View
-   ========================================================== */
+/* =========================================================
+   MODAL OVERLAY
+   ========================================================= */
 
-@media (max-width: 1024px) {
+.rating-book__overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 25px;
+
+  background: rgba(3, 17, 29, 0.7);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  animation: ratingOverlayIn 0.25s ease;
+}
+
+.rating-book-modal-open {
+  overflow: hidden;
+}
+
+/* =========================================================
+   VIEW ALL MODAL
+   ========================================================= */
+
+.rating-book__view-modal {
+  width: min(1200px, 100%);
+  max-height: min(900px, 92vh);
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 28px;
+
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.3);
+
+  overflow: hidden;
+
+  animation: ratingModalIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rating-book__view-modal-header {
+  position: relative;
+
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  padding: 32px 36px;
+
+  border-bottom: 1px solid var(--rb-border);
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(0, 136, 201, 0.1),
+      transparent 35%
+    ),
+    #ffffff;
+}
+
+.rating-book__modal-eyebrow {
+  display: block;
+  margin-bottom: 7px;
+
+  color: var(--rb-blue);
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.rating-book__view-modal-header h2 {
+  margin: 0;
+
+  color: var(--rb-dark);
+
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.rating-book__view-modal-header p {
+  margin: 8px 0 0;
+
+  color: var(--rb-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.rating-book__modal-close,
+.rating-book__product-close {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--rb-border);
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: var(--rb-dark);
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.rating-book__modal-close:hover,
+.rating-book__product-close:hover {
+  background: var(--rb-primary);
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+/* =========================================================
+   VIEW ALL GRID
+   ========================================================= */
+
+.rating-book__view-grid {
+  flex: 1;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 18px;
+
+  padding: 25px 30px 30px;
+
+  overflow-y: auto;
+}
+
+.rating-book__view-grid::-webkit-scrollbar {
+  width: 7px;
+}
+
+.rating-book__view-grid::-webkit-scrollbar-track {
+  background: #f1f5f8;
+}
+
+.rating-book__view-grid::-webkit-scrollbar-thumb {
+  background: #b7c5cf;
+  border-radius: 20px;
+}
+
+.rating-book__card--modal {
+  min-height: 225px;
+}
+
+/* =========================================================
+   PRODUCT QUICK VIEW
+   ========================================================= */
+
+.rating-book__overlay--product {
+  padding: 20px;
+}
+
+.rating-book__product-modal {
+  width: min(920px, 100%);
+
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 42% 58%;
+
+  background: #ffffff;
+
+  border-radius: 28px;
+
+  overflow: hidden;
+
+  box-shadow: 0 35px 100px rgba(0, 0, 0, 0.35);
+
+  animation: ratingModalIn 0.35s
+    cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rating-book__product-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  z-index: 10;
+}
+
+.rating-book__product-image {
+  min-height: 560px;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background: #edf2f5;
+}
+
+.rating-book__product-image img {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  transition: transform 0.7s ease;
+}
+
+.rating-book__product-modal:hover
+  .rating-book__product-image img {
+  transform: scale(1.03);
+}
+
+.rating-book__product-badge {
+  position: absolute;
+  left: 22px;
+  bottom: 22px;
+
+  padding: 8px 13px;
+
+  border-radius: 999px;
+
+  background: rgba(7, 63, 82, 0.92);
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.rating-book__product-details {
+  padding: 52px 45px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.rating-book__product-category {
+  margin-bottom: 10px;
+
+  color: var(--rb-blue);
+
+  font-size: 11px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.rating-book__product-details h2 {
+  margin: 0;
+
+  color: var(--rb-dark);
+
+  font-family: "Fraunces", Georgia, serif;
+
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.rating-book__product-rating {
+  margin-top: 16px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: var(--rb-muted);
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.rating-book__product-author {
+  margin-top: 25px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rating-book__product-author div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rating-book__product-author small {
+  color: var(--rb-muted);
+  font-size: 10px;
+}
+
+.rating-book__product-author strong {
+  color: var(--rb-dark);
+  font-size: 13px;
+}
+
+.rating-book__product-description {
+  margin: 25px 0 0;
+
+  color: var(--rb-muted);
+
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.rating-book__product-price {
+  margin-top: 25px;
+
+  color: var(--rb-blue);
+
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.rating-book__product-actions {
+  margin-top: 25px;
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 48px;
+
+  gap: 10px;
+}
+
+.rating-book__quantity {
+  min-width: 105px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 5px;
+
+  border: 1px solid var(--rb-border);
+  border-radius: 999px;
+}
+
+.rating-book__quantity button {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: transparent;
+  color: var(--rb-dark);
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.rating-book__quantity button:hover {
+  background: #edf5f8;
+}
+
+.rating-book__quantity span {
+  color: var(--rb-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rating-book__modal-cart {
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--rb-primary);
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.rating-book__modal-cart:hover {
+  background: var(--rb-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(7, 63, 82, 0.2);
+}
+
+.rating-book__modal-cart--added {
+  background: var(--rb-success) !important;
+}
+
+.rating-book__modal-wishlist {
+  width: 48px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--rb-border);
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: var(--rb-dark);
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.rating-book__modal-wishlist:hover,
+.rating-book__modal-wishlist--active {
+  background: #fff0f2;
+  color: #e63956;
+  border-color: #ffd4db;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes ratingOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ratingModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(25px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  .rating-book {
+    padding: 45px 18px;
+  }
+
+  .rating-book__wrapper {
+    padding: 32px;
+  }
+
   .rating-book__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rating-book__view-grid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 540px) {
-  .rating-book__grid {
-    display: flex;
-    overflow: hidden;
+/* =========================================================
+   TABLET SMALL
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .rating-book {
+    padding: 30px 12px;
   }
 
-  /* Hide all cards by default on mobile, show only the current active one */
+  .rating-book__wrapper {
+    padding: 25px 18px;
+    border-radius: 22px;
+  }
+
+  .rating-book__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .rating-book__view-more-btn {
+    align-self: flex-start;
+  }
+
   .rating-book__card {
-    display: none;
-    width: 100%;
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding: 1.5rem;
-    animation: fadeInScale 0.4s ease forwards;
-  }
-
-  .rating-book__card.rating-book__card--active-mobile {
-    display: grid;
+    grid-template-columns: 125px minmax(0, 1fr);
+    min-height: 200px;
+    padding: 15px;
+    gap: 16px;
   }
 
   .rating-book__media {
+    width: 125px;
+    min-width: 125px;
+    height: 160px;
+  }
+
+  .rating-book__title {
+    font-size: 16px;
+  }
+
+  .rating-book__price {
+    font-size: 18px;
+  }
+
+  .rating-book__product-modal {
+    grid-template-columns: 1fr;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  .rating-book__product-image {
+    min-height: 330px;
+    max-height: 380px;
+  }
+
+  .rating-book__product-details {
+    padding: 30px 25px 35px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 560px) {
+  .rating-book {
+    padding: 20px 10px;
+  }
+
+  .rating-book__wrapper {
+    padding: 22px 14px;
+    border-radius: 20px;
+  }
+
+  .rating-book__heading {
+    font-size: 31px;
+  }
+
+  .rating-book__subtitle {
+    font-size: 12px;
+  }
+
+  .rating-book__grid {
+    display: block;
+  }
+
+  .rating-book__mobile-item {
+    display: none;
+  }
+
+  .rating-book__mobile-item--active {
+    display: block;
+    animation: ratingMobileCardIn 0.35s ease;
+  }
+
+  .rating-book__card {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 18px;
+    min-height: auto;
+  }
+
+  .rating-book__media {
+    width: 165px;
+    height: 205px;
+    min-width: 165px;
     margin: 0 auto;
-    width: 150px;
-    height: 180px;
+  }
+
+  .rating-book__quick-actions {
+    opacity: 1;
+  }
+
+  .rating-book__quick-btn {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .rating-book__content {
+    align-items: center;
+  }
+
+  .rating-book__title {
+    max-width: 100%;
+    font-size: 19px;
   }
 
   .rating-book__author-rating {
+    justify-content: center;
     flex-direction: column;
-    gap: 0.5rem;
   }
 
-  /* Pagination Bar layout for Mobile */
+  .rating-book__cart-btn {
+    max-width: 300px;
+  }
+
+  /* MOBILE NAV */
+
   .rating-book__mobile-nav {
     display: flex;
+
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
+
+    gap: 14px;
+
+    margin-top: 20px;
   }
 
   .rating-book__nav-arrow {
-    background: var(--rb-white);
-    border: 1px solid var(--rb-border);
     width: 38px;
     height: 38px;
-    border-radius: 50%;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    border: 1px solid var(--rb-border);
+    border-radius: 50%;
+
+    background: #ffffff;
     color: var(--rb-dark);
+
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: all 0.2s ease;
+
+    transition: all 0.25s ease;
   }
 
   .rating-book__nav-arrow:hover {
     background: var(--rb-primary);
-    color: #fff;
     border-color: var(--rb-primary);
+    color: #ffffff;
   }
 
   .rating-book__dots {
     display: flex;
-    gap: 6px;
+    align-items: center;
+    gap: 5px;
   }
 
   .rating-book__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 4px;
-    background: #cbd5e1;
-    border: none;
+    width: 7px;
+    height: 7px;
+
     padding: 0;
+
+    border: 0;
+    border-radius: 999px;
+
+    background: #ccd7de;
+
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+    transition: all 0.3s ease;
   }
 
   .rating-book__dot--active {
-    width: 24px;
+    width: 23px;
     background: var(--rb-primary);
+  }
+
+  /* VIEW MODAL */
+
+  .rating-book__overlay {
+    padding: 10px;
+  }
+
+  .rating-book__view-modal {
+    max-height: 96vh;
+    border-radius: 20px;
+  }
+
+  .rating-book__view-modal-header {
+    padding: 23px 18px;
+    gap: 15px;
+  }
+
+  .rating-book__view-modal-header h2 {
+    font-size: 27px;
+  }
+
+  .rating-book__view-modal-header p {
+    font-size: 11px;
+    padding-right: 5px;
+  }
+
+  .rating-book__modal-close {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .rating-book__view-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .rating-book__card--modal {
+    grid-template-columns: 115px minmax(0, 1fr);
+    min-height: 175px;
+    text-align: left;
+    padding: 13px;
+  }
+
+  .rating-book__card--modal .rating-book__media {
+    width: 115px;
+    min-width: 115px;
+    height: 145px;
+    margin: 0;
+  }
+
+  .rating-book__card--modal .rating-book__content {
+    align-items: flex-start;
+  }
+
+  .rating-book__card--modal .rating-book__title {
+    font-size: 15px;
+  }
+
+  .rating-book__card--modal .rating-book__price {
+    font-size: 17px;
+  }
+
+  .rating-book__card--modal .rating-book__author-rating {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .rating-book__card--modal .rating-book__cart-btn {
+    max-width: 100%;
+  }
+
+  /* PRODUCT MODAL */
+
+  .rating-book__product-modal {
+    border-radius: 20px;
+  }
+
+  .rating-book__product-image {
+    min-height: 270px;
+    max-height: 310px;
+  }
+
+  .rating-book__product-details {
+    padding: 25px 20px 25px;
+  }
+
+  .rating-book__product-details h2 {
+    font-size: 28px;
+  }
+
+  .rating-book__product-description {
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .rating-book__product-actions {
+    grid-template-columns: 1fr 48px;
+  }
+
+  .rating-book__quantity {
+    grid-column: 1 / -1;
+    width: 100%;
+    height: 44px;
+  }
+
+  .rating-book__modal-cart {
+    min-height: 44px;
   }
 }
 
-@keyframes fadeInScale {
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 380px) {
+  .rating-book__heading {
+    font-size: 27px;
+  }
+
+  .rating-book__card--modal {
+    grid-template-columns: 95px minmax(0, 1fr);
+  }
+
+  .rating-book__card--modal .rating-book__media {
+    width: 95px;
+    min-width: 95px;
+    height: 125px;
+  }
+
+  .rating-book__card--modal .rating-book__quick-actions {
+    display: none;
+  }
+
+  .rating-book__card--modal .rating-book__genre {
+    font-size: 9px;
+  }
+
+  .rating-book__card--modal .rating-book__title {
+    font-size: 13px;
+  }
+}
+
+@keyframes ratingMobileCardIn {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: translateX(12px);
   }
+
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateX(0);
   }
 }

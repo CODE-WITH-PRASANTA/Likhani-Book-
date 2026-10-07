@@ -1,919 +1,1799 @@
-:root {
-  --primary-blue: #2563eb;
-  --primary-hover: #1d4ed8;
-  --bg-main: #f8fafc;
-  --card-bg: #ffffff;
-  --border-color: #e2e8f0;
-  --text-dark: #1e293b;
-  --text-muted: #64748b;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-}
-
-body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--bg-main);
-  color: var(--text-dark);
-}
+/* =========================================================
+   SHOP ADMIN PANEL
+========================================================= */
 
 .Shop {
+  --Shop-primary: #ff5a0a;
+  --Shop-primaryDark: #e94b00;
+  --Shop-navy: #102a43;
+  --Shop-text: #17324d;
+  --Shop-muted: #7890a6;
+  --Shop-border: #e4ebf2;
+  --Shop-bg: #f7fafc;
+  --Shop-white: #ffffff;
+  --Shop-green: #22c55e;
+  --Shop-red: #ef4444;
+  --Shop-blue: #1683ff;
+
+  width: 100%;
+  min-height: 100vh;
   padding: 24px;
-  max-width: 1480px;
-  margin: 0 auto;
+  background: var(--Shop-bg);
+  color: var(--Shop-text);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+  box-sizing: border-box;
 }
 
-/* Header */
+.Shop *,
+.Shop *::before,
+.Shop *::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
 .Shop-header {
-  margin-bottom: 20px;
-}
-
-.Shop-headerTitle {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.Shop-titleIcon {
-  font-size: 24px;
-  color: var(--primary-blue);
-}
-
-.Shop-headerTitle h1 {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.Shop-headerTitle p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 2px 0 0 0;
-}
-
-/* Main Container */
-.Shop-container {
-  display: grid;
-  grid-template-columns: 440px 1fr;
+  justify-content: space-between;
   gap: 20px;
+  margin-bottom: 22px;
 }
 
-.Shop-formCard,
-.Shop-listCard {
-  background: var(--card-bg);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-/* Form Styles */
-.Shop-formHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.Shop-formHeader h2 {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
+.Shop-headerLeft {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 15px;
 }
 
-.Shop-btnReset {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  padding: 5px 10px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--text-muted);
-}
-
-.Shop-btnReset:hover {
-  background: #f1f5f9;
-}
-
-.Shop-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.Shop-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.Shop-field label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.Shop-field label span {
-  color: #ef4444;
-}
-
-.Shop-field input[type='text'],
-.Shop-field input[type='number'],
-.Shop-field textarea {
-  width: 100%;
-  padding: 8px 10px;
-  font-size: 13px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  outline: none;
-  box-sizing: border-box;
-  background: #fff;
-}
-
-.Shop-field input:focus,
-.Shop-field textarea:focus {
-  border-color: var(--primary-blue);
-}
-
-.Shop-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.Shop-rowTriple {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-
-/* PORTAL CUSTOM DROPDOWN STYLES */
-.Shop-customSelectContainer {
-  position: relative;
-  width: 100%;
-}
-
-.Shop-customSelectTrigger {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 10px;
-  font-size: 13px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: #fff;
-  cursor: pointer;
-  user-select: none;
-  box-sizing: border-box;
-  color: var(--text-dark);
-}
-
-.Shop-customSelectTrigger:hover {
-  border-color: #cbd5e1;
-}
-
-.Shop-selectArrow {
-  font-size: 14px;
-  color: var(--text-muted);
-  transition: transform 0.2s ease;
-}
-
-.Shop-selectArrow.open {
-  transform: rotate(180deg);
-}
-
-/* React Portal Overlay Dropdown Menu */
-.Shop-portalDropdownMenu {
-  position: absolute;
-  z-index: 99999;
-  background: #ffffff;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  list-style: none;
-  padding: 4px 0;
-  margin: 0;
-  max-height: 220px;
-  overflow-y: auto;
-  box-sizing: border-box;
-}
-
-.Shop-portalDropdownItem {
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--text-dark);
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.Shop-portalDropdownItem:hover {
-  background-color: #f1f5f9;
-  color: var(--primary-blue);
-}
-
-.Shop-portalDropdownItem.selected {
-  background-color: #eff6ff;
-  color: var(--primary-blue);
-  font-weight: 600;
-}
-
-/* Image Upload Layout */
-.Shop-imageUploadRow {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 10px;
-}
-
-.Shop-dropzone {
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  text-align: center;
-  cursor: pointer;
-  background: #f8fafc;
-}
-
-.Shop-dropzone:hover {
-  border-color: var(--primary-blue);
-}
-
-.Shop-uploadIcon {
-  font-size: 22px;
-  color: var(--text-muted);
-}
-
-.Shop-uploadText {
-  margin: 4px 0 0 0;
-  font-size: 11px;
-  color: var(--text-dark);
-}
-
-.Shop-uploadSubtext {
-  margin: 2px 0 0 0;
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.Shop-galleryPreview {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 8px;
-  background: #f8fafc;
-}
-
-.Shop-galleryTitle {
-  font-size: 11px;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 6px;
-}
-
-.Shop-galleryGrid {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-}
-
-.Shop-addMoreBox {
-  width: 42px;
-  height: 52px;
-  border: 1px dashed var(--border-color);
-  border-radius: 4px;
+.Shop-headerIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  background: linear-gradient(
+    135deg,
+    #ff650f,
+    #ff4d00
+  );
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  background: #fff;
-  color: var(--text-muted);
-  flex-shrink: 0;
+  font-size: 22px;
+  box-shadow:
+    0 10px 25px rgba(255, 90, 10, 0.22);
 }
 
-.Shop-galleryImg {
-  width: 42px;
-  height: 52px;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid var(--border-color);
-  flex-shrink: 0;
+.Shop-header h1 {
+  margin: 0;
+  font-size: 27px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--Shop-navy);
 }
 
-/* Radio Buttons */
-.Shop-radioGroup {
-  display: flex;
-  gap: 16px;
-}
-
-.Shop-radioLabel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-/* Save Button */
-.Shop-formFooter {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-
-.Shop-btnSave {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--primary-blue);
-  color: #fff;
-  border: none;
-  padding: 8px 18px;
-  border-radius: var(--radius-sm);
+.Shop-header p {
+  margin: 5px 0 0;
+  color: var(--Shop-muted);
   font-size: 13px;
-  font-weight: 500;
+}
+
+.Shop-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #72869a;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.Shop-breadcrumb svg {
+  font-size: 9px;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.Shop-formCard,
+.Shop-listCard {
+  width: 100%;
+  background: var(--Shop-white);
+  border: 1px solid rgba(228, 235, 242, 0.9);
+  border-radius: 18px;
+  box-shadow:
+    0 8px 30px rgba(25, 50, 75, 0.05);
+}
+
+.Shop-formCard {
+  padding: 22px;
+  margin-bottom: 20px;
+}
+
+.Shop-listCard {
+  overflow: hidden;
+}
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.Shop-cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.Shop-cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.Shop-cardTitle span {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--Shop-primary);
+  background: #fff2eb;
+}
+
+.Shop-cardTitle h2 {
+  margin: 0;
+  color: var(--Shop-navy);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.Shop-clearButton {
+  border: 0;
+  outline: 0;
+  background: #fff1e9;
+  color: var(--Shop-primary);
+  border-radius: 9px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
+  transition: 0.25s ease;
 }
 
-.Shop-btnSave:hover {
-  background: var(--primary-hover);
+.Shop-clearButton:hover {
+  background: var(--Shop-primary);
+  color: white;
+  transform: translateY(-1px);
 }
 
-/* List Side Styles */
-.Shop-listTopBar {
+/* =========================================================
+   FORM
+========================================================= */
+
+.Shop-form {
+  width: 100%;
+}
+
+.Shop-formGrid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 15px;
+}
+
+.Shop-field {
+  min-width: 0;
+}
+
+.Shop-field label,
+.Shop-labelRow label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--Shop-navy);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.Shop-field label span,
+.Shop-labelRow label span {
+  color: var(--Shop-primary);
+}
+
+.Shop-field input,
+.Shop-field select {
+  width: 100%;
+  height: 42px;
+  padding: 0 13px;
+  border: 1px solid #dfe7ee;
+  background: #fbfdff;
+  border-radius: 8px;
+  outline: none;
+  color: var(--Shop-text);
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.Shop-field input::placeholder {
+  color: #9babbc;
+}
+
+.Shop-field input:hover,
+.Shop-field select:hover {
+  border-color: #c7d4df;
+}
+
+.Shop-field input:focus,
+.Shop-field select:focus {
+  border-color: var(--Shop-primary);
+  box-shadow:
+    0 0 0 3px rgba(255, 90, 10, 0.09);
+  background: white;
+}
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+.Shop-categoryInput {
+  display: flex;
+  gap: 7px;
+}
+
+.Shop-categoryInput input {
+  flex: 1;
+  min-width: 0;
+}
+
+.Shop-categoryInput button {
+  width: 42px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 8px;
+  color: white;
+  background: var(--Shop-primary);
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.Shop-categoryInput button:hover {
+  background: var(--Shop-primaryDark);
+  transform: translateY(-1px);
+}
+
+.Shop-selectedCategory {
+  margin-top: 6px;
+  width: fit-content;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #fff1e9;
+  color: var(--Shop-primary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.Shop-selectedCategory button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  padding: 0;
+}
+
+/* =========================================================
+   BOTTOM GRID
+========================================================= */
+
+.Shop-bottomGrid {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1.45fr);
+  gap: 18px;
+  margin-top: 5px;
+}
+
+.Shop-descriptionSection,
+.Shop-imageSection {
+  min-width: 0;
+}
+
+.Shop-labelRow {
+  min-height: 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  gap: 10px;
 }
 
-.Shop-listTopBar h2 {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
+.Shop-descriptionHint,
+.Shop-imageHint {
+  color: #9aaabd;
+  font-size: 10px;
 }
 
-.Shop-viewToggleGroup {
-  display: flex;
-  background: #f1f5f9;
-  padding: 3px;
-  border-radius: var(--radius-sm);
-  gap: 2px;
+/* =========================================================
+   TINYMCE
+========================================================= */
+
+.Shop-editorWrapper {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #dfe7ee;
+  background: white;
 }
 
-.Shop-btnToggle {
+.Shop-editorWrapper .tox {
+  border: 0 !important;
+}
+
+.Shop-editorWrapper .tox .tox-toolbar,
+.Shop-editorWrapper .tox .tox-toolbar__primary {
+  background: #f8fafc !important;
+  border-color: #e5ebf0 !important;
+}
+
+.Shop-editorWrapper .tox .tox-edit-area::before {
+  border: 0 !important;
+}
+
+.Shop-editorWrapper .tox-statusbar {
+  border-color: #e5ebf0 !important;
+}
+
+/* =========================================================
+   IMAGE UPLOAD
+========================================================= */
+
+.Shop-imageUploadArea {
+  min-height: 182px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  border: none;
-  background: transparent;
-  padding: 5px 12px;
-  font-size: 12px;
-  border-radius: 4px;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 4px 2px 9px;
+  scrollbar-width: thin;
+}
+
+.Shop-uploadBox {
+  flex: 0 0 170px;
+  height: 145px;
+  border: 1px dashed #cbd7e1;
+  border-radius: 9px;
+  background: #fbfdff;
+  color: #8296aa;
   cursor: pointer;
-  color: var(--text-muted);
-}
-
-.Shop-btnToggle.active {
-  background: var(--primary-blue);
-  color: #fff;
-}
-
-/* Filter Bar */
-.Shop-filterRow {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: 0.25s ease;
 }
+
+.Shop-uploadBox svg {
+  font-size: 25px;
+  color: #8da1b4;
+}
+
+.Shop-uploadBox strong {
+  font-size: 11px;
+  color: #526b82;
+}
+
+.Shop-uploadBox span {
+  font-size: 9px;
+  color: #a0afbd;
+}
+
+.Shop-uploadBox:hover {
+  border-color: var(--Shop-primary);
+  background: #fffaf7;
+  transform: translateY(-2px);
+}
+
+.Shop-imagePreview {
+  position: relative;
+  flex: 0 0 125px;
+  width: 125px;
+  height: 145px;
+  border-radius: 9px;
+  overflow: hidden;
+  background: #edf3f7;
+}
+
+.Shop-imagePreview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.Shop-imagePreview button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(40, 50, 60, 0.7);
+  color: white;
+  font-size: 9px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.Shop-imagePreview button:hover {
+  background: var(--Shop-red);
+}
+
+.Shop-addMoreImage {
+  flex: 0 0 105px;
+  height: 145px;
+  border: 0;
+  border-radius: 9px;
+  background: #f2f6f9;
+  color: #8194a7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.Shop-addMoreImage svg {
+  font-size: 20px;
+}
+
+.Shop-addMoreImage span {
+  font-size: 10px;
+}
+
+.Shop-addMoreImage:hover {
+  background: #eaf0f5;
+  color: var(--Shop-primary);
+}
+
+/* =========================================================
+   FORM ACTION
+========================================================= */
+
+.Shop-formActions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.Shop-submitButton {
+  min-width: 140px;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    #ff650f,
+    #ff4f00
+  );
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow:
+    0 9px 20px rgba(255, 90, 10, 0.2);
+  transition: 0.25s ease;
+}
+
+.Shop-submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 25px rgba(255, 90, 10, 0.28);
+}
+
+/* =========================================================
+   LIST HEADER
+========================================================= */
+
+.Shop-listHeader {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--Shop-border);
+}
+
+.Shop-listTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.Shop-listTitle > span {
+  width: 33px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--Shop-primary);
+  background: #fff2eb;
+  border-radius: 9px;
+}
+
+.Shop-listTitle h2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--Shop-navy);
+}
+
+.Shop-listTitle h2 small {
+  margin-left: 5px;
+  color: #8195a8;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.Shop-listTitle p {
+  margin: 3px 0 0;
+  font-size: 10px;
+  color: #94a5b5;
+}
+
+.Shop-listTools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
 
 .Shop-searchBox {
-  position: relative;
-  flex: 1 1 180px;
-  min-width: 140px;
+  width: 185px;
+  height: 38px;
+  border: 1px solid #e0e8ef;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  background: #fbfdff;
 }
 
-.Shop-searchIcon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
+.Shop-searchBox svg {
+  color: #8da0b2;
+  font-size: 12px;
 }
 
 .Shop-searchBox input {
-  padding: 7px 10px 7px 30px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
+  border: 0;
+  outline: 0;
+  background: transparent;
   width: 100%;
-  outline: none;
-  box-sizing: border-box;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--Shop-text);
 }
 
-.Shop-filterDropdown {
-  flex: 1 1 130px;
-  min-width: 120px;
+.Shop-searchBox input::placeholder {
+  color: #9babbc;
 }
 
-.Shop-btnFilter {
+/* =========================================================
+   FILTER
+========================================================= */
+
+.Shop-filterBox {
+  width: 170px;
+  height: 38px;
+  border: 1px solid #e0e8ef;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 4px;
-  border: 1px solid var(--border-color);
-  background: #fff;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
+  gap: 7px;
+  padding: 0 9px;
+  background: #fbfdff;
+}
+
+.Shop-filterBox svg {
+  color: #8da0b2;
+  font-size: 11px;
+}
+
+.Shop-filterBox select {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #50667b;
+  font-size: 11px;
+}
+
+/* =========================================================
+   EXPORT
+========================================================= */
+
+.Shop-exportButton {
+  height: 38px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--Shop-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.Shop-exportButton:hover {
+  background: var(--Shop-primaryDark);
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   SELECTION BAR
+========================================================= */
+
+.Shop-selectionBar {
+  margin: 12px 20px 0;
+  padding: 8px 12px;
+  border-radius: 7px;
+  background: #eff8ff;
+  color: #2375b9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+}
+
+.Shop-selectionBar div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.Shop-selectionBar button {
+  border: 0;
+  background: transparent;
+  color: #2375b9;
+  font-size: 10px;
+  font-weight: 700;
   cursor: pointer;
 }
 
-/* Table View */
+/* =========================================================
+   TABLE
+========================================================= */
+
 .Shop-tableWrapper {
+  width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .Shop-table {
   width: 100%;
+  min-width: 1050px;
   border-collapse: collapse;
-  text-align: left;
-  font-size: 12px;
 }
 
 .Shop-table th {
+  height: 42px;
+  padding: 0 8px;
   background: #f8fafc;
-  padding: 10px 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-color);
+  color: #71869a;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: left;
   white-space: nowrap;
+  border-bottom: 1px solid var(--Shop-border);
 }
 
 .Shop-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
+  height: 58px;
+  padding: 7px 8px;
+  border-bottom: 1px solid #edf1f5;
+  color: var(--Shop-text);
+  font-size: 11px;
   vertical-align: middle;
-  white-space: nowrap;
 }
 
-.Shop-bookInfo {
+.Shop-table tbody tr {
+  transition: 0.2s ease;
+}
+
+.Shop-table tbody tr:hover {
+  background: #fbfdff;
+}
+
+.Shop-table tbody tr.Shop-selectedRow {
+  background: #fff8f3;
+}
+
+.Shop-table input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #b9c7d3;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  position: relative;
+}
+
+.Shop-table input[type="checkbox"]:checked {
+  border-color: var(--Shop-primary);
+  background: var(--Shop-primary);
+}
+
+.Shop-table input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.Shop-bookThumb {
-  width: 34px;
-  height: 44px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.Shop-bookTitle {
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.Shop-bookAuthor {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-
-.Shop-priceText {
-  font-weight: 600;
-}
-
-/* Badges */
-.Shop-badge {
+  justify-content: center;
+  color: white;
   font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-weight: 600;
-  display: inline-block;
+  font-weight: 900;
 }
 
-.badge-pink { background: #fce7f3; color: #be185d; }
-.badge-blue { background: #dbeafe; color: #1d4ed8; }
-.badge-green { background: #dcfce7; color: #15803d; }
-.badge-yellow { background: #fef9c3; color: #a16207; }
-.badge-purple { background: #f3e8ff; color: #6b21a8; }
-.badge-sky { background: #e0f2fe; color: #0369a1; }
-.badge-indigo { background: #e0e7ff; color: #3730a3; }
-.badge-teal { background: #ccfbf1; color: #0f766e; }
-.badge-gray { background: #f1f5f9; color: #475569; }
-
-.Shop-statusTag {
-  font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-weight: 500;
+.Shop-checkboxColumn {
+  width: 40px;
 }
 
-.Shop-statusTag.active { background: #dcfce7; color: #15803d; }
-.Shop-statusTag.inactive { background: #fee2e2; color: #b91c1c; }
+/* =========================================================
+   TABLE IMAGE
+========================================================= */
 
-/* Actions */
-.Shop-actions {
-  display: flex;
-  gap: 4px;
-}
-
-.Shop-actionBtn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 4px;
-  border-radius: 4px;
-  color: var(--text-muted);
-}
-
-.Shop-actionBtn.view:hover { color: var(--primary-blue); }
-.Shop-actionBtn.edit:hover { color: #d97706; }
-.Shop-actionBtn.delete:hover { color: #dc2626; }
-.Shop-actionBtn.more:hover { color: var(--text-dark); }
-
-/* Grid View */
-.Shop-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 14px;
-}
-
-.Shop-gridCard {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+.Shop-tableImage {
+  width: 42px;
+  height: 48px;
   overflow: hidden;
+  border-radius: 5px;
+  background: #edf2f6;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #95a5b4;
 }
 
-.Shop-gridImageWrapper {
-  position: relative;
-  height: 140px;
-}
-
-.Shop-gridImageWrapper img {
+.Shop-tableImage img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.Shop-gridImageWrapper .Shop-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-}
+/* =========================================================
+   BOOK INFO
+========================================================= */
 
-.Shop-gridBody {
-  padding: 10px;
+.Shop-bookInfo {
+  max-width: 180px;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  gap: 3px;
 }
 
-.Shop-gridTitle {
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-
-.Shop-gridAuthor {
+.Shop-bookInfo strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 11px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
+  color: var(--Shop-navy);
+  font-weight: 800;
 }
 
-.Shop-gridPriceRow {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-bottom: 8px;
+.Shop-bookInfo span {
+  color: #91a0af;
+  font-size: 9px;
 }
 
-.Shop-gridStock {
-  color: var(--text-muted);
-  font-size: 11px;
+/* =========================================================
+   CATEGORY BADGE
+========================================================= */
+
+.Shop-categoryBadge {
+  display: inline-flex;
+  max-width: 160px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #e9f6ff;
+  color: #197cae;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
-.Shop-gridFooter {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 8px;
-  border-top: 1px solid #f1f5f9;
-}
+/* =========================================================
+   PRICE
+========================================================= */
 
-/* RESPONSIVE PAGINATION */
-.Shop-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.Shop-paginationInfo {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.Shop-paginationControls.desktop {
+.Shop-price {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  white-space: nowrap;
 }
 
-.Shop-paginationControls.mobile {
-  display: none;
-}
-
-.Shop-pageBtn {
-  border: 1px solid var(--border-color);
-  background: #fff;
-  padding: 5px 10px;
-  border-radius: 4px;
+.Shop-price strong {
+  color: var(--Shop-navy);
   font-size: 12px;
-  cursor: pointer;
-  color: var(--text-dark);
+}
+
+.Shop-price del {
+  color: #9aa7b3;
+  font-size: 9px;
+}
+
+/* =========================================================
+   STOCK
+========================================================= */
+
+.Shop-stock {
+  min-width: 34px;
+  height: 25px;
+  padding: 0 7px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: #e7f9ef;
+  color: #159447;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 800;
 }
 
-.Shop-pageBtn.active {
-  background: var(--primary-blue);
-  color: #fff;
-  border-color: var(--primary-blue);
+.Shop-stock.Shop-lowStock {
+  background: #fff1e9;
+  color: var(--Shop-primary);
 }
 
-.Shop-pageBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* =========================================================
+   RATING
+========================================================= */
+
+.Shop-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
 }
 
-.Shop-paginationEllipsis {
-  padding: 0 4px;
-  color: var(--text-muted);
-  font-size: 12px;
+.Shop-rating svg {
+  color: #ffb000;
+  font-size: 11px;
 }
 
-.Shop-empty {
-  text-align: center;
-  color: var(--text-muted);
-  padding: 20px;
-  font-size: 12px;
+.Shop-rating span {
+  color: #536b81;
+  font-size: 10px;
 }
 
-/* Modal */
-.Shop-modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+/* =========================================================
+   TOGGLE
+========================================================= */
+
+.Shop-toggle {
+  width: 38px;
+  height: 22px;
+  border: 0;
+  border-radius: 20px;
+  padding: 3px;
+  background: #d3dde5;
+  cursor: pointer;
+  transition: 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.Shop-toggle span {
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: 0.25s ease;
+}
+
+.Shop-toggleActive {
+  background: var(--Shop-green);
+  justify-content: flex-end;
+}
+
+.Shop-toggleFeatured {
+  background: var(--Shop-primary);
+  justify-content: flex-end;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.Shop-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.Shop-actionButton {
+  width: 33px;
+  height: 33px;
+  border-radius: 7px;
+  border: 1px solid #e1e9ef;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 16px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  background: white;
+  font-size: 11px;
 }
 
-.Shop-modalContent {
-  background: #fff;
+.Shop-viewAction {
+  color: #526b82;
+}
+
+.Shop-viewAction:hover {
+  color: var(--Shop-navy);
+  background: #f3f7fa;
+}
+
+.Shop-editAction {
+  color: var(--Shop-blue);
+  background: #eff7ff;
+  border-color: #d8ebff;
+}
+
+.Shop-editAction:hover {
+  background: var(--Shop-blue);
+  color: white;
+}
+
+.Shop-deleteAction {
+  color: var(--Shop-red);
+  background: #fff0f1;
+  border-color: #ffdce0;
+}
+
+.Shop-deleteAction:hover {
+  background: var(--Shop-red);
+  color: white;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.Shop-emptyState {
+  height: 250px !important;
+  text-align: center;
+}
+
+.Shop-emptyState svg {
+  display: block;
+  margin: 0 auto 10px;
+  color: #a8b7c5;
+  font-size: 30px;
+}
+
+.Shop-emptyState strong,
+.Shop-emptyState span {
+  display: block;
+}
+
+.Shop-emptyState strong {
+  font-size: 14px;
+}
+
+.Shop-emptyState span {
+  margin-top: 4px;
+  color: #95a5b3;
+  font-size: 11px;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.Shop-pagination {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.Shop-paginationInfo {
+  color: #8194a7;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.Shop-paginationInfo strong {
+  color: var(--Shop-text);
+}
+
+.Shop-paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.Shop-paginationControls button {
+  min-width: 33px;
+  height: 33px;
+  padding: 0 9px;
+  border: 1px solid #e1e8ee;
+  border-radius: 7px;
+  background: white;
+  color: #516b82;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.Shop-paginationControls button:hover:not(:disabled) {
+  border-color: var(--Shop-primary);
+  color: var(--Shop-primary);
+}
+
+.Shop-paginationControls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.Shop-paginationControls button.Shop-pageActive {
+  color: white;
+  background: var(--Shop-navy);
+  border-color: var(--Shop-navy);
+}
+
+.Shop-paginationControls button svg {
+  font-size: 8px;
+}
+
+.Shop-perPage {
+  padding: 9px 12px;
+  border: 1px solid #e1e8ee;
+  border-radius: 7px;
+  color: #657b90;
+  font-size: 10px;
+}
+
+/* =========================================================
+   MODAL OVERLAY
+========================================================= */
+
+.Shop-modalOverlay {
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
   padding: 20px;
-  border-radius: var(--radius-md);
-  max-width: 480px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-sizing: border-box;
+  background: rgba(12, 28, 43, 0.58);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ShopFadeIn 0.2s ease;
+}
+
+@keyframes ShopFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.Shop-modal {
+  width: min(900px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  background: white;
+  border-radius: 18px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.2);
+  animation: ShopModalIn 0.25s ease;
+}
+
+@keyframes ShopModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .Shop-modalHeader {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--Shop-border);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  justify-content: space-between;
 }
 
-.Shop-modalHeader h2 {
-  font-size: 16px;
+.Shop-modalHeader > div {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.Shop-modalIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #fff1e9;
+  color: var(--Shop-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Shop-modalHeader h3 {
   margin: 0;
+  color: var(--Shop-navy);
+  font-size: 17px;
 }
 
-.Shop-modalClose {
-  background: none;
-  border: none;
-  font-size: 20px;
+.Shop-modalHeader p {
+  margin: 3px 0 0;
+  color: #91a1af;
+  font-size: 10px;
+}
+
+.Shop-modalHeader > button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: #f4f7f9;
+  color: #6f8294;
   cursor: pointer;
 }
 
-.Shop-modalImg {
-  width: 100px;
-  height: 130px;
+.Shop-modalHeader > button:hover {
+  background: #fff0f0;
+  color: var(--Shop-red);
+}
+
+/* =========================================================
+   VIEW MODAL
+========================================================= */
+
+.Shop-viewContent {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 25px;
+}
+
+.Shop-viewImages {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+  align-content: start;
+}
+
+.Shop-viewImages img {
+  width: 100%;
+  height: 175px;
   object-fit: cover;
-  border-radius: 4px;
-  margin-bottom: 12px;
+  border-radius: 10px;
+  background: #f1f5f8;
 }
 
-.Shop-modalBody p {
+.Shop-noImage {
+  height: 175px;
+  grid-column: 1 / -1;
+  border-radius: 10px;
+  background: #f1f5f8;
+  color: #8799aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Shop-viewTitleRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.Shop-viewCategory {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #e9f6ff;
+  color: #197cae;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.Shop-viewTitleRow h2 {
+  margin: 10px 0 4px;
+  color: var(--Shop-navy);
+  font-size: 23px;
+}
+
+.Shop-viewTitleRow p {
+  margin: 0;
+  color: #8497a9;
   font-size: 12px;
-  margin: 4px 0;
 }
 
-.Shop-modalDesc {
+.Shop-viewRating {
+  height: fit-content;
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: #fff7df;
+  color: #9a7100;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.Shop-viewRating svg {
+  color: #ffad00;
+}
+
+.Shop-viewGrid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.Shop-viewGrid > div {
+  padding: 11px;
+  border-radius: 8px;
+  background: #f7fafc;
+}
+
+.Shop-viewGrid span {
+  display: block;
+  margin-bottom: 4px;
+  color: #91a1af;
+  font-size: 9px;
+}
+
+.Shop-viewGrid strong {
+  color: var(--Shop-navy);
   font-size: 12px;
-  line-height: 1.4;
-  margin-top: 4px;
 }
 
-/* RESPONSIVE MEDIA QUERIES */
+.Shop-viewDescription {
+  margin-top: 18px;
+}
 
-@media (max-width: 1024px) {
-  .Shop-container {
-    grid-template-columns: 1fr;
+.Shop-viewDescription h4 {
+  margin: 0 0 7px;
+  color: var(--Shop-navy);
+  font-size: 13px;
+}
+
+.Shop-viewDescription > div {
+  max-height: 190px;
+  overflow-y: auto;
+  color: #667d91;
+  font-size: 12px;
+  line-height: 1.7;
+  padding-right: 8px;
+}
+
+.Shop-modalFooter {
+  padding: 14px 20px;
+  border-top: 1px solid var(--Shop-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.Shop-modalFooter button {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.Shop-modalClose {
+  border: 1px solid #dfe7ee;
+  background: white;
+  color: #60768a;
+}
+
+.Shop-modalEdit {
+  border: 0;
+  background: var(--Shop-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* =========================================================
+   DELETE MODAL
+========================================================= */
+
+.Shop-deleteModal {
+  width: min(410px, 100%);
+  padding: 30px;
+  text-align: center;
+}
+
+.Shop-deleteIcon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 15px;
+  border-radius: 50%;
+  background: #fff0f1;
+  color: var(--Shop-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+}
+
+.Shop-deleteModal h3 {
+  margin: 0;
+  color: var(--Shop-navy);
+  font-size: 19px;
+}
+
+.Shop-deleteModal p {
+  margin: 9px auto 22px;
+  max-width: 320px;
+  color: #8295a7;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.Shop-deleteActions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.Shop-deleteActions button {
+  min-width: 105px;
+  height: 39px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.Shop-cancelDelete {
+  border: 1px solid #dfe7ee;
+  background: white;
+  color: #60758a;
+}
+
+.Shop-confirmDelete {
+  border: 0;
+  background: var(--Shop-red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.Shop-toast {
+  position: fixed;
+  z-index: 10000;
+  top: 24px;
+  right: 24px;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #123b29;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.18);
+  animation: ShopToastIn 0.3s ease;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.Shop-toastError {
+  background: #6f1d24;
+}
+
+.Shop-toastIcon {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes ShopToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-@media (max-width: 640px) {
+/* =========================================================
+   LARGE TABLET
+========================================================= */
+
+@media (max-width: 1200px) {
   .Shop {
-    padding: 12px;
+    padding: 18px;
   }
 
-  .Shop-formCard,
-  .Shop-listCard {
-    padding: 14px;
+  .Shop-formGrid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
-  .Shop-row,
-  .Shop-rowTriple,
-  .Shop-imageUploadRow {
+  .Shop-bottomGrid {
     grid-template-columns: 1fr;
   }
 
-  .Shop-toggleText {
+  .Shop-imageUploadArea {
+    min-height: 170px;
+  }
+
+  .Shop-listHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .Shop-listTools {
+    width: 100%;
+  }
+
+  .Shop-searchBox {
+    flex: 1;
+  }
+
+  .Shop-filterBox {
+    flex: 0 0 190px;
+  }
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+  .Shop-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .Shop-breadcrumb {
     display: none;
   }
 
-  .Shop-filterRow {
+  .Shop-viewContent {
+    grid-template-columns: 1fr;
+  }
+
+  .Shop-viewImages {
+    grid-template-columns:
+      repeat(4, minmax(100px, 1fr));
+  }
+
+  .Shop-viewImages img {
+    height: 140px;
+  }
+
+  .Shop-viewGrid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .Shop-pagination {
+    flex-wrap: wrap;
+  }
+
+  .Shop-paginationInfo {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+  .Shop {
+    padding: 10px;
+  }
+
+  .Shop-header {
+    margin-bottom: 13px;
+  }
+
+  .Shop-headerLeft {
+    align-items: flex-start;
+  }
+
+  .Shop-headerIcon {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+    border-radius: 12px;
+  }
+
+  .Shop-header h1 {
+    font-size: 20px;
+  }
+
+  .Shop-header p {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  .Shop-formCard {
+    padding: 14px;
+    border-radius: 13px;
+  }
+
+  .Shop-cardHeader {
+    align-items: flex-start;
+  }
+
+  .Shop-cardTitle h2 {
+    font-size: 16px;
+  }
+
+  .Shop-clearButton {
+    padding: 8px 9px;
+    font-size: 9px;
+  }
+
+  .Shop-formGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .Shop-field input,
+  .Shop-field select {
+    height: 40px;
+  }
+
+  .Shop-bottomGrid {
+    gap: 13px;
+  }
+
+  .Shop-imageUploadArea {
+    min-height: 150px;
+  }
+
+  .Shop-uploadBox {
+    flex-basis: 145px;
+    height: 130px;
+  }
+
+  .Shop-imagePreview {
+    flex-basis: 105px;
+    width: 105px;
+    height: 130px;
+  }
+
+  .Shop-addMoreImage {
+    flex-basis: 90px;
+    height: 130px;
+  }
+
+  .Shop-submitButton {
+    width: 100%;
+  }
+
+  .Shop-listHeader {
+    padding: 14px;
+  }
+
+  .Shop-listTools {
+    width: 100%;
     flex-direction: column;
     align-items: stretch;
   }
 
-  .Shop-filterDropdown,
-  .Shop-searchBox {
+  .Shop-searchBox,
+  .Shop-filterBox,
+  .Shop-exportButton {
     width: 100%;
+    flex: none;
   }
 
-  .Shop-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
+  .Shop-exportButton {
+    justify-content: center;
   }
 
-  /* Switch Pagination to Mobile Mode */
+  .Shop-selectionBar {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+
   .Shop-pagination {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+    padding: 14px;
+    justify-content: center;
   }
 
-  .Shop-paginationInfo {
-    text-align: center;
+  .Shop-paginationControls {
+    width: 100%;
+    justify-content: center;
+    overflow-x: auto;
+    padding-bottom: 2px;
   }
 
-  .Shop-paginationControls.desktop {
+  .Shop-paginationControls button {
+    flex-shrink: 0;
+  }
+
+  .Shop-perPage {
     display: none;
   }
 
-  .Shop-paginationControls.mobile {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .Shop-modalOverlay {
+    padding: 10px;
+  }
+
+  .Shop-modal {
+    max-height: calc(100vh - 20px);
+    border-radius: 14px;
+  }
+
+  .Shop-viewContent {
+    padding: 14px;
+    gap: 15px;
+  }
+
+  .Shop-viewImages {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .Shop-viewImages img {
+    height: 150px;
+  }
+
+  .Shop-viewTitleRow {
+    flex-direction: column;
+  }
+
+  .Shop-viewTitleRow h2 {
+    font-size: 20px;
+  }
+
+  .Shop-viewGrid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .Shop-modalFooter {
+    padding: 12px;
+  }
+
+  .Shop-modalFooter button {
+    flex: 1;
+  }
+
+  .Shop-deleteModal {
+    padding: 23px 16px;
+  }
+
+  .Shop-toast {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 400px) {
+  .Shop-header h1 {
+    font-size: 18px;
+  }
+
+  .Shop-header p {
+    font-size: 9px;
+  }
+
+  .Shop-cardHeader {
+    flex-direction: column;
+  }
+
+  .Shop-clearButton {
     width: 100%;
+    justify-content: center;
   }
 
-  .Shop-pageBtn.mobileNav {
-    padding: 6px 14px;
-    font-weight: 500;
+  .Shop-viewGrid {
+    grid-template-columns: 1fr;
   }
 
-  .Shop-mobilePageIndicator {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-dark);
+  .Shop-deleteActions {
+    flex-direction: column;
   }
-}
-/* Filter button group */
-.Shop-filterButtonGroup {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
 
-.Shop-btnFilter {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--primary-blue);
-  background: var(--primary-blue);
-  color: #fff;
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.Shop-btnFilter:hover {
-  background: var(--primary-hover);
-}
-
-.Shop-btnFilterReset {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border-color);
-  background: #fff;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.Shop-btnFilterReset:hover {
-  background: #f1f5f9;
-  color: var(--text-dark);
-}
-
-/* Clickable table & card links to open details modal */
-.clickable {
-  cursor: pointer;
-}
-
-.Shop-bookInfo.clickable:hover .Shop-bookTitle,
-.Shop-gridTitle.clickable:hover {
-  color: var(--primary-blue);
-}
-
-/* Smooth Animated Modal */
-.Shop-modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.Shop-modalContent {
-  background: #fff;
-  padding: 24px;
-  border-radius: var(--radius-md);
-  max-width: 480px;
-  width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-sizing: border-box;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transform: scale(0.96);
-  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleUp {
-  from {
-    opacity: 0;
-    transform: scale(0.94) translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
+  .Shop-deleteActions button {
+    width: 100%;
   }
 }

@@ -12,6 +12,7 @@ import {
 const menuItems = [
   { id: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: <LuLayoutDashboard /> },
   { id: 'books', label: 'Books', path: '/books', icon: <LuBook /> },
+  { id: 'shop', label: 'Shop', path: '/shop', icon: <LuShoppingCart /> },
   { id: 'categories', label: 'Categories', path: '/categories', icon: <LuFolder /> },
   { id: 'orders', label: 'Orders', path: '/orders', icon: <LuShoppingCart /> },
   { id: 'gallery', label: 'Gallery', path: '/gallery', icon: <LuGalleryHorizontal/> },

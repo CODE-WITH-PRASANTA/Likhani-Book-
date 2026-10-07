@@ -12,6 +12,7 @@ import Users from './Components/Users/Users';
 import Reviews from './Components/Reviews/Reviews';
 import Coupons from './Components/Coupons/Coupons';
 import Supports from './Components/Supports/Supports';
+import Shop from './Components/Shop/Shop';
 
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="reviews" element={<Reviews/>} />
           <Route path="coupons" element={<Coupons/>} />
           <Route path="supports" element={<Supports/>} />
+          <Route path="shop" element={<Shop/>} />
 
         
         </Route>
