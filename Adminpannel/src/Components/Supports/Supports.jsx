@@ -2,11 +2,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import "./Supports.css";
 
-const API_ENDPOINT = "/api/supports";
+// Direct backend endpoint with fallback to port 5000
+const API_ENDPOINT =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/supports";
 
 const Supports = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Filters
   const [search, setSearch] = useState("");
@@ -39,12 +42,20 @@ const Supports = () => {
   const fetchMessages = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(API_ENDPOINT);
-      if (res.data.success) {
+      setErrorMessage("");
+      const res = await axios.get(API_ENDPOINT, {
+        withCredentials: true,
+      });
+
+      if (res.data && res.data.success) {
         setMessages(res.data.data);
       }
     } catch (err) {
-      console.error("Failed to fetch messages:", err);
+      console.error("Failed to fetch support tickets:", err);
+      setErrorMessage(
+        err.response?.data?.message ||
+          "Could not connect to backend at port 5000. Please ensure the server is running."
+      );
     } finally {
       setLoading(false);
     }
@@ -59,7 +70,7 @@ const Supports = () => {
   ========================= */
   const filteredMessages = useMemo(() => {
     return messages.filter((item) => {
-      const searchText = `${item.name} ${item.mobile} ${item.email} ${item.message}`.toLowerCase();
+      const searchText = `${item.name || ""} ${item.mobile || ""} ${item.email || ""} ${item.message || ""}`.toLowerCase();
 
       const matchesSearch =
         !appliedSearch || searchText.includes(appliedSearch.toLowerCase());
@@ -146,11 +157,11 @@ const Supports = () => {
   const handleEdit = (item) => {
     setSelectedMessage(item);
     setEditForm({
-      name: item.name,
-      mobile: item.mobile,
-      email: item.email,
-      message: item.message,
-      status: item.status,
+      name: item.name || "",
+      mobile: item.mobile || "",
+      email: item.email || "",
+      message: item.message || "",
+      status: item.status || "New",
     });
     setModalType("edit");
   };
@@ -165,10 +176,16 @@ const Supports = () => {
     if (!editForm.name.trim() || !selectedMessage) return;
 
     try {
-      const res = await axios.put(`${API_ENDPOINT}/${selectedMessage._id}`, editForm);
-      if (res.data.success) {
+      const res = await axios.put(
+        `${API_ENDPOINT}/${selectedMessage._id}`,
+        editForm,
+        { withCredentials: true }
+      );
+      if (res.data && res.data.success) {
         setMessages((prev) =>
-          prev.map((msg) => (msg._id === selectedMessage._id ? res.data.data : msg))
+          prev.map((msg) =>
+            msg._id === selectedMessage._id ? res.data.data : msg
+          )
         );
         closeModal();
       }
@@ -189,10 +206,17 @@ const Supports = () => {
     if (!selectedMessage) return;
 
     try {
-      const res = await axios.delete(`${API_ENDPOINT}/${selectedMessage._id}`);
-      if (res.data.success) {
-        setMessages((prev) => prev.filter((item) => item._id !== selectedMessage._id));
-        setSelectedIds((prev) => prev.filter((id) => id !== selectedMessage._id));
+      const res = await axios.delete(
+        `${API_ENDPOINT}/${selectedMessage._id}`,
+        { withCredentials: true }
+      );
+      if (res.data && res.data.success) {
+        setMessages((prev) =>
+          prev.filter((item) => item._id !== selectedMessage._id)
+        );
+        setSelectedIds((prev) =>
+          prev.filter((id) => id !== selectedMessage._id)
+        );
         closeModal();
       }
     } catch (err) {
@@ -207,9 +231,15 @@ const Supports = () => {
     if (!selectedIds.length) return;
 
     try {
-      const res = await axios.post(`${API_ENDPOINT}/bulk-delete`, { ids: selectedIds });
-      if (res.data.success) {
-        setMessages((prev) => prev.filter((item) => !selectedIds.includes(item._id)));
+      const res = await axios.post(
+        `${API_ENDPOINT}/bulk-delete`,
+        { ids: selectedIds },
+        { withCredentials: true }
+      );
+      if (res.data && res.data.success) {
+        setMessages((prev) =>
+          prev.filter((item) => !selectedIds.includes(item._id))
+        );
         setSelectedIds([]);
       }
     } catch (err) {
@@ -234,15 +264,23 @@ const Supports = () => {
 
   return (
     <div className="Supports">
-      {/* HEADER */}
-      <div className="Supports-header">
-        <div className="Supports-headerContent">
-          <h1 className="Supports-title">Support Messages</h1>
-          <p className="Supports-subtitle">
-            Manage all support inquiries, messages, and responses.
-          </p>
+
+      {errorMessage && (
+        <div
+          style={{
+            padding: "12px 16px",
+            marginBottom: "16px",
+            borderRadius: "8px",
+            backgroundColor: "#fef2f2",
+            border: "1px solid #fecaca",
+            color: "#b91c1c",
+            fontSize: "13px",
+            fontWeight: "500",
+          }}
+        >
+          {errorMessage}
         </div>
-      </div>
+      )}
 
       {/* STAT CARDS */}
       <div className="Supports-stats">
@@ -436,8 +474,8 @@ const Supports = () => {
                       </div>
                     </td>
                     <td>
-                      <span className={`Supports-status Supports-status-${item.status.toLowerCase()}`}>
-                        {item.status}
+                      <span className={`Supports-status Supports-status-${(item.status || "new").toLowerCase()}`}>
+                        {item.status || "New"}
                       </span>
                     </td>
                     <td>
@@ -564,14 +602,14 @@ const Supports = () => {
 
             <div className="Supports-viewProfile">
               <div className="Supports-profileAvatar">
-                {selectedMessage.name.charAt(0).toUpperCase()}
+                {selectedMessage.name?.charAt(0).toUpperCase() || "U"}
               </div>
               <div>
                 <h3>{selectedMessage.name}</h3>
                 <p>{selectedMessage.email}</p>
               </div>
-              <span className={`Supports-status Supports-status-${selectedMessage.status.toLowerCase()}`}>
-                {selectedMessage.status}
+              <span className={`Supports-status Supports-status-${(selectedMessage.status || "new").toLowerCase()}`}>
+                {selectedMessage.status || "New"}
               </span>
             </div>
 

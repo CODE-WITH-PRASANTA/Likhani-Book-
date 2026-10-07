@@ -13,6 +13,8 @@ import Reviews from './Components/Reviews/Reviews';
 import Coupons from './Components/Coupons/Coupons';
 import Supports from './Components/Supports/Supports';
 import Shop from './Components/Shop/Shop';
+import BlogManagement from './Components/BlogManagement/BlogManagement';
+import BlogPosting from './Components/BlogPosting/BlogPosting';
 
 
 const App = () => {
@@ -37,6 +39,8 @@ const App = () => {
           <Route path="coupons" element={<Coupons/>} />
           <Route path="supports" element={<Supports/>} />
           <Route path="shop" element={<Shop/>} />
+          <Route path="blogs/management" element={<BlogManagement/>} />
+          <Route path="blogs/create" element={<BlogPosting/>} />
 
         
         </Route>

@@ -71,8 +71,8 @@ const Footer = () => {
               </span>
 
               <h4 className="footer-contact-value">
-                <a href="tel:+2085550112">
-                  +208-555-0112
+                <a href="tel:+9692075298">
+                  +91 9692075298
                 </a>
               </h4>
             </div>
@@ -126,7 +126,8 @@ const Footer = () => {
               </span>
 
               <h4 className="footer-contact-value">
-                4517 Washington Ave.
+                Srikoruan Near Indoor Stadium, Gopalpur, Katak 
+, Odisha.
               </h4>
             </div>
           </div>

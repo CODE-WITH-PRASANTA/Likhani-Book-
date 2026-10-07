@@ -3,9 +3,12 @@ import {
   FaPhoneAlt,
   FaEnvelope,
   FaMapMarkerAlt,
+  FaUserAlt,
   FaPlay,
   FaArrowRight,
 } from 'react-icons/fa'
+import Swal from 'sweetalert2'
+import API from '../../api/axios'
 import './ContactUsCard.css'
 
 // Image imported directly from assets folder as webp format
@@ -17,7 +20,7 @@ const ContactUsCard = () => {
     email: '',
     message: '',
   })
-
+  const [loading, setLoading] = useState(false)
   const [isVideoOpen, setIsVideoOpen] = useState(false)
 
   const handleInputChange = (e) => {
@@ -28,14 +31,58 @@ const ContactUsCard = () => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      alert('Please fill in all required fields.')
+
+    const name = formData.name.trim()
+    const email = formData.email.trim()
+    const message = formData.message.trim()
+
+    if (!name || !email || !message) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Fields',
+        text: 'Please fill in all required fields.',
+      })
       return
     }
-    alert(`Thank you, ${formData.name}! Your message has been sent.`)
-    setFormData({ name: '', email: '', message: '' })
+
+    try {
+      setLoading(true)
+
+      // Post enquiry directly to the backend endpoint
+      await API.post('/enquiries', {
+        name,
+        email,
+        message,
+        type: 'General Enquiry',
+        subject: 'Website Contact Us Form',
+        phone: '+91 9692075298',
+        address: 'Srikoruan, Near Indoor Stadium, Gopalpur, Cuttack, Odisha - 753011',
+      })
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Message Sent!',
+        text: `Thank you, ${name}! Your enquiry has been received and our team will get back to you shortly.`,
+        timer: 2500,
+        showConfirmButton: false,
+      })
+
+      // Reset form on success
+      setFormData({ name: '', email: '', message: '' })
+    } catch (error) {
+      console.error('SUBMIT ENQUIRY ERROR:', error)
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text:
+          error?.response?.data?.message ||
+          'Something went wrong while sending your enquiry. Please try again.',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const toggleVideoModal = () => {
@@ -50,14 +97,32 @@ const ContactUsCard = () => {
           {/* Left Card - Info & Support Image */}
           <div className="ContactUsCard-info-card">
             <div className="ContactUsCard-info-list">
+              {/* Contact Person Block */}
+              <div className="ContactUsCard-info-item">
+                <div className="ContactUsCard-icon-wrapper">
+                  <FaUserAlt className="ContactUsCard-icon" />
+                </div>
+                <div className="ContactUsCard-info-text">
+                  <span>Contact Person</span>
+                  <h4>Nitish Shaw</h4>
+                </div>
+              </div>
+
               {/* Phone Block */}
               <div className="ContactUsCard-info-item">
                 <div className="ContactUsCard-icon-wrapper">
                   <FaPhoneAlt className="ContactUsCard-icon" />
                 </div>
                 <div className="ContactUsCard-info-text">
-                  <span>Call Us 7/24</span>
-                  <h4>+208-555-0112</h4>
+                  <span>Call Us 24/7</span>
+                  <h4>
+                    <a
+                      href="tel:+919692075298"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      +91 9692075298
+                    </a>
+                  </h4>
                 </div>
               </div>
 
@@ -68,7 +133,14 @@ const ContactUsCard = () => {
                 </div>
                 <div className="ContactUsCard-info-text">
                   <span>Make a Quote</span>
-                  <h4>example@gmail.com</h4>
+                  <h4>
+                    <a
+                      href="mailto:example@gmail.com"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      example@gmail.com
+                    </a>
+                  </h4>
                 </div>
               </div>
 
@@ -79,7 +151,7 @@ const ContactUsCard = () => {
                 </div>
                 <div className="ContactUsCard-info-text">
                   <span>Location</span>
-                  <h4>4517 Washington ave.</h4>
+                  <h4>Srikoruan, Near Indoor Stadium, Gopalpur, Cuttack, Odisha - 753011</h4>
                 </div>
               </div>
             </div>
@@ -90,6 +162,7 @@ const ContactUsCard = () => {
                 src={customerSupportImg}
                 alt="Customer Support Representative"
                 className="ContactUsCard-support-img"
+                loading="lazy"
               />
               <button
                 type="button"
@@ -106,10 +179,7 @@ const ContactUsCard = () => {
           <div className="ContactUsCard-form-container">
             <h2 className="ContactUsCard-heading">Ready To Get Started?</h2>
             <p className="ContactUsCard-description">
-              Nunc tincidunt cursus lectus ac semper. Aenean ullamcorper quis arcu
-              molestie consequat. Interdum et malesuada fames ac ante ipsum primis in
-              faucibus. Ut nec lobortis elit, eu ultrices justo. Fusce auctor erat est,
-              non fringilla nibh tempus quis. Aenean dignissim
+              Have questions or want to discuss a project? Reach out directly or fill out the form below, and we'll get back to you promptly.
             </p>
 
             <form onSubmit={handleSubmit} className="ContactUsCard-form">
@@ -124,6 +194,7 @@ const ContactUsCard = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
+                    disabled={loading}
                   />
                 </div>
 
@@ -137,6 +208,7 @@ const ContactUsCard = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -151,11 +223,17 @@ const ContactUsCard = () => {
                   value={formData.message}
                   onChange={handleInputChange}
                   required
+                  disabled={loading}
                 ></textarea>
               </div>
 
-              <button type="submit" className="ContactUsCard-submit-btn">
-                Send Message <FaArrowRight className="ContactUsCard-arrow-icon" />
+              <button
+                type="submit"
+                className="ContactUsCard-submit-btn"
+                disabled={loading}
+              >
+                {loading ? 'Sending...' : 'Send Message'}{' '}
+                <FaArrowRight className="ContactUsCard-arrow-icon" />
               </button>
             </form>
           </div>
@@ -165,7 +243,7 @@ const ContactUsCard = () => {
         <div className="ContactUsCard-map-container">
           <iframe
             title="Location Map"
-            src="https://maps.google.com/maps?q=Level%2013/2%20Elizabeth%20St,%20Melbourne%20VIC%203000,%20Australia&t=&z=14&ie=UTF8&iwloc=&output=embed"
+            src="https://maps.google.com/maps?q=Indoor%20Stadium%2C%20Gopalpur%2C%20Cuttack%2C%20Odisha%20753011&t=&z=15&ie=UTF8&iwloc=&output=embed"
             className="ContactUsCard-map-iframe"
             allowFullScreen=""
             loading="lazy"
@@ -177,8 +255,14 @@ const ContactUsCard = () => {
       {/* Video Modal Popup */}
       {isVideoOpen && (
         <div className="ContactUsCard-modal-overlay" onClick={toggleVideoModal}>
-          <div className="ContactUsCard-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="ContactUsCard-modal-close" onClick={toggleVideoModal}>
+          <div
+            className="ContactUsCard-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="ContactUsCard-modal-close"
+              onClick={toggleVideoModal}
+            >
               &times;
             </button>
             <div className="ContactUsCard-video-wrapper">

@@ -61,6 +61,7 @@
   margin: 0;
   text-overflow: ellipsis;
   overflow: hidden;
+  font-weight: 700;
 }
 
 .brand-info span {
@@ -135,6 +136,7 @@
   transition: all 0.2s ease;
   white-space: nowrap;
   box-sizing: border-box;
+  text-align: left;
 }
 
 .sidebar.collapsed .nav-link {
@@ -164,6 +166,87 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  flex: 1;
+}
+
+/* ==========================================
+   DROPDOWN & SUBMENU STYLES (BLOGS)
+   ========================================== */
+.nav-dropdown-item {
+  position: relative;
+}
+
+.nav-dropdown-btn {
+  outline: none;
+}
+
+.dropdown-arrow {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  color: #5e6278;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+  color: #3699ff;
+}
+
+.nav-dropdown-btn:hover .dropdown-arrow {
+  color: #ffffff;
+}
+
+.nav-submenu-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #181824;
+}
+
+.nav-submenu-wrapper.expanded {
+  max-height: 160px;
+}
+
+.nav-submenu {
+  list-style: none;
+  padding: 0.4rem 0 0.4rem 2.8rem;
+  margin: 0;
+  border-left: 2px solid rgba(255, 255, 255, 0.05);
+  margin-left: 1.8rem;
+}
+
+.nav-sub-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  color: #92929f;
+  font-size: 0.88rem;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav-sub-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.nav-sub-link.sub-active {
+  color: #3699ff;
+  font-weight: 600;
+  background-color: rgba(54, 153, 255, 0.12);
+}
+
+.nav-sub-icon {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.nav-sub-label {
+  white-space: nowrap;
 }
 
 /* Footer Section */
@@ -202,7 +285,6 @@
    RESPONSIVE DESIGN (TABLET & MOBILE)
    ========================================== */
 @media screen and (max-width: 768px) {
-  /* Floating Toggle Button on Mobile */
   .mobile-toggle-btn {
     display: flex;
     align-items: center;
@@ -226,7 +308,6 @@
     display: block;
   }
 
-  /* Slide-out Mobile Drawer */
   .sidebar {
     position: fixed;
     top: 0;
@@ -252,7 +333,6 @@
     padding: 0.85rem 1.5rem;
   }
 
-  /* Dark Overlay / Backdrop */
   .sidebar-overlay {
     position: fixed;
     top: 0;

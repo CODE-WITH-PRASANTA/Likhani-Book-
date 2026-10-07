@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./FloatingSupport.css";
 
-// Direct backend URL with fallback
+// Backend support API
 const API_ENDPOINT =
   import.meta.env.VITE_API_URL || "http://localhost:5000/api/supports";
 

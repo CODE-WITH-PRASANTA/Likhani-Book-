@@ -32,37 +32,6 @@
   box-sizing: border-box;
 }
 
-/* =========================================================
-   HEADER
-========================================================= */
-
-.Supports-header {
-  width: 100%;
-  margin-bottom: 22px;
-}
-
-.Supports-headerContent {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.Supports-title {
-  margin: 0;
-  font-size: 27px;
-  line-height: 1.25;
-  font-weight: 750;
-  letter-spacing: -0.6px;
-  color: #162846;
-}
-
-.Supports-subtitle {
-  margin: 0;
-  color: #687993;
-  font-size: 14px;
-  line-height: 1.5;
-  font-weight: 450;
-}
 
 /* =========================================================
    STATISTICS
