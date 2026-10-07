@@ -1,0 +1,271 @@
+/* ==========================================================================
+   TopBook — 4D Premium Modern UI Styles
+   ========================================================================== */
+
+.top-book {
+  --tb-bg: #e4ecee;
+  --tb-frame: #0a3b49;
+  --tb-ink: #1a2f35;
+  --tb-ink-muted: #5c6f75;
+  --tb-accent: #0f4c5c;
+  --tb-white: #ffffff;
+  --tb-gold: #b6893d;
+
+  width: 100%;
+  background: var(--tb-bg);
+  padding: 4rem 1.5rem;
+  box-sizing: border-box;
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+}
+
+.top-book__wrapper {
+  max-width: 1320px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.top-book__border-frame {
+  position: relative;
+  border: 2px solid var(--tb-frame);
+  border-radius: 28px;
+  padding: 3.5rem 2rem 2.5rem 2rem;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 50px rgba(10, 59, 73, 0.08);
+}
+
+/* ---------- Header Badge ---------- */
+
+.top-book__header-badge {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tb-bg);
+  padding: 0 1.75rem;
+}
+
+.top-book__heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  font-weight: 700;
+  color: var(--tb-frame);
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* ---------- Navigation Arrows ---------- */
+
+.top-book__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--tb-frame);
+  color: var(--tb-white);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 8px 20px rgba(10, 59, 73, 0.3);
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.top-book__arrow:hover {
+  background: var(--tb-gold);
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 12px 25px rgba(182, 137, 61, 0.4);
+}
+
+.top-book__arrow--left {
+  left: -24px;
+}
+
+.top-book__arrow--right {
+  right: -24px;
+}
+
+/* ---------- Carousel Track ---------- */
+
+.top-book__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(20% - 19.2px);
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 1rem 0;
+}
+
+.top-book__track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Category Item Card ---------- */
+
+.top-book__item {
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  group: true;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.top-book__item:hover {
+  transform: translateY(-6px);
+}
+
+/* ---------- Animated Dashed Circle Box ---------- */
+
+.top-book__circle-box {
+  position: relative;
+  width: 175px;
+  height: 175px;
+  border-radius: 50%;
+  background: var(--tb-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 15px 35px rgba(10, 59, 73, 0.1);
+  border: 2px dashed rgba(15, 76, 92, 0.35);
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.top-book__item:hover .top-book__circle-box,
+.top-book__item--active .top-book__circle-box {
+  border-color: var(--tb-gold);
+  box-shadow: 0 20px 45px rgba(182, 137, 61, 0.25);
+  animation: tbSpinDashes 20s linear infinite;
+}
+
+@keyframes tbSpinDashes {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Number Pill Badge ---------- */
+
+.top-book__badge-num {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  background: var(--tb-frame);
+  color: var(--tb-white);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  z-index: 4;
+  box-shadow: 0 4px 10px rgba(10, 59, 73, 0.3);
+  transition: background 0.3s ease;
+}
+
+.top-book__item:hover .top-book__badge-num,
+.top-book__item--active .top-book__badge-num {
+  background: var(--tb-gold);
+}
+
+/* ---------- Inner Image Wrapper ---------- */
+
+.top-book__image-wrap {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  background: #f0f4f5;
+}
+
+.top-book__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.top-book__item:hover .top-book__img {
+  transform: scale(1.12);
+}
+
+/* ---------- Title & Count ---------- */
+
+.top-book__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--tb-ink);
+  margin-top: 1.15rem;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.top-book__item:hover .top-book__title,
+.top-book__item--active .top-book__title {
+  color: var(--tb-gold);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+
+@media (max-width: 1180px) {
+  .top-book__track {
+    grid-auto-columns: calc(33.333% - 16px);
+  }
+}
+
+@media (max-width: 860px) {
+  .top-book__border-frame {
+    padding: 3rem 1rem 2rem 1rem;
+  }
+
+  .top-book__track {
+    grid-auto-columns: calc(50% - 12px);
+  }
+
+  .top-book__arrow--left {
+    left: -10px;
+  }
+
+  .top-book__arrow--right {
+    right: -10px;
+  }
+}
+
+@media (max-width: 540px) {
+  .top-book__track {
+    grid-auto-columns: 100%;
+  }
+
+  .top-book__circle-box {
+    width: 160px;
+    height: 160px;
+  }
+
+  .top-book__image-wrap {
+    width: 118px;
+    height: 118px;
+  }
+
+  .top-book__arrow {
+    width: 38px;
+    height: 38px;
+  }
+
+  .top-book__arrow--left {
+    left: -5px;
+  }
+
+  .top-book__arrow--right {
+    right: -5px;
+  }
+}

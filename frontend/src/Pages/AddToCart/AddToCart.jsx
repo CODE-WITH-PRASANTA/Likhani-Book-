@@ -1,6 +1,6 @@
 import React from 'react'
-import AddToCartBreadcrumb from '../../Component/AddToCartBreadcrumb/AddToCartBreadcrumb'
-import AddToCartMain from '../../Component/AddToCartMain/AddToCartMain'
+import AddToCartBreadcrumb from '../../Components/AddToCartBreadcrumb/AddToCartBreadcrumb'
+import AddToCartMain from '../../Components/AddToCartMain/AddToCartMain'
 
 const AddToCart = () => {
   return (

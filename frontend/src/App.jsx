@@ -5,18 +5,23 @@ import {
   Route,
 } from "react-router-dom";
 
-import Topbar from "./Component/Topbar/Topbar";
-import Navbar from "./Component/Navbar/Navbar";
-import Footer from "./Component/Footer/Footer";
+import Topbar from "./Components/Topbar/Topbar";
+import Navbar from "./Components/Navbar/Navbar";
+import Footer from "./Components/Footer/Footer";
 
-import CartPage from "./Component/CartPage/CartPage";
+import CartPage from "./Components/CartPage/CartPage";
 import ContactUs from "./Pages/ContactUs/ContactUs";
 import Faq from "./Pages/Faq/Faq";
+import Home from "./Pages/Home/Home";
 import Blog from "./Pages/Blog/Blog";
 import Shopdeatils from "./Pages/Shopdeatils/Shopdeatils";
 import Aboutus from "./Pages/Aboutus/Aboutus";
 import Wishlist from "./Pages/Wishlist/Wishlist";
 import AddToCart from "./Pages/AddToCart/AddToCart";
+import BlogDetails from "./Pages/BlogDetails/BlogDetails";
+import FloatingIcons from "./Components/FloatingIcons/FloatingIcons";
+import FloatingSupport from "./Components/FloatingSupport/FloatingSupport";
+import FloatingForm from "./Components/FloatingForm/FloatingForm";
 
 const SimplePage = ({ title }) => {
   return (
@@ -42,6 +47,11 @@ const App = () => {
       <Navbar />
 
       <Routes>
+       <Route path="/blog" element={<Blog/>}/>
+        <Route path="/blogdetails" element={<BlogDetails/>}/>
+        <Route path="/contactus" element={<ContactUs/>}/>
+        <Route path="/faq" element={<Faq/>}/>
+        <Route path="/"element={<Home/>}/>
         {/* Home */}
         <Route
           path="/"
@@ -90,6 +100,16 @@ const App = () => {
           element={<AddToCart />}
         />
 
+        <Route
+          path="/cart-page"
+          element={<CartPage/>}
+        />
+
+        <Route
+          path="/BlogDetails"
+          element={<BlogDetails />}
+        />
+
         {/* Signup */}
         <Route
           path="/signup"
@@ -103,7 +123,14 @@ const App = () => {
         />
       </Routes>
 
+           <FloatingForm/>
+
       <Footer />
+
+          <FloatingIcons/>
+
+         <FloatingSupport/>
+
     </BrowserRouter>
   );
 };

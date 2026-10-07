@@ -4,7 +4,9 @@ import './Sidebar.css';
 import {
   LuLayoutDashboard, LuBook, LuFolder, LuShoppingCart,
   LuUsers, LuMessageSquare, LuTag, LuStar,
-  LuSettings, LuBookOpen, LuMessageCircle, LuX, LuMenu
+  LuSettings, LuBookOpen, LuMessageCircle, LuX, LuMenu,
+  LuGalleryHorizontal,
+  LuGalleryThumbnails
 } from 'react-icons/lu';
 
 const menuItems = [
@@ -12,8 +14,10 @@ const menuItems = [
   { id: 'books', label: 'Books', path: '/books', icon: <LuBook /> },
   { id: 'categories', label: 'Categories', path: '/categories', icon: <LuFolder /> },
   { id: 'orders', label: 'Orders', path: '/orders', icon: <LuShoppingCart /> },
+  { id: 'gallery', label: 'Gallery', path: '/gallery', icon: <LuGalleryHorizontal/> },
   { id: 'users', label: 'Users', path: '/users', icon: <LuUsers /> },
   { id: 'enquiries', label: 'Enquiries', path: '/enquiries', icon: <LuMessageSquare /> },
+  { id: 'supports', label: 'Supports', path: '/supports', icon: <LuMessageCircle /> },
   { id: 'coupons', label: 'Coupons', path: '/coupons', icon: <LuTag /> },
   { id: 'reviews', label: 'Reviews', path: '/reviews', icon: <LuStar /> },
   { id: 'testimonials', label: 'Testimonials', path: '/testimonial', icon: <LuMessageCircle /> },

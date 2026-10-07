@@ -1,0 +1,407 @@
+/* ==========================================================================
+   RatingBook — Premium Modern UI Styles & Mobile Pagination Extensions
+   ========================================================================== */
+
+.rating-book {
+  --rb-bg: #f8fafc;
+  --rb-white: #ffffff;
+  --rb-dark: #0f172a;
+  --rb-muted: #64748b;
+  --rb-primary: #0a3b49;
+  --rb-primary-hover: #14657a;
+  --rb-accent: #ff6b35;
+  --rb-gold: #fbbf24;
+  --rb-border: #e2e8f0;
+  --rb-radius: 20px;
+
+  width: 100%;
+  background: var(--rb-bg);
+  padding: 4rem 1.5rem;
+  box-sizing: border-box;
+  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  color: var(--rb-dark);
+}
+
+.rating-book__wrapper {
+  max-width: 1320px;
+  margin: 0 auto;
+  background: var(--rb-white);
+  border-radius: var(--rb-radius);
+  border: 1px solid var(--rb-border);
+  padding: 2.5rem clamp(1.25rem, 3vw, 2.5rem);
+  box-shadow: 0 20px 45px rgba(10, 59, 73, 0.05);
+}
+
+/* Header & View More Button */
+.rating-book__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.rating-book__heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+  font-weight: 700;
+  color: var(--rb-dark);
+  margin: 0;
+}
+
+.rating-book__view-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--rb-white);
+  border: 1.5px solid var(--rb-border);
+  color: var(--rb-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.35rem;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rating-book__view-more-btn:hover {
+  background: var(--rb-primary);
+  color: var(--rb-white);
+  border-color: var(--rb-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(10, 59, 73, 0.2);
+}
+
+.rating-book__arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+.rating-book__view-more-btn:hover .rating-book__arrow-icon {
+  transform: translateX(4px);
+}
+
+/* Grid Layout (Desktop: 2 columns showing all 6 items) */
+.rating-book__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+/* Single Card */
+.rating-book__card {
+  background: var(--rb-white);
+  border-radius: 16px;
+  border: 1px solid var(--rb-border);
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 1.25rem;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease;
+}
+
+.rating-book__card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(10, 59, 73, 0.08);
+  border-color: rgba(10, 59, 73, 0.2);
+}
+
+/* Thumbnail & Actions */
+.rating-book__media {
+  position: relative;
+  width: 130px;
+  height: 155px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-book__img-frame {
+  width: 100%;
+  height: 100%;
+}
+
+.rating-book__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rating-book__card:hover .rating-book__img {
+  transform: scale(1.08);
+}
+
+.rating-book__quick-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  z-index: 3;
+}
+
+.rating-book__quick-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--rb-dark);
+  font-size: 0.75rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.rating-book__card:hover .rating-book__quick-btn {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.rating-book__quick-btn:nth-child(1) { transition-delay: 0.05s; }
+.rating-book__quick-btn:nth-child(2) { transition-delay: 0.1s; }
+.rating-book__quick-btn:nth-child(3) { transition-delay: 0.15s; }
+
+.rating-book__quick-btn:hover,
+.rating-book__quick-btn--active {
+  background: var(--rb-primary);
+  color: #fff;
+}
+
+/* Content Information */
+.rating-book__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.rating-book__genre {
+  font-size: 0.75rem;
+  color: var(--rb-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+
+.rating-book__title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--rb-dark);
+  margin: 0 0 0.35rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rating-book__price-row {
+  margin-bottom: 0.5rem;
+}
+
+.rating-book__price {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #0284c7;
+}
+
+.rating-book__author-rating {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  gap: 0.5rem;
+}
+
+.rating-book__author-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.rating-book__avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--rb-primary);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rating-book__author-name {
+  font-size: 0.78rem;
+  color: var(--rb-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rating-book__stars {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.rating-book__star {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.rating-book__star--active {
+  color: var(--rb-gold);
+}
+
+.rating-book__cart-btn {
+  width: 100%;
+  background: #e0f2fe;
+  color: #0369a1;
+  border: none;
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.3s ease;
+}
+
+.rating-book__cart-btn:hover {
+  background: var(--rb-primary);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.rating-book__cart-btn--added {
+  background: #10b981 !important;
+  color: #fff !important;
+}
+
+/* Mobile Pagination Controls */
+.rating-book__mobile-nav {
+  display: none;
+}
+
+/* ==========================================================
+   Responsive Breakpoints & Mobile 1-by-1 Pagination View
+   ========================================================== */
+
+@media (max-width: 1024px) {
+  .rating-book__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .rating-book__grid {
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Hide all cards by default on mobile, show only the current active one */
+  .rating-book__card {
+    display: none;
+    width: 100%;
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 1.5rem;
+    animation: fadeInScale 0.4s ease forwards;
+  }
+
+  .rating-book__card.rating-book__card--active-mobile {
+    display: grid;
+  }
+
+  .rating-book__media {
+    margin: 0 auto;
+    width: 150px;
+    height: 180px;
+  }
+
+  .rating-book__author-rating {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  /* Pagination Bar layout for Mobile */
+  .rating-book__mobile-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .rating-book__nav-arrow {
+    background: var(--rb-white);
+    border: 1px solid var(--rb-border);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--rb-dark);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+  }
+
+  .rating-book__nav-arrow:hover {
+    background: var(--rb-primary);
+    color: #fff;
+    border-color: var(--rb-primary);
+  }
+
+  .rating-book__dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .rating-book__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: #cbd5e1;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .rating-book__dot--active {
+    width: 24px;
+    background: var(--rb-primary);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

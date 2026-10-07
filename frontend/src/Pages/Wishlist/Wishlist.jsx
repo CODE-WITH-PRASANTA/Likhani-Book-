@@ -1,6 +1,6 @@
 import React from 'react'
-import WishlistBreadcrumb from '../../Component/WishlistBreadcrumb/WishlistBreadcrumb'
-import WishlistMain from '../../Component/WishlistMain/WishlistMain'
+import WishlistBreadcrumb from '../../Components/WishlistBreadcrumb/WishlistBreadcrumb'
+import WishlistMain from '../../Components/WishlistMain/WishlistMain'
 
 const Wishlist = () => {
   return (

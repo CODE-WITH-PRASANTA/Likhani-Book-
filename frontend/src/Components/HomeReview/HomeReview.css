@@ -1,0 +1,324 @@
+/* ==========================================================================
+   HomeReview — Premium 4D Modern UI & CSS Architecture
+   ========================================================================== */
+
+.home-review {
+  --hr-bg: #f8fafc;
+  --hr-white: #ffffff;
+  --hr-dark: #0f172a;
+  --hr-muted: #64748b;
+  --hr-primary: #0a3b49;
+  --hr-primary-hover: #14657a;
+  --hr-accent: #ff6b35;
+  --hr-gold: #fbbf24;
+  --hr-border: #e2e8f0;
+  --hr-radius: 20px;
+
+  width: 100%;
+  background: var(--hr-bg);
+  padding: 1.5rem 1.5rem 4rem 1.5rem;
+  box-sizing: border-box;
+  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  color: var(--hr-dark);
+}
+
+.home-review__wrapper {
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* ---------- Header & Navigation ---------- */
+
+.home-review__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  gap: 1rem;
+}
+
+.home-review__title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.home-review__subtitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--hr-accent);
+}
+
+.home-review__heading {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+  font-weight: 700;
+  color: var(--hr-dark);
+  margin: 0;
+}
+
+.home-review__nav-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.home-review__nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--hr-border);
+  background: var(--hr-white);
+  color: var(--hr-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-review__nav-btn:hover {
+  background: var(--hr-primary);
+  color: var(--hr-white);
+  border-color: var(--hr-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(10, 59, 73, 0.25);
+}
+
+/* ---------- Carousel Track Container & Tight Seamless Flow ---------- */
+
+.home-review__carousel-container {
+  width: 100%;
+  overflow: hidden;
+  padding: 0.5rem 0 1.5rem 0;
+}
+
+.home-review__track {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0; 
+  width: max-content;
+  overflow-x: visible;
+  scroll-snap-type: none;
+  animation: hrContinuousScroll 38s linear infinite;
+}
+
+.home-review__carousel-container:hover .home-review__track {
+  animation-play-state: paused;
+}
+
+@keyframes hrContinuousScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* Shifts exactly 50% plus half the right margin gap to remove blank trailing space */
+    transform: translateX(calc(-50% - 12px));
+  }
+}
+
+/* ---------- Testimonial Card ---------- */
+
+.home-review__card {
+  scroll-snap-align: start;
+  background: var(--hr-white);
+  border-radius: var(--hr-radius);
+  border: 1px solid var(--hr-border);
+  padding: 2.25rem 2rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  flex: 0 0 380px;
+  box-sizing: border-box;
+  margin-right: 24px;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease;
+}
+
+.home-review__card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 45px rgba(10, 59, 73, 0.08);
+  border-color: rgba(10, 59, 73, 0.15);
+}
+
+.home-review__card--highlight {
+  border-top: 4px solid var(--hr-accent);
+}
+
+.home-review__card-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.home-review__quote-icon {
+  font-size: 2rem;
+  color: rgba(10, 59, 73, 0.1);
+  margin-bottom: 1rem;
+}
+
+.home-review__quote-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--hr-muted);
+  margin: 0 0 2rem 0;
+  flex-grow: 1;
+}
+
+/* Author Info Row */
+
+.home-review__author-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--hr-border);
+  padding-top: 1.25rem;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.home-review__author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.home-review__avatar-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--hr-primary);
+  flex-shrink: 0;
+}
+
+.home-review__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-review__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.home-review__author-name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--hr-dark);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-review__author-role {
+  font-size: 0.78rem;
+  color: var(--hr-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-review__rating {
+  display: inline-flex;
+  gap: 2px;
+  margin-top: 0.2rem;
+}
+
+.home-review__star {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}
+
+.home-review__star--active {
+  color: var(--hr-gold);
+}
+
+.home-review__company-badge {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--hr-primary);
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Pagination Dots ---------- */
+
+.home-review__pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.home-review__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: none;
+  background: var(--hr-muted);
+  opacity: 0.3;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.home-review__dot--active {
+  opacity: 1;
+  background: var(--hr-primary);
+  transform: scale(1.3);
+}
+
+/* ==========================================================
+   Responsive Design Breakpoints
+   ========================================================== */
+
+@media (max-width: 1024px) {
+  .home-review__card {
+    width: 320px;
+    flex: 0 0 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-review__carousel-container {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .home-review__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    width: 100%;
+    animation: none;
+  }
+
+  .home-review__card {
+    width: 100%;
+    flex: unset;
+    margin-right: 0;
+    padding: 1.75rem 1.5rem;
+  }
+
+  .home-review__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .home-review__nav-group {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

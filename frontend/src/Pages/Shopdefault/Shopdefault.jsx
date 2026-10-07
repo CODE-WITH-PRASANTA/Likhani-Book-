@@ -1,6 +1,6 @@
 import React from 'react'
-import DefaultBreadcrumb from '../../Component/DefaultBreadcrumb/DefaultBreadcrumb'
-import Addtocart from '../../Component/Addtocart/Addtocart'
+import DefaultBreadcrumb from '../../Components/DefaultBreadcrumb/DefaultBreadcrumb'
+import Addtocart from '../../Components/Addtocart/Addtocart'
 
 
 const Shopdefault = () => {
