@@ -14,7 +14,6 @@ import ContactUs from "./Pages/ContactUs/ContactUs";
 import Faq from "./Pages/Faq/Faq";
 import Home from "./Pages/Home/Home";
 import Blog from "./Pages/Blog/Blog";
-import Shopdeatils from "./Pages/Shopdeatils/Shopdeatils";
 import Aboutus from "./Pages/Aboutus/Aboutus";
 import Wishlist from "./Pages/Wishlist/Wishlist";
 import AddToCart from "./Pages/AddToCart/AddToCart";
@@ -22,6 +21,8 @@ import BlogDetails from "./Pages/BlogDetails/BlogDetails";
 import FloatingIcons from "./Components/FloatingIcons/FloatingIcons";
 import FloatingSupport from "./Components/FloatingSupport/FloatingSupport";
 import FloatingForm from "./Components/FloatingForm/FloatingForm";
+import Shop from "./Pages/Shop/Shop";
+import SignUp from "./Components/SignUp/SignUp";
 
 const SimplePage = ({ title }) => {
   return (
@@ -67,7 +68,7 @@ const App = () => {
         {/* Shop */}
         <Route
           path="/shop"
-          element={<Shopdeatils />}
+          element={<Shop />}
         />
 
         {/* Blog */}
@@ -110,10 +111,11 @@ const App = () => {
           element={<BlogDetails />}
         />
 
+    
         {/* Signup */}
         <Route
           path="/signup"
-          element={<SimplePage title="Sign Up Page" />}
+          element={<SignUp/>}
         />
 
         {/* 404 */}

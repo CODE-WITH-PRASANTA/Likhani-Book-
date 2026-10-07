@@ -114,7 +114,7 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
   const hasMultiplePages = totalPages > 1;
 
   /* ----------------------------------------------------------------
-     Cart feedback — guarded so a rapid double-click can't double fire.
+      Cart feedback — guarded so a rapid double-click can't double fire.
   ---------------------------------------------------------------- */
   const handleAddToCart = (book) => {
     if (addedMap[book.id]) return;
@@ -126,7 +126,7 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
   };
 
   /* ----------------------------------------------------------------
-     Keep itemsPerView (and totalPages) in sync with the viewport.
+      Keep itemsPerView (and totalPages) in sync with the viewport.
   ---------------------------------------------------------------- */
   useEffect(() => {
     const handleResize = () => setItemsPerView(getItemsPerView(window.innerWidth));
@@ -150,8 +150,8 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
   const handleNext = () => goToPage(currentPage + 1);
 
   /* ----------------------------------------------------------------
-     Scroll the track by its own width per page — this stays correct
-     at every breakpoint instead of a fixed, once-measured card width.
+      Scroll the track by its own width per page — this stays correct
+      at every breakpoint instead of a fixed, once-measured card width.
   ---------------------------------------------------------------- */
   useEffect(() => {
     const track = trackRef.current;
@@ -165,8 +165,8 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
   }, [currentPage]);
 
   /* ----------------------------------------------------------------
-     Manual drag/swipe/scroll gets read back into currentPage so the
-     dots and arrows never fall out of sync with what's on screen.
+      Manual drag/swipe/scroll gets read back into currentPage so the
+      dots and arrows never fall out of sync with what's on screen.
   ---------------------------------------------------------------- */
   const handleScroll = () => {
     if (isSyncingScroll.current) return;
@@ -300,11 +300,11 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
 
                     <div className="top-selling__price-row">
                       <span className="top-selling__current-price">
-                        ${book.price.toFixed(2)}
+                        ₹{book.price.toFixed(2)}
                       </span>
                       {book.originalPrice && (
                         <span className="top-selling__original-price">
-                          ${book.originalPrice.toFixed(2)}
+                          ₹{book.originalPrice.toFixed(2)}
                         </span>
                       )}
                       {percentOff !== null && (

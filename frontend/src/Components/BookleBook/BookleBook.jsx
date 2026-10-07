@@ -151,11 +151,11 @@ const BookleBook = () => {
 
                       <div className="bookle-book__price-row">
                         <span className="bookle-book__current-price">
-                          ${product.price.toFixed(2)}
+                          ₹{product.price.toFixed(2)}
                         </span>
                         {product.originalPrice && (
                           <span className="bookle-book__original-price">
-                            ${product.originalPrice.toFixed(2)}
+                            ₹{product.originalPrice.toFixed(2)}
                           </span>
                         )}
                       </div>
