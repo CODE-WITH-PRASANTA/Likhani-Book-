@@ -1,646 +1,1918 @@
-/* Base Layout & Reset */
+/* =========================================================
+   PREMIUM TESTIMONIAL MANAGEMENT
+========================================================= */
+
 .TestimonialManagement {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #1e293b;
-  background-color: #f8fafc;
+  --tm-primary: #2563eb;
+  --tm-primary-dark: #1d4ed8;
+  --tm-text: #0f172a;
+  --tm-muted: #64748b;
+  --tm-border: #e2e8f0;
+  --tm-soft: #f8fafc;
+  --tm-white: #ffffff;
+
   min-height: 100vh;
+  width: 100%;
+  padding: 28px;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(37, 99, 235, 0.055),
+      transparent 32%
+    ),
+    #f6f8fc;
+
+  color: var(--tm-text);
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
   box-sizing: border-box;
 }
 
-.TestimonialManagement * {
+.TestimonialManagement *,
+.TestimonialManagement *::before,
+.TestimonialManagement *::after {
   box-sizing: border-box;
 }
 
-/* Header */
-.TestimonialManagement-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
+.TestimonialManagement button,
+.TestimonialManagement input,
+.TestimonialManagement textarea,
+.TestimonialManagement select {
+  font-family: inherit;
 }
 
-.TestimonialManagement-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0 0 4px 0;
+.TestimonialManagement button {
+  -webkit-tap-highlight-color: transparent;
 }
 
-.TestimonialManagement-header p {
-  color: #64748b;
-  margin: 0;
-  font-size: 0.9rem;
-}
 
-.TestimonialManagement-addBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #2563eb;
-  color: #ffffff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
 
-.TestimonialManagement-addBtn:hover {
-  background-color: #1d4ed8;
-}
+/* =========================================================
+   STATS
+========================================================= */
 
-/* Main Container Grid */
-.TestimonialManagement-container {
+.TM-stats {
   display: grid;
-  grid-template-columns: 380px minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.TM-statCard {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  min-height: 92px;
+  padding: 17px;
+
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  border-radius: 16px;
+
+  box-shadow:
+    0 4px 15px rgba(15, 23, 42, 0.035);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.TM-statCard:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+.TM-statIcon {
+  width: 47px;
+  height: 47px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+  font-size: 17px;
+}
+
+.TM-statIcon.TM-blue {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.TM-statIcon.TM-green {
+  color: #16a34a;
+  background: #f0fdf4;
+}
+
+.TM-statIcon.TM-orange {
+  color: #ea580c;
+  background: #fff7ed;
+}
+
+.TM-statIcon.TM-purple {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.TM-statCard span {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.TM-statCard strong {
+  display: block;
+  color: #0f172a;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   MAIN GRID
+========================================================= */
+
+.TM-container {
+  display: grid;
+  grid-template-columns: 365px minmax(0, 1fr);
+  gap: 20px;
   align-items: start;
 }
 
-/* Common Card Styling */
-.TestimonialManagement-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+.TM-card {
+  background: #fff;
+  border: 1px solid #e7ebf2;
+  border-radius: 18px;
+
+  box-shadow:
+    0 7px 30px rgba(15, 23, 42, 0.045);
+
   overflow: hidden;
 }
 
-.TestimonialManagement-card h3 {
-  font-size: 1.15rem;
-  margin: 0 0 20px 0;
-  font-weight: 600;
+.TM-formCard {
+  padding: 21px;
 }
 
-/* Form Styles */
-.TestimonialManagement-group {
-  margin-bottom: 16px;
+.TM-listCard {
+  padding: 21px;
+  min-width: 0;
 }
 
-.TestimonialManagement-group label {
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.TM-cardHeader,
+.TM-listTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.TM-cardHeader {
+  margin-bottom: 21px;
+}
+
+.TM-sectionEyebrow {
   display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #334155;
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  margin-bottom: 4px;
 }
 
-.TestimonialManagement-group label span {
+.TM-cardHeader h3,
+.TM-listTop h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.TM-editBadge {
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.TM-formGroup {
+  position: relative;
+  margin-bottom: 17px;
+}
+
+.TM-formGroup > label {
+  display: block;
+  margin-bottom: 7px;
+
+  color: #334155;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.TM-formGroup > label span {
   color: #ef4444;
 }
 
-.TestimonialManagement-group input[type="text"],
-.TestimonialManagement-group textarea,
-.TestimonialManagement-statusSelect {
+.TM-formGroup input[type="text"],
+.TM-formGroup textarea,
+.TM-statusSelect {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.9rem;
+
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+
+  background: #fff;
+  color: #0f172a;
+
+  padding: 11px 12px;
+
   outline: none;
-  transition: border-color 0.2s ease;
+  font-size: 12px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
-.TestimonialManagement-group input[type="text"]:focus,
-.TestimonialManagement-group textarea:focus,
-.TestimonialManagement-statusSelect:focus {
-  border-color: #2563eb;
+.TM-formGroup textarea {
+  min-height: 112px;
+  resize: vertical;
+  line-height: 1.6;
 }
 
-/* File Upload Dropzones */
-.TestimonialManagement-uploadBox {
-  margin-bottom: 16px;
+.TM-formGroup input::placeholder,
+.TM-formGroup textarea::placeholder {
+  color: #a8b3c2;
 }
 
-.TestimonialManagement-uploadBox label {
+.TM-formGroup input:focus,
+.TM-formGroup textarea:focus {
+  border-color: #60a5fa;
+  background: #fff;
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+
+.TM-inputWrapper {
+  position: relative;
+}
+
+.TM-inputWrapper > svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: #94a3b8;
+  font-size: 12px;
+
+  pointer-events: none;
+}
+
+.TM-inputWrapper input {
+  padding-left: 34px !important;
+}
+
+.TM-characterCount {
+  text-align: right;
+  margin-top: 5px;
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+.TM-uploadBox {
+  width: 100%;
+}
+
+.TM-uploadLabel {
+  min-height: 75px;
+  padding: 11px;
+
   display: flex;
   align-items: center;
   gap: 12px;
-  border: 2px dashed #cbd5e1;
-  border-radius: 8px;
-  padding: 12px;
+
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfdff,
+      #f8fafc
+    );
+
   cursor: pointer;
-  background-color: #f8fafc;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
-.TestimonialManagement-uploadBox label:hover {
-  background-color: #f1f5f9;
-  border-color: #94a3b8;
+.TM-uploadLabel:hover {
+  border-color: #60a5fa;
+  background: #eff6ff;
+  transform: translateY(-1px);
 }
 
-.TestimonialManagement-uploadIcon {
-  font-size: 1.5rem;
-  color: #64748b;
+.TM-uploadIcon {
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
-}
 
-.TestimonialManagement-uploadBox strong {
-  display: block;
-  font-size: 0.85rem;
-  color: #1e293b;
-}
-
-.TestimonialManagement-uploadBox p {
-  margin: 2px 0 0 0;
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-/* Rating Selector */
-.TestimonialManagement-ratingSelect {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  color: #2563eb;
+  background: #eff6ff;
+
+  font-size: 17px;
 }
 
-.TestimonialManagement-star {
-  color: #cbd5e1;
-  font-size: 1.1rem;
+.TM-uploadPreview {
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+
+  border-radius: 10px;
+  object-fit: cover;
+
+  border: 1px solid #e2e8f0;
 }
 
-.TestimonialManagement-star.active {
-  color: #f59e0b;
-}
-
-.TestimonialManagement-ratingText {
-  margin-left: 8px;
-  font-size: 0.85rem;
-  color: #64748b;
-}
-
-/* Color Accent Dots */
-.TestimonialManagement-colorPicker {
-  display: flex;
-  gap: 10px;
-}
-
-.TestimonialManagement-colorDot {
-  width: 24px;
-  height: 24px;
+.TM-profilePreview {
   border-radius: 50%;
-  border: 2px solid transparent;
-  cursor: pointer;
-  outline: none;
-  transition: transform 0.15s ease;
 }
 
-.TestimonialManagement-colorDot.active {
-  border-color: #ffffff;
-  box-shadow: 0 0 0 2px #2563eb;
-  transform: scale(1.1);
+.TM-uploadContent strong {
+  display: block;
+  margin-bottom: 3px;
+
+  color: #334155;
+  font-size: 11px;
 }
 
-/* Form Action Buttons */
-.TestimonialManagement-formActions {
+.TM-uploadContent span {
+  color: #94a3b8;
+  font-size: 9px;
+}
+
+/* =========================================================
+   RATING
+========================================================= */
+
+.TM-ratingPicker {
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
+  align-items: center;
+  gap: 9px;
 }
 
-.TestimonialManagement-btnReset,
-.TestimonialManagement-btnSave {
-  flex: 1;
+.TM-ratingPicker > span {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.TM-ratingStars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.TM-starButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  border: none;
+
+  padding: 0;
+  margin: 0;
+
+  border: 0;
+  background: transparent;
+
+  cursor: default;
 }
 
-.TestimonialManagement-btnReset {
-  background-color: #f1f5f9;
+.TM-starClickable {
+  cursor: pointer;
+}
+
+.TM-star {
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.TM-starActive {
+  color: #f59e0b;
+}
+
+/* =========================================================
+   COLOR
+========================================================= */
+
+.TM-colorPicker {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.TM-colorDot {
+  width: 29px;
+  height: 29px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 2px solid transparent;
+
+  color: #fff;
+  font-size: 10px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.TM-colorDot:hover {
+  transform: scale(1.08);
+}
+
+.TM-colorDot.active {
+  transform: scale(1.08);
+  border-color: #fff;
+
+  box-shadow:
+    0 0 0 2px #2563eb,
+    0 4px 10px rgba(15, 23, 42, 0.15);
+}
+
+/* =========================================================
+   STATUS CHOICE
+========================================================= */
+
+.TM-statusChoice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.TM-statusChoice button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 38px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+
+  background: #fff;
+  color: #64748b;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.TM-statusChoice button:hover {
+  border-color: #cbd5e1;
+}
+
+.TM-statusChoice button.active {
+  color: #15803d;
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.TM-statusChoice button.inactiveActive {
+  color: #64748b;
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
+
+.TM-formActions {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 9px;
+
+  margin-top: 22px;
+  padding-top: 18px;
+
+  border-top: 1px solid #eef2f7;
+}
+
+.TM-resetBtn,
+.TM-saveBtn {
+  height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  border: 0;
+  border-radius: 10px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.TM-resetBtn {
+  background: #f1f5f9;
   color: #475569;
 }
 
-.TestimonialManagement-btnReset:hover {
-  background-color: #e2e8f0;
+.TM-resetBtn:hover {
+  background: #e2e8f0;
 }
 
-.TestimonialManagement-btnSave {
-  background-color: #2563eb;
-  color: #ffffff;
+.TM-saveBtn {
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  box-shadow:
+    0 7px 16px rgba(37, 99, 235, 0.18);
 }
 
-.TestimonialManagement-btnSave:hover {
-  background-color: #1d4ed8;
+.TM-saveBtn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 22px rgba(37, 99, 235, 0.25);
 }
 
-/* Controls Bar (Top of List Card) */
-.TestimonialManagement-controls {
-  display: flex;
-  justify-content: space-between;
+/* =========================================================
+   LIST TOP
+========================================================= */
+
+.TM-listTop {
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
-.TestimonialManagement-viewToggle {
+.TM-listTop h3 {
   display: flex;
-  background-color: #f1f5f9;
+  align-items: center;
+  gap: 7px;
+}
+
+.TM-listTop h3 span {
+  min-width: 24px;
+  height: 21px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 20px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-size: 9px;
+}
+
+.TM-viewToggle {
+  display: flex;
+  gap: 3px;
+
   padding: 3px;
-  border-radius: 6px;
-  gap: 2px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+
+  background: #f8fafc;
 }
 
-.TestimonialManagement-viewToggle button {
-  display: flex;
+.TM-viewToggle button {
+  height: 31px;
+
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: none;
-  background: none;
-  padding: 6px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+
+  padding: 0 10px;
+
+  border: 0;
+  border-radius: 7px;
+
+  background: transparent;
   color: #64748b;
-  border-radius: 4px;
+
+  font-size: 10px;
+  font-weight: 750;
+
   cursor: pointer;
 }
 
-.TestimonialManagement-viewToggle button.active {
-  background: #ffffff;
+.TM-viewToggle button.active {
   color: #2563eb;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: #fff;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.08);
 }
 
-/* Search & Filter Bar */
-.TestimonialManagement-filterBar {
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.TM-toolbar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 12px;
 }
 
-.TestimonialManagement-searchBox {
-  flex: 1;
-  min-width: 200px;
+.TM-searchBox {
   position: relative;
+  flex: 1;
+}
+
+.TM-searchBox > svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  color: #94a3b8;
+  font-size: 12px;
+
+  pointer-events: none;
+}
+
+.TM-searchBox input {
+  width: 100%;
+  height: 39px;
+
+  padding: 0 38px 0 34px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  outline: none;
+
+  color: #0f172a;
+  background: #fff;
+
+  font-size: 11px;
+
+  transition: 0.2s ease;
+}
+
+.TM-searchBox input:focus {
+  border-color: #60a5fa;
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.06);
+}
+
+.TM-searchBox > button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 24px;
+  height: 24px;
+
   display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: #f1f5f9;
+  color: #64748b;
+
+  cursor: pointer;
+}
+
+.TM-filterBtn {
+  height: 39px;
+  padding: 0 13px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  background: #fff;
+  color: #475569;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.TM-filterBtn:hover,
+.TM-filterBtn.active {
+  color: #2563eb;
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.TM-statusSelect {
+  width: 125px;
+  height: 39px;
+  padding: 0 10px;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   BULK BAR
+========================================================= */
+
+.TM-bulkBar {
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-bottom: 12px;
+  padding: 7px 10px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+
+  background: #eff6ff;
+}
+
+.TM-bulkBar > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.TM-selectedCheck {
+  width: 27px;
+  height: 27px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  color: #fff;
+  background: #2563eb;
+
+  font-size: 10px;
+}
+
+.TM-bulkBar strong {
+  color: #1e40af;
+  font-size: 11px;
+}
+
+.TM-bulkBar > button {
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 0 10px;
+
+  border: 0;
+  border-radius: 8px;
+
+  color: #dc2626;
+  background: #fff;
+
+  font-size: 10px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.TM-bulkBar > button:hover {
+  background: #fee2e2;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.TM-tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+
+  border: 1px solid #edf0f5;
+  border-radius: 12px;
+}
+
+.TM-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.TM-table th {
+  height: 43px;
+  padding: 0 12px;
+
+  background: #f8fafc;
+  border-bottom: 1px solid #e9eef5;
+
+  color: #64748b;
+
+  font-size: 9px;
+  font-weight: 800;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.TM-table td {
+  padding: 12px;
+
+  border-bottom: 1px solid #f1f5f9;
+
+  font-size: 11px;
+  vertical-align: middle;
+}
+
+.TM-table tbody tr {
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.TM-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.TM-table tbody tr.selectedRow {
+  background: #eff6ff;
+}
+
+.TM-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.TM-checkboxColumn {
+  width: 40px;
+}
+
+.TM-table input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+
+  accent-color: #2563eb;
+
+  cursor: pointer;
+}
+
+.TM-index {
+  color: #94a3b8;
+  font-size: 10px !important;
+  font-weight: 700;
+}
+
+/* =========================================================
+   CLIENT
+========================================================= */
+
+.TM-clientCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.TM-avatarWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.TM-avatar {
+  width: 38px;
+  height: 38px;
+
+  display: block;
+
+  border-radius: 11px;
+  object-fit: cover;
+
+  border: 2px solid #fff;
+
+  box-shadow:
+    0 2px 7px rgba(15, 23, 42, 0.1);
+}
+
+.TM-onlineDot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.TM-clientCell strong {
+  display: block;
+
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.TM-clientCell span {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #64748b;
+  font-size: 9px;
+}
+
+.TM-clientCell small {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #94a3b8;
+  font-size: 8px;
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.TM-messageCell {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+
+  max-width: 240px;
+}
+
+.TM-messageCell svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+
+  color: #bfdbfe;
+  font-size: 9px;
+}
+
+.TM-messageCell span {
+  display: -webkit-box;
+
+  overflow: hidden;
+
+  color: #64748b;
+
+  line-height: 1.45;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.TM-statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  min-height: 27px;
+  padding: 0 9px;
+
+  border: 0;
+  border-radius: 20px;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.TM-statusBadge.active {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.TM-statusBadge.inactive {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.TM-statusBadge:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+.TM-actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.TM-actionButtons button {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e8edf3;
+  border-radius: 8px;
+
+  background: #fff;
+  color: #64748b;
+
+  font-size: 10px;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.TM-actionButtons button:hover {
+  transform: translateY(-1px);
+}
+
+.TM-actionButtons button.view:hover {
+  color: #0284c7;
+  background: #e0f2fe;
+  border-color: #bae6fd;
+}
+
+.TM-actionButtons button.edit:hover {
+  color: #d97706;
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+
+.TM-actionButtons button.delete:hover {
+  color: #dc2626;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.TM-emptyState {
+  height: 250px;
+  text-align: center !important;
+}
+
+.TM-emptyState > div {
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
 
-.TestimonialManagement-searchBox svg {
-  position: absolute;
-  left: 12px;
+.TM-emptyState svg {
   color: #94a3b8;
+  font-size: 25px;
+  margin-bottom: 10px;
 }
 
-.TestimonialManagement-searchBox input {
-  width: 100%;
-  padding: 9px 12px 9px 36px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  outline: none;
+.TM-emptyState h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
 }
 
-.TestimonialManagement-statusSelect {
-  width: auto;
-  min-width: 130px;
+.TM-emptyState p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 10px;
 }
 
-/* Table Responsive Wrapper */
-.TestimonialManagement-tableWrapper {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+/* =========================================================
+   GRID
+========================================================= */
+
+.TM-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(245px, 1fr)
+  );
+  gap: 14px;
 }
 
-.TestimonialManagement-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px; /* Ensures table doesn't get squished */
+.TM-gridCard {
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 265px;
+  padding: 17px;
+
+  border: 1px solid #e8edf3;
+  border-radius: 15px;
+
+  background: #fff;
+
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
-.TestimonialManagement-table th,
-.TestimonialManagement-table td {
-  padding: 12px 14px;
-  text-align: left;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.85rem;
+.TM-gridCard:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 15px 35px rgba(15, 23, 42, 0.09);
 }
 
-.TestimonialManagement-table th {
-  background-color: #f8fafc;
-  color: #64748b;
-  font-weight: 600;
+.TM-gridAccent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 3px;
+  background: var(--accent);
 }
 
-.TestimonialManagement-clientCell {
+.TM-gridTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.TM-gridProfile {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.TestimonialManagement-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
+.TM-gridProfile img {
+  width: 42px;
+  height: 42px;
 
-.TestimonialManagement-clientName {
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.TestimonialManagement-clientRole {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.TestimonialManagement-msgCell {
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #475569;
-}
-
-.TestimonialManagement-tableRating {
-  display: flex;
-  gap: 2px;
-}
-
-/* Status Badges */
-.TestimonialManagement-badge {
-  display: inline-block;
-  padding: 3px 8px;
   border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  object-fit: cover;
 }
 
-.TestimonialManagement-badge.active {
-  background-color: #dcfce7;
-  color: #15803d;
+.TM-gridProfile h4 {
+  margin: 0 0 3px;
+
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.TestimonialManagement-badge.inactive {
-  background-color: #f1f5f9;
+.TM-gridProfile span {
   color: #64748b;
+  font-size: 9px;
 }
 
-/* Action Icon Buttons */
-.TestimonialManagement-actionBtns {
-  display: flex;
-  gap: 6px;
-}
+.TM-moreBtn {
+  width: 27px;
+  height: 27px;
 
-.TestimonialManagement-actionBtns button {
-  border: none;
-  background: none;
-  padding: 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  color: #64748b;
-  transition: background-color 0.15s ease;
-}
-
-.TestimonialManagement-actionBtns button.view:hover {
-  background-color: #e0f2fe;
-  color: #0284c7;
-}
-
-.TestimonialManagement-actionBtns button.edit:hover {
-  background-color: #fef3c7;
-  color: #d97706;
-}
-
-.TestimonialManagement-actionBtns button.delete:hover {
-  background-color: #fee2e2;
-  color: #dc2626;
-}
-
-/* Grid View Styles */
-.TestimonialManagement-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
-}
-
-.TestimonialManagement-gridCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.TestimonialManagement-gridHeader {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.TestimonialManagement-gridHeader h4 {
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.TestimonialManagement-gridHeader p {
-  margin: 2px 0 0 0;
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.TestimonialManagement-gridMsg {
-  font-size: 0.85rem;
-  color: #334155;
-  margin: 0 0 16px 0;
-  line-height: 1.4;
-}
-
-.TestimonialManagement-gridFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
-}
-
-/* Pagination */
-.TestimonialManagement-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
-  font-size: 0.8rem;
-  color: #64748b;
-}
-
-.TestimonialManagement-pageBtns {
-  display: flex;
-  gap: 4px;
-}
-
-.TestimonialManagement-pageBtns button {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
-
-.TestimonialManagement-pageBtns button.active {
-  background-color: #2563eb;
-  color: #ffffff;
-  border-color: #2563eb;
-}
-
-.TestimonialManagement-pageBtns button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* View Modal */
-.TestimonialManagement-modalBackdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 16px;
-}
 
-.TestimonialManagement-modal {
-  background: #ffffff;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 450px;
-  padding: 20px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-}
+  border: 0;
+  border-radius: 7px;
 
-.TestimonialManagement-modalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
+  background: #f8fafc;
+  color: #94a3b8;
 
-.TestimonialManagement-modalHeader h3 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.TestimonialManagement-modalHeader button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
   cursor: pointer;
+}
+
+.TM-gridRating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-top: 15px;
+}
+
+.TM-gridRating > span {
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.TM-quote {
+  margin-top: 15px;
+  color: var(--accent);
+  opacity: 0.25;
+}
+
+.TM-quote svg {
+  font-size: 21px;
+}
+
+.TM-gridMessage {
+  margin: 6px 0 15px;
+
+  color: #475569;
+
+  font-size: 11px;
+  line-height: 1.65;
+
+  display: -webkit-box;
+  overflow: hidden;
+
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.TM-company {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: auto;
+  padding-top: 11px;
+
+  border-top: 1px solid #f1f5f9;
+
   color: #64748b;
+  font-size: 9px;
+  font-weight: 700;
 }
 
-.TestimonialManagement-modalBody {
-  text-align: center;
-}
-
-.TestimonialManagement-modalAvatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
+.TM-company img {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
   object-fit: cover;
+}
+
+.TM-gridFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.TM-gridFooter .TM-actionButtons button {
+  width: 27px;
+  height: 27px;
+}
+
+.TM-gridEmpty {
+  grid-column: 1 / -1;
+
+  min-height: 250px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  color: #94a3b8;
+}
+
+.TM-gridEmpty svg {
+  font-size: 25px;
   margin-bottom: 10px;
 }
 
-.TestimonialManagement-modalBody h4 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.TestimonialManagement-modalBody .role {
-  margin: 4px 0 12px 0;
-  color: #64748b;
-  font-size: 0.85rem;
-}
-
-.TestimonialManagement-modalBody .rating {
-  margin-bottom: 12px;
-}
-
-.TestimonialManagement-modalBody .message {
-  font-style: italic;
+.TM-gridEmpty h4 {
+  margin: 0 0 4px;
   color: #334155;
-  line-height: 1.5;
-  font-size: 0.9rem;
+  font-size: 13px;
 }
 
+.TM-gridEmpty p {
+  margin: 0;
+  font-size: 10px;
+}
 
-/* ==========================================================================
-   MEDIA QUERIES (RESPONSIVE BREAKPOINTS)
-   ========================================================================== */
+/* =========================================================
+   PAGINATION
+========================================================= */
 
-/* Tablets & Small Laptops (1024px and down) */
-@media screen and (max-width: 1024px) {
-  .TestimonialManagement-container {
-    grid-template-columns: 1fr; /* Stack form and list vertically */
+.TM-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  margin-top: 17px;
+  padding-top: 16px;
+
+  border-top: 1px solid #edf1f5;
+}
+
+.TM-paginationInfo {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.TM-paginationInfo strong {
+  color: #475569;
+}
+
+.TM-pageButtons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.TM-pageButtons button {
+  min-width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  background: #fff;
+  color: #64748b;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.TM-pageButtons button:hover:not(:disabled) {
+  color: #2563eb;
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.TM-pageButtons button.active {
+  color: #fff;
+  border-color: #2563eb;
+  background: #2563eb;
+
+  box-shadow:
+    0 5px 12px rgba(37, 99, 235, 0.2);
+}
+
+.TM-pageButtons button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.TM-pageDots {
+  min-width: 25px;
+  text-align: center;
+
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.TM-modalBackdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+
+  background: rgba(15, 23, 42, 0.58);
+
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+
+  animation: TMFadeIn 0.2s ease;
+}
+
+@keyframes TMFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
-/* Mobile Devices (600px and down) */
-@media screen and (max-width: 600px) {
+.TM-modal {
+  position: relative;
+
+  width: 100%;
+  max-width: 480px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 22px;
+
+  background: #fff;
+
+  box-shadow:
+    0 30px 70px rgba(15, 23, 42, 0.25);
+
+  animation: TMModalIn 0.25s ease;
+}
+
+@keyframes TMModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.TM-modalAccent {
+  height: 5px;
+}
+
+.TM-modalClose {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  color: #64748b;
+  background: #f1f5f9;
+
+  cursor: pointer;
+}
+
+.TM-modalClose:hover {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.TM-modalContent {
+  padding: 30px;
+  text-align: center;
+}
+
+.TM-modalAvatarWrapper {
+  position: relative;
+  width: fit-content;
+  margin: 0 auto 12px;
+}
+
+.TM-modalAvatar {
+  width: 82px;
+  height: 82px;
+
+  display: block;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 4px solid #fff;
+
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.12);
+}
+
+.TM-modalStatus {
+  position: absolute;
+  right: 5px;
+  bottom: 7px;
+
+  width: 13px;
+  height: 13px;
+
+  border: 3px solid #fff;
+  border-radius: 50%;
+}
+
+.TM-modalStatus.active {
+  background: #22c55e;
+}
+
+.TM-modalStatus.inactive {
+  background: #94a3b8;
+}
+
+.TM-modalContent h3 {
+  margin: 0;
+
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.TM-modalRole {
+  margin: 4px 0 8px;
+
+  color: #64748b;
+  font-size: 11px;
+}
+
+.TM-modalCompany {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 12px;
+  padding: 6px 10px;
+
+  border-radius: 20px;
+
+  color: #64748b;
+  background: #f8fafc;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.TM-modalQuote {
+  position: relative;
+
+  margin-top: 20px;
+  padding: 20px;
+
+  border-radius: 14px;
+
+  text-align: left;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f8fafc,
+      #f1f5f9
+    );
+}
+
+.TM-modalQuote > svg {
+  color: #bfdbfe;
+  font-size: 20px;
+}
+
+.TM-modalQuote p {
+  margin: 8px 0 0;
+
+  color: #475569;
+  font-size: 12px;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+.TM-modalBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.TM-modalBottom > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 32px;
+  padding: 0 11px;
+
+  border: 0;
+  border-radius: 8px;
+
+  color: #2563eb;
+  background: #eff6ff;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.TM-modalBottom > button:hover {
+  background: #dbeafe;
+}
+
+/* =========================================================
+   RESPONSIVE - 1200
+========================================================= */
+
+@media (max-width: 1200px) {
+  .TM-container {
+    grid-template-columns: 330px minmax(0, 1fr);
+  }
+
+  .TM-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 1024
+========================================================= */
+
+@media (max-width: 1024px) {
   .TestimonialManagement {
-    padding: 12px;
+    padding: 20px;
   }
 
-  .TestimonialManagement-header {
+  .TM-container {
+    grid-template-columns: 1fr;
+  }
+
+  .TM-formCard {
+    scroll-margin-top: 20px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 768
+========================================================= */
+
+@media (max-width: 768px) {
+  .TestimonialManagement {
+    padding: 15px;
+  }
+
+  .TM-header {
+    align-items: flex-start;
     flex-direction: column;
+  }
+
+  .TM-addBtn {
+    width: 100%;
+  }
+
+  .TM-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .TM-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .TM-searchBox {
+    flex-basis: 100%;
+  }
+
+  .TM-filterBtn {
+    flex: 1;
+  }
+
+  .TM-statusSelect {
+    flex: 1;
+    width: auto;
+  }
+
+  .TM-pagination {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 600
+========================================================= */
+
+@media (max-width: 600px) {
+  .TestimonialManagement {
+    padding: 11px;
+  }
+
+  .TM-headerContent {
     align-items: flex-start;
   }
 
-  .TestimonialManagement-addBtn {
-    width: 100%;
-    justify-content: center;
+  .TM-pageIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
   }
 
-  .TestimonialManagement-filterBar {
+  .TM-header h2 {
+    font-size: 20px;
+  }
+
+  .TM-header p {
+    font-size: 11px;
+  }
+
+  .TM-stats {
+    gap: 8px;
+  }
+
+  .TM-statCard {
+    min-height: 75px;
+    padding: 11px;
+    gap: 9px;
+  }
+
+  .TM-statIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .TM-statCard span {
+    font-size: 9px;
+  }
+
+  .TM-statCard strong {
+    font-size: 16px;
+  }
+
+  .TM-formCard,
+  .TM-listCard {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .TM-cardHeader h3,
+  .TM-listTop h3 {
+    font-size: 15px;
+  }
+
+  .TM-listTop {
+    align-items: stretch;
     flex-direction: column;
   }
 
-  .TestimonialManagement-statusSelect {
+  .TM-viewToggle {
     width: 100%;
   }
 
-  .TestimonialManagement-controls {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .TestimonialManagement-viewToggle {
-    width: 100%;
-  }
-
-  .TestimonialManagement-viewToggle button {
+  .TM-viewToggle button {
     flex: 1;
     justify-content: center;
   }
 
-  .TestimonialManagement-pagination {
+  .TM-formActions {
+    grid-template-columns: 1fr;
+  }
+
+  .TM-statusChoice {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .TM-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .TM-gridCard {
+    min-height: 245px;
+  }
+
+  .TM-paginationInfo {
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .TM-pageButtons {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .TM-pageButtons button {
+    flex-shrink: 0;
+  }
+
+  .TM-modalContent {
+    padding: 25px 17px;
+  }
+
+  .TM-modalBottom {
+    align-items: stretch;
     flex-direction: column;
-    align-items: center;
-    gap: 10px;
+  }
+
+  .TM-modalBottom > button {
+    justify-content: center;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE - 420
+========================================================= */
+
+@media (max-width: 420px) {
+  .TM-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .TM-statCard {
+    min-width: 0;
+  }
+
+  .TM-statCard > div:last-child {
+    min-width: 0;
+  }
+
+  .TM-statCard span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .TM-bulkBar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .TM-bulkBar > button {
+    width: 100%;
+    justify-content: center;
   }
 }

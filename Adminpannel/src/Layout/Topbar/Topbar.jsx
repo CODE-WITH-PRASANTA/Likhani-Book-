@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Topbar.css';
 import {
   LuMenu,
@@ -18,6 +19,7 @@ const Topbar = ({ onToggleSidebar }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const profileRef = useRef(null);
+  const navigate = useNavigate();
 
   const toggleMobileSearch = () => {
     setIsSearchOpen((prev) => !prev);
@@ -40,6 +42,19 @@ const Topbar = ({ onToggleSidebar }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Handle Logout Logic
+  const handleLogout = () => {
+    setIsProfileOpen(false);
+
+    // Clear session and local authentication data
+    sessionStorage.removeItem('isAdminAuthenticated');
+    sessionStorage.clear();
+    localStorage.removeItem('isAdminAuthenticated');
+
+    // Redirect to the login route (change to '/login' or your specific login route)
+    navigate('/login');
+  };
 
   return (
     <header className="topbar">
@@ -153,10 +168,7 @@ const Topbar = ({ onToggleSidebar }) => {
                 <button
                   type="button"
                   className="logout-btn"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    // Add your logout logic here
-                  }}
+                  onClick={handleLogout}
                 >
                   <LuLogOut className="dropdown-icon" />
                   <span>Log Out</span>

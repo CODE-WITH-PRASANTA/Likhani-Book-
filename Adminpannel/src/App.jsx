@@ -15,6 +15,7 @@ import Supports from './Components/Supports/Supports';
 import Shop from './Components/Shop/Shop';
 import BlogManagement from './Components/BlogManagement/BlogManagement';
 import BlogPosting from './Components/BlogPosting/BlogPosting';
+import Login from './Components/Login/Login';
 
 
 const App = () => {
@@ -41,6 +42,7 @@ const App = () => {
           <Route path="shop" element={<Shop/>} />
           <Route path="blogs/management" element={<BlogManagement/>} />
           <Route path="blogs/create" element={<BlogPosting/>} />
+          <Route path="login" element={<Login/>} />
 
         
         </Route>

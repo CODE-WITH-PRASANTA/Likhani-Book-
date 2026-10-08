@@ -14,6 +14,7 @@ const app = express();
 
 const supportRoutes = require("./src/routes/supportRoutes");
 const enquiryRoutes = require("./src/routes/enquiryRoutes");
+const testimonialRoutes = require("./src/routes/testimonialRoutes");
 
 /* ==============================
    DATABASE
@@ -39,13 +40,11 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 /* ==============================
-   STATIC UPLOADS
+   STATIC UPLOADS (FIXED)
 ============================== */
 
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "src", "uploads"))
-);
+// Points to backend/uploads where multer stores files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* ==============================
    TEST ROUTE
@@ -62,9 +61,9 @@ app.get("/", (req, res) => {
    API ROUTES
 ============================== */
 
-
 app.use("/api/supports", supportRoutes);
 app.use("/api/enquiries", enquiryRoutes);
+app.use("/api/testimonials", testimonialRoutes);
 
 /* ==============================
    404 HANDLER
@@ -74,6 +73,18 @@ app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
+});
+
+/* ==============================
+   GLOBAL ERROR HANDLER (For Multer file size errors)
+============================== */
+
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err.message);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
   });
 });
 

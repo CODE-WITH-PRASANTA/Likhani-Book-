@@ -1,477 +1,837 @@
-import React, { useState } from 'react';
-import './TestimonialManagement.css';
-import { 
-  FaPlus, FaSearch, FaList, FaThLarge, FaEye, FaPencilAlt, 
-  FaTrashAlt, FaSave, FaUndo, FaStar, FaRegStar, 
-  FaImage, FaUser, FaChevronLeft, FaChevronRight 
-} from 'react-icons/fa';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import "./TestimonialManagement.css";
 
-const initialTestimonials = [
-  {
-    id: 1,
-    clientName: 'Ronald Richards',
-    designation: 'Marketing Coordinator',
-    company: 'Envato',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150',
-    rating: 4,
-    message: 'One of the most powerful takeaways...',
-    status: 'Active',
-    accentColor: '#f97316'
-  },
-  {
-    id: 2,
-    clientName: 'Dianne Russell',
-    designation: 'Project Manager',
-    company: 'Amazon',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150',
-    rating: 5,
-    message: 'The idea that we can choose to see...',
-    status: 'Active',
-    accentColor: '#3b82f6'
-  },
-  {
-    id: 3,
-    clientName: 'Jenny Wilson',
-    designation: 'Product Designer',
-    company: 'Google',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150',
-    rating: 4,
-    message: 'This book changed my perspective...',
-    status: 'Active',
-    accentColor: '#10b981'
-  },
-  {
-    id: 4,
-    clientName: 'Albert Flores',
-    designation: 'CEO',
-    company: 'Meta',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150',
-    rating: 4,
-    message: 'A truly inspiring read that challenges...',
-    status: 'Active',
-    accentColor: '#1e293b'
-  },
-  {
-    id: 5,
-    clientName: 'Kristin Watson',
-    designation: 'Marketing Head',
-    company: 'Netflix',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150',
-    rating: 4,
-    message: 'Practical insights and real-world examples...',
-    status: 'Inactive',
-    accentColor: '#6366f1'
-  },
-  {
-    id: 6,
-    clientName: 'Marvin McKinney',
-    designation: 'Founder',
-    company: 'Spotify',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=150',
-    rating: 5,
-    message: 'A must-read for anyone looking to grow...',
-    status: 'Active',
-    accentColor: '#10b981'
-  },
-  {
-    id: 7,
-    clientName: 'Courtenay Henry',
-    designation: 'Team Lead',
-    company: 'Apple',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150',
-    rating: 4,
-    message: 'Simple yet powerful lessons for life...',
-    status: 'Active',
-    accentColor: '#f97316'
-  },
-  {
-    id: 8,
-    clientName: 'Jerome Bell',
-    designation: 'Entrepreneur',
-    company: 'Adobe',
-    logo: 'https://via.placeholder.com/40',
-    profileImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=150',
-    rating: 4,
-    message: 'Helped me see opportunities in...',
-    status: 'Active',
-    accentColor: '#3b82f6'
-  }
+import {
+  FaPlus,
+  FaSearch,
+  FaList,
+  FaThLarge,
+  FaEye,
+  FaPencilAlt,
+  FaTrashAlt,
+  FaSave,
+  FaUndo,
+  FaStar,
+  FaRegStar,
+  FaUser,
+  FaChevronLeft,
+  FaChevronRight,
+  FaCheck,
+  FaTimes,
+  FaFilter,
+  FaEllipsisV,
+  FaQuoteLeft,
+  FaBuilding,
+  FaToggleOn,
+  FaToggleOff,
+  FaCloudUploadAlt,
+} from "react-icons/fa";
+
+const BASE_URL = "http://localhost:5000";
+const API_URL = `${BASE_URL}/api/testimonials`;
+
+const availableColors = [
+  "#1e293b",
+  "#0284c7",
+  "#f97316",
+  "#6366f1",
+  "#22c55e",
 ];
 
-const availableColors = ['#1e293b', '#0284c7', '#f97316', '#6366f1', '#22c55e'];
+const ITEMS_PER_PAGE = 6;
+
+const emptyForm = {
+  clientName: "",
+  designation: "",
+  company: "",
+  rating: 4,
+  message: "",
+  accentColor: "#f97316",
+  status: "Active",
+};
+
+const getImageUrl = (path) => {
+  if (!path) return "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150";
+  if (path.startsWith("blob:") || path.startsWith("http")) return path;
+  return `${BASE_URL}${path}`;
+};
 
 const TestimonialManagement = () => {
-  const [testimonials, setTestimonials] = useState(initialTestimonials);
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [viewMode, setViewMode] = useState("list");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+
   const [editingId, setEditingId] = useState(null);
   const [viewingModalData, setViewingModalData] = useState(null);
 
-  // Form State
-  const [formData, setFormData] = useState({
-    clientName: '',
-    designation: '',
-    company: '',
-    logo: null,
-    profileImage: null,
-    rating: 4,
-    message: '',
-    accentColor: '#f97316',
-    status: 'Active'
-  });
+  const [formData, setFormData] = useState(emptyForm);
+  const [logoFile, setLogoFile] = useState(null);
+  const [profileFile, setProfileFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
 
-  // Handle Input Changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
 
-  // Handle Image Uploads
-  const handleImageUpload = (e, field) => {
-    const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData(prev => ({ ...prev, [field]: imageUrl }));
+  const formRef = useRef(null);
+
+  /* ----------------------------------------------------
+      API: FETCH ALL TESTIMONIALS
+  ---------------------------------------------------- */
+  const fetchTestimonials = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(API_URL);
+      const result = await res.json();
+      if (result.success) {
+        setTestimonials(result.data);
+      }
+    } catch (err) {
+      console.error("Failed to load testimonials:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Form Submission (Add or Edit)
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.clientName || !formData.designation) {
-      alert('Please fill out required fields!');
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  /* ----------------------------------------------------
+      FILTER
+  ---------------------------------------------------- */
+  const filteredTestimonials = useMemo(() => {
+    const search = searchTerm.trim().toLowerCase();
+
+    return testimonials.filter((item) => {
+      const matchesSearch =
+        !search ||
+        item.clientName?.toLowerCase().includes(search) ||
+        item.designation?.toLowerCase().includes(search) ||
+        item.company?.toLowerCase().includes(search) ||
+        item.message?.toLowerCase().includes(search);
+
+      const matchesStatus =
+        statusFilter === "All" || item.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [testimonials, searchTerm, statusFilter]);
+
+  /* ----------------------------------------------------
+      PAGINATION
+  ---------------------------------------------------- */
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredTestimonials.length / ITEMS_PER_PAGE)
+  );
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentTestimonials = filteredTestimonials.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
+
+  /* ----------------------------------------------------
+      SELECTION
+  ---------------------------------------------------- */
+  const currentPageIds = currentTestimonials.map((item) => item._id);
+
+  const isAllSelected =
+    currentPageIds.length > 0 &&
+    currentPageIds.every((id) => selectedIds.includes(id));
+
+  const isSomeSelected =
+    currentPageIds.some((id) => selectedIds.includes(id)) && !isAllSelected;
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds((prev) =>
+        prev.filter((id) => !currentPageIds.includes(id))
+      );
+    } else {
+      setSelectedIds((prev) => [
+        ...new Set([...prev, ...currentPageIds]),
+      ]);
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  /* ----------------------------------------------------
+      FORM & IMAGE UPLOAD
+  ---------------------------------------------------- */
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const validateImage = (file, maxSizeMB = 2) => {
+    if (!file) return false;
+    const allowed = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/svg+xml",
+    ];
+    if (!allowed.includes(file.type)) {
+      alert("Please upload JPG, PNG, WEBP, or SVG image.");
+      return false;
+    }
+    if (file.size > maxSizeMB * 1024 * 1024) {
+      alert(`Image size must be less than ${maxSizeMB}MB.`);
+      return false;
+    }
+    return true;
+  };
+
+  const handleImageFileChange = (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!validateImage(file, 2)) {
+      e.target.value = "";
       return;
     }
 
-    if (editingId) {
-      setTestimonials(testimonials.map(item => 
-        item.id === editingId ? { ...formData, id: editingId } : item
-      ));
-      setEditingId(null);
-    } else {
-      const newItem = {
-        ...formData,
-        id: Date.now(),
-        profileImage: formData.profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'
-      };
-      setTestimonials([newItem, ...testimonials]);
-    }
-    handleReset();
-  };
-
-  // Edit Action
-  const handleEdit = (item) => {
-    setEditingId(item.id);
-    setFormData(item);
-  };
-
-  // Delete Action
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this testimonial?')) {
-      setTestimonials(testimonials.filter(item => item.id !== id));
-      if (editingId === id) handleReset();
+    const previewUrl = URL.createObjectURL(file);
+    if (field === "logo") {
+      setLogoFile(file);
+      setLogoPreview(previewUrl);
+    } else if (field === "profileImage") {
+      setProfileFile(file);
+      setProfilePreview(previewUrl);
     }
   };
 
-  // Reset Form
+  const scrollToForm = () => {
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
+
   const handleReset = () => {
     setEditingId(null);
-    setFormData({
-      clientName: '',
-      designation: '',
-      company: '',
-      logo: null,
-      profileImage: null,
-      rating: 4,
-      message: '',
-      accentColor: '#f97316',
-      status: 'Active'
-    });
+    setFormData(emptyForm);
+    setLogoFile(null);
+    setProfileFile(null);
+    setLogoPreview(null);
+    setProfilePreview(null);
   };
 
-  // Filtering Logic
-  const filteredTestimonials = testimonials.filter(item => {
-    const matchesSearch = item.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.designation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.message.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'All' ? true : item.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const handleEdit = (item) => {
+    setEditingId(item._id);
+    setFormData({
+      clientName: item.clientName || "",
+      designation: item.designation || "",
+      company: item.company || "",
+      rating: item.rating || 4,
+      message: item.message || "",
+      accentColor: item.accentColor || "#f97316",
+      status: item.status || "Active",
+    });
+    setLogoFile(null);
+    setProfileFile(null);
+    setLogoPreview(item.logo ? getImageUrl(item.logo) : null);
+    setProfilePreview(item.profileImage ? getImageUrl(item.profileImage) : null);
+
+    scrollToForm();
+  };
+
+  /* ----------------------------------------------------
+      SUBMIT (CREATE OR UPDATE)
+  ---------------------------------------------------- */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.clientName.trim() || !formData.designation.trim() || !formData.message.trim()) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    const formPayload = new FormData();
+    Object.keys(formData).forEach((key) => {
+      formPayload.append(key, formData[key]);
+    });
+
+    if (logoFile) formPayload.append("logo", logoFile);
+    if (profileFile) formPayload.append("profileImage", profileFile);
+
+    try {
+      const url = editingId ? `${API_URL}/${editingId}` : API_URL;
+      const method = editingId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        body: formPayload,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to save testimonial");
+      }
+
+      if (editingId) {
+        setTestimonials((prev) =>
+          prev.map((item) => (item._id === editingId ? data.data : item))
+        );
+      } else {
+        setTestimonials((prev) => [data.data, ...prev]);
+        setCurrentPage(1);
+      }
+
+      handleReset();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  /* ----------------------------------------------------
+      STATUS TOGGLE
+  ---------------------------------------------------- */
+  const toggleStatus = async (id) => {
+    try {
+      const res = await fetch(`${API_URL}/${id}/status`, { method: "PATCH" });
+      const data = await res.json();
+      if (data.success) {
+        setTestimonials((prev) =>
+          prev.map((item) => (item._id === id ? data.data : item))
+        );
+      }
+    } catch (err) {
+      console.error("Error toggling status:", err);
+    }
+  };
+
+  /* ----------------------------------------------------
+      DELETE LOGIC
+  ---------------------------------------------------- */
+  const handleDelete = async (id) => {
+    const item = testimonials.find((t) => t._id === id);
+    if (!item) return;
+
+    if (!window.confirm(`Delete testimonial from "${item.clientName}"?`)) return;
+
+    try {
+      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setTestimonials((prev) => prev.filter((t) => t._id !== id));
+        setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+        if (editingId === id) handleReset();
+      }
+    } catch (err) {
+      alert("Failed to delete testimonial");
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selectedIds.length) return;
+    if (!window.confirm(`Delete ${selectedIds.length} selected testimonials?`)) return;
+
+    try {
+      const res = await fetch(`${API_URL}/bulk-delete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTestimonials((prev) => prev.filter((t) => !selectedIds.includes(t._id)));
+        setSelectedIds([]);
+      }
+    } catch (err) {
+      alert("Failed to perform bulk delete");
+    }
+  };
+
+  /* ----------------------------------------------------
+      PAGINATION BUTTONS
+  ---------------------------------------------------- */
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+    pages.push(1);
+    if (currentPage > 3) pages.push("...");
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push("...");
+    pages.push(totalPages);
+    return pages;
+  };
+
+  /* ----------------------------------------------------
+      STATS
+  ---------------------------------------------------- */
+  const activeCount = testimonials.filter((i) => i.status === "Active").length;
+  const inactiveCount = testimonials.filter((i) => i.status === "Inactive").length;
+  const averageRating =
+    testimonials.length > 0
+      ? (
+          testimonials.reduce((sum, item) => sum + Number(item.rating || 0), 0) /
+          testimonials.length
+        ).toFixed(1)
+      : "0.0";
+
+  const RatingStars = ({ rating, clickable = false, onChange }) => (
+    <div className="TM-ratingStars">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          type="button"
+          key={star}
+          className={`TM-starButton ${clickable ? "TM-starClickable" : ""}`}
+          onClick={() => clickable && onChange?.(star)}
+          aria-label={`Rate ${star} out of 5`}
+        >
+          {star <= rating ? (
+            <FaStar className="TM-star TM-starActive" />
+          ) : (
+            <FaRegStar className="TM-star" />
+          )}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <div className="TestimonialManagement">
-      {/* Header */}
-      <header className="TestimonialManagement-header">
-        <div>
-          <h2>Testimonial Management</h2>
-          <p>Add, edit or manage client testimonials</p>
+      {/* STATS */}
+      <section className="TM-stats">
+        <div className="TM-statCard">
+          <div className="TM-statIcon TM-blue">
+            <FaQuoteLeft />
+          </div>
+          <div>
+            <span>Total Testimonials</span>
+            <strong>{testimonials.length}</strong>
+          </div>
         </div>
-        <button className="TestimonialManagement-addBtn" onClick={handleReset}>
-          <FaPlus /> Add New Testimonial
-        </button>
-      </header>
 
-      {/* Main Content Area */}
-      <div className="TestimonialManagement-container">
-        {/* Left Panel - Form */}
-        <div className="TestimonialManagement-card TestimonialManagement-formCard">
-          <h3>{editingId ? 'Edit Testimonial' : 'Add / Edit Testimonial'}</h3>
+        <div className="TM-statCard">
+          <div className="TM-statIcon TM-green">
+            <FaCheck />
+          </div>
+          <div>
+            <span>Active</span>
+            <strong>{activeCount}</strong>
+          </div>
+        </div>
+
+        <div className="TM-statCard">
+          <div className="TM-statIcon TM-orange">
+            <FaStar />
+          </div>
+          <div>
+            <span>Average Rating</span>
+            <strong>{averageRating}/5</strong>
+          </div>
+        </div>
+
+        <div className="TM-statCard">
+          <div className="TM-statIcon TM-purple">
+            <FaTimes />
+          </div>
+          <div>
+            <span>Inactive</span>
+            <strong>{inactiveCount}</strong>
+          </div>
+        </div>
+      </section>
+
+      <div className="TM-container">
+        {/* FORM */}
+        <section ref={formRef} className="TM-card TM-formCard">
+          <div className="TM-cardHeader">
+            <div>
+              <span className="TM-sectionEyebrow">TESTIMONIAL</span>
+              <h3>{editingId ? "Edit Testimonial" : "Create Testimonial"}</h3>
+            </div>
+            {editingId && <span className="TM-editBadge">Editing</span>}
+          </div>
+
           <form onSubmit={handleSubmit}>
-            <div className="TestimonialManagement-group">
+            <div className="TM-formGroup">
               <label>Client Name <span>*</span></label>
-              <input 
-                type="text" 
-                name="clientName" 
-                placeholder="Enter client name" 
-                value={formData.clientName} 
-                onChange={handleInputChange} 
-                required 
-              />
-            </div>
-
-            <div className="TestimonialManagement-group">
-              <label>Designation <span>*</span></label>
-              <input 
-                type="text" 
-                name="designation" 
-                placeholder="Enter designation (e.g. Marketing Coordinator)" 
-                value={formData.designation} 
-                onChange={handleInputChange} 
-                required 
-              />
-            </div>
-
-            <div className="TestimonialManagement-group">
-              <label>Company / Logo</label>
-              <input 
-                type="text" 
-                name="company" 
-                placeholder="Enter company name (e.g. Envato, Amazon)" 
-                value={formData.company} 
-                onChange={handleInputChange} 
-              />
-            </div>
-
-            {/* Logo Upload Dropzone */}
-            <div className="TestimonialManagement-uploadBox">
-              <input 
-                type="file" 
-                id="logoUpload" 
-                accept="image/*" 
-                onChange={(e) => handleImageUpload(e, 'logo')} 
-                hidden 
-              />
-              <label htmlFor="logoUpload">
-                <FaImage className="TestimonialManagement-uploadIcon" />
-                <div>
-                  <strong>{formData.logo ? 'Change Company Logo' : 'Upload Company Logo'}</strong>
-                  <p>PNG, JPG, SVG (Max 2MB)</p>
-                </div>
-              </label>
-            </div>
-
-            {/* Profile Image Upload Dropzone */}
-            <div className="TestimonialManagement-group">
-              <label>Profile Image <span>*</span></label>
-              <div className="TestimonialManagement-uploadBox">
-                <input 
-                  type="file" 
-                  id="profileUpload" 
-                  accept="image/*" 
-                  onChange={(e) => handleImageUpload(e, 'profileImage')} 
-                  hidden 
+              <div className="TM-inputWrapper">
+                <FaUser />
+                <input
+                  type="text"
+                  name="clientName"
+                  placeholder="Enter client name"
+                  value={formData.clientName}
+                  onChange={handleInputChange}
+                  required
                 />
-                <label htmlFor="profileUpload">
-                  <FaUser className="TestimonialManagement-uploadIcon" />
-                  <div>
-                    <strong>{formData.profileImage ? 'Change Client Image' : 'Upload Client Image'}</strong>
-                    <p>JPG, PNG (Max 2MB)</p>
+              </div>
+            </div>
+
+            <div className="TM-formGroup">
+              <label>Designation <span>*</span></label>
+              <input
+                type="text"
+                name="designation"
+                placeholder="e.g. Marketing Coordinator"
+                value={formData.designation}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+
+            <div className="TM-formGroup">
+              <label>Company</label>
+              <div className="TM-inputWrapper">
+                <FaBuilding />
+                <input
+                  type="text"
+                  name="company"
+                  placeholder="e.g. Envato, Amazon"
+                  value={formData.company}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+
+            {/* COMPANY LOGO */}
+            <div className="TM-formGroup">
+              <label>Company Logo</label>
+              <div className="TM-uploadBox">
+                <input
+                  type="file"
+                  id="logoUpload"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  onChange={(e) => handleImageFileChange(e, "logo")}
+                  hidden
+                />
+                <label htmlFor="logoUpload" className="TM-uploadLabel">
+                  {logoPreview ? (
+                    <img
+                      src={logoPreview}
+                      alt="Company logo preview"
+                      className="TM-uploadPreview"
+                    />
+                  ) : (
+                    <div className="TM-uploadIcon">
+                      <FaCloudUploadAlt />
+                    </div>
+                  )}
+                  <div className="TM-uploadContent">
+                    <strong>{logoPreview ? "Change Logo" : "Upload Logo"}</strong>
+                    <span>PNG, JPG, WEBP or SVG • Max 2MB</span>
                   </div>
                 </label>
               </div>
             </div>
 
-            {/* Rating */}
-            <div className="TestimonialManagement-group">
-              <label>Rating <span>*</span></label>
-              <div className="TestimonialManagement-ratingSelect">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span 
-                    key={star} 
-                    onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {star <= formData.rating ? (
-                      <FaStar className="TestimonialManagement-star active" />
-                    ) : (
-                      <FaRegStar className="TestimonialManagement-star" />
-                    )}
-                  </span>
-                ))}
-                <span className="TestimonialManagement-ratingText">{formData.rating} out of 5</span>
+            {/* PROFILE IMAGE */}
+            <div className="TM-formGroup">
+              <label>Profile Image</label>
+              <div className="TM-uploadBox">
+                <input
+                  type="file"
+                  id="profileUpload"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(e) => handleImageFileChange(e, "profileImage")}
+                  hidden
+                />
+                <label htmlFor="profileUpload" className="TM-uploadLabel">
+                  {profilePreview ? (
+                    <img
+                      src={profilePreview}
+                      alt="Profile preview"
+                      className="TM-uploadPreview TM-profilePreview"
+                    />
+                  ) : (
+                    <div className="TM-uploadIcon">
+                      <FaUser />
+                    </div>
+                  )}
+                  <div className="TM-uploadContent">
+                    <strong>{profilePreview ? "Change Photo" : "Upload Photo"}</strong>
+                    <span>JPG, PNG or WEBP • Max 2MB</span>
+                  </div>
+                </label>
               </div>
             </div>
 
-            {/* Testimonial Message */}
-            <div className="TestimonialManagement-group">
-              <label>Testimonial Message <span>*</span></label>
-              <textarea 
-                rows="3" 
-                name="message" 
-                placeholder="Write client testimonial here..." 
-                value={formData.message} 
-                onChange={handleInputChange} 
-                required 
-              />
+            <div className="TM-formGroup">
+              <label>Rating <span>*</span></label>
+              <div className="TM-ratingPicker">
+                <RatingStars
+                  rating={formData.rating}
+                  clickable
+                  onChange={(rating) => setFormData((prev) => ({ ...prev, rating }))}
+                />
+                <span>{formData.rating} / 5</span>
+              </div>
             </div>
 
-            {/* Color Accent Picker */}
-            <div className="TestimonialManagement-group">
-              <label>Triangle Color / Accent <span>*</span></label>
-              <div className="TestimonialManagement-colorPicker">
+            <div className="TM-formGroup">
+              <label>Testimonial Message <span>*</span></label>
+              <textarea
+                rows="5"
+                name="message"
+                placeholder="Write customer testimonial..."
+                value={formData.message}
+                onChange={handleInputChange}
+                maxLength={500}
+                required
+              />
+              <div className="TM-characterCount">{formData.message.length}/500</div>
+            </div>
+
+            <div className="TM-formGroup">
+              <label>Accent Color</label>
+              <div className="TM-colorPicker">
                 {availableColors.map((color) => (
                   <button
                     type="button"
                     key={color}
-                    className={`TestimonialManagement-colorDot ${formData.accentColor === color ? 'active' : ''}`}
+                    aria-label={`Select ${color}`}
+                    className={`TM-colorDot ${formData.accentColor === color ? "active" : ""}`}
                     style={{ backgroundColor: color }}
-                    onClick={() => setFormData(prev => ({ ...prev, accentColor: color }))}
-                  />
+                    onClick={() => setFormData((prev) => ({ ...prev, accentColor: color }))}
+                  >
+                    {formData.accentColor === color && <FaCheck />}
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Form Action Buttons */}
-            <div className="TestimonialManagement-formActions">
-              <button type="button" className="TestimonialManagement-btnReset" onClick={handleReset}>
+            <div className="TM-formGroup">
+              <label>Status</label>
+              <div className="TM-statusChoice">
+                <button
+                  type="button"
+                  className={formData.status === "Active" ? "active" : ""}
+                  onClick={() => setFormData((prev) => ({ ...prev, status: "Active" }))}
+                >
+                  <FaCheck /> Active
+                </button>
+                <button
+                  type="button"
+                  className={formData.status === "Inactive" ? "inactiveActive" : ""}
+                  onClick={() => setFormData((prev) => ({ ...prev, status: "Inactive" }))}
+                >
+                  <FaTimes /> Inactive
+                </button>
+              </div>
+            </div>
+
+            <div className="TM-formActions">
+              <button type="button" className="TM-resetBtn" onClick={handleReset}>
                 <FaUndo /> Reset
               </button>
-              <button type="submit" className="TestimonialManagement-btnSave">
-                <FaSave /> {editingId ? 'Update Testimonial' : 'Save Testimonial'}
+              <button type="submit" className="TM-saveBtn">
+                <FaSave /> {editingId ? "Update Testimonial" : "Save Testimonial"}
               </button>
             </div>
           </form>
-        </div>
+        </section>
 
-        {/* Right Panel - Data Display */}
-        <div className="TestimonialManagement-card TestimonialManagement-listCard">
-          {/* Controls Bar */}
-          <div className="TestimonialManagement-controls">
-            <h3>All Testimonials ({filteredTestimonials.length})</h3>
-            <div className="TestimonialManagement-viewToggle">
-              <button 
-                className={viewMode === 'list' ? 'active' : ''} 
-                onClick={() => setViewMode('list')}
+        {/* LIST / GRID DISPLAY */}
+        <section className="TM-card TM-listCard">
+          <div className="TM-listTop">
+            <div>
+              <span className="TM-sectionEyebrow">CONTENT LIBRARY</span>
+              <h3>
+                All Testimonials <span>{filteredTestimonials.length}</span>
+              </h3>
+            </div>
+            <div className="TM-viewToggle">
+              <button
+                type="button"
+                className={viewMode === "list" ? "active" : ""}
+                onClick={() => setViewMode("list")}
               >
-                <FaList /> List View
+                <FaList /> List
               </button>
-              <button 
-                className={viewMode === 'grid' ? 'active' : ''} 
-                onClick={() => setViewMode('grid')}
+              <button
+                type="button"
+                className={viewMode === "grid" ? "active" : ""}
+                onClick={() => setViewMode("grid")}
               >
-                <FaThLarge /> Grid View
+                <FaThLarge /> Grid
               </button>
             </div>
           </div>
 
-          {/* Search & Filter Bar */}
-          <div className="TestimonialManagement-filterBar">
-            <div className="TestimonialManagement-searchBox">
+          <div className="TM-toolbar">
+            <div className="TM-searchBox">
               <FaSearch />
-              <input 
-                type="text" 
-                placeholder="Search testimonials..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
+              <input
+                type="text"
+                placeholder="Search by client, company or message..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
+              {searchTerm && (
+                <button type="button" onClick={() => setSearchTerm("")}>
+                  <FaTimes />
+                </button>
+              )}
             </div>
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="TestimonialManagement-statusSelect"
+
+            <button
+              type="button"
+              className={`TM-filterBtn ${showFilters ? "active" : ""}`}
+              onClick={() => setShowFilters((prev) => !prev)}
             >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
+              <FaFilter /> Filter
+            </button>
+
+            {showFilters && (
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="TM-statusSelect"
+              >
+                <option value="All">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            )}
           </div>
 
-          {/* LIST VIEW */}
-          {viewMode === 'list' ? (
-            <div className="TestimonialManagement-tableWrapper">
-              <table className="TestimonialManagement-table">
+          {selectedIds.length > 0 && (
+            <div className="TM-bulkBar">
+              <div>
+                <div className="TM-selectedCheck">
+                  <FaCheck />
+                </div>
+                <strong>{selectedIds.length} selected</strong>
+              </div>
+              <button type="button" onClick={handleBulkDelete}>
+                <FaTrashAlt /> Delete Selected
+              </button>
+            </div>
+          )}
+
+          {viewMode === "list" ? (
+            <div className="TM-tableWrapper">
+              <table className="TM-table">
                 <thead>
                   <tr>
-                    <th><input type="checkbox" /></th>
+                    <th className="TM-checkboxColumn">
+                      <input
+                        type="checkbox"
+                        checked={isAllSelected}
+                        ref={(input) => {
+                          if (input) input.indeterminate = isSomeSelected;
+                        }}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
                     <th>#</th>
                     <th>Client</th>
-                    <th>Message (Short)</th>
+                    <th>Message</th>
                     <th>Rating</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTestimonials.map((item, index) => (
-                    <tr key={item.id}>
-                      <td><input type="checkbox" /></td>
-                      <td>{index + 1}</td>
+                  {currentTestimonials.map((item, index) => (
+                    <tr
+                      key={item._id}
+                      className={selectedIds.includes(item._id) ? "selectedRow" : ""}
+                    >
                       <td>
-                        <div className="TestimonialManagement-clientCell">
-                          <img src={item.profileImage} alt={item.clientName} className="TestimonialManagement-avatar" />
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(item._id)}
+                          onChange={() => handleSelectOne(item._id)}
+                        />
+                      </td>
+                      <td className="TM-index">{startIndex + index + 1}</td>
+                      <td>
+                        <div className="TM-clientCell">
+                          <div className="TM-avatarWrapper">
+                            <img
+                              src={getImageUrl(item.profileImage)}
+                              alt={item.clientName}
+                              className="TM-avatar"
+                            />
+                            <span
+                              className="TM-onlineDot"
+                              style={{
+                                background:
+                                  item.status === "Active" ? "#22c55e" : "#94a3b8",
+                              }}
+                            />
+                          </div>
                           <div>
-                            <div className="TestimonialManagement-clientName">{item.clientName}</div>
-                            <div className="TestimonialManagement-clientRole">{item.designation}</div>
+                            <strong>{item.clientName}</strong>
+                            <span>{item.designation}</span>
+                            {item.company && <small>{item.company}</small>}
                           </div>
                         </div>
                       </td>
-                      <td className="TestimonialManagement-msgCell">{item.message}</td>
                       <td>
-                        <div className="TestimonialManagement-tableRating">
-                          {[1, 2, 3, 4, 5].map(star => (
-                            <span key={star}>
-                              {star <= item.rating ? (
-                                <FaStar className="TestimonialManagement-star active" />
-                              ) : (
-                                <FaRegStar className="TestimonialManagement-star" />
-                              )}
-                            </span>
-                          ))}
+                        <div className="TM-messageCell">
+                          <FaQuoteLeft />
+                          <span>{item.message}</span>
                         </div>
                       </td>
                       <td>
-                        <span className={`TestimonialManagement-badge ${item.status.toLowerCase()}`}>
-                          {item.status}
-                        </span>
+                        <RatingStars rating={item.rating} />
                       </td>
                       <td>
-                        <div className="TestimonialManagement-actionBtns">
-                          <button 
-                            className="view" 
-                            title="View" 
+                        <button
+                          type="button"
+                          className={`TM-statusBadge ${item.status.toLowerCase()}`}
+                          onClick={() => toggleStatus(item._id)}
+                          title="Click to change status"
+                        >
+                          {item.status === "Active" ? <FaToggleOn /> : <FaToggleOff />}
+                          {item.status}
+                        </button>
+                      </td>
+                      <td>
+                        <div className="TM-actionButtons">
+                          <button
+                            type="button"
+                            className="view"
+                            title="View"
                             onClick={() => setViewingModalData(item)}
                           >
                             <FaEye />
                           </button>
-                          <button 
-                            className="edit" 
-                            title="Edit" 
+                          <button
+                            type="button"
+                            className="edit"
+                            title="Edit"
                             onClick={() => handleEdit(item)}
                           >
                             <FaPencilAlt />
                           </button>
-                          <button 
-                            className="delete" 
-                            title="Delete" 
-                            onClick={() => handleDelete(item.id)}
+                          <button
+                            type="button"
+                            className="delete"
+                            title="Delete"
+                            onClick={() => handleDelete(item._id)}
                           >
                             <FaTrashAlt />
                           </button>
@@ -479,10 +839,15 @@ const TestimonialManagement = () => {
                       </td>
                     </tr>
                   ))}
-                  {filteredTestimonials.length === 0 && (
+
+                  {currentTestimonials.length === 0 && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
-                        No testimonials found.
+                      <td colSpan="7" className="TM-emptyState">
+                        <div>
+                          <FaSearch />
+                          <h4>No testimonials found</h4>
+                          <p>Try another search or filter.</p>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -490,82 +855,218 @@ const TestimonialManagement = () => {
               </table>
             </div>
           ) : (
-            /* GRID VIEW */
-            <div className="TestimonialManagement-grid">
-              {filteredTestimonials.map((item) => (
-                <div 
-                  className="TestimonialManagement-gridCard" 
-                  key={item.id}
-                  style={{ borderTop: `4px solid ${item.accentColor || '#3b82f6'}` }}
+            <div className="TM-grid">
+              {currentTestimonials.map((item) => (
+                <article
+                  key={item._id}
+                  className="TM-gridCard"
+                  style={{ "--accent": item.accentColor || "#3b82f6" }}
                 >
-                  <div className="TestimonialManagement-gridHeader">
-                    <img src={item.profileImage} alt={item.clientName} className="TestimonialManagement-avatar" />
-                    <div>
-                      <h4>{item.clientName}</h4>
-                      <p>{item.designation}</p>
+                  <div className="TM-gridAccent" />
+                  <div className="TM-gridTop">
+                    <div className="TM-gridProfile">
+                      <img
+                        src={getImageUrl(item.profileImage)}
+                        alt={item.clientName}
+                      />
+                      <div>
+                        <h4>{item.clientName}</h4>
+                        <span>{item.designation}</span>
+                      </div>
+                    </div>
+                    <button type="button" className="TM-moreBtn">
+                      <FaEllipsisV />
+                    </button>
+                  </div>
+
+                  <div className="TM-gridRating">
+                    <RatingStars rating={item.rating} />
+                    <span>{item.rating}.0</span>
+                  </div>
+
+                  <div className="TM-quote">
+                    <FaQuoteLeft />
+                  </div>
+
+                  <p className="TM-gridMessage">{item.message}</p>
+
+                  {item.company && (
+                    <div className="TM-company">
+                      {item.logo ? (
+                        <img src={getImageUrl(item.logo)} alt={item.company} />
+                      ) : (
+                        <FaBuilding />
+                      )}
+                      <span>{item.company}</span>
+                    </div>
+                  )}
+
+                  <div className="TM-gridFooter">
+                    <button
+                      type="button"
+                      className={`TM-statusBadge ${item.status.toLowerCase()}`}
+                      onClick={() => toggleStatus(item._id)}
+                    >
+                      {item.status === "Active" ? <FaToggleOn /> : <FaToggleOff />}
+                      {item.status}
+                    </button>
+
+                    <div className="TM-actionButtons">
+                      <button
+                        type="button"
+                        className="view"
+                        onClick={() => setViewingModalData(item)}
+                      >
+                        <FaEye />
+                      </button>
+                      <button
+                        type="button"
+                        className="edit"
+                        onClick={() => handleEdit(item)}
+                      >
+                        <FaPencilAlt />
+                      </button>
+                      <button
+                        type="button"
+                        className="delete"
+                        onClick={() => handleDelete(item._id)}
+                      >
+                        <FaTrashAlt />
+                      </button>
                     </div>
                   </div>
-                  <p className="TestimonialManagement-gridMsg">"{item.message}"</p>
-                  <div className="TestimonialManagement-gridFooter">
-                    <div className="TestimonialManagement-tableRating">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <span key={star}>
-                          {star <= item.rating ? (
-                            <FaStar className="TestimonialManagement-star active" />
-                          ) : (
-                            <FaRegStar className="TestimonialManagement-star" />
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="TestimonialManagement-actionBtns">
-                      <button className="view" onClick={() => setViewingModalData(item)}><FaEye /></button>
-                      <button className="edit" onClick={() => handleEdit(item)}><FaPencilAlt /></button>
-                      <button className="delete" onClick={() => handleDelete(item.id)}><FaTrashAlt /></button>
-                    </div>
-                  </div>
-                </div>
+                </article>
               ))}
+
+              {currentTestimonials.length === 0 && (
+                <div className="TM-gridEmpty">
+                  <FaSearch />
+                  <h4>No testimonials found</h4>
+                  <p>Try changing your search or filter.</p>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Footer Pagination */}
-          <div className="TestimonialManagement-pagination">
-            <span>Showing 1 to {filteredTestimonials.length} of {testimonials.length} testimonials</span>
-            <div className="TestimonialManagement-pageBtns">
-              <button disabled><FaChevronLeft /></button>
-              <button className="active">1</button>
-              <button>2</button>
-              <button><FaChevronRight /></button>
+          {/* PAGINATION */}
+          <div className="TM-pagination">
+            <div className="TM-paginationInfo">
+              Showing{" "}
+              <strong>
+                {filteredTestimonials.length === 0 ? 0 : startIndex + 1}
+              </strong>{" "}
+              to{" "}
+              <strong>
+                {Math.min(startIndex + ITEMS_PER_PAGE, filteredTestimonials.length)}
+              </strong>{" "}
+              of <strong>{filteredTestimonials.length}</strong> testimonials
+            </div>
+
+            <div className="TM-pageButtons">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              >
+                <FaChevronLeft />
+              </button>
+
+              {getPageNumbers().map((page, index) =>
+                page === "..." ? (
+                  <span key={`dots-${index}`} className="TM-pageDots">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    key={page}
+                    className={currentPage === page ? "active" : ""}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              >
+                <FaChevronRight />
+              </button>
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
-      {/* View Modal */}
+      {/* VIEW MODAL */}
       {viewingModalData && (
-        <div className="TestimonialManagement-modalBackdrop" onClick={() => setViewingModalData(null)}>
-          <div className="TestimonialManagement-modal" onClick={e => e.stopPropagation()}>
-            <div className="TestimonialManagement-modalHeader">
-              <h3>Testimonial Details</h3>
-              <button onClick={() => setViewingModalData(null)}>&times;</button>
-            </div>
-            <div className="TestimonialManagement-modalBody">
-              <img src={viewingModalData.profileImage} alt="profile" className="TestimonialManagement-modalAvatar" />
-              <h4>{viewingModalData.clientName}</h4>
-              <p className="role">{viewingModalData.designation}</p>
-              <div className="rating">
-                {[1, 2, 3, 4, 5].map(star => (
-                  <span key={star}>
-                    {star <= viewingModalData.rating ? (
-                      <FaStar className="TestimonialManagement-star active" />
-                    ) : (
-                      <FaRegStar className="TestimonialManagement-star" />
-                    )}
-                  </span>
-                ))}
+        <div
+          className="TM-modalBackdrop"
+          onClick={() => setViewingModalData(null)}
+        >
+          <div className="TM-modal" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="TM-modalAccent"
+              style={{
+                background: viewingModalData.accentColor || "#3b82f6",
+              }}
+            />
+            <button
+              type="button"
+              className="TM-modalClose"
+              onClick={() => setViewingModalData(null)}
+            >
+              <FaTimes />
+            </button>
+
+            <div className="TM-modalContent">
+              <div className="TM-modalAvatarWrapper">
+                <img
+                  src={getImageUrl(viewingModalData.profileImage)}
+                  alt={viewingModalData.clientName}
+                  className="TM-modalAvatar"
+                />
+                <span
+                  className={`TM-modalStatus ${viewingModalData.status.toLowerCase()}`}
+                />
               </div>
-              <p className="message">"{viewingModalData.message}"</p>
+
+              <h3>{viewingModalData.clientName}</h3>
+              <p className="TM-modalRole">{viewingModalData.designation}</p>
+
+              {viewingModalData.company && (
+                <div className="TM-modalCompany">
+                  <FaBuilding />
+                  {viewingModalData.company}
+                </div>
+              )}
+
+              <RatingStars rating={viewingModalData.rating} />
+
+              <div className="TM-modalQuote">
+                <FaQuoteLeft />
+                <p>{viewingModalData.message}</p>
+              </div>
+
+              <div className="TM-modalBottom">
+                <span
+                  className={`TM-statusBadge ${viewingModalData.status.toLowerCase()}`}
+                >
+                  {viewingModalData.status}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleEdit(viewingModalData);
+                    setViewingModalData(null);
+                  }}
+                >
+                  <FaPencilAlt /> Edit Testimonial
+                </button>
+              </div>
             </div>
           </div>
         </div>
