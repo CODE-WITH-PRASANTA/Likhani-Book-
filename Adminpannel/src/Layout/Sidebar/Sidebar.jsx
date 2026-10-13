@@ -1,338 +1,340 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import './Sidebar.css';
+
+import React, { useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
-  LuLayoutDashboard, LuBook, LuFolder, LuShoppingCart,
-  LuUsers, LuMessageSquare, LuTag, LuStar,
-  LuSettings, LuBookOpen, LuMessageCircle, LuX, LuMenu,
-  LuGalleryHorizontal, LuNewspaper, LuPenTool, LuListTree,
-  LuChevronDown
-} from 'react-icons/lu';
+  LuLayoutDashboard,
+  LuBook,
+  LuFolder,
+  LuShoppingCart,
+  LuUsers,
+  LuMessageSquare,
+  LuTag,
+  LuStar,
+  LuSettings,
+  LuBookOpen,
+  LuMessageCircle,
+  LuX,
+  LuMenu,
+  LuGalleryHorizontal,
+  LuNewspaper,
+  LuPenTool,
+  LuListTree,
+  LuChevronDown,
+  LuChevronLeft,
+  LuChevronRight,
+} from "react-icons/lu";
+
+import "./Sidebar.css";
 
 const blogSubItems = [
-  { id: 'blog-management', label: 'Blog Management', path: '/blogs/management', icon: <LuListTree /> },
-  { id: 'blog-posting', label: 'Blog Posting', path: '/blogs/create', icon: <LuPenTool /> }
+  {
+    id: "blog-management",
+    label: "Blog Management",
+    path: "/blogs/management",
+    icon: LuListTree,
+  },
+  {
+    id: "blog-posting",
+    label: "Blog Posting",
+    path: "/blogs/create",
+    icon: LuPenTool,
+  },
 ];
 
-const Sidebar = ({ isCollapsedProp = false, toggleSidebarProp }) => {
+const navigationGroups = [
+  {
+    title: "OVERVIEW",
+    items: [
+      { label: "Dashboard", path: "/dashboard", icon: LuLayoutDashboard },
+      { label: "Books", path: "/books", icon: LuBook },
+      { label: "Blogs", type: "dropdown", icon: LuNewspaper },
+      { label: "Shop", path: "/shop", icon: LuShoppingCart },
+      { label: "Categories", path: "/categories", icon: LuFolder },
+    ],
+  },
+  {
+    title: "MANAGEMENT",
+    items: [
+      { label: "Orders", path: "/orders", icon: LuShoppingCart },
+      { label: "Gallery", path: "/gallery", icon: LuGalleryHorizontal },
+      { label: "Users", path: "/users", icon: LuUsers },
+      { label: "Enquiries", path: "/enquiries", icon: LuMessageSquare },
+      { label: "Supports", path: "/supports", icon: LuMessageCircle },
+    ],
+  },
+  {
+    title: "MARKETING",
+    items: [
+      { label: "Coupons", path: "/coupons", icon: LuTag },
+      { label: "Reviews", path: "/reviews", icon: LuStar },
+      { label: "Testimonials", path: "/testimonial", icon: LuMessageCircle },
+    ],
+  },
+  {
+    title: "SYSTEM",
+    items: [
+      { label: "Settings", path: "/settings", icon: LuSettings },
+    ],
+  },
+];
+
+const Sidebar = ({
+  isCollapsedProp = false,
+  toggleSidebarProp,
+}) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isBlogsOpen, setIsBlogsOpen] = useState(false);
+
   const location = useLocation();
 
-  // Check if current route is within the blogs section
-  const isBlogRouteActive = location.pathname.startsWith('/blogs');
-  const [isBlogsOpen, setIsBlogsOpen] = useState(isBlogRouteActive);
+  const isBlogRouteActive =
+    location.pathname === "/blogs" ||
+    location.pathname.startsWith("/blogs/");
 
-  // Keep blogs open if user navigates to a blog sub-route
+  const showExpandedContent =
+    !isCollapsedProp || isMobileOpen;
+
   useEffect(() => {
     if (isBlogRouteActive) {
       setIsBlogsOpen(true);
     }
-  }, [location.pathname, isBlogRouteActive]);
+  }, [isBlogRouteActive]);
 
-  // Lock body scroll on mobile devices when drawer is active
   useEffect(() => {
-    if (isMobileOpen && window.innerWidth <= 768) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    setIsMobileOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isMobileOpen || window.innerWidth > 768) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsMobileOpen(false);
+      }
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleEscape);
+      window.removeEventListener("resize", handleResize);
     };
   }, [isMobileOpen]);
 
-  const handleCloseMobile = () => {
-    setIsMobileOpen(false);
-  };
-
   const handleItemClick = () => {
     if (window.innerWidth <= 768) {
-      handleCloseMobile();
+      setIsMobileOpen(false);
     }
   };
 
-  const toggleBlogsDropdown = (e) => {
-    e.preventDefault();
+  const toggleBlogsDropdown = () => {
     if (isCollapsedProp && !isMobileOpen && toggleSidebarProp) {
       toggleSidebarProp();
+      setIsBlogsOpen(true);
+      return;
     }
-    setIsBlogsOpen((prev) => !prev);
+
+    setIsBlogsOpen((previous) => !previous);
   };
 
-  const showExpandedContent = !isCollapsedProp || isMobileOpen;
+  const renderNavItem = (item) => {
+    const Icon = item.icon;
+
+    if (item.type === "dropdown") {
+      return (
+        <li key={item.label} className="premium-nav-dropdown">
+          <button
+            type="button"
+            className={`premium-nav-link premium-dropdown-trigger ${
+              isBlogRouteActive ? "is-active" : ""
+            }`}
+            onClick={toggleBlogsDropdown}
+            aria-expanded={showExpandedContent && isBlogsOpen}
+            aria-controls="premium-blog-submenu"
+            title={!showExpandedContent ? "Blogs" : undefined}
+          >
+            <span className="premium-nav-icon">
+              <Icon />
+            </span>
+
+            {showExpandedContent && (
+              <>
+                <span className="premium-nav-text">Blogs</span>
+                <LuChevronDown
+                  className={`premium-dropdown-chevron ${
+                    isBlogsOpen ? "rotated" : ""
+                  }`}
+                />
+              </>
+            )}
+          </button>
+
+          {showExpandedContent && (
+            <div
+              id="premium-blog-submenu"
+              className={`premium-submenu-wrapper ${
+                isBlogsOpen ? "expanded" : ""
+              }`}
+            >
+              <ul className="premium-submenu-list">
+                {blogSubItems.map((subItem) => {
+                  const SubIcon = subItem.icon;
+
+                  return (
+                    <li key={subItem.id}>
+                      <NavLink
+                        to={subItem.path}
+                        onClick={handleItemClick}
+                        className={({ isActive }) =>
+                          `premium-submenu-link ${
+                            isActive ? "sub-active" : ""
+                          }`
+                        }
+                      >
+                        <SubIcon />
+                        <span>{subItem.label}</span>
+                      </NavLink>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </li>
+      );
+    }
+
+    return (
+      <li key={item.path} className="premium-nav-item">
+        <NavLink
+          to={item.path}
+          end
+          onClick={handleItemClick}
+          title={!showExpandedContent ? item.label : undefined}
+          className={({ isActive }) =>
+            `premium-nav-link ${isActive ? "is-active" : ""}`
+          }
+        >
+          <span className="premium-nav-icon">
+            <Icon />
+          </span>
+
+          {showExpandedContent && (
+            <span className="premium-nav-text">
+              {item.label}
+            </span>
+          )}
+        </NavLink>
+      </li>
+    );
+  };
 
   return (
     <>
-      {/* Floating Toggle Button for Mobile */}
-      <button 
-        type="button" 
-        className="mobile-toggle-btn" 
-        onClick={() => setIsMobileOpen((prev) => !prev)}
-        aria-label="Toggle Navigation Menu"
+      <button
+        type="button"
+        className="premium-mobile-toggle"
+        onClick={() => setIsMobileOpen((previous) => !previous)}
+        aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+        aria-expanded={isMobileOpen}
       >
-        <LuMenu />
+        {isMobileOpen ? <LuX /> : <LuMenu />}
       </button>
 
-      {/* Dimmed backdrop overlay for mobile */}
       {isMobileOpen && (
-        <div 
-          className="sidebar-overlay active" 
-          onClick={handleCloseMobile} 
+        <div
+          className="premium-sidebar-overlay"
+          onClick={() => setIsMobileOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      <aside 
-        className={`sidebar ${isCollapsedProp ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}
-        aria-label="Main Navigation"
+      <aside
+        className={`premium-sidebar ${
+          isCollapsedProp ? "collapsed" : ""
+        } ${isMobileOpen ? "mobile-open" : ""}`}
+        aria-label="Admin sidebar"
       >
-        {/* Brand Header */}
-        <div className="sidebar-brand">
-          <div className="brand-header-left">
-            <div className="brand-logo" aria-hidden="true">
+        <div className="premium-sidebar-brand">
+          <div className="premium-brand-content">
+            <div className="premium-brand-icon">
               <LuBookOpen />
             </div>
+
             {showExpandedContent && (
-              <div className="brand-info">
+              <div className="premium-brand-details">
                 <h2>Likhani Books</h2>
-                <span>Admin Panel</span>
+                <div className="premium-brand-subtitle">
+                  <span className="premium-brand-dot" />
+                  ADMIN DASHBOARD
+                </div>
               </div>
             )}
           </div>
 
-          <button 
-            type="button" 
-            className="sidebar-close-btn" 
-            onClick={handleCloseMobile} 
-            aria-label="Close Navigation Sidebar"
+          <button
+            type="button"
+            className="premium-sidebar-mobile-close"
+            onClick={() => setIsMobileOpen(false)}
+            aria-label="Close sidebar"
           >
             <LuX />
           </button>
         </div>
 
-        {/* Navigation Section */}
-        <nav className="sidebar-nav">
-          <ul className="nav-list">
-            {/* Dashboard */}
-            <li>
-              <NavLink
-                to="/dashboard"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Dashboard' : ''}
-              >
-                <span className="nav-icon"><LuLayoutDashboard /></span>
-                {showExpandedContent && <span className="nav-label">Dashboard</span>}
-              </NavLink>
-            </li>
-
-            {/* Books */}
-            <li>
-              <NavLink
-                to="/books"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Books' : ''}
-              >
-                <span className="nav-icon"><LuBook /></span>
-                {showExpandedContent && <span className="nav-label">Books</span>}
-              </NavLink>
-            </li>
-
-            {/* Blogs Dropdown Menu (Directly Below Books) */}
-            <li className={`nav-dropdown-item ${isBlogsOpen ? 'open' : ''} ${isBlogRouteActive ? 'parent-active' : ''}`}>
-              <button
-                type="button"
-                className={`nav-link nav-dropdown-btn ${isBlogRouteActive ? 'active' : ''}`}
-                onClick={toggleBlogsDropdown}
-                aria-expanded={isBlogsOpen}
-                title={!showExpandedContent ? 'Blogs' : ''}
-              >
-                <span className="nav-icon"><LuNewspaper /></span>
-                {showExpandedContent && (
-                  <>
-                    <span className="nav-label">Blogs</span>
-                    <span className={`dropdown-arrow ${isBlogsOpen ? 'rotated' : ''}`}>
-                      <LuChevronDown />
-                    </span>
-                  </>
-                )}
-              </button>
-
-              {/* Sub-menu: Blog Management & Blog Posting */}
-              {showExpandedContent && (
-                <div className={`nav-submenu-wrapper ${isBlogsOpen ? 'expanded' : ''}`}>
-                  <ul className="nav-submenu">
-                    {blogSubItems.map(({ id, label, path, icon }) => (
-                      <li key={id}>
-                        <NavLink
-                          to={path}
-                          className={({ isActive }) => `nav-sub-link ${isActive ? 'sub-active' : ''}`}
-                          onClick={handleItemClick}
-                        >
-                          <span className="nav-sub-icon">{icon}</span>
-                          <span className="nav-sub-label">{label}</span>
-                        </NavLink>
-                      </li>
-                    ))}
-                  </ul>
+        <nav
+          className="premium-sidebar-navigation"
+          aria-label="Main navigation"
+        >
+          {navigationGroups.map((group) => (
+            <div className="premium-nav-group" key={group.title}>
+              {showExpandedContent ? (
+                <div className="premium-nav-group-title">
+                  <span>{group.title}</span>
+                  <span className="premium-group-line" />
                 </div>
+              ) : (
+                <div className="premium-collapsed-divider" />
               )}
-            </li>
 
-            {/* Shop */}
-            <li>
-              <NavLink
-                to="/shop"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Shop' : ''}
-              >
-                <span className="nav-icon"><LuShoppingCart /></span>
-                {showExpandedContent && <span className="nav-label">Shop</span>}
-              </NavLink>
-            </li>
-
-            {/* Categories */}
-            <li>
-              <NavLink
-                to="/categories"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Categories' : ''}
-              >
-                <span className="nav-icon"><LuFolder /></span>
-                {showExpandedContent && <span className="nav-label">Categories</span>}
-              </NavLink>
-            </li>
-
-            {/* Orders */}
-            <li>
-              <NavLink
-                to="/orders"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Orders' : ''}
-              >
-                <span className="nav-icon"><LuShoppingCart /></span>
-                {showExpandedContent && <span className="nav-label">Orders</span>}
-              </NavLink>
-            </li>
-
-            {/* Gallery */}
-            <li>
-              <NavLink
-                to="/gallery"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Gallery' : ''}
-              >
-                <span className="nav-icon"><LuGalleryHorizontal /></span>
-                {showExpandedContent && <span className="nav-label">Gallery</span>}
-              </NavLink>
-            </li>
-
-            {/* Users */}
-            <li>
-              <NavLink
-                to="/users"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Users' : ''}
-              >
-                <span className="nav-icon"><LuUsers /></span>
-                {showExpandedContent && <span className="nav-label">Users</span>}
-              </NavLink>
-            </li>
-
-            {/* Enquiries */}
-            <li>
-              <NavLink
-                to="/enquiries"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Enquiries' : ''}
-              >
-                <span className="nav-icon"><LuMessageSquare /></span>
-                {showExpandedContent && <span className="nav-label">Enquiries</span>}
-              </NavLink>
-            </li>
-
-            {/* Supports */}
-            <li>
-              <NavLink
-                to="/supports"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Supports' : ''}
-              >
-                <span className="nav-icon"><LuMessageCircle /></span>
-                {showExpandedContent && <span className="nav-label">Supports</span>}
-              </NavLink>
-            </li>
-
-            {/* Coupons */}
-            <li>
-              <NavLink
-                to="/coupons"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Coupons' : ''}
-              >
-                <span className="nav-icon"><LuTag /></span>
-                {showExpandedContent && <span className="nav-label">Coupons</span>}
-              </NavLink>
-            </li>
-
-            {/* Reviews */}
-            <li>
-              <NavLink
-                to="/reviews"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Reviews' : ''}
-              >
-                <span className="nav-icon"><LuStar /></span>
-                {showExpandedContent && <span className="nav-label">Reviews</span>}
-              </NavLink>
-            </li>
-
-            {/* Testimonials */}
-            <li>
-              <NavLink
-                to="/testimonial"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Testimonials' : ''}
-              >
-                <span className="nav-icon"><LuMessageCircle /></span>
-                {showExpandedContent && <span className="nav-label">Testimonials</span>}
-              </NavLink>
-            </li>
-
-            {/* Settings */}
-            <li>
-              <NavLink
-                to="/settings"
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                onClick={handleItemClick}
-                title={!showExpandedContent ? 'Settings' : ''}
-              >
-                <span className="nav-icon"><LuSettings /></span>
-                {showExpandedContent && <span className="nav-label">Settings</span>}
-              </NavLink>
-            </li>
-          </ul>
+              <ul className="premium-nav-list">
+                {group.items.map(renderNavItem)}
+              </ul>
+            </div>
+          ))}
         </nav>
 
-        {/* Footer Quote Card */}
-        {showExpandedContent && (
-          <div className="sidebar-footer">
-            <div className="quote-box">
-              <div className="quote-icon" aria-hidden="true"><LuBookOpen /></div>
-              <p className="quote-text">"Books are a uniquely portable magic."</p>
-              <span className="quote-author">— Stephen King</span>
-            </div>
+        {/* Bottom cards removed intentionally. */}
+        {toggleSidebarProp && (
+          <div className="premium-sidebar-footer">
+            <button
+              type="button"
+              className="premium-collapse-button"
+              onClick={toggleSidebarProp}
+              aria-label={
+                isCollapsedProp ? "Expand sidebar" : "Collapse sidebar"
+              }
+              title={
+                isCollapsedProp ? "Expand sidebar" : "Collapse sidebar"
+              }
+            >
+              {isCollapsedProp ? (
+                <LuChevronRight />
+              ) : (
+                <LuChevronLeft />
+              )}
+            </button>
           </div>
         )}
       </aside>

@@ -1,194 +1,235 @@
-/* Container & Wrapper */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
+/* ---------- Wrapper ---------- */
 .ContactUsCard-wrapper {
+  --cu-teal: #055d75;
+  --cu-teal-deep: #033f50;
+  --cu-navy: #0b2545;
+  --cu-text: #4b5b73;
+  --cu-line: #e3e9f2;
+  --cu-bg: #f4f7fb;
+  --cu-accent: #ff5e14;
+
   width: 100%;
-  padding: 60px 20px;
-  background-color: #ffffff;
+  padding: 80px 20px;
+  background: var(--cu-bg);
   box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  color: #334155;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, sans-serif;
+  color: var(--cu-text);
+}
+
+.ContactUsCard-wrapper *,
+.ContactUsCard-wrapper *::before,
+.ContactUsCard-wrapper *::after {
+  box-sizing: border-box;
 }
 
 .ContactUsCard-container {
-  max-width: 1440px;
+  max-width: 1240px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 40px;
 }
 
-/* Grid Layout */
+/* ---------- Main card: info + form in one surface ---------- */
 .ContactUsCard-content-grid {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 40px;
-  align-items: start;
+  grid-template-columns: 400px 1fr;
+  background: #ffffff;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px -40px rgba(11, 37, 69, 0.35),
+    0 0 0 1px rgba(11, 37, 69, 0.04);
 }
 
-/* Left Contact Card */
+/* ---------- Left: info panel ---------- */
 .ContactUsCard-info-card {
-  background-color: #055d75;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(5, 93, 117, 0.15);
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: 40px;
+  padding: 52px 44px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.12), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(255, 94, 20, 0.22), transparent 50%),
+    linear-gradient(160deg, var(--cu-teal) 0%, var(--cu-navy) 100%);
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.ContactUsCard-info-card::after {
+  content: '';
+  position: absolute;
+  right: -90px;
+  bottom: -90px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 38px rgba(255, 255, 255, 0.03),
+    0 0 0 76px rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+.ContactUsCard-info-title {
+  margin: 0 0 12px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+  color: #ffffff;
+}
+
+.ContactUsCard-info-subtitle {
+  margin: 0;
+  max-width: 30ch;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.74);
 }
 
 .ContactUsCard-info-list {
-  padding: 35px 30px;
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 26px;
 }
 
 .ContactUsCard-info-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 18px;
-  padding-bottom: 24px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.25);
-}
-
-.ContactUsCard-info-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
 }
 
 .ContactUsCard-icon-wrapper {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 1.5px dashed rgba(255, 255, 255, 0.6);
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.ContactUsCard-info-item:hover .ContactUsCard-icon-wrapper {
+  background: var(--cu-accent);
+  border-color: var(--cu-accent);
+  transform: translateY(-2px);
 }
 
 .ContactUsCard-icon {
   color: #ffffff;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
+}
+
+.ContactUsCard-info-text {
+  min-width: 0;
+  padding-top: 2px;
 }
 
 .ContactUsCard-info-text span {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
   display: block;
   margin-bottom: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
 }
 
-.ContactUsCard-info-text h4 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  letter-spacing: -0.2px;
-}
-
-/* Support Image with Play Button Overlay */
-.ContactUsCard-image-container {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  overflow: hidden;
-}
-
-.ContactUsCard-support-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.ContactUsCard-info-value {
   display: block;
-  transition: transform 0.5s ease;
-}
-
-.ContactUsCard-image-container:hover .ContactUsCard-support-img {
-  transform: scale(1.06);
-}
-
-.ContactUsCard-play-btn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background-color: #ffffff;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.ContactUsCard-play-btn:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  background-color: #055d75;
-}
-
-.ContactUsCard-play-icon {
-  color: #055d75;
-  font-size: 1rem;
-  margin-left: 3px;
-  transition: color 0.3s ease;
-}
-
-.ContactUsCard-play-btn:hover .ContactUsCard-play-icon {
-  color: #ffffff;
-}
-
-/* Right Form Section */
-.ContactUsCard-heading {
-  font-size: 2.2rem;
+  margin: 0;
+  font-size: 1.02rem;
   font-weight: 700;
-  color: #0b2545;
-  margin: 0 0 16px 0;
+  line-height: 1.5;
+  color: #ffffff;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+a.ContactUsCard-info-value {
+  width: fit-content;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.3s ease;
+}
+
+a.ContactUsCard-info-value:hover {
+  background-size: 100% 1px;
+}
+
+/* ---------- Right: form ---------- */
+.ContactUsCard-form-container {
+  padding: 52px 56px;
+}
+
+.ContactUsCard-heading {
+  margin: 0 0 14px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.6px;
+  color: var(--cu-navy);
 }
 
 .ContactUsCard-description {
-  font-size: 0.95rem;
+  margin: 0 0 36px;
+  max-width: 56ch;
+  font-size: 0.98rem;
   line-height: 1.7;
-  color: #64748b;
-  margin: 0 0 30px 0;
+  color: var(--cu-text);
 }
 
 .ContactUsCard-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .ContactUsCard-input-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 22px;
 }
 
 .ContactUsCard-field-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
 }
 
 .ContactUsCard-field-group label {
-  font-size: 0.875rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  color: #0b2545;
+  color: var(--cu-navy);
 }
 
 .ContactUsCard-field-group input,
 .ContactUsCard-field-group textarea {
   width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  color: #334155;
+  padding: 15px 18px;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--cu-navy);
+  background: var(--cu-bg);
+  border: 1.5px solid transparent;
+  border-radius: 14px;
   outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.ContactUsCard-field-group textarea {
+  resize: vertical;
+  min-height: 140px;
 }
 
 .ContactUsCard-field-group input::placeholder,
@@ -196,133 +237,224 @@
   color: #94a3b8;
 }
 
+.ContactUsCard-field-group input:hover,
+.ContactUsCard-field-group textarea:hover {
+  border-color: var(--cu-line);
+}
+
 .ContactUsCard-field-group input:focus,
 .ContactUsCard-field-group textarea:focus {
-  border-color: #055d75;
-  box-shadow: 0 0 0 3px rgba(5, 93, 117, 0.1);
+  background: #ffffff;
+  border-color: var(--cu-teal);
+  box-shadow: 0 0 0 4px rgba(5, 93, 117, 0.12);
 }
 
+.ContactUsCard-field-group input:disabled,
+.ContactUsCard-field-group textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Button */
 .ContactUsCard-submit-btn {
   align-self: flex-start;
-  background-color: #055d75;
-  color: #ffffff;
-  border: none;
-  padding: 14px 32px;
-  border-radius: 30px;
-  font-size: 0.95rem;
-  font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
+  margin-top: 6px;
+  padding: 8px 8px 8px 30px;
+  font: inherit;
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--cu-navy);
+  border: 0;
+  border-radius: 999px;
   cursor: pointer;
-  margin-top: 10px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 16px 30px -14px rgba(11, 37, 69, 0.7);
+  transition: background-color 0.3s ease, transform 0.25s ease,
+    box-shadow 0.3s ease;
 }
 
-.ContactUsCard-submit-btn:hover {
-  background-color: #033f50;
-  transform: translateY(-2px);
+.ContactUsCard-arrow-wrap {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--cu-accent);
+  transition: transform 0.3s ease;
 }
 
 .ContactUsCard-arrow-icon {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
-/* Map Section */
+.ContactUsCard-submit-btn:hover:not(:disabled) {
+  background: var(--cu-teal);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 34px -14px rgba(5, 93, 117, 0.75);
+}
+
+.ContactUsCard-submit-btn:hover:not(:disabled) .ContactUsCard-arrow-wrap {
+  transform: translateX(3px);
+}
+
+.ContactUsCard-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ContactUsCard-submit-btn:focus-visible,
+.ContactUsCard-map-link:focus-visible,
+a.ContactUsCard-info-value:focus-visible {
+  outline: 3px solid rgba(255, 94, 20, 0.45);
+  outline-offset: 3px;
+}
+
+/* ---------- Map ---------- */
 .ContactUsCard-map-container {
+  position: relative;
   width: 100%;
-  height: 450px;
-  border-radius: 12px;
+  height: 440px;
+  border-radius: 28px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  background: #dfe6ef;
+  box-shadow: 0 30px 60px -36px rgba(11, 37, 69, 0.35),
+    0 0 0 1px rgba(11, 37, 69, 0.04);
 }
 
 .ContactUsCard-map-iframe {
   width: 100%;
   height: 100%;
   border: 0;
+  filter: saturate(0.9) contrast(1.02);
 }
 
-/* Modal Popup Styling */
-.ContactUsCard-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.75);
-  display: flex;
+.ContactUsCard-map-card {
+  position: absolute;
+  left: 28px;
+  bottom: 28px;
+  max-width: 340px;
+  padding: 20px 22px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px -16px rgba(11, 37, 69, 0.4);
+}
+
+.ContactUsCard-map-address {
+  margin: 0 0 14px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--cu-navy);
+}
+
+.ContactUsCard-map-link {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--cu-teal);
+  text-decoration: none;
+  transition: color 0.25s ease, gap 0.25s ease;
 }
 
-.ContactUsCard-modal-content {
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-  background-color: #000;
-  border-radius: 8px;
-  overflow: hidden;
+.ContactUsCard-map-link:hover {
+  color: var(--cu-accent);
+  gap: 12px;
 }
 
-.ContactUsCard-modal-close {
-  position: absolute;
-  top: -10px;
-  right: 10px;
-  color: #ffffff;
-  font-size: 2.5rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  z-index: 1010;
-}
-
-.ContactUsCard-video-wrapper {
-  position: relative;
-  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-  height: 0;
-}
-
-.ContactUsCard-video-wrapper iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-/* Responsive Styles */
-@media (max-width: 992px) {
+/* ---------- Tablet ---------- */
+@media (max-width: 1100px) {
   .ContactUsCard-content-grid {
-    grid-template-columns: 1fr;
-    gap: 35px;
+    grid-template-columns: 340px 1fr;
   }
 
   .ContactUsCard-info-card {
-    max-width: 500px;
-    margin: 0 auto;
-    width: 100%;
+    padding: 44px 32px;
+  }
+
+  .ContactUsCard-form-container {
+    padding: 44px 36px;
   }
 }
 
+@media (max-width: 900px) {
+  .ContactUsCard-wrapper {
+    padding: 60px 16px;
+  }
+
+  .ContactUsCard-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ContactUsCard-info-card {
+    gap: 32px;
+    padding: 40px 32px;
+  }
+
+  .ContactUsCard-info-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 24px;
+  }
+}
+
+/* ---------- Mobile ---------- */
 @media (max-width: 600px) {
+  .ContactUsCard-wrapper {
+    padding: 40px 12px;
+  }
+
+  .ContactUsCard-content-grid,
+  .ContactUsCard-map-container {
+    border-radius: 20px;
+  }
+
+  .ContactUsCard-info-card {
+    padding: 32px 22px;
+  }
+
+  .ContactUsCard-info-list {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .ContactUsCard-form-container {
+    padding: 32px 22px;
+  }
+
+  .ContactUsCard-heading {
+    font-size: 1.7rem;
+  }
+
   .ContactUsCard-input-row {
     grid-template-columns: 1fr;
   }
 
-  .ContactUsCard-heading {
-    font-size: 1.8rem;
+  .ContactUsCard-submit-btn {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .ContactUsCard-map-container {
-    height: 320px;
+    height: 380px;
   }
 
-  .ContactUsCard-submit-btn {
-    width: 100%;
-    justify-content: center;
+  .ContactUsCard-map-card {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: none;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ContactUsCard-wrapper * {
+    transition: none !important;
   }
 }

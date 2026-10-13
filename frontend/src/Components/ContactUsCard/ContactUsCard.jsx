@@ -4,15 +4,48 @@ import {
   FaEnvelope,
   FaMapMarkerAlt,
   FaUserAlt,
-  FaPlay,
   FaArrowRight,
+  FaDirections,
 } from 'react-icons/fa'
 import Swal from 'sweetalert2'
 import API from '../../api/axios'
 import './ContactUsCard.css'
 
-// Image imported directly from assets folder as webp format
-import customerSupportImg from '../../assets/16.webp'
+const PHONE_DISPLAY = '+91 9692075298'
+const PHONE_LINK = 'tel:+919692075298'
+const EMAIL = 'example@gmail.com'
+const ADDRESS = 'Srikoruan, Near Indoor Stadium, Gopalpur, Cuttack, Odisha - 753011'
+const DIRECTIONS_URL =
+  'https://www.google.com/maps/search/?api=1&query=Indoor+Stadium+Gopalpur+Cuttack+Odisha+753011'
+
+const CONTACT_ITEMS = [
+  {
+    key: 'person',
+    icon: FaUserAlt,
+    label: 'Contact person',
+    value: 'Nitish Shaw',
+  },
+  {
+    key: 'phone',
+    icon: FaPhoneAlt,
+    label: 'Call us 24/7',
+    value: PHONE_DISPLAY,
+    href: PHONE_LINK,
+  },
+  {
+    key: 'email',
+    icon: FaEnvelope,
+    label: 'Email us',
+    value: EMAIL,
+    href: `mailto:${EMAIL}`,
+  },
+  {
+    key: 'location',
+    icon: FaMapMarkerAlt,
+    label: 'Visit us',
+    value: ADDRESS,
+  },
+]
 
 const ContactUsCard = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +54,6 @@ const ContactUsCard = () => {
     message: '',
   })
   const [loading, setLoading] = useState(false)
-  const [isVideoOpen, setIsVideoOpen] = useState(false)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -57,8 +89,8 @@ const ContactUsCard = () => {
         message,
         type: 'General Enquiry',
         subject: 'Website Contact Us Form',
-        phone: '+91 9692075298',
-        address: 'Srikoruan, Near Indoor Stadium, Gopalpur, Cuttack, Odisha - 753011',
+        phone: PHONE_DISPLAY,
+        address: ADDRESS,
       })
 
       Swal.fire({
@@ -85,112 +117,58 @@ const ContactUsCard = () => {
     }
   }
 
-  const toggleVideoModal = () => {
-    setIsVideoOpen(!isVideoOpen)
-  }
-
   return (
     <section className="ContactUsCard-wrapper">
       <div className="ContactUsCard-container">
         {/* Main Contact Section */}
         <div className="ContactUsCard-content-grid">
-          {/* Left Card - Info & Support Image */}
-          <div className="ContactUsCard-info-card">
-            <div className="ContactUsCard-info-list">
-              {/* Contact Person Block */}
-              <div className="ContactUsCard-info-item">
-                <div className="ContactUsCard-icon-wrapper">
-                  <FaUserAlt className="ContactUsCard-icon" />
-                </div>
-                <div className="ContactUsCard-info-text">
-                  <span>Contact Person</span>
-                  <h4>Nitish Shaw</h4>
-                </div>
-              </div>
-
-              {/* Phone Block */}
-              <div className="ContactUsCard-info-item">
-                <div className="ContactUsCard-icon-wrapper">
-                  <FaPhoneAlt className="ContactUsCard-icon" />
-                </div>
-                <div className="ContactUsCard-info-text">
-                  <span>Call Us 24/7</span>
-                  <h4>
-                    <a
-                      href="tel:+919692075298"
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      +91 9692075298
-                    </a>
-                  </h4>
-                </div>
-              </div>
-
-              {/* Email Block */}
-              <div className="ContactUsCard-info-item">
-                <div className="ContactUsCard-icon-wrapper">
-                  <FaEnvelope className="ContactUsCard-icon" />
-                </div>
-                <div className="ContactUsCard-info-text">
-                  <span>Make a Quote</span>
-                  <h4>
-                    <a
-                      href="mailto:example@gmail.com"
-                      style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                      example@gmail.com
-                    </a>
-                  </h4>
-                </div>
-              </div>
-
-              {/* Location Block */}
-              <div className="ContactUsCard-info-item">
-                <div className="ContactUsCard-icon-wrapper">
-                  <FaMapMarkerAlt className="ContactUsCard-icon" />
-                </div>
-                <div className="ContactUsCard-info-text">
-                  <span>Location</span>
-                  <h4>Srikoruan, Near Indoor Stadium, Gopalpur, Cuttack, Odisha - 753011</h4>
-                </div>
-              </div>
+          {/* Left: contact details */}
+          <aside className="ContactUsCard-info-card">
+            <div className="ContactUsCard-info-head">
+              <h3 className="ContactUsCard-info-title">Contact information</h3>
+              <p className="ContactUsCard-info-subtitle">
+                Reach us directly or send a message. We reply within one business day.
+              </p>
             </div>
 
-            {/* Support Image with Play Button */}
-            <div className="ContactUsCard-image-container">
-              <img
-                src={customerSupportImg}
-                alt="Customer Support Representative"
-                className="ContactUsCard-support-img"
-                loading="lazy"
-              />
-              <button
-                type="button"
-                className="ContactUsCard-play-btn"
-                onClick={toggleVideoModal}
-                aria-label="Play video"
-              >
-                <FaPlay className="ContactUsCard-play-icon" />
-              </button>
-            </div>
-          </div>
+            <ul className="ContactUsCard-info-list">
+              {CONTACT_ITEMS.map(({ key, icon: Icon, label, value, href }) => (
+                <li key={key} className="ContactUsCard-info-item">
+                  <div className="ContactUsCard-icon-wrapper">
+                    <Icon className="ContactUsCard-icon" />
+                  </div>
+                  <div className="ContactUsCard-info-text">
+                    <span>{label}</span>
+                    {href ? (
+                      <a href={href} className="ContactUsCard-info-value">
+                        {value}
+                      </a>
+                    ) : (
+                      <p className="ContactUsCard-info-value">{value}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </aside>
 
-          {/* Right Form - Ready To Get Started */}
+          {/* Right: form */}
           <div className="ContactUsCard-form-container">
-            <h2 className="ContactUsCard-heading">Ready To Get Started?</h2>
+            <h2 className="ContactUsCard-heading">Ready to get started?</h2>
             <p className="ContactUsCard-description">
-              Have questions or want to discuss a project? Reach out directly or fill out the form below, and we'll get back to you promptly.
+              Have a question or want to discuss a project? Fill in the form and we'll get back to you promptly.
             </p>
 
             <form onSubmit={handleSubmit} className="ContactUsCard-form">
               <div className="ContactUsCard-input-row">
                 <div className="ContactUsCard-field-group">
-                  <label htmlFor="name">Your Name*</label>
+                  <label htmlFor="name">Your name</label>
                   <input
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="Your Name"
+                    placeholder="Enter your full name"
+                    autoComplete="name"
                     value={formData.name}
                     onChange={handleInputChange}
                     required
@@ -199,12 +177,13 @@ const ContactUsCard = () => {
                 </div>
 
                 <div className="ContactUsCard-field-group">
-                  <label htmlFor="email">Your Email*</label>
+                  <label htmlFor="email">Your email</label>
                   <input
                     type="email"
                     id="email"
                     name="email"
-                    placeholder="Your Email"
+                    placeholder="you@example.com"
+                    autoComplete="email"
                     value={formData.email}
                     onChange={handleInputChange}
                     required
@@ -214,12 +193,12 @@ const ContactUsCard = () => {
               </div>
 
               <div className="ContactUsCard-field-group">
-                <label htmlFor="message">Write Message*</label>
+                <label htmlFor="message">Message</label>
                 <textarea
                   id="message"
                   name="message"
                   rows="6"
-                  placeholder="Write Message"
+                  placeholder="Tell us how we can help"
                   value={formData.message}
                   onChange={handleInputChange}
                   required
@@ -232,8 +211,10 @@ const ContactUsCard = () => {
                 className="ContactUsCard-submit-btn"
                 disabled={loading}
               >
-                {loading ? 'Sending...' : 'Send Message'}{' '}
-                <FaArrowRight className="ContactUsCard-arrow-icon" />
+                <span>{loading ? 'Sending...' : 'Send message'}</span>
+                <span className="ContactUsCard-arrow-wrap">
+                  <FaArrowRight className="ContactUsCard-arrow-icon" />
+                </span>
               </button>
             </form>
           </div>
@@ -245,37 +226,25 @@ const ContactUsCard = () => {
             title="Location Map"
             src="https://maps.google.com/maps?q=Indoor%20Stadium%2C%20Gopalpur%2C%20Cuttack%2C%20Odisha%20753011&t=&z=15&ie=UTF8&iwloc=&output=embed"
             className="ContactUsCard-map-iframe"
-            allowFullScreen=""
+            allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
           ></iframe>
-        </div>
-      </div>
 
-      {/* Video Modal Popup */}
-      {isVideoOpen && (
-        <div className="ContactUsCard-modal-overlay" onClick={toggleVideoModal}>
-          <div
-            className="ContactUsCard-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="ContactUsCard-modal-close"
-              onClick={toggleVideoModal}
+          <div className="ContactUsCard-map-card">
+            <p className="ContactUsCard-map-address">{ADDRESS}</p>
+            <a
+              href={DIRECTIONS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ContactUsCard-map-link"
             >
-              &times;
-            </button>
-            <div className="ContactUsCard-video-wrapper">
-              <iframe
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="Support Video"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            </div>
+              <FaDirections />
+              Get directions
+            </a>
           </div>
         </div>
-      )}
+      </div>
     </section>
   )
 }
