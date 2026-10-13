@@ -1,8 +1,9 @@
-/* ==========================================================================
-   BookleBook — updated styles with mobile 1-by-1 pagination support
-   ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
+/* =========================================================
+   BOOKLE BOOK — PREMIUM BOOK COLLECTION
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700;800&display=swap");
 
 .bookle-book {
   --bk-bg: #f6f1e3;
@@ -17,14 +18,15 @@
   --bk-oxblood: #7a2e2e;
   --bk-oxblood-bright: #9a3d3d;
   --bk-success: #3f6b52;
-  --bk-radius: 14px;
+  --bk-radius: 16px;
 
   width: 100%;
+  padding: clamp(32px, 5vw, 68px) clamp(14px, 3vw, 32px);
+  overflow: hidden;
   background: var(--bk-bg);
-  padding: 4.5rem 1.5rem;
-  box-sizing: border-box;
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
   color: var(--bk-ink);
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  box-sizing: border-box;
 }
 
 .bookle-book *,
@@ -33,53 +35,131 @@
   box-sizing: border-box;
 }
 
+.bookle-book button {
+  font: inherit;
+}
+
+.bookle-book button:focus-visible {
+  outline: 3px solid var(--bk-brass);
+  outline-offset: 3px;
+}
+
 .bookle-book__wrapper {
+  width: 100%;
   max-width: 1320px;
   margin: 0 auto;
 }
 
-/* Header & Explore More */
+/* =========================================================
+   TOAST NOTIFICATION
+========================================================= */
+
+.bookle-book__toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(400px, calc(100vw - 32px));
+  padding: 15px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: var(--bk-ink);
+  color: var(--bk-panel);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  box-shadow: 0 14px 35px rgba(22, 36, 29, 0.24);
+  animation: bookleToastIn 0.3s ease both;
+}
+
+.bookle-book__toast svg {
+  flex-shrink: 0;
+  color: var(--bk-brass-bright);
+}
+
+@keyframes bookleToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   SECTION HEADER
+========================================================= */
+
 .bookle-book__header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 2.25rem;
-  gap: 1rem;
-  padding-bottom: 1.25rem;
+  gap: 24px;
+  margin-bottom: 34px;
+  padding-bottom: 22px;
   border-bottom: 1px solid var(--bk-border);
 }
 
+.bookle-book__header-copy {
+  min-width: 0;
+}
+
+.bookle-book__eyebrow {
+  display: inline-block;
+  margin-bottom: 9px;
+  color: var(--bk-brass-deep);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  line-height: 1.5;
+}
+
 .bookle-book__heading {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
-  font-weight: 600;
+  margin: 0 0 8px;
   color: var(--bk-ink);
-  margin: 0 0 0.3rem 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(28px, 3vw, 39px);
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .bookle-book__subheading {
-  font-size: 0.9rem;
-  color: var(--bk-muted);
   margin: 0;
+  color: var(--bk-muted);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .bookle-book__explore-btn {
-  flex-shrink: 0;
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 0.5rem;
-  background: transparent;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 11px 20px;
   border: 1px solid var(--bk-ink);
-  color: var(--bk-ink);
-  font-weight: 600;
-  font-size: 0.88rem;
-  padding: 0.65rem 1.35rem;
   border-radius: 999px;
+  background: transparent;
+  color: var(--bk-ink);
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .bookle-book__explore-btn:hover {
+  transform: translateY(-2px);
   background: var(--bk-ink);
   color: var(--bk-panel);
 }
@@ -92,262 +172,334 @@
   transform: translateX(4px);
 }
 
-/* Main Grid & Layout */
+/* =========================================================
+   MAIN PRODUCTS AND SIDEBAR GRID
+========================================================= */
+
 .bookle-book__main-grid {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 1.75rem;
-  margin-bottom: 2rem;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  align-items: stretch;
+  gap: 26px;
+  margin-bottom: 34px;
 }
 
 .bookle-book__products-container {
   display: flex;
+  min-width: 0;
   flex-direction: column;
+  scroll-margin-top: 24px;
 }
 
 .bookle-book__products-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+  min-width: 0;
 }
 
-/* Product Card */
+/* =========================================================
+   BOOK CARD
+========================================================= */
+
 .bookle-book__card {
-  background: var(--bk-panel);
-  border-radius: var(--bk-radius);
-  border: 1px solid var(--bk-border);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
   position: relative;
-  box-shadow: 0 10px 24px rgba(22, 36, 29, 0.04);
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.4s ease;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  background: var(--bk-panel);
+  box-shadow: 0 8px 24px rgba(22, 36, 29, 0.045);
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
 
 .bookle-book__card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 22px 40px rgba(22, 36, 29, 0.1);
-  border-color: rgba(184, 144, 63, 0.45);
+  transform: translateY(-5px);
+  border-color: rgba(184, 144, 63, 0.55);
+  box-shadow: 0 20px 38px rgba(22, 36, 29, 0.1);
 }
+
+/* =========================================================
+   BOOK IMAGE
+========================================================= */
 
 .bookle-book__media {
   position: relative;
-  background: #efe6ce;
-  aspect-ratio: 1 / 1.05;
-  padding: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 1 / 1.05;
+  padding: 16px;
   overflow: hidden;
+  background: linear-gradient(145deg, #f2ead5, #e9dfc3);
 }
+
+.bookle-book__image-frame {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #e9dfc3;
+  box-shadow: 0 10px 22px rgba(22, 36, 29, 0.15);
+}
+
+.bookle-book__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.95) contrast(1.02);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bookle-book__card:hover .bookle-book__img {
+  transform: scale(1.065);
+}
+
+/* =========================================================
+   PRODUCT BADGES
+========================================================= */
 
 .bookle-book__badge {
   position: absolute;
   top: 12px;
   left: 12px;
   z-index: 3;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.3rem 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
   border-radius: 999px;
   color: var(--bk-panel);
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.2;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 .bookle-book__badge--hot {
-  background: linear-gradient(135deg, var(--bk-oxblood-bright), var(--bk-oxblood));
+  background: linear-gradient(
+    135deg,
+    var(--bk-oxblood-bright),
+    var(--bk-oxblood)
+  );
 }
 
 .bookle-book__badge--discount {
-  background: linear-gradient(135deg, var(--bk-brass-bright), var(--bk-brass-deep));
-  color: var(--bk-ink);
+  background: linear-gradient(
+    135deg,
+    var(--bk-brass-bright),
+    var(--bk-brass-deep)
+  );
+  color: #ffffff;
 }
 
 .bookle-book__badge-icon {
-  font-size: 0.65rem;
+  font-size: 11px;
 }
 
-.bookle-book__image-frame {
-  width: 100%;
-  height: 100%;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 10px 22px rgba(22, 36, 29, 0.15);
-}
+/* =========================================================
+   BOOK INFORMATION — NO RATING
+========================================================= */
 
-.bookle-book__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: saturate(0.92) contrast(1.02);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.bookle-book__card:hover .bookle-book__img {
-  transform: scale(1.07);
-}
-
-/* Card Body */
 .bookle-book__body {
-  padding: 1.15rem 1.15rem 1.25rem;
   display: flex;
+  flex: 1;
   flex-direction: column;
-  flex-grow: 1;
+  align-items: stretch;
+  padding: 17px 14px 16px;
 }
 
 .bookle-book__category {
-  font-size: 0.74rem;
+  display: block;
+  margin-bottom: 7px;
   color: var(--bk-brass-deep);
-  font-weight: 600;
-  margin-bottom: 0.3rem;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.45px;
+  line-height: 1.5;
 }
 
 .bookle-book__title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--bk-ink);
-  margin: 0 0 0.6rem 0;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+  min-height: 2.7em;
+  margin: 0 0 12px;
   overflow: hidden;
+  color: var(--bk-ink);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .bookle-book__price-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.55rem;
-  margin-bottom: 0.85rem;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
 .bookle-book__current-price {
-  font-weight: 700;
-  font-size: 1.05rem;
   color: var(--bk-oxblood);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
 }
 
 .bookle-book__original-price {
-  font-size: 0.82rem;
   color: var(--bk-muted);
+  font-size: 12px;
+  font-weight: 500;
   text-decoration: line-through;
 }
+
+/* Author row without stars */
 
 .bookle-book__meta-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  justify-content: flex-start;
+  min-height: 43px;
+  margin-bottom: 15px;
+  padding-top: 11px;
   border-top: 1px solid var(--bk-border);
-  padding-top: 0.75rem;
-  gap: 0.5rem;
 }
 
 .bookle-book__author-info {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 8px;
   min-width: 0;
 }
 
 .bookle-book__avatar {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--bk-ink);
-  color: var(--bk-panel);
-  font-size: 0.68rem;
-  font-weight: 700;
-  display: flex;
+  display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  font-family: 'Fraunces', Georgia, serif;
+  width: 27px;
+  height: 27px;
+  border: 1px solid rgba(184, 144, 63, 0.22);
+  border-radius: 50%;
+  background: var(--bk-ink);
+  color: var(--bk-brass-bright);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .bookle-book__author-text {
-  font-size: 0.78rem;
-  color: var(--bk-muted);
-  white-space: nowrap;
   overflow: hidden;
+  color: var(--bk-muted);
+  font-size: 12px;
+  font-weight: 500;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.bookle-book__rating {
-  display: inline-flex;
-  gap: 2px;
-}
-
-.bookle-book__star {
-  font-size: 0.72rem;
-  color: #ddd2b3;
-}
-
-.bookle-book__star--active {
-  color: var(--bk-brass);
-}
+/* =========================================================
+   ADD TO CART BUTTON
+========================================================= */
 
 .bookle-book__cart-btn {
-  width: 100%;
-  background: var(--bk-panel);
-  color: var(--bk-ink);
-  border: 1px solid var(--bk-ink);
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.65rem;
-  border-radius: 999px;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
   margin-top: auto;
+  padding: 10px 8px;
+  border: 1px solid var(--bk-ink);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bk-ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  cursor: pointer;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease;
 }
 
-.bookle-book__cart-btn:hover {
+.bookle-book__btn-icon {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.bookle-book__cart-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--bk-ink);
   background: var(--bk-ink);
   color: var(--bk-panel);
-  transform: translateY(-2px);
 }
 
-.bookle-book__cart-btn--added {
-  background: var(--bk-success) !important;
-  border-color: var(--bk-success) !important;
-  color: var(--bk-panel) !important;
+.bookle-book__cart-btn--added,
+.bookle-book__cart-btn:disabled {
+  border-color: var(--bk-success);
+  background: var(--bk-success);
+  color: #ffffff;
+  cursor: default;
 }
 
-/* Reusable Brass Button Styling */
+/* =========================================================
+   PREMIUM BRASS BUTTON
+========================================================= */
+
 .bookle-book__btn-brass {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.65rem;
-  background: linear-gradient(160deg, var(--bk-brass-bright) 0%, var(--bk-brass) 55%, var(--bk-brass-deep) 100%);
-  color: var(--bk-ink);
-  border: none;
-  font-weight: 700;
-  font-size: 0.92rem;
-  padding: 0.85rem 1.75rem;
-  border-radius: 999px;
-  cursor: pointer;
-  position: relative;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px 21px;
   overflow: hidden;
-  isolation: isolate;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 12px 26px rgba(138, 106, 52, 0.4);
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(
+    160deg,
+    var(--bk-brass-bright) 0%,
+    var(--bk-brass) 55%,
+    var(--bk-brass-deep) 100%
+  );
+  color: #16241d;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 10px 24px rgba(138, 106, 52, 0.28);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .bookle-book__btn-brass::before {
-  content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.55) 48%, transparent 61%);
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.5) 48%,
+    transparent 61%
+  );
+  content: "";
   transform: translateX(-130%);
   transition: transform 0.6s ease;
 }
@@ -358,246 +510,589 @@
 
 .bookle-book__btn-brass:hover {
   transform: translateY(-3px);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 18px 32px rgba(138, 106, 52, 0.5);
+  box-shadow: 0 16px 30px rgba(138, 106, 52, 0.35);
 }
 
 .bookle-book__btn-brass-icon {
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
 }
 
 .bookle-book__btn-brass:hover .bookle-book__btn-brass-icon {
-  transform: translateX(5px);
+  transform: translateX(4px);
 }
 
 .bookle-book__btn-brass--dark {
-  background: linear-gradient(160deg, var(--bk-ink-soft) 0%, var(--bk-ink) 100%);
+  background: linear-gradient(
+    160deg,
+    var(--bk-ink-soft),
+    var(--bk-ink)
+  );
   color: var(--bk-brass-bright);
+  box-shadow: 0 10px 22px rgba(22, 36, 29, 0.18);
 }
 
-/* Sidebar Banner */
+/* =========================================================
+   SIDEBAR PROMOTIONAL BANNER
+========================================================= */
+
 .bookle-book__sidebar-banner {
-  background: linear-gradient(160deg, var(--bk-ink) 0%, #0e1712 100%);
-  border-radius: var(--bk-radius);
-  color: var(--bk-panel);
-  padding: 2.25rem 1.75rem;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  position: relative;
+  min-width: 0;
+  min-height: 100%;
+  padding: 30px 23px 0;
   overflow: hidden;
-  box-shadow: 0 18px 36px rgba(22, 36, 29, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--bk-radius);
+  background: linear-gradient(155deg, #20352a 0%, #101a14 100%);
+  color: var(--bk-panel);
+  box-shadow: 0 18px 36px rgba(22, 36, 29, 0.16);
+}
+
+.bookle-book__sidebar-banner::before {
+  position: absolute;
+  top: -85px;
+  right: -85px;
+  width: 210px;
+  height: 210px;
+  border: 1px solid rgba(217, 172, 92, 0.2);
+  border-radius: 50%;
+  content: "";
 }
 
 .bookle-book__sidebar-content {
+  position: relative;
   z-index: 2;
 }
 
+.bookle-book__sidebar-eyebrow {
+  display: block;
+  margin-bottom: 13px;
+  color: var(--bk-brass-bright);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  line-height: 1.7;
+}
+
 .bookle-book__sidebar-title {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.6rem;
-  font-weight: 600;
-  line-height: 1.25;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 12px;
   color: var(--bk-panel);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(24px, 2vw, 29px);
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .bookle-book__sidebar-subtitle {
-  font-size: 0.86rem;
-  color: #a9b8ae;
-  margin: 0 0 1.6rem 0;
-  line-height: 1.4;
+  margin: 0 0 22px;
+  color: #c4cec5;
+  font-size: 13px;
+  line-height: 1.7;
 }
 
 .bookle-book__sidebar-illustration {
-  position: absolute;
-  right: -20px;
-  bottom: 0;
-  width: 150px;
-  height: 160px;
+  position: relative;
   z-index: 1;
-  opacity: 0.9;
+  align-self: flex-end;
+  width: min(190px, 100%);
+  height: 205px;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 90px 90px 0 0;
+  background: rgba(217, 172, 92, 0.09);
 }
 
 .bookle-book__sidebar-person {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 70%, transparent 100%);
+  object-position: center 35%;
+  opacity: 0.9;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 65%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 65%,
+    transparent 100%
+  );
 }
 
-/* Full Width Bottom Promo Banner */
+/* =========================================================
+   FULL-WIDTH PROMOTIONAL BANNER
+========================================================= */
+
 .bookle-book__promo-banner {
-  background: linear-gradient(120deg, #efe6ce 0%, var(--bk-panel) 60%, #f2ecd9 100%);
-  border-radius: var(--bk-radius);
-  border: 1px solid var(--bk-border);
-  padding: 2.5rem 3rem;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
-  position: relative;
+  gap: 30px;
+  min-height: 245px;
+  padding: 34px 38px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(22, 36, 29, 0.05);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  background: linear-gradient(
+    120deg,
+    #efe6ce 0%,
+    var(--bk-panel) 55%,
+    #f2ecd9 100%
+  );
+  box-shadow: 0 18px 38px rgba(22, 36, 29, 0.045);
+}
+
+.bookle-book__promo-banner::before {
+  position: absolute;
+  top: -125px;
+  right: 22%;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(184, 144, 63, 0.12);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
 }
 
 .bookle-book__promo-collage {
-  display: flex;
   position: relative;
-  width: 220px;
-  height: 140px;
-  flex-shrink: 0;
+  flex: 0 0 175px;
+  width: 175px;
+  height: 145px;
 }
 
 .bookle-book__collage-img {
   position: absolute;
-  width: 90px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 6px;
-  box-shadow: 0 12px 26px rgba(22, 36, 29, 0.22);
+  width: 88px;
+  height: 119px;
   border: 3px solid var(--bk-panel);
+  border-radius: 7px;
+  object-fit: cover;
+  box-shadow: 0 12px 26px rgba(22, 36, 29, 0.2);
 }
 
 .bookle-book__collage-img--1 {
-  left: 0;
-  top: 10px;
-  transform: rotate(-8deg);
+  top: 14px;
+  left: 8px;
   z-index: 2;
+  transform: rotate(-9deg);
 }
 
 .bookle-book__collage-img--2 {
-  left: 65px;
-  top: 0;
-  transform: rotate(6deg);
+  top: 2px;
+  left: 70px;
   z-index: 3;
+  transform: rotate(7deg);
 }
 
 .bookle-book__promo-text-wrap {
-  flex-grow: 1;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  max-width: 490px;
   text-align: center;
-  max-width: 500px;
 }
 
 .bookle-book__promo-heading {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
-  font-weight: 600;
+  margin: 0 0 22px;
   color: var(--bk-ink);
-  margin: 0 0 1.35rem 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 600;
   line-height: 1.3;
 }
 
 .bookle-book__promo-right-person {
-  width: 180px;
-  height: 150px;
-  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
   display: flex;
+  flex: 0 0 150px;
   align-items: flex-end;
-  justify-content: flex-end;
+  justify-content: center;
+  width: 150px;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 80px 80px 0 0;
+  background: rgba(184, 144, 63, 0.1);
 }
 
 .bookle-book__promo-person-img {
-  max-height: 160px;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 16px rgba(22, 36, 29, 0.18));
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  filter: drop-shadow(0 12px 16px rgba(22, 36, 29, 0.14));
 }
 
-/* Mobile Pagination Nav Elements (Hidden by default) */
+/* =========================================================
+   MOBILE NAVIGATION — HIDDEN ON DESKTOP
+========================================================= */
+
 .bookle-book__mobile-nav {
   display: none;
 }
 
-/* ==========================================================
-   Responsive Breakpoints & Mobile 1-by-1 Pagination Switch
-========================================================== */
+/* =========================================================
+   LARGE LAPTOPS
+========================================================= */
 
-@media (max-width: 1200px) {
+@media (max-width: 1250px) {
+  .bookle-book__main-grid {
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 20px;
+  }
+
+  .bookle-book__products-grid {
+    gap: 12px;
+  }
+
+  .bookle-book__media {
+    padding: 12px;
+  }
+
+  .bookle-book__body {
+    padding: 14px 11px 13px;
+  }
+
+  .bookle-book__title {
+    font-size: 14px;
+  }
+
+  .bookle-book__sidebar-banner {
+    padding-right: 19px;
+    padding-left: 19px;
+  }
+
+  .bookle-book__promo-banner {
+    gap: 20px;
+    padding-right: 25px;
+    padding-left: 25px;
+  }
+
+  .bookle-book__promo-collage {
+    flex-basis: 150px;
+    width: 150px;
+  }
+
+  .bookle-book__promo-right-person {
+    flex-basis: 125px;
+    width: 125px;
+  }
+}
+
+/* =========================================================
+   TABLET AND SMALL LAPTOP
+========================================================= */
+
+@media (max-width: 1050px) {
   .bookle-book__main-grid {
     grid-template-columns: 1fr;
+  }
+
+  .bookle-book__products-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 15px;
+  }
+
+  .bookle-book__media {
+    padding: 15px;
+  }
+
+  .bookle-book__body {
+    padding: 17px 14px 16px;
+  }
+
+  .bookle-book__title {
+    font-size: 15px;
   }
 
   .bookle-book__sidebar-banner {
     flex-direction: row;
     align-items: center;
-    padding: 2rem 2.5rem;
+    gap: 20px;
+    min-height: 230px;
+    padding: 28px 30px 0;
+  }
+
+  .bookle-book__sidebar-content {
+    max-width: 55%;
+    padding-bottom: 28px;
   }
 
   .bookle-book__sidebar-illustration {
-    position: relative;
-    right: 0;
-    bottom: 0;
-    width: 120px;
-    height: 120px;
+    flex: 0 0 185px;
+    align-self: flex-end;
+    width: 185px;
+    height: 195px;
+    margin-top: 0;
+  }
+
+  .bookle-book__promo-banner {
+    gap: 18px;
+  }
+
+  .bookle-book__promo-collage {
+    flex-basis: 130px;
+    width: 130px;
+  }
+
+  .bookle-book__collage-img {
+    width: 78px;
+    height: 108px;
+  }
+
+  .bookle-book__collage-img--2 {
+    left: 53px;
   }
 }
 
-@media (max-width: 1024px) {
+/* =========================================================
+   TABLETS
+========================================================= */
+
+@media (max-width: 800px) {
   .bookle-book__products-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .bookle-book__media {
+    aspect-ratio: 1 / 1.03;
+    padding: 18px;
+  }
+
+  .bookle-book__body {
+    padding: 18px;
+  }
+
+  .bookle-book__title {
+    font-size: 16px;
+  }
+
+  .bookle-book__current-price {
+    font-size: 18px;
+  }
+
+  .bookle-book__original-price {
+    font-size: 13px;
+  }
+
+  .bookle-book__cart-btn {
+    min-height: 44px;
+    font-size: 13px;
+  }
+
+  .bookle-book__promo-banner {
+    min-height: 210px;
+    padding: 25px 20px;
+  }
+
+  .bookle-book__promo-collage {
+    flex-basis: 100px;
+    width: 100px;
+    transform: scale(0.9);
+    transform-origin: left center;
+  }
+
+  .bookle-book__promo-right-person {
+    flex-basis: 100px;
+    width: 100px;
+    height: 145px;
+  }
+
+  .bookle-book__promo-heading {
+    font-size: 25px;
   }
 }
+
+/* =========================================================
+   MOBILE — SINGLE CARD WITH PAGINATION
+========================================================= */
 
 @media (max-width: 540px) {
+  .bookle-book {
+    padding: 38px 15px;
+  }
+
+  .bookle-book__header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 17px;
+    margin-bottom: 24px;
+    padding-bottom: 21px;
+  }
+
+  .bookle-book__heading {
+    font-size: 29px;
+  }
+
+  .bookle-book__subheading {
+    font-size: 13px;
+  }
+
+  .bookle-book__explore-btn {
+    min-height: 42px;
+    padding: 10px 17px;
+  }
+
+  .bookle-book__main-grid {
+    gap: 22px;
+    margin-bottom: 25px;
+  }
+
+  /* Only the selected card is visible on mobile. */
+
   .bookle-book__products-grid {
     display: flex;
+    gap: 0;
+    width: 100%;
     overflow: hidden;
   }
 
-  /* Hide all cards on mobile except the targeted active single item */
   .bookle-book__card {
     display: none;
+    flex: 0 0 100%;
     width: 100%;
-    animation: bookleFadeIn 0.4s ease forwards;
+    min-width: 0;
+    animation: bookleFadeIn 0.3s ease both;
   }
 
   .bookle-book__card.bookle-book__card--active-mobile {
     display: flex;
   }
 
-  /* Show and style mobile pagination controls */
+  .bookle-book__media {
+    aspect-ratio: 1 / 0.9;
+    padding: 18px;
+  }
+
+  .bookle-book__image-frame {
+    border-radius: 9px;
+  }
+
+  .bookle-book__badge {
+    top: 14px;
+    left: 14px;
+    padding: 7px 11px;
+    font-size: 11px;
+  }
+
+  .bookle-book__body {
+    padding: 20px;
+  }
+
+  .bookle-book__category {
+    margin-bottom: 7px;
+    font-size: 11px;
+  }
+
+  .bookle-book__title {
+    min-height: auto;
+    margin-bottom: 13px;
+    font-size: 19px;
+    line-height: 1.4;
+  }
+
+  .bookle-book__price-row {
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .bookle-book__current-price {
+    font-size: 21px;
+  }
+
+  .bookle-book__original-price {
+    font-size: 14px;
+  }
+
+  .bookle-book__meta-row {
+    min-height: 47px;
+    margin-bottom: 17px;
+    padding-top: 12px;
+  }
+
+  .bookle-book__avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .bookle-book__author-text {
+    font-size: 13px;
+  }
+
+  .bookle-book__cart-btn {
+    min-height: 47px;
+    font-size: 14px;
+  }
+
+  /* Mobile arrows and dots */
+
   .bookle-book__mobile-nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
-    margin-top: 1.25rem;
+    gap: 20px;
+    margin-top: 21px;
   }
 
   .bookle-book__nav-arrow {
-    background: var(--bk-panel);
-    border: 1px solid var(--bk-border);
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex: 0 0 39px;
+    width: 39px;
+    height: 39px;
+    padding: 0;
+    border: 1px solid var(--bk-border);
+    border-radius: 50%;
+    background: var(--bk-panel);
     color: var(--bk-ink);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(22, 36, 29, 0.06);
+    transition:
+      background 0.25s ease,
+      color 0.25s ease,
+      border-color 0.25s ease,
+      transform 0.25s ease;
   }
 
   .bookle-book__nav-arrow:hover {
+    transform: translateY(-2px);
+    border-color: var(--bk-ink);
     background: var(--bk-ink);
     color: var(--bk-panel);
-    border-color: var(--bk-ink);
   }
 
   .bookle-book__dots {
     display: flex;
-    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
   }
 
   .bookle-book__dot {
+    display: inline-block;
     width: 8px;
     height: 8px;
-    border-radius: 4px;
-    background: #d4ccb1;
-    border: none;
+    flex-shrink: 0;
     padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: #d4ccb1;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    transition:
+      width 0.3s ease,
+      background 0.3s ease;
   }
 
   .bookle-book__dot--active {
@@ -605,41 +1100,186 @@
     background: var(--bk-ink);
   }
 
-  .bookle-book__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+  /* Sidebar promotional banner */
+
+  .bookle-book__sidebar-banner {
+    align-items: center;
+    flex-direction: row;
+    min-height: 225px;
+    padding: 25px 20px 0;
   }
+
+  .bookle-book__sidebar-content {
+    max-width: 63%;
+    padding-bottom: 25px;
+  }
+
+  .bookle-book__sidebar-eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.9px;
+  }
+
+  .bookle-book__sidebar-title {
+    font-size: 25px;
+  }
+
+  .bookle-book__sidebar-subtitle {
+    margin-bottom: 17px;
+    font-size: 12px;
+  }
+
+  .bookle-book__sidebar-illustration {
+    flex: 0 0 115px;
+    width: 115px;
+    height: 155px;
+    margin: 0;
+  }
+
+  .bookle-book__btn-brass {
+    min-height: 42px;
+    gap: 8px;
+    padding: 11px 15px;
+    font-size: 12px;
+  }
+
+  /* Bottom promotional banner */
 
   .bookle-book__promo-banner {
     flex-direction: column;
+    justify-content: center;
+    gap: 17px;
+    min-height: auto;
+    padding: 30px 20px;
     text-align: center;
-    padding: 2rem 1.5rem;
   }
 
-  .bookle-book__promo-collage,
+  .bookle-book__promo-collage {
+    flex: 0 0 125px;
+    align-self: center;
+    width: 125px;
+    height: 125px;
+    transform: none;
+  }
+
+  .bookle-book__collage-img {
+    width: 77px;
+    height: 104px;
+  }
+
+  .bookle-book__collage-img--1 {
+    top: 12px;
+    left: 0;
+  }
+
+  .bookle-book__collage-img--2 {
+    top: 2px;
+    left: 53px;
+  }
+
+  .bookle-book__promo-text-wrap {
+    max-width: 100%;
+  }
+
+  .bookle-book__promo-heading {
+    margin-bottom: 18px;
+    font-size: 25px;
+  }
+
   .bookle-book__promo-right-person {
     display: none;
   }
 
+  .bookle-book__toast {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    max-width: none;
+    padding: 13px 15px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+  .bookle-book {
+    padding: 30px 11px;
+  }
+
+  .bookle-book__heading {
+    font-size: 26px;
+  }
+
+  .bookle-book__body {
+    padding: 16px;
+  }
+
+  .bookle-book__title {
+    font-size: 17px;
+  }
+
   .bookle-book__sidebar-banner {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
+    gap: 10px;
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+
+  .bookle-book__sidebar-content {
+    max-width: 65%;
+  }
+
+  .bookle-book__sidebar-title {
+    font-size: 22px;
   }
 
   .bookle-book__sidebar-illustration {
-    margin-top: 1rem;
+    flex-basis: 95px;
+    width: 95px;
+    height: 135px;
+  }
+
+  .bookle-book__promo-banner {
+    padding: 25px 14px;
+  }
+
+  .bookle-book__promo-heading {
+    font-size: 22px;
+  }
+
+  .bookle-book__mobile-nav {
+    gap: 13px;
   }
 }
+
+/* =========================================================
+   CARD ANIMATION
+========================================================= */
 
 @keyframes bookleFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.97);
+    transform: translateY(7px);
   }
+
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .bookle-book *,
+  .bookle-book *::before,
+  .bookle-book *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

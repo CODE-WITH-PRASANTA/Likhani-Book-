@@ -1,4 +1,6 @@
+
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./Footer.css";
 import logoImg from "../../assets/booklogo.webp";
 
@@ -8,32 +10,26 @@ import {
   FiClock,
   FiMapPin,
   FiSend,
-  FiChevronUp,
   FiChevronsRight,
   FiFacebook,
   FiTwitter,
   FiYoutube,
   FiLinkedin,
+  FiInstagram,
 } from "react-icons/fi";
 
 const Footer = () => {
-  const [showTopBtn, setShowTopBtn] = useState(false);
   const [email, setEmail] = useState("");
+  const [showTopBtn, setShowTopBtn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowTopBtn(true);
-      } else {
-        setShowTopBtn(false);
-      }
+      setShowTopBtn(window.scrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
 
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
@@ -46,121 +42,134 @@ const Footer = () => {
   const handleSubscribe = (e) => {
     e.preventDefault();
 
-    if (email.trim()) {
-      alert(`Subscribed successfully with: ${email}`);
-      setEmail("");
-    }
+    if (!email.trim()) return;
+
+    alert(`Subscribed successfully with: ${email}`);
+    setEmail("");
   };
+
+  const customerLinks = [
+    { label: "Store List", href: "#store-list" },
+    { label: "Opening Hours", href: "#opening-hours" },
+    { label: "Contact Us", href: "#contact-us" },
+    { label: "Return Policy", href: "/return-policy" },
+    { label: "Terms & Conditions", href: "/terms-and-conditions" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
+    { label: "Refund Policy", href: "/refund-policy" },
+  ];
+
+  const categoryLinks = [
+    { label: "Novel Books", href: "#novel-books" },
+    { label: "Poetry Books", href: "#poetry-books" },
+    { label: "Political Books", href: "#political-books" },
+    { label: "History Books", href: "#history-books" },
+    { label: "Children Books", href: "#children-books" },
+    { label: "Science Books", href: "#science-books" },
+    { label: "Self Help Books", href: "#self-help-books" },
+  ];
+
+  const renderLinks = (links) =>
+    links.map((item) => (
+      <li key={item.label}>
+        {item.href.startsWith("/") ? (
+          <Link to={item.href}>
+            <FiChevronsRight className="footer-link-arrow" />
+            <span>{item.label}</span>
+          </Link>
+        ) : (
+          <a href={item.href}>
+            <FiChevronsRight className="footer-link-arrow" />
+            <span>{item.label}</span>
+          </a>
+        )}
+      </li>
+    ));
 
   return (
     <footer className="footer-wrapper">
       <div className="footer-container">
-
-        {/* ================= TOP CONTACT INFO BAR ================= */}
         <div className="footer-top-bar">
-
-          {/* Call Us */}
           <div className="footer-contact-item">
             <div className="footer-contact-icon-box">
               <FiPhoneCall />
             </div>
 
             <div className="footer-contact-text">
-              <span className="footer-contact-label">
-                Call Us 7/24
-              </span>
-
+              <span className="footer-contact-label">Call Us 7/24</span>
               <h4 className="footer-contact-value">
-                <a href="tel:+9692075298">
-                  +91 9692075298
-                </a>
+                <a href="tel:+919692075298">+91 9692075298</a>
               </h4>
             </div>
           </div>
 
-          {/* Make a Quote */}
           <div className="footer-contact-item">
             <div className="footer-contact-icon-box">
               <FiMail />
             </div>
 
             <div className="footer-contact-text">
-              <span className="footer-contact-label">
-                Make a Quote
-              </span>
-
+              <span className="footer-contact-label">Make a Quote</span>
               <h4 className="footer-contact-value">
-                <a href="mailto:example@gmail.com">
-                  example@gmail.com
-                </a>
+                <a href="mailto:example@gmail.com">example@gmail.com</a>
               </h4>
             </div>
           </div>
 
-          {/* Opening Hours */}
           <div className="footer-contact-item">
             <div className="footer-contact-icon-box">
               <FiClock />
             </div>
 
             <div className="footer-contact-text">
-              <span className="footer-contact-label">
-                Opening Hour
-              </span>
-
+              <span className="footer-contact-label">Opening Hour</span>
               <h4 className="footer-contact-value">
                 Sunday - Fri: 9 AM - 6 PM
               </h4>
             </div>
           </div>
 
-          {/* Location */}
           <div className="footer-contact-item">
             <div className="footer-contact-icon-box">
               <FiMapPin />
             </div>
 
             <div className="footer-contact-text">
-              <span className="footer-contact-label">
-                Location
-              </span>
-
+              <span className="footer-contact-label">Location</span>
               <h4 className="footer-contact-value">
-                Srikoruan Near Indoor Stadium, Gopalpur, Katak 
-, Odisha.
+                Srikoruan Near Indoor Stadium, Gopalpur, Katak, Odisha.
               </h4>
             </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="footer-divider"></div>
+        <div className="footer-divider" />
 
-        {/* ================= MAIN 4-COLUMN FOOTER CONTENT ================= */}
         <div className="footer-main-grid">
-
-          {/* Column 1: Brand / Description / Socials */}
           <div className="footer-col footer-brand-col">
-
-            <div className="footer-brand-header">
+            <Link to="/" className="footer-brand-header" aria-label="Lekhani Home">
               <img
                 src={logoImg}
-                alt="Bookle Logo"
+                alt="Lekhani emblem"
                 className="footer-brand-logo-img"
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
                 }}
               />
-            </div>
+
+              <span className="footer-brand-copy">
+                <span className="footer-brand-name">Lekhani</span>
+                <span className="footer-brand-tagline">
+                  BOOKS FOR A BETTER TOMORROW
+                </span>
+              </span>
+            </Link>
 
             <p className="footer-brand-description">
-              Phasellus ultricies aliquam volutpat ullamcorper laoreet
-              neque, a lacinia curabitur lacinia mollis.
+              Discover stories, ideas, and knowledge with our carefully
+              selected collection of books for every reader.
             </p>
 
-            {/* Social Icons */}
             <div className="footer-social-links">
-
               <a
                 href="#facebook"
                 aria-label="Facebook"
@@ -193,19 +202,21 @@ const Footer = () => {
                 <FiLinkedin />
               </a>
 
+              <a
+                href="#instagram"
+                aria-label="Instagram"
+                className="footer-social-box"
+              >
+                <FiInstagram />
+              </a>
             </div>
 
-            {/* Decorative Paper Plane */}
-            <div className="footer-paper-plane-wrapper">
-
-              <svg
-                className="footer-plane-trail"
-                viewBox="0 0 160 50"
-              >
+            <div className="footer-paper-plane-wrapper" aria-hidden="true">
+              <svg className="footer-plane-trail" viewBox="0 0 160 50">
                 <path
-                  d="M0,35 Q 40,0 70,30 T 130,25"
+                  d="M0,35 Q40,0 70,30 T130,25"
                   fill="none"
-                  stroke="rgba(255, 255, 255, 0.25)"
+                  stroke="rgba(255,255,255,0.25)"
                   strokeWidth="2"
                   strokeDasharray="4 4"
                 />
@@ -214,126 +225,58 @@ const Footer = () => {
               <div className="footer-paper-plane-icon">
                 <FiSend />
               </div>
-
             </div>
           </div>
 
-          {/* Column 2: Customer Support */}
           <div className="footer-col">
-
             <h3 className="footer-col-title">
               Customer Support
-
-              <div className="footer-title-underline">
-                <span className="footer-orange-bar"></span>
-                <span className="footer-light-bar"></span>
-              </div>
+              <span className="footer-title-underline">
+                <span className="footer-orange-bar" />
+                <span className="footer-light-bar" />
+              </span>
             </h3>
 
             <ul className="footer-links">
-
-              <li>
-                <a href="#store-list">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  Store List
-                </a>
-              </li>
-
-              <li>
-                <a href="#opening-hours">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  Opening Hours
-                </a>
-              </li>
-
-              <li>
-                <a href="#contact-us">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  Contact Us
-                </a>
-              </li>
-
-              <li>
-                <a href="#return-policy">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  Return Policy
-                </a>
-              </li>
-
+              {renderLinks(customerLinks)}
             </ul>
           </div>
 
-          {/* Column 3: Categories */}
           <div className="footer-col">
-
             <h3 className="footer-col-title">
               Categories
-
-              <div className="footer-title-underline">
-                <span className="footer-orange-bar"></span>
-                <span className="footer-light-bar"></span>
-              </div>
+              <span className="footer-title-underline">
+                <span className="footer-orange-bar" />
+                <span className="footer-light-bar" />
+              </span>
             </h3>
 
             <ul className="footer-links">
-
-              <li>
-                <a href="#novel-books">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  Novel Books
-                </a>
-              </li>
-
-              <li>
-                <a href="#poetry-books">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  Poetry Books
-                </a>
-              </li>
-
-              <li>
-                <a href="#political-books">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  Political Books
-                </a>
-              </li>
-
-              <li>
-                <a href="#history-books">
-                  <FiChevronsRight className="footer-link-arrow" />
-                  History Books
-                </a>
-              </li>
-
+              {renderLinks(categoryLinks)}
             </ul>
           </div>
 
-          {/* Column 4: Newsletter */}
           <div className="footer-col">
-
             <h3 className="footer-col-title">
               Newsletter
-
-              <div className="footer-title-underline">
-                <span className="footer-orange-bar"></span>
-                <span className="footer-light-bar"></span>
-              </div>
+              <span className="footer-title-underline">
+                <span className="footer-orange-bar" />
+                <span className="footer-light-bar" />
+              </span>
             </h3>
 
             <p className="footer-newsletter-text">
-              Sign up to our weekly newsletter to get the latest book
-              releases and updates.
+              Sign up to our weekly newsletter to get the latest book releases
+              and updates.
             </p>
 
-            <form
-              className="footer-newsletter-form"
-              onSubmit={handleSubscribe}
-            >
+            <form className="footer-newsletter-form" onSubmit={handleSubscribe}>
               <input
                 type="email"
                 placeholder="Enter Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                aria-label="Email address"
                 required
               />
 
@@ -345,20 +288,14 @@ const Footer = () => {
                 <FiSend />
               </button>
             </form>
-
           </div>
         </div>
       </div>
 
-      {/* ================= BOTTOM COPYRIGHT BAR ================= */}
       <div className="footer-bottom-bar">
-
         <div className="footer-bottom-content">
-
           <p className="footer-copyright-text">
             &copy; {new Date().getFullYear()} All Rights Reserved by{" "}
-
-            {/* PR WEBSTOCK WEBSITE LINK */}
             <a
               href="https://prwebstock.com/"
               target="_blank"
@@ -369,10 +306,26 @@ const Footer = () => {
             </a>
           </p>
 
-      
+          <nav className="footer-policy-links" aria-label="Legal policies">
+            <Link to="/terms-and-conditions">Terms &amp; Conditions</Link>
+            <span className="footer-policy-separator">|</span>
+            <Link to="/privacy-policy">Privacy Policy</Link>
+            <span className="footer-policy-separator">|</span>
+            <Link to="/refund-policy">Refund Policy</Link>
+          </nav>
         </div>
       </div>
 
+      {showTopBtn && (
+        <button
+          type="button"
+          className="footer-scroll-to-top-btn"
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+        >
+          <span className="footer-scroll-arrow">⌃</span>
+        </button>
+      )}
     </footer>
   );
 };

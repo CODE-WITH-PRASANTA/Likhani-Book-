@@ -23,6 +23,9 @@ import FloatingSupport from "./Components/FloatingSupport/FloatingSupport";
 import FloatingForm from "./Components/FloatingForm/FloatingForm";
 import Shop from "./Pages/Shop/Shop";
 import SignUp from "./Components/SignUp/SignUp";
+import RefundPolicy from "./Components/RefundPolicy/RefundPolicy";
+import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
+import TermAndCondition from "./Components/TermAndCondition/TermAndCondition";
 
 const SimplePage = ({ title }) => {
   return (
@@ -116,6 +119,21 @@ const App = () => {
         <Route
           path="/signup"
           element={<SignUp/>}
+        />
+
+        <Route
+          path="/refund-policy"
+          element={<RefundPolicy/>}
+        />
+
+        <Route
+          path="/privacy-policy"
+          element={<PrivacyPolicy/>}
+        />
+
+        <Route
+          path="/terms-and-conditions"
+          element={<TermAndCondition/>}
         />
 
         {/* 404 */}

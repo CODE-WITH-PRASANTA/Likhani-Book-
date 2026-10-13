@@ -1,3 +1,4 @@
+
 /* ==========================================================================
    TopSelling — Premium Bookshop Carousel
    ========================================================================== */
@@ -18,12 +19,20 @@
   width: 100%;
   position: relative;
   background:
-    radial-gradient(ellipse 900px 500px at 12% -10%, rgba(184, 134, 60, 0.07), transparent 60%),
-    radial-gradient(ellipse 800px 500px at 100% 10%, rgba(10, 59, 73, 0.05), transparent 55%),
+    radial-gradient(
+      ellipse 900px 500px at 12% -10%,
+      rgba(184, 134, 60, 0.07),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 800px 500px at 100% 10%,
+      rgba(10, 59, 73, 0.05),
+      transparent 55%
+    ),
     var(--ts-bg);
   padding: 5rem 1.5rem;
   box-sizing: border-box;
-  font-family: 'Manrope', 'Segoe UI', system-ui, sans-serif;
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
   color: var(--ts-dark);
   overflow: hidden;
 }
@@ -41,7 +50,7 @@
   z-index: 1;
 }
 
-/* ---------- Header & Controls ---------- */
+/* Header & Controls */
 
 .top-selling__header {
   display: flex;
@@ -55,18 +64,22 @@
 }
 
 .top-selling__header::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   bottom: -1px;
   width: 84px;
   height: 2px;
-  background: linear-gradient(90deg, var(--ts-accent), var(--ts-accent-dark));
+  background: linear-gradient(
+    90deg,
+    var(--ts-accent),
+    var(--ts-accent-dark)
+  );
   border-radius: 2px;
 }
 
 .top-selling__heading {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: clamp(1.6rem, 2.6vw, 2.35rem);
   font-weight: 600;
   color: var(--ts-primary);
@@ -76,9 +89,9 @@
 }
 
 .top-selling__heading::before {
-  content: 'Curated Picks';
+  content: "Curated Picks";
   display: block;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   font-style: normal;
   font-size: 0.7rem;
   font-weight: 700;
@@ -112,12 +125,20 @@
   cursor: pointer;
   font-size: 0.85rem;
   box-shadow: 0 4px 14px rgba(14, 34, 42, 0.06);
-  transition: background 0.35s ease, color 0.35s ease, transform 0.35s ease,
-    box-shadow 0.35s ease, border-color 0.35s ease;
+  transition:
+    background 0.35s ease,
+    color 0.35s ease,
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
 
 .top-selling__nav-arrow:hover {
-  background: linear-gradient(135deg, var(--ts-primary), var(--ts-primary-hover));
+  background: linear-gradient(
+    135deg,
+    var(--ts-primary),
+    var(--ts-primary-hover)
+  );
   color: var(--ts-white);
   border-color: transparent;
   transform: translateY(-2px);
@@ -140,7 +161,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  background: linear-gradient(135deg, var(--ts-primary), var(--ts-primary-hover));
+  background: linear-gradient(
+    135deg,
+    var(--ts-primary),
+    var(--ts-primary-hover)
+  );
   border: 1px solid var(--ts-primary);
   color: var(--ts-white);
   font-weight: 600;
@@ -150,7 +175,9 @@
   border-radius: 999px;
   cursor: pointer;
   box-shadow: 0 10px 22px rgba(10, 59, 73, 0.22);
-  transition: background 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s ease,
+  transition:
+    background 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.35s ease,
     box-shadow 0.35s ease;
 }
 
@@ -172,7 +199,7 @@
   transform: translateX(4px);
 }
 
-/* ---------- Slider Track Container ---------- */
+/* Slider Track Container */
 
 .top-selling__slider-container {
   width: 100%;
@@ -181,7 +208,7 @@
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 0.75rem 0 1.75rem 0;
+  padding: 0.75rem 0 1.75rem;
 }
 
 .top-selling__slider-container::-webkit-scrollbar {
@@ -201,7 +228,7 @@
   gap: 22px;
 }
 
-/* ---------- Product Card ---------- */
+/* Product Card */
 
 .top-selling__card {
   scroll-snap-align: start;
@@ -213,16 +240,23 @@
   flex-direction: column;
   position: relative;
   box-shadow: 0 1px 2px rgba(14, 34, 42, 0.04);
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.45s ease;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.45s ease;
 }
 
 .top-selling__card::before {
-  content: '';
+  content: "";
   position: absolute;
-  inset: 0 0 auto 0;
+  inset: 0 0 auto;
   height: 3px;
-  background: linear-gradient(90deg, var(--ts-accent), var(--ts-gold), var(--ts-accent-dark));
+  background: linear-gradient(
+    90deg,
+    var(--ts-accent),
+    var(--ts-gold),
+    var(--ts-accent-dark)
+  );
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -276,7 +310,11 @@
 }
 
 .top-selling__badge--discount {
-  background: linear-gradient(135deg, var(--ts-accent), var(--ts-accent-dark));
+  background: linear-gradient(
+    135deg,
+    var(--ts-accent),
+    var(--ts-accent-dark)
+  );
 }
 
 .top-selling__image-frame {
@@ -308,7 +346,7 @@
 }
 
 .top-selling__category {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-style: italic;
   font-size: 0.78rem;
   color: var(--ts-muted);
@@ -317,11 +355,11 @@
 }
 
 .top-selling__title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: 1.02rem;
   font-weight: 600;
   color: var(--ts-dark);
-  margin: 0 0 0.7rem 0;
+  margin: 0 0 0.7rem;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -338,7 +376,7 @@
 }
 
 .top-selling__current-price {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-weight: 700;
   font-size: 1.15rem;
   color: var(--ts-accent-dark);
@@ -359,12 +397,12 @@
   border-radius: 999px;
 }
 
-/* Meta row (Author + Stars) */
+/* Author Row */
 
 .top-selling__meta-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-bottom: 1.1rem;
   border-top: 1px dashed var(--ts-border);
   padding-top: 0.85rem;
@@ -382,7 +420,11 @@
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--ts-primary), var(--ts-primary-hover));
+  background: linear-gradient(
+    135deg,
+    var(--ts-primary),
+    var(--ts-primary-hover)
+  );
   color: #fff;
   font-size: 0.68rem;
   font-weight: 700;
@@ -399,21 +441,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.top-selling__rating {
-  display: inline-flex;
-  gap: 2px;
-}
-
-.top-selling__star {
-  font-size: 0.72rem;
-  color: #d8dfe1;
-}
-
-.top-selling__star--active {
-  color: var(--ts-gold);
-  filter: drop-shadow(0 1px 1px rgba(251, 191, 36, 0.35));
 }
 
 /* Add To Cart Button */
@@ -433,13 +460,20 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: background 0.35s ease, color 0.35s ease, transform 0.18s ease,
+  transition:
+    background 0.35s ease,
+    color 0.35s ease,
+    transform 0.18s ease,
     box-shadow 0.35s ease;
   margin-top: auto;
 }
 
 .top-selling__cart-btn:hover {
-  background: linear-gradient(135deg, var(--ts-primary), var(--ts-primary-hover));
+  background: linear-gradient(
+    135deg,
+    var(--ts-primary),
+    var(--ts-primary-hover)
+  );
   color: #fff;
   box-shadow: 0 10px 22px rgba(10, 59, 73, 0.22);
 }
@@ -457,7 +491,7 @@
   font-size: 0.85rem;
 }
 
-/* ---------- Pagination Dots ---------- */
+/* Pagination Dots */
 
 .top-selling__pagination {
   display: flex;
@@ -473,7 +507,10 @@
   border: none;
   background: var(--ts-border);
   cursor: pointer;
-  transition: width 0.35s ease, background 0.35s ease, opacity 0.35s ease,
+  transition:
+    width 0.35s ease,
+    background 0.35s ease,
+    opacity 0.35s ease,
     box-shadow 0.35s ease;
   padding: 0;
 }
@@ -485,13 +522,15 @@
 .top-selling__dot--active {
   width: 28px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--ts-accent), var(--ts-accent-dark));
+  background: linear-gradient(
+    90deg,
+    var(--ts-accent),
+    var(--ts-accent-dark)
+  );
   box-shadow: 0 4px 10px rgba(184, 134, 60, 0.35);
 }
 
-/* ==========================================================
-   Responsive Breakpoints
-   ========================================================== */
+/* Responsive Breakpoints */
 
 @media (max-width: 1200px) {
   .top-selling__track {
@@ -528,7 +567,7 @@
   }
 }
 
-/* ---------- Reduced Motion ---------- */
+/* Reduced Motion */
 
 @media (prefers-reduced-motion: reduce) {
   .top-selling__card,
