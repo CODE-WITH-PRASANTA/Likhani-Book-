@@ -18,14 +18,13 @@ import {
   FaImage,
   FaFilter,
   FaExclamationTriangle,
-  FaTag,
   FaBoxOpen,
 } from "react-icons/fa";
 import "./Shop.css";
 
 const Shop = () => {
   /* =========================================================
-     CONSTANTS
+      CONSTANTS
   ========================================================= */
 
   const ITEMS_PER_PAGE = 6;
@@ -170,7 +169,7 @@ const Shop = () => {
   ];
 
   /* =========================================================
-     STATES
+      STATES
   ========================================================= */
 
   const [books, setBooks] = useState(defaultBooks);
@@ -190,7 +189,7 @@ const Shop = () => {
 
   const [selectedImages, setSelectedImages] = useState([]);
 
-  const [categories, setCategories] = useState([
+  const [categories] = useState([
     "Arts & Photography",
     "Biographies & Memoirs",
     "Christian Books & Bibles",
@@ -198,8 +197,6 @@ const Shop = () => {
     "Sports & Outdoors",
     "Food & Drink",
   ]);
-
-  const [categoryInput, setCategoryInput] = useState("");
 
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All Categories");
@@ -225,7 +222,7 @@ const Shop = () => {
   const fileInputRef = useRef(null);
 
   /* =========================================================
-     TOAST
+      TOAST
   ========================================================= */
 
   const showToast = (message, type = "success") => {
@@ -245,7 +242,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     FORM INPUT
+      FORM INPUT
   ========================================================= */
 
   const handleInputChange = (e) => {
@@ -258,46 +255,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     CATEGORY
-  ========================================================= */
-
-  const addCategory = () => {
-    const newCategory = categoryInput.trim();
-
-    if (!newCategory) {
-      showToast("Please enter a category", "error");
-      return;
-    }
-
-    const exists = categories.some(
-      (category) => category.toLowerCase() === newCategory.toLowerCase()
-    );
-
-    if (exists) {
-      setFormData((prev) => ({
-        ...prev,
-        category: newCategory,
-      }));
-
-      setCategoryInput("");
-      showToast("Category selected");
-      return;
-    }
-
-    setCategories((prev) => [...prev, newCategory]);
-
-    setFormData((prev) => ({
-      ...prev,
-      category: newCategory,
-    }));
-
-    setCategoryInput("");
-
-    showToast("Category added successfully");
-  };
-
-  /* =========================================================
-     IMAGE UPLOAD
+      IMAGE UPLOAD
   ========================================================= */
 
   const handleImageUpload = (e) => {
@@ -352,7 +310,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     RESET FORM
+      RESET FORM
   ========================================================= */
 
   const resetForm = () => {
@@ -380,7 +338,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     ADD / UPDATE BOOK
+      ADD / UPDATE BOOK
   ========================================================= */
 
   const handleSubmit = (e) => {
@@ -392,7 +350,7 @@ const Shop = () => {
     }
 
     if (!formData.category.trim()) {
-      showToast("Please add/select a category", "error");
+      showToast("Please select a category", "error");
       return;
     }
 
@@ -452,7 +410,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     EDIT
+      EDIT
   ========================================================= */
 
   const handleEdit = (book) => {
@@ -482,7 +440,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     DELETE
+      DELETE
   ========================================================= */
 
   const confirmDelete = () => {
@@ -502,7 +460,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     TOGGLE STATUS
+      TOGGLE STATUS
   ========================================================= */
 
   const toggleStatus = (id) => {
@@ -519,7 +477,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     TOGGLE FEATURED
+      TOGGLE FEATURED
   ========================================================= */
 
   const toggleFeatured = (id) => {
@@ -536,7 +494,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     SEARCH / FILTER
+      SEARCH / FILTER
   ========================================================= */
 
   const filteredBooks = useMemo(() => {
@@ -558,7 +516,7 @@ const Shop = () => {
   }, [books, searchTerm, categoryFilter]);
 
   /* =========================================================
-     PAGINATION
+      PAGINATION
   ========================================================= */
 
   const totalPages = Math.max(
@@ -580,7 +538,7 @@ const Shop = () => {
   );
 
   /* =========================================================
-     SELECT ALL
+      SELECT ALL
   ========================================================= */
 
   const currentPageIds = currentBooks.map((book) => book.id);
@@ -610,7 +568,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     MODAL
+      MODAL
   ========================================================= */
 
   const openModal = (type, book = null) => {
@@ -630,7 +588,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     EXPORT CSV
+      EXPORT CSV
   ========================================================= */
 
   const exportCSV = () => {
@@ -694,7 +652,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     FORMAT PRICE
+      FORMAT PRICE
   ========================================================= */
 
   const formatPrice = (price) => {
@@ -702,7 +660,7 @@ const Shop = () => {
   };
 
   /* =========================================================
-     CLEANUP IMAGE URLS
+      CLEANUP IMAGE URLS
   ========================================================= */
 
   useEffect(() => {
@@ -716,16 +674,12 @@ const Shop = () => {
   }, []);
 
   /* =========================================================
-     RENDER
+      RENDER
   ========================================================= */
 
   return (
     <div className="Shop">
-
-      {/* =====================================================
-          TOP HEADER
-      ===================================================== */}
-
+      {/* HEADER */}
       <div className="Shop-header">
         <div className="Shop-headerLeft">
           <div className="Shop-headerIcon">
@@ -747,12 +701,8 @@ const Shop = () => {
         </div>
       </div>
 
-      {/* =====================================================
-          ADD BOOK FORM
-      ===================================================== */}
-
+      {/* ADD / EDIT BOOK FORM */}
       <section className="Shop-formCard">
-
         <div className="Shop-cardHeader">
           <div className="Shop-cardTitle">
             <span>
@@ -778,11 +728,8 @@ const Shop = () => {
           className="Shop-form"
           onSubmit={handleSubmit}
         >
-
           {/* ROW 1 */}
-
           <div className="Shop-formGrid">
-
             <div className="Shop-field">
               <label>
                 Book Title <span>*</span>
@@ -809,51 +756,29 @@ const Shop = () => {
               />
             </div>
 
+            {/* CATEGORY SELECT DROPDOWN */}
             <div className="Shop-field">
               <label>
                 Category <span>*</span>
               </label>
 
-              <div className="Shop-categoryInput">
-                <input
-                  type="text"
-                  value={categoryInput}
-                  onChange={(e) =>
-                    setCategoryInput(e.target.value)
-                  }
-                  placeholder={
-                    formData.category ||
-                    "Enter or add category"
-                  }
-                />
-
-                <button
-                  type="button"
-                  onClick={addCategory}
-                  title="Add category"
+              <div className="Shop-selectWrapper">
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className={!formData.category ? "Shop-placeholder" : ""}
                 >
-                  <FaPlus />
-                </button>
+                  <option value="" disabled>
+                    Select category
+                  </option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
-
-              {formData.category && (
-                <div className="Shop-selectedCategory">
-                  <FaTag />
-                  {formData.category}
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        category: "",
-                      }))
-                    }
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              )}
             </div>
 
             <div className="Shop-field">
@@ -870,13 +795,10 @@ const Shop = () => {
                 placeholder="Enter price"
               />
             </div>
-
           </div>
 
           {/* ROW 2 */}
-
           <div className="Shop-formGrid">
-
             <div className="Shop-field">
               <label>Discount Price (₹)</label>
 
@@ -923,36 +845,32 @@ const Shop = () => {
             <div className="Shop-field">
               <label>Status</label>
 
-              <select
-                name="status"
-                value={formData.status ? "published" : "unpublished"}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    status: e.target.value === "published",
-                  }))
-                }
-              >
-                <option value="published">
-                  Published
-                </option>
-
-                <option value="unpublished">
-                  Unpublished
-                </option>
-              </select>
+              <div className="Shop-selectWrapper">
+                <select
+                  name="status"
+                  value={formData.status ? "published" : "unpublished"}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      status: e.target.value === "published",
+                    }))
+                  }
+                >
+                  <option value="published">
+                    Published
+                  </option>
+                  <option value="unpublished">
+                    Unpublished
+                  </option>
+                </select>
+              </div>
             </div>
-
           </div>
 
           {/* DESCRIPTION + IMAGES */}
-
           <div className="Shop-bottomGrid">
-
             {/* DESCRIPTION */}
-
             <div className="Shop-descriptionSection">
-
               <div className="Shop-labelRow">
                 <label>
                   Description <span>*</span>
@@ -964,7 +882,6 @@ const Shop = () => {
               </div>
 
               <div className="Shop-editorWrapper">
-
                 <Editor
                   apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
                   value={formData.description}
@@ -989,15 +906,11 @@ const Shop = () => {
                       "Write a detailed description about the book...",
                   }}
                 />
-
               </div>
-
             </div>
 
             {/* IMAGE UPLOAD */}
-
             <div className="Shop-imageSection">
-
               <div className="Shop-labelRow">
                 <label>
                   Book Images <span>*</span>
@@ -1009,7 +922,6 @@ const Shop = () => {
               </div>
 
               <div className="Shop-imageUploadArea">
-
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1068,17 +980,12 @@ const Shop = () => {
                   <FaPlus />
                   <span>Add More</span>
                 </button>
-
               </div>
-
             </div>
-
           </div>
 
-          {/* FORM BUTTON */}
-
+          {/* FORM ACTIONS */}
           <div className="Shop-formActions">
-
             <button
               type="submit"
               className="Shop-submitButton"
@@ -1089,20 +996,13 @@ const Shop = () => {
                 ? "Update Book"
                 : "Add Book"}
             </button>
-
           </div>
-
         </form>
       </section>
 
-      {/* =====================================================
-          BOOK LIST
-      ===================================================== */}
-
+      {/* BOOK LIST */}
       <section className="Shop-listCard">
-
         <div className="Shop-listHeader">
-
           <div className="Shop-listTitle">
             <span>
               <FaBookOpen />
@@ -1123,7 +1023,6 @@ const Shop = () => {
           </div>
 
           <div className="Shop-listTools">
-
             <div className="Shop-searchBox">
               <FaSearch />
 
@@ -1139,7 +1038,6 @@ const Shop = () => {
             </div>
 
             <div className="Shop-filterBox">
-
               <FaFilter />
 
               <select
@@ -1162,7 +1060,6 @@ const Shop = () => {
                   </option>
                 ))}
               </select>
-
             </div>
 
             <button
@@ -1172,16 +1069,12 @@ const Shop = () => {
               <FaDownload />
               Export
             </button>
-
           </div>
-
         </div>
 
-        {/* SELECTED INFO */}
-
+        {/* SELECTED BAR */}
         {selectedBooks.length > 0 && (
           <div className="Shop-selectionBar">
-
             <div>
               <FaCheck />
               {selectedBooks.length} book
@@ -1197,19 +1090,14 @@ const Shop = () => {
             >
               Clear selection
             </button>
-
           </div>
         )}
 
         {/* TABLE */}
-
         <div className="Shop-tableWrapper">
-
           <table className="Shop-table">
-
             <thead>
               <tr>
-
                 <th className="Shop-checkboxColumn">
                   <input
                     type="checkbox"
@@ -1228,15 +1116,12 @@ const Shop = () => {
                 <th>Status</th>
                 <th>Featured</th>
                 <th>Actions</th>
-
               </tr>
             </thead>
 
             <tbody>
-
               {currentBooks.length > 0 ? (
                 currentBooks.map((book, index) => (
-
                   <tr
                     key={book.id}
                     className={
@@ -1245,9 +1130,6 @@ const Shop = () => {
                         : ""
                     }
                   >
-
-                    {/* CHECKBOX */}
-
                     <td>
                       <input
                         type="checkbox"
@@ -1260,20 +1142,14 @@ const Shop = () => {
                       />
                     </td>
 
-                    {/* NUMBER */}
-
                     <td>
                       <span className="Shop-rowNumber">
                         {startIndex + index + 1}
                       </span>
                     </td>
 
-                    {/* IMAGE */}
-
                     <td>
-
                       <div className="Shop-tableImage">
-
                         {book.images?.[0] ? (
                           <img
                             src={book.images[0]}
@@ -1282,17 +1158,11 @@ const Shop = () => {
                         ) : (
                           <FaImage />
                         )}
-
                       </div>
-
                     </td>
 
-                    {/* TITLE */}
-
                     <td>
-
                       <div className="Shop-bookInfo">
-
                         <strong>
                           {book.title}
                         </strong>
@@ -1300,27 +1170,17 @@ const Shop = () => {
                         <span>
                           {book.author || "Unknown Author"}
                         </span>
-
                       </div>
-
                     </td>
 
-                    {/* CATEGORY */}
-
                     <td>
-
                       <span className="Shop-categoryBadge">
                         {book.category}
                       </span>
-
                     </td>
 
-                    {/* PRICE */}
-
                     <td>
-
                       <div className="Shop-price">
-
                         <strong>
                           {formatPrice(
                             book.discountPrice ||
@@ -1333,15 +1193,10 @@ const Shop = () => {
                             {formatPrice(book.price)}
                           </del>
                         )}
-
                       </div>
-
                     </td>
 
-                    {/* STOCK */}
-
                     <td>
-
                       <span
                         className={`Shop-stock ${
                           book.stock <= 5
@@ -1351,29 +1206,19 @@ const Shop = () => {
                       >
                         {book.stock}
                       </span>
-
                     </td>
 
-                    {/* RATING */}
-
                     <td>
-
                       <div className="Shop-rating">
-
                         <FaStar />
 
                         <span>
                           {book.rating || "0.0"}
                         </span>
-
                       </div>
-
                     </td>
 
-                    {/* STATUS */}
-
                     <td>
-
                       <button
                         type="button"
                         className={`Shop-toggle ${
@@ -1388,13 +1233,9 @@ const Shop = () => {
                       >
                         <span />
                       </button>
-
                     </td>
 
-                    {/* FEATURED */}
-
                     <td>
-
                       <button
                         type="button"
                         className={`Shop-toggle ${
@@ -1409,15 +1250,10 @@ const Shop = () => {
                       >
                         <span />
                       </button>
-
                     </td>
 
-                    {/* ACTIONS */}
-
                     <td>
-
                       <div className="Shop-actions">
-
                         <button
                           type="button"
                           className="Shop-actionButton Shop-viewAction"
@@ -1450,16 +1286,11 @@ const Shop = () => {
                         >
                           <FaTrash />
                         </button>
-
                       </div>
-
                     </td>
-
                   </tr>
-
                 ))
               ) : (
-
                 <tr>
                   <td
                     colSpan="11"
@@ -1474,21 +1305,13 @@ const Shop = () => {
                     </span>
                   </td>
                 </tr>
-
               )}
-
             </tbody>
-
           </table>
-
         </div>
 
-        {/* ===================================================
-            PAGINATION
-        =================================================== */}
-
+        {/* PAGINATION */}
         <div className="Shop-pagination">
-
           <div className="Shop-paginationInfo">
             Showing{" "}
             <strong>
@@ -1511,7 +1334,6 @@ const Shop = () => {
           </div>
 
           <div className="Shop-paginationControls">
-
             <button
               type="button"
               disabled={currentPage === 1}
@@ -1529,7 +1351,6 @@ const Shop = () => {
               { length: totalPages },
               (_, index) => index + 1
             ).map((page) => (
-
               <button
                 key={page}
                 type="button"
@@ -1544,7 +1365,6 @@ const Shop = () => {
               >
                 {page}
               </button>
-
             ))}
 
             <button
@@ -1561,37 +1381,27 @@ const Shop = () => {
               Next
               <FaChevronRight />
             </button>
-
           </div>
 
           <div className="Shop-perPage">
             6 per page
           </div>
-
         </div>
-
       </section>
 
-      {/* =====================================================
-          VIEW MODAL
-      ===================================================== */}
-
+      {/* VIEW MODAL */}
       {modal.open && modal.type === "view" && modal.book && (
-
         <div
           className="Shop-modalOverlay"
           onClick={closeModal}
         >
-
           <div
             className="Shop-modal Shop-viewModal"
             onClick={(e) =>
               e.stopPropagation()
             }
           >
-
             <div className="Shop-modalHeader">
-
               <div>
                 <span className="Shop-modalIcon">
                   <FaEye />
@@ -1601,7 +1411,6 @@ const Shop = () => {
                   <h3>
                     Book Details
                   </h3>
-
                   <p>
                     Complete information about this book
                   </p>
@@ -1614,13 +1423,10 @@ const Shop = () => {
               >
                 <FaTimes />
               </button>
-
             </div>
 
             <div className="Shop-viewContent">
-
               <div className="Shop-viewImages">
-
                 {modal.book.images?.length > 0 ? (
                   modal.book.images.map(
                     (image, index) => (
@@ -1636,13 +1442,10 @@ const Shop = () => {
                     No Image
                   </div>
                 )}
-
               </div>
 
               <div className="Shop-viewDetails">
-
                 <div className="Shop-viewTitleRow">
-
                   <div>
                     <span className="Shop-viewCategory">
                       {modal.book.category}
@@ -1662,14 +1465,11 @@ const Shop = () => {
                     <FaStar />
                     {modal.book.rating}
                   </div>
-
                 </div>
 
                 <div className="Shop-viewGrid">
-
                   <div>
                     <span>Price</span>
-
                     <strong>
                       {formatPrice(
                         modal.book.discountPrice ||
@@ -1680,7 +1480,6 @@ const Shop = () => {
 
                   <div>
                     <span>Stock</span>
-
                     <strong>
                       {modal.book.stock}
                     </strong>
@@ -1688,7 +1487,6 @@ const Shop = () => {
 
                   <div>
                     <span>Status</span>
-
                     <strong>
                       {modal.book.status
                         ? "Published"
@@ -1698,18 +1496,15 @@ const Shop = () => {
 
                   <div>
                     <span>Featured</span>
-
                     <strong>
                       {modal.book.featured
                         ? "Yes"
                         : "No"}
                     </strong>
                   </div>
-
                 </div>
 
                 <div className="Shop-viewDescription">
-
                   <h4>
                     Description
                   </h4>
@@ -1721,15 +1516,11 @@ const Shop = () => {
                         "<p>No description available.</p>",
                     }}
                   />
-
                 </div>
-
               </div>
-
             </div>
 
             <div className="Shop-modalFooter">
-
               <button
                 type="button"
                 className="Shop-modalClose"
@@ -1749,33 +1540,23 @@ const Shop = () => {
                 <FaEdit />
                 Edit Book
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
 
-      {/* =====================================================
-          DELETE MODAL
-      ===================================================== */}
-
+      {/* DELETE MODAL */}
       {modal.open && modal.type === "delete" && modal.book && (
-
         <div
           className="Shop-modalOverlay"
           onClick={closeModal}
         >
-
           <div
             className="Shop-modal Shop-deleteModal"
             onClick={(e) =>
               e.stopPropagation()
             }
           >
-
             <div className="Shop-deleteIcon">
               <FaExclamationTriangle />
             </div>
@@ -1793,7 +1574,6 @@ const Shop = () => {
             </p>
 
             <div className="Shop-deleteActions">
-
               <button
                 type="button"
                 onClick={closeModal}
@@ -1810,21 +1590,13 @@ const Shop = () => {
                 <FaTrash />
                 Delete Book
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
 
-      {/* =====================================================
-          TOAST
-      ===================================================== */}
-
+      {/* TOAST */}
       {toast.show && (
-
         <div
           className={`Shop-toast ${
             toast.type === "error"
@@ -1832,7 +1604,6 @@ const Shop = () => {
               : ""
           }`}
         >
-
           <div className="Shop-toastIcon">
             {toast.type === "error" ? (
               <FaExclamationTriangle />
@@ -1844,11 +1615,8 @@ const Shop = () => {
           <span>
             {toast.message}
           </span>
-
         </div>
-
       )}
-
     </div>
   );
 };

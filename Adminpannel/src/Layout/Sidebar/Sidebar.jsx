@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+
 import {
   LuLayoutDashboard,
   LuBook,
@@ -22,6 +22,7 @@ import {
   LuChevronDown,
   LuChevronLeft,
   LuChevronRight,
+  LuStore,
 } from "react-icons/lu";
 
 import "./Sidebar.css";
@@ -41,39 +42,107 @@ const blogSubItems = [
   },
 ];
 
+const shopSubItems = [
+  {
+    id: "shop",
+    label: "Shop",
+    path: "/shop",
+    icon: LuShoppingCart,
+  },
+  {
+    id: "categories",
+    label: "Categories",
+    path: "/categories",
+    icon: LuFolder,
+  },
+];
+
 const navigationGroups = [
   {
     title: "OVERVIEW",
     items: [
-      { label: "Dashboard", path: "/dashboard", icon: LuLayoutDashboard },
-      { label: "Books", path: "/books", icon: LuBook },
-      { label: "Blogs", type: "dropdown", icon: LuNewspaper },
-      { label: "Shop", path: "/shop", icon: LuShoppingCart },
-      { label: "Categories", path: "/categories", icon: LuFolder },
+      {
+        label: "Dashboard",
+        path: "/dashboard",
+        icon: LuLayoutDashboard,
+      },
+      {
+        label: "Books",
+        path: "/books",
+        icon: LuBook,
+      },
+      {
+        label: "Blogs",
+        type: "dropdown",
+        id: "blogs",
+        icon: LuNewspaper,
+      },
+      {
+        label: "Shop Management",
+        type: "dropdown",
+        id: "shop-management",
+        icon: LuStore,
+      },
     ],
   },
   {
     title: "MANAGEMENT",
     items: [
-      { label: "Orders", path: "/orders", icon: LuShoppingCart },
-      { label: "Gallery", path: "/gallery", icon: LuGalleryHorizontal },
-      { label: "Users", path: "/users", icon: LuUsers },
-      { label: "Enquiries", path: "/enquiries", icon: LuMessageSquare },
-      { label: "Supports", path: "/supports", icon: LuMessageCircle },
+      {
+        label: "Orders",
+        path: "/orders",
+        icon: LuShoppingCart,
+      },
+      {
+        label: "Gallery",
+        path: "/gallery",
+        icon: LuGalleryHorizontal,
+      },
+      {
+        label: "Users",
+        path: "/users",
+        icon: LuUsers,
+      },
+      {
+        label: "Enquiries",
+        path: "/enquiries",
+        icon: LuMessageSquare,
+      },
+      {
+        label: "Supports",
+        path: "/supports",
+        icon: LuMessageCircle,
+      },
     ],
   },
   {
     title: "MARKETING",
     items: [
-      { label: "Coupons", path: "/coupons", icon: LuTag },
-      { label: "Reviews", path: "/reviews", icon: LuStar },
-      { label: "Testimonials", path: "/testimonial", icon: LuMessageCircle },
+      {
+        label: "Coupons",
+        path: "/coupons",
+        icon: LuTag,
+      },
+      {
+        label: "Reviews",
+        path: "/reviews",
+        icon: LuStar,
+      },
+      {
+        label: "Testimonials",
+        path: "/testimonial",
+        icon: LuMessageCircle,
+      },
     ],
   },
   {
     title: "SYSTEM",
     items: [
-      { label: "Settings", path: "/settings", icon: LuSettings },
+      {
+        label: "Settings",
+        path: "/settings",
+        icon: LuSettings,
+      },
     ],
   },
 ];
@@ -83,29 +152,48 @@ const Sidebar = ({
   toggleSidebarProp,
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isBlogsOpen, setIsBlogsOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   const location = useLocation();
 
-  const isBlogRouteActive =
-    location.pathname === "/blogs" ||
-    location.pathname.startsWith("/blogs/");
+  const isRouteActive = (paths) =>
+    paths.some(
+      (path) =>
+        location.pathname === path ||
+        location.pathname.startsWith(`${path}/`)
+    );
+
+  const isBlogRouteActive = isRouteActive([
+    "/blogs",
+  ]);
+
+  const isShopRouteActive = isRouteActive([
+    "/shop",
+    "/categories",
+  ]);
 
   const showExpandedContent =
     !isCollapsedProp || isMobileOpen;
 
+  // Keep the relevant dropdown open on direct navigation.
   useEffect(() => {
     if (isBlogRouteActive) {
-      setIsBlogsOpen(true);
+      setOpenDropdown("blogs");
+    } else if (isShopRouteActive) {
+      setOpenDropdown("shop-management");
     }
-  }, [isBlogRouteActive]);
+  }, [location.pathname, isBlogRouteActive, isShopRouteActive]);
 
+  // Close the mobile sidebar after navigation.
   useEffect(() => {
     setIsMobileOpen(false);
   }, [location.pathname]);
 
+  // Lock background scrolling and support Escape on mobile.
   useEffect(() => {
-    if (!isMobileOpen || window.innerWidth > 768) return;
+    if (!isMobileOpen || window.innerWidth > 768) {
+      return undefined;
+    }
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -138,82 +226,130 @@ const Sidebar = ({
     }
   };
 
-  const toggleBlogsDropdown = () => {
-    if (isCollapsedProp && !isMobileOpen && toggleSidebarProp) {
+  const toggleDropdown = (dropdownId) => {
+    // Expand the desktop sidebar before opening a submenu.
+    if (
+      isCollapsedProp &&
+      !isMobileOpen &&
+      toggleSidebarProp
+    ) {
       toggleSidebarProp();
-      setIsBlogsOpen(true);
+      setOpenDropdown(dropdownId);
       return;
     }
 
-    setIsBlogsOpen((previous) => !previous);
+    setOpenDropdown((previous) =>
+      previous === dropdownId ? null : dropdownId
+    );
+  };
+
+  const renderDropdown = (
+    item,
+    subItems,
+    isActive
+  ) => {
+    const Icon = item.icon;
+    const isOpen = openDropdown === item.id;
+    const submenuId = `premium-submenu-${item.id}`;
+
+    return (
+      <li
+        key={item.id}
+        className={`premium-nav-dropdown ${
+          isOpen ? "dropdown-open" : ""
+        }`}
+      >
+        <button
+          type="button"
+          className={`premium-nav-link premium-dropdown-trigger ${
+            isActive ? "is-active" : ""
+          }`}
+          onClick={() => toggleDropdown(item.id)}
+          aria-expanded={showExpandedContent && isOpen}
+          aria-controls={submenuId}
+          title={
+            !showExpandedContent
+              ? item.label
+              : undefined
+          }
+        >
+          <span className="premium-nav-icon">
+            <Icon />
+          </span>
+
+          {showExpandedContent && (
+            <>
+              <span className="premium-nav-text">
+                {item.label}
+              </span>
+
+              <LuChevronDown
+                className={`premium-dropdown-chevron ${
+                  isOpen ? "rotated" : ""
+                }`}
+              />
+            </>
+          )}
+        </button>
+
+        {showExpandedContent && (
+          <div
+            id={submenuId}
+            className={`premium-submenu-wrapper ${
+              isOpen ? "expanded" : ""
+            }`}
+            aria-hidden={!isOpen}
+          >
+            <ul className="premium-submenu-list">
+              {subItems.map((subItem) => {
+                const SubIcon = subItem.icon;
+
+                return (
+                  <li key={subItem.id}>
+                    <NavLink
+                      to={subItem.path}
+                      end
+                      tabIndex={isOpen ? 0 : -1}
+                      onClick={handleItemClick}
+                      className={({ isActive }) =>
+                        `premium-submenu-link ${
+                          isActive ? "sub-active" : ""
+                        }`
+                      }
+                    >
+                      <SubIcon />
+                      <span>{subItem.label}</span>
+                    </NavLink>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </li>
+    );
   };
 
   const renderNavItem = (item) => {
-    const Icon = item.icon;
-
     if (item.type === "dropdown") {
-      return (
-        <li key={item.label} className="premium-nav-dropdown">
-          <button
-            type="button"
-            className={`premium-nav-link premium-dropdown-trigger ${
-              isBlogRouteActive ? "is-active" : ""
-            }`}
-            onClick={toggleBlogsDropdown}
-            aria-expanded={showExpandedContent && isBlogsOpen}
-            aria-controls="premium-blog-submenu"
-            title={!showExpandedContent ? "Blogs" : undefined}
-          >
-            <span className="premium-nav-icon">
-              <Icon />
-            </span>
+      if (item.id === "blogs") {
+        return renderDropdown(
+          item,
+          blogSubItems,
+          isBlogRouteActive
+        );
+      }
 
-            {showExpandedContent && (
-              <>
-                <span className="premium-nav-text">Blogs</span>
-                <LuChevronDown
-                  className={`premium-dropdown-chevron ${
-                    isBlogsOpen ? "rotated" : ""
-                  }`}
-                />
-              </>
-            )}
-          </button>
-
-          {showExpandedContent && (
-            <div
-              id="premium-blog-submenu"
-              className={`premium-submenu-wrapper ${
-                isBlogsOpen ? "expanded" : ""
-              }`}
-            >
-              <ul className="premium-submenu-list">
-                {blogSubItems.map((subItem) => {
-                  const SubIcon = subItem.icon;
-
-                  return (
-                    <li key={subItem.id}>
-                      <NavLink
-                        to={subItem.path}
-                        onClick={handleItemClick}
-                        className={({ isActive }) =>
-                          `premium-submenu-link ${
-                            isActive ? "sub-active" : ""
-                          }`
-                        }
-                      >
-                        <SubIcon />
-                        <span>{subItem.label}</span>
-                      </NavLink>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-        </li>
-      );
+      if (item.id === "shop-management") {
+        return renderDropdown(
+          item,
+          shopSubItems,
+          isShopRouteActive
+        );
+      }
     }
+
+    const Icon = item.icon;
 
     return (
       <li key={item.path} className="premium-nav-item">
@@ -221,9 +357,15 @@ const Sidebar = ({
           to={item.path}
           end
           onClick={handleItemClick}
-          title={!showExpandedContent ? item.label : undefined}
+          title={
+            !showExpandedContent
+              ? item.label
+              : undefined
+          }
           className={({ isActive }) =>
-            `premium-nav-link ${isActive ? "is-active" : ""}`
+            `premium-nav-link ${
+              isActive ? "is-active" : ""
+            }`
           }
         >
           <span className="premium-nav-icon">
@@ -245,8 +387,12 @@ const Sidebar = ({
       <button
         type="button"
         className="premium-mobile-toggle"
-        onClick={() => setIsMobileOpen((previous) => !previous)}
-        aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+        onClick={() =>
+          setIsMobileOpen((previous) => !previous)
+        }
+        aria-label={
+          isMobileOpen ? "Close menu" : "Open menu"
+        }
         aria-expanded={isMobileOpen}
       >
         {isMobileOpen ? <LuX /> : <LuMenu />}
@@ -275,6 +421,7 @@ const Sidebar = ({
             {showExpandedContent && (
               <div className="premium-brand-details">
                 <h2>Likhani Books</h2>
+
                 <div className="premium-brand-subtitle">
                   <span className="premium-brand-dot" />
                   ADMIN DASHBOARD
@@ -298,7 +445,10 @@ const Sidebar = ({
           aria-label="Main navigation"
         >
           {navigationGroups.map((group) => (
-            <div className="premium-nav-group" key={group.title}>
+            <div
+              className="premium-nav-group"
+              key={group.title}
+            >
               {showExpandedContent ? (
                 <div className="premium-nav-group-title">
                   <span>{group.title}</span>
@@ -315,7 +465,6 @@ const Sidebar = ({
           ))}
         </nav>
 
-        {/* Bottom cards removed intentionally. */}
         {toggleSidebarProp && (
           <div className="premium-sidebar-footer">
             <button
@@ -323,10 +472,14 @@ const Sidebar = ({
               className="premium-collapse-button"
               onClick={toggleSidebarProp}
               aria-label={
-                isCollapsedProp ? "Expand sidebar" : "Collapse sidebar"
+                isCollapsedProp
+                  ? "Expand sidebar"
+                  : "Collapse sidebar"
               }
               title={
-                isCollapsedProp ? "Expand sidebar" : "Collapse sidebar"
+                isCollapsedProp
+                  ? "Expand sidebar"
+                  : "Collapse sidebar"
               }
             >
               {isCollapsedProp ? (

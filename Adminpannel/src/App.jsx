@@ -30,9 +30,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Admin panel layout */}
         <Route path="/" element={<Mainlayout />}>
-          {/* Default page */}
           <Route
             index
             element={<Navigate to="/dashboard" replace />}
@@ -41,11 +39,12 @@ const App = () => {
           {/* Dashboard */}
           <Route path="dashboard" element={<Dashboard />} />
 
-          {/* Book management */}
+          {/* Books */}
           <Route path="books" element={<Books />} />
           <Route path="categories" element={<Categories />} />
           <Route path="shop" element={<Shop />} />
 
+        
           {/* Orders and customers */}
           <Route path="orders" element={<Order />} />
           <Route path="users" element={<Users />} />
@@ -54,10 +53,12 @@ const App = () => {
 
           {/* Content management */}
           <Route path="gallery" element={<Gallery />} />
+
           <Route
             path="testimonial"
             element={<TestimonialManagement />}
           />
+
           <Route path="reviews" element={<Reviews />} />
           <Route path="coupons" element={<Coupons />} />
 
@@ -66,26 +67,30 @@ const App = () => {
             path="blogs/management"
             element={<BlogManagement />}
           />
-          <Route path="blogs/create" element={<BlogPosting />} />
 
-          {/* Admin profile */}
           <Route
-            path="my-profile"
-            element={<MyProfile />}
+            path="blogs/create"
+            element={<BlogPosting />}
           />
 
-          {/* Backward compatibility for the old profile URL */}
+          {/* Profile */}
+          <Route path="my-profile" element={<MyProfile />} />
+
           <Route
             path="profile"
             element={<Navigate to="/my-profile" replace />}
           />
 
-          {/* Account settings / login */}
-          <Route path="settings" element={<Navigate to="/my-profile" replace />} />
+          <Route
+            path="settings"
+            element={<Navigate to="/my-profile" replace />}
+          />
+
+          {/* Login */}
           <Route path="login" element={<Login />} />
         </Route>
 
-        {/* Redirect unknown URLs */}
+        {/* Unknown URLs */}
         <Route
           path="*"
           element={<Navigate to="/dashboard" replace />}

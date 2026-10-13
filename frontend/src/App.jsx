@@ -26,6 +26,7 @@ import SignUp from "./Components/SignUp/SignUp";
 import RefundPolicy from "./Components/RefundPolicy/RefundPolicy";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import TermAndCondition from "./Components/TermAndCondition/TermAndCondition";
+import BookDetails from "./Components/BookDetails/BookDetails";
 
 const SimplePage = ({ title }) => {
   return (
@@ -134,6 +135,11 @@ const App = () => {
         <Route
           path="/terms-and-conditions"
           element={<TermAndCondition/>}
+        />
+
+        <Route
+          path="/book-details"
+          element={<BookDetails/>}
         />
 
         {/* 404 */}
