@@ -24,6 +24,7 @@ import {
   FiDownload,
   FiRefreshCw,
   FiSliders,
+  FiPrinter,
 } from "react-icons/fi";
 import "./Order.css";
 
@@ -32,14 +33,14 @@ const Order = () => {
   const TOTAL_PAGES = 8;
 
   const books = [
-    { title: "Atomic Habits", color: "#e2b887", text: "ATOMIC\nHABITS" },
-    { title: "Deep Work", color: "#1f3b64", text: "DEEP\nWORK" },
-    { title: "Ikigai", color: "#2d7a6e", text: "IKIGAI" },
-    { title: "Rich Dad", color: "#8a2435", text: "RICH\nDAD" },
-    { title: "The Power", color: "#2d2a32", text: "THE\nPOWER" },
-    { title: "Think Big", color: "#dc3545", text: "THINK\nBIG" },
-    { title: "Sapiens", color: "#8a7b66", text: "SAPIENS" },
-    { title: "Psychology", color: "#194a7a", text: "PSYCHOLOGY" },
+    { title: "Atomic Habits", author: "James Clear", color: "#e2b887", text: "ATOMIC\nHABITS", price: 499 },
+    { title: "Deep Work", author: "Cal Newport", color: "#1f3b64", text: "DEEP\nWORK", price: 450 },
+    { title: "Ikigai", author: "Héctor García", color: "#2d7a6e", text: "IKIGAI", price: 399 },
+    { title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", color: "#8a2435", text: "RICH\nDAD", price: 400 },
+    { title: "The 48 Laws of Power", author: "Robert Greene", color: "#2d2a32", text: "THE\nPOWER", price: 650 },
+    { title: "The Magic of Thinking Big", author: "David Schwartz", color: "#dc3545", text: "THINK\nBIG", price: 350 },
+    { title: "Sapiens", author: "Yuval Noah Harari", color: "#8a7b66", text: "SAPIENS", price: 550 },
+    { title: "The Psychology of Money", author: "Morgan Housel", color: "#194a7a", text: "PSYCHOLOGY", price: 399 },
   ];
 
   const initialOrders = [
@@ -216,8 +217,8 @@ const Order = () => {
   const [editOrder, setEditOrder] = useState(null);
   const [deleteOrder, setDeleteOrder] = useState(null);
   const [editForm, setEditForm] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null);
 
-  // Smooth unmounting animation state
   const [isClosingModal, setIsClosingModal] = useState(false);
 
   const tabs = [
@@ -302,7 +303,6 @@ const Order = () => {
     );
   };
 
-  // Gracefully close any active modal with animation
   const closeModal = useCallback(() => {
     setIsClosingModal(true);
     setTimeout(() => {
@@ -314,7 +314,6 @@ const Order = () => {
     }, 220);
   }, []);
 
-  // Listen to Escape key & prevent body scrolling when modal is open
   useEffect(() => {
     const hasModal = Boolean(viewOrder || editOrder || deleteOrder);
     if (hasModal) {
@@ -386,6 +385,397 @@ const Order = () => {
     setActiveTab("All Orders");
     setCurrentPage(1);
     setSelectedOrders([]);
+  };
+
+  /**
+   * Premium Print & PDF Receipt Generator
+   * Generates a branded, printable tax invoice window with auto-print & download trigger
+   */
+  const handleDownloadReceipt = (order) => {
+    setDownloadingId(order.id);
+
+    const items = order.books.map((bookIdx) => books[bookIdx]);
+    if (order.more > 0) {
+      for (let i = 0; i < order.more; i++) {
+        items.push({
+          title: `Additional Curated Title #${i + 1}`,
+          author: "Publisher Direct",
+          price: Math.round((order.amount * 0.4) / order.more),
+        });
+      }
+    }
+
+    const subtotal = Math.round(order.amount / 1.05);
+    const gstTax = order.amount - subtotal;
+    const shipping = order.amount > 1000 ? 0 : 50;
+    const grandTotal = order.amount + shipping;
+
+    const receiptHtml = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Receipt_${order.id.replace("#", "")}</title>
+        <style>
+          @page { size: A4; margin: 16mm; }
+          * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+          }
+          .invoice-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            padding: 44px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+          }
+          .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #2563eb;
+          }
+          .company-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+          .logo-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+          }
+          .company-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+          }
+          .company-desc {
+            font-size: 11px;
+            color: #64748b;
+            margin: 2px 0 0;
+          }
+          .invoice-meta {
+            text-align: right;
+          }
+          .invoice-pill {
+            display: inline-block;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+          }
+          .invoice-id {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+            font-family: monospace;
+            color: #1e293b;
+          }
+          .invoice-date {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 4px;
+          }
+          .billing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 28px 0;
+            padding: 18px 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+          }
+          .bill-col h4 {
+            margin: 0 0 8px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #64748b;
+          }
+          .bill-col strong {
+            font-size: 14px;
+            color: #0f172a;
+            display: block;
+            margin-bottom: 3px;
+          }
+          .bill-col p {
+            margin: 2px 0;
+            font-size: 12px;
+            color: #475569;
+          }
+          .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+          }
+          .items-table th {
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            background: #f1f5f9;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+          }
+          .items-table td {
+            padding: 14px;
+            font-size: 12.5px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+          }
+          .items-table tr:last-child td {
+            border-bottom: 1px solid #e2e8f0;
+          }
+          .summary-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+          }
+          .summary-table {
+            width: 320px;
+            border-collapse: collapse;
+          }
+          .summary-table td {
+            padding: 6px 12px;
+            font-size: 12.5px;
+            color: #64748b;
+          }
+          .summary-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+            color: #0f172a;
+          }
+          .summary-total {
+            border-top: 2px solid #e2e8f0;
+            font-size: 16px !important;
+            font-weight: 800 !important;
+            color: #2563eb !important;
+            padding-top: 10px !important;
+          }
+          .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 14px;
+          }
+          .badge-paid { background: #dcfce7; color: #15803d; }
+          .badge-cod { background: #fef3c7; color: #b45309; }
+          .footer-section {
+            margin-top: 40px;
+            padding-top: 18px;
+            border-top: 1px dashed #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #94a3b8;
+          }
+          .action-bar {
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+          }
+          .print-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+          }
+          .close-btn {
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+          }
+          @media print {
+            body { background: white; padding: 0; }
+            .invoice-card { border: none; box-shadow: none; padding: 10px; }
+            .action-bar { display: none !important; }
+          }
+        </style>
+      </head>
+      <body>
+        <div style="width: 100%; max-width: 800px;">
+          <div class="action-bar">
+            <button class="close-btn" onclick="window.close()">Close Window</button>
+            <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+          </div>
+
+          <div class="invoice-card">
+            <div class="header-row">
+              <div class="company-logo">
+                <div class="logo-badge">BK</div>
+                <div>
+                  <h1 class="company-title">BOOKSPHERE INC.</h1>
+                  <p class="company-desc">Fulfillment Center & Registered Bookseller</p>
+                  <p class="company-desc">GSTIN: 21AAACB1234D1Z8 • contact@booksphere.com</p>
+                </div>
+              </div>
+              <div class="invoice-meta">
+                <span class="invoice-pill">TAX INVOICE / RECEIPT</span>
+                <h2 class="invoice-id">${order.id}</h2>
+                <div class="invoice-date">Date: <strong>${order.date}</strong> at ${order.time}</div>
+                <div class="invoice-date">Status: <strong>${order.status}</strong></div>
+              </div>
+            </div>
+
+            <div class="billing-grid">
+              <div class="bill-col">
+                <h4>Customer Billed To</h4>
+                <strong>${order.customer}</strong>
+                <p>${order.email}</p>
+                <p>${order.phone}</p>
+                <p>${order.city}</p>
+              </div>
+              <div class="bill-col">
+                <h4>Payment & Logistics</h4>
+                <p>Payment Mode: <strong>${order.payment}</strong></p>
+                <p>Fulfillment: <strong>Expedited Courier Service</strong></p>
+                <span class="status-badge ${order.payment === "Paid" ? "badge-paid" : "badge-cod"}">
+                  Payment Status: ${order.payment.toUpperCase()}
+                </span>
+              </div>
+            </div>
+
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th style="width: 45%;">Item Description</th>
+                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: right;">Unit Price</th>
+                  <th style="text-align: right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items
+                  .map(
+                    (it, idx) => `
+                  <tr>
+                    <td>
+                      <strong>${idx + 1}.${it.title}</strong>
+                      <div style="font-size: 10.5px; color: #64748b;">${it.author || "Standard Edition"}</div>
+                    </td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: right;">₹${(it.price || 499).toLocaleString("en-IN")}</td>
+                    <td style="text-align: right;">₹${(it.price || 499).toLocaleString("en-IN")}</td>
+                  </tr>
+                `
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+
+            <div class="summary-wrapper">
+              <table class="summary-table">
+                <tr>
+                  <td>Taxable Subtotal</td>
+                  <td>₹${subtotal.toLocaleString("en-IN")}</td>
+                </tr>
+                <tr>
+                  <td>Estimated GST (5%)</td>
+                  <td>₹${gstTax.toLocaleString("en-IN")}</td>
+                </tr>
+                <tr>
+                  <td>Standard Shipping</td>
+                  <td>${shipping === 0 ? "FREE" : "₹" + shipping}</td>
+                </tr>
+                <tr>
+                  <td class="summary-total">Total Amount</td>
+                  <td class="summary-total">₹${grandTotal.toLocaleString("en-IN")}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="footer-section">
+              <span>Thank you for shopping with us! This is a system-generated authentic tax receipt.</span>
+              <span>Ref: ${order.id.replace("#", "")}-${Date.now().toString().slice(-6)}</span>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Open receipt in clean print-ready pop-up window
+    const printWindow = window.open("", "_blank", "width=880,height=920");
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(receiptHtml);
+      printWindow.document.close();
+      printWindow.focus();
+    } else {
+      // Fallback: Trigger instant JSON receipt download if popups are blocked
+      const dataStr =
+        "data:text/json;charset=utf-8," +
+        encodeURIComponent(
+          JSON.stringify(
+            {
+              receiptId: order.id,
+              customer: order.customer,
+              email: order.email,
+              phone: order.phone,
+              city: order.city,
+              date: order.date,
+              time: order.time,
+              status: order.status,
+              payment: order.payment,
+              amount: order.amount,
+              breakdown: items,
+              generatedAt: new Date().toISOString(),
+            },
+            null,
+            2
+          )
+        );
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Receipt_${order.id.replace("#", "")}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    setTimeout(() => {
+      setDownloadingId(null);
+    }, 450);
   };
 
   return (
@@ -581,6 +971,8 @@ const Order = () => {
             <tbody>
               {currentOrders.map((order) => {
                 const isSelected = selectedOrders.includes(order.id);
+                const isDownloading = downloadingId === order.id;
+
                 return (
                   <tr
                     key={order.id}
@@ -656,6 +1048,19 @@ const Order = () => {
                     </td>
                     <td>
                       <div className="OrderActions">
+                        {/* PREMIUM RECEIPT DOWNLOAD BUTTON */}
+                        <button
+                          className={`OrderActionButton OrderReceiptButton ${
+                            isDownloading ? "OrderReceiptLoading" : ""
+                          }`}
+                          title="Download & Print Order Tax Receipt"
+                          onClick={() => handleDownloadReceipt(order)}
+                          disabled={isDownloading}
+                        >
+                          <FiPrinter />
+                          <span>{isDownloading ? "Printing..." : "Receipt"}</span>
+                        </button>
+
                         <button
                           className="OrderActionButton OrderViewButton"
                           title="View order"
@@ -770,9 +1175,19 @@ const Order = () => {
                 <span className="OrderModalLabel">ORDER RECORD DETAILS</span>
                 <h2>{viewOrder.id}</h2>
               </div>
-              <button className="OrderCloseButton" onClick={closeModal}>
-                <FiX />
-              </button>
+              <div className="OrderModalHeaderBtns">
+                <button
+                  className="OrderReceiptDownloadHeaderBtn"
+                  onClick={() => handleDownloadReceipt(viewOrder)}
+                  title="Print / Save Tax Receipt"
+                >
+                  <FiPrinter />
+                  <span>Download Receipt</span>
+                </button>
+                <button className="OrderCloseButton" onClick={closeModal}>
+                  <FiX />
+                </button>
+              </div>
             </div>
 
             <div className="OrderViewTop">
@@ -815,7 +1230,7 @@ const Order = () => {
                 <FiCreditCard />
                 <div>
                   <span>Payment Method & Status</span>
-                  <strong>{viewOrder.payment} • Verified</strong>
+                  <strong>{viewOrder.payment} (Verified)</strong>
                 </div>
               </div>
             </div>
@@ -846,7 +1261,9 @@ const Order = () => {
             <div className="OrderSummaryBox">
               <div>
                 <span>Timestamp</span>
-                <strong>{viewOrder.date} - {viewOrder.time}</strong>
+                <strong>
+                  {viewOrder.date} • {viewOrder.time}
+                </strong>
               </div>
               <div>
                 <span>Payment State</span>

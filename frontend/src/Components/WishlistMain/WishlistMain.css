@@ -20,7 +20,6 @@
 
   --red: #d62b2b;
   --green: #138a46;
-  --gold: #f0a81c;
 
   --shadow-sm: 0 2px 6px rgba(40, 24, 16, 0.04);
   --shadow-md: 0 14px 40px rgba(40, 24, 16, 0.07), 0 2px 6px rgba(40, 24, 16, 0.03);
@@ -379,32 +378,6 @@
   margin-top: 3px;
   color: var(--muted);
   font-size: 15px;
-}
-
-.WishlistMain__rating,
-.WishlistMain__cardRating {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 7px;
-}
-
-.WishlistMain__stars {
-  color: var(--gold);
-  font-size: 15px;
-  letter-spacing: 1px;
-  white-space: nowrap;
-}
-
-.WishlistMain__emptyStar {
-  color: #ddd5cd;
-}
-
-.WishlistMain__rating > span:last-child,
-.WishlistMain__cardRating > span:last-child {
-  color: var(--muted);
-  font-size: 14px;
 }
 
 .WishlistMain__badge,

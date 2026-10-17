@@ -44,9 +44,9 @@ const blogSubItems = [
 
 const shopSubItems = [
   {
-    id: "shop",
-    label: "Shop",
-    path: "/shop",
+    id: "BookPosting",
+    label: "Book Posting",
+    path: "/book-posting",
     icon: LuShoppingCart,
   },
   {
@@ -78,7 +78,7 @@ const navigationGroups = [
         icon: LuNewspaper,
       },
       {
-        label: "Shop Management",
+        label: "Book Management",
         type: "dropdown",
         id: "shop-management",
         icon: LuStore,

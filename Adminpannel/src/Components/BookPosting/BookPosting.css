@@ -1,39 +1,33 @@
 /* =========================================================
-   SHOP ADMIN PANEL
+   BOOKPOSTING ADMIN PANEL
 ========================================================= */
 
-.Shop {
-  --Shop-primary: #ff5a0a;
-  --Shop-primaryDark: #e94b00;
-  --Shop-navy: #102a43;
-  --Shop-text: #17324d;
-  --Shop-muted: #7890a6;
-  --Shop-border: #e4ebf2;
-  --Shop-bg: #f7fafc;
-  --Shop-white: #ffffff;
-  --Shop-green: #22c55e;
-  --Shop-red: #ef4444;
-  --Shop-blue: #1683ff;
+.BookPosting {
+  --BookPosting-primary: #ff5a0a;
+  --BookPosting-primaryDark: #e94b00;
+  --BookPosting-navy: #102a43;
+  --BookPosting-text: #17324d;
+  --BookPosting-muted: #7890a6;
+  --BookPosting-border: #e4ebf2;
+  --BookPosting-bg: #f7fafc;
+  --BookPosting-white: #ffffff;
+  --BookPosting-green: #22c55e;
+  --BookPosting-red: #ef4444;
+  --BookPosting-blue: #1683ff;
 
   width: 100%;
   min-height: 100vh;
   padding: 24px;
-  background: var(--Shop-bg);
-  color: var(--Shop-text);
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Arial,
-    sans-serif;
+  background: var(--BookPosting-bg);
+  color: var(--BookPosting-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Arial, sans-serif;
   box-sizing: border-box;
 }
 
-.Shop *,
-.Shop *::before,
-.Shop *::after {
+.BookPosting *,
+.BookPosting *::before,
+.BookPosting *::after {
   box-sizing: border-box;
 }
 
@@ -41,7 +35,7 @@
    HEADER
 ========================================================= */
 
-.Shop-header {
+.BookPosting-header {
   width: 100%;
   display: flex;
   align-items: center;
@@ -50,46 +44,47 @@
   margin-bottom: 22px;
 }
 
-.Shop-headerLeft {
+.BookPosting-headerLeft {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.Shop-headerIcon {
+.BookPosting-headerIcon {
   width: 50px;
   height: 50px;
   border-radius: 15px;
-  background: linear-gradient(
-    135deg,
-    #ff650f,
-    #ff4d00
-  );
+  background: linear-gradient(135deg, #ff650f, #ff4d00);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  box-shadow:
-    0 10px 25px rgba(255, 90, 10, 0.22);
+  box-shadow: 0 10px 25px rgba(255, 90, 10, 0.22);
 }
 
-.Shop-header h1 {
+.BookPosting-header h1 {
   margin: 0;
   font-size: 27px;
   line-height: 1.2;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
 }
 
-.Shop-header p {
+.BookPosting-header p {
   margin: 5px 0 0;
-  color: var(--Shop-muted);
+  color: var(--BookPosting-muted);
   font-size: 13px;
 }
 
-.Shop-breadcrumb {
+.BookPosting-headerRight {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.BookPosting-breadcrumb {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -98,30 +93,103 @@
   white-space: nowrap;
 }
 
-.Shop-breadcrumb svg {
+.BookPosting-breadcrumb svg {
   font-size: 9px;
+}
+
+/* =========================================================
+   SHARE BUTTON
+========================================================= */
+
+.BookPosting-shareButton {
+  position: relative;
+  overflow: hidden;
+  height: 44px;
+  padding: 0 20px 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #14385a, #0b2237);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(16, 42, 67, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.BookPosting-shareButton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -70%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+
+.BookPosting-shareButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(16, 42, 67, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.BookPosting-shareButton:hover::after {
+  left: 130%;
+}
+
+.BookPosting-shareButton:active {
+  transform: translateY(0);
+}
+
+.BookPosting-shareButton:focus-visible {
+  outline: 3px solid rgba(255, 90, 10, 0.45);
+  outline-offset: 2px;
+}
+
+.BookPosting-shareIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff650f, #ff4d00);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 4px 10px rgba(255, 90, 10, 0.45);
 }
 
 /* =========================================================
    CARDS
 ========================================================= */
 
-.Shop-formCard,
-.Shop-listCard {
+.BookPosting-formCard,
+.BookPosting-listCard {
   width: 100%;
-  background: var(--Shop-white);
+  background: var(--BookPosting-white);
   border: 1px solid rgba(228, 235, 242, 0.9);
   border-radius: 18px;
-  box-shadow:
-    0 8px 30px rgba(25, 50, 75, 0.05);
+  box-shadow: 0 8px 30px rgba(25, 50, 75, 0.05);
 }
 
-.Shop-formCard {
+.BookPosting-formCard {
   padding: 22px;
   margin-bottom: 20px;
 }
 
-.Shop-listCard {
+.BookPosting-listCard {
   overflow: hidden;
 }
 
@@ -129,7 +197,7 @@
    CARD HEADER
 ========================================================= */
 
-.Shop-cardHeader {
+.BookPosting-cardHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -137,35 +205,35 @@
   margin-bottom: 18px;
 }
 
-.Shop-cardTitle {
+.BookPosting-cardTitle {
   display: flex;
   align-items: center;
   gap: 11px;
 }
 
-.Shop-cardTitle span {
+.BookPosting-cardTitle span {
   width: 32px;
   height: 32px;
   border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--Shop-primary);
+  color: var(--BookPosting-primary);
   background: #fff2eb;
 }
 
-.Shop-cardTitle h2 {
+.BookPosting-cardTitle h2 {
   margin: 0;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
   font-size: 19px;
   font-weight: 800;
 }
 
-.Shop-clearButton {
+.BookPosting-clearButton {
   border: 0;
   outline: 0;
   background: #fff1e9;
-  color: var(--Shop-primary);
+  color: var(--BookPosting-primary);
   border-radius: 9px;
   padding: 10px 14px;
   display: flex;
@@ -177,8 +245,8 @@
   transition: 0.25s ease;
 }
 
-.Shop-clearButton:hover {
-  background: var(--Shop-primary);
+.BookPosting-clearButton:hover {
+  background: var(--BookPosting-primary);
   color: white;
   transform: translateY(-1px);
 }
@@ -187,37 +255,37 @@
    FORM & INPUTS
 ========================================================= */
 
-.Shop-form {
+.BookPosting-form {
   width: 100%;
 }
 
-.Shop-formGrid {
+.BookPosting-formGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 15px;
 }
 
-.Shop-field {
+.BookPosting-field {
   min-width: 0;
 }
 
-.Shop-field label,
-.Shop-labelRow label {
+.BookPosting-field label,
+.BookPosting-labelRow label {
   display: block;
   margin-bottom: 7px;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
   font-size: 12px;
   font-weight: 700;
 }
 
-.Shop-field label span,
-.Shop-labelRow label span {
-  color: var(--Shop-primary);
+.BookPosting-field label span,
+.BookPosting-labelRow label span {
+  color: var(--BookPosting-primary);
 }
 
-.Shop-field input,
-.Shop-field select {
+.BookPosting-field input,
+.BookPosting-field select {
   width: 100%;
   height: 44px;
   padding: 0 14px;
@@ -225,38 +293,79 @@
   background: #fbfdff;
   border-radius: 9px;
   outline: none;
-  color: var(--Shop-text);
+  color: var(--BookPosting-text);
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
 }
 
-.Shop-field input::placeholder {
+.BookPosting-field input::placeholder {
   color: #9babbc;
 }
 
-.Shop-field input:hover,
-.Shop-field select:hover {
+.BookPosting-field input:hover,
+.BookPosting-field select:hover {
   border-color: #c7d4df;
 }
 
-.Shop-field input:focus,
-.Shop-field select:focus {
-  border-color: var(--Shop-primary);
+.BookPosting-field input:focus,
+.BookPosting-field select:focus {
+  border-color: var(--BookPosting-primary);
   box-shadow: 0 0 0 3px rgba(255, 90, 10, 0.1);
   background: white;
 }
 
+/* Input with leading icon (offer field) */
+
+.BookPosting-inputIcon {
+  position: relative;
+}
+
+.BookPosting-inputIcon svg {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: var(--BookPosting-primary);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.BookPosting-field .BookPosting-inputIcon input {
+  padding-left: 36px;
+}
+
+/* Helper text under fields */
+
+.BookPosting-hint {
+  display: block;
+  margin-top: 6px;
+  min-height: 15px;
+  color: #92a3b3;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.BookPosting-hintSuccess {
+  color: #159447;
+  font-weight: 700;
+}
+
+.BookPosting-hintError {
+  color: var(--BookPosting-red);
+  font-weight: 700;
+}
+
 /* =========================================================
-   PREMIUM CUSTOM SELECT DROPDOWN
+   SELECT DROPDOWN
 ========================================================= */
 
-.Shop-selectWrapper {
+.BookPosting-selectWrapper {
   position: relative;
   width: 100%;
 }
 
-.Shop-selectWrapper::after {
+.BookPosting-selectWrapper::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -270,16 +379,16 @@
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.Shop-selectWrapper:hover::after {
-  background-color: var(--Shop-primary);
+.BookPosting-selectWrapper:hover::after {
+  background-color: var(--BookPosting-primary);
 }
 
-.Shop-selectWrapper:focus-within::after {
+.BookPosting-selectWrapper:focus-within::after {
   transform: translateY(-50%) rotate(180deg);
-  background-color: var(--Shop-primary);
+  background-color: var(--BookPosting-primary);
 }
 
-.Shop-selectWrapper select {
+.BookPosting-selectWrapper select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -288,12 +397,12 @@
   background-color: #fbfdff;
 }
 
-.Shop-selectWrapper select.Shop-placeholder {
+.BookPosting-selectWrapper select.BookPosting-placeholder {
   color: #9babbc;
 }
 
-.Shop-selectWrapper select option {
-  color: var(--Shop-text);
+.BookPosting-selectWrapper select option {
+  color: var(--BookPosting-text);
   background: #ffffff;
   padding: 8px 10px;
 }
@@ -302,19 +411,19 @@
    BOTTOM GRID
 ========================================================= */
 
-.Shop-bottomGrid {
+.BookPosting-bottomGrid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
   gap: 18px;
   margin-top: 5px;
 }
 
-.Shop-descriptionSection,
-.Shop-imageSection {
+.BookPosting-descriptionSection,
+.BookPosting-imageSection {
   min-width: 0;
 }
 
-.Shop-labelRow {
+.BookPosting-labelRow {
   min-height: 25px;
   display: flex;
   justify-content: space-between;
@@ -322,8 +431,8 @@
   gap: 10px;
 }
 
-.Shop-descriptionHint,
-.Shop-imageHint {
+.BookPosting-descriptionHint,
+.BookPosting-imageHint {
   color: #9aaabd;
   font-size: 10px;
 }
@@ -332,7 +441,7 @@
    TINYMCE
 ========================================================= */
 
-.Shop-editorWrapper {
+.BookPosting-editorWrapper {
   width: 100%;
   overflow: hidden;
   border-radius: 8px;
@@ -340,21 +449,21 @@
   background: white;
 }
 
-.Shop-editorWrapper .tox {
+.BookPosting-editorWrapper .tox {
   border: 0 !important;
 }
 
-.Shop-editorWrapper .tox .tox-toolbar,
-.Shop-editorWrapper .tox .tox-toolbar__primary {
+.BookPosting-editorWrapper .tox .tox-toolbar,
+.BookPosting-editorWrapper .tox .tox-toolbar__primary {
   background: #f8fafc !important;
   border-color: #e5ebf0 !important;
 }
 
-.Shop-editorWrapper .tox .tox-edit-area::before {
+.BookPosting-editorWrapper .tox .tox-edit-area::before {
   border: 0 !important;
 }
 
-.Shop-editorWrapper .tox-statusbar {
+.BookPosting-editorWrapper .tox-statusbar {
   border-color: #e5ebf0 !important;
 }
 
@@ -362,7 +471,7 @@
    IMAGE UPLOAD
 ========================================================= */
 
-.Shop-imageUploadArea {
+.BookPosting-imageUploadArea {
   min-height: 182px;
   display: flex;
   align-items: center;
@@ -372,7 +481,7 @@
   scrollbar-width: thin;
 }
 
-.Shop-uploadBox {
+.BookPosting-uploadBox {
   flex: 0 0 170px;
   height: 145px;
   border: 1px dashed #cbd7e1;
@@ -388,28 +497,28 @@
   transition: 0.25s ease;
 }
 
-.Shop-uploadBox svg {
+.BookPosting-uploadBox svg {
   font-size: 25px;
   color: #8da1b4;
 }
 
-.Shop-uploadBox strong {
+.BookPosting-uploadBox strong {
   font-size: 11px;
   color: #526b82;
 }
 
-.Shop-uploadBox span {
+.BookPosting-uploadBox span {
   font-size: 9px;
   color: #a0afbd;
 }
 
-.Shop-uploadBox:hover {
-  border-color: var(--Shop-primary);
+.BookPosting-uploadBox:hover {
+  border-color: var(--BookPosting-primary);
   background: #fffaf7;
   transform: translateY(-2px);
 }
 
-.Shop-imagePreview {
+.BookPosting-imagePreview {
   position: relative;
   flex: 0 0 125px;
   width: 125px;
@@ -419,14 +528,14 @@
   background: #edf3f7;
 }
 
-.Shop-imagePreview img {
+.BookPosting-imagePreview img {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
 }
 
-.Shop-imagePreview button {
+.BookPosting-imagePreview button {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -444,11 +553,11 @@
   transition: 0.2s ease;
 }
 
-.Shop-imagePreview button:hover {
-  background: var(--Shop-red);
+.BookPosting-imagePreview button:hover {
+  background: var(--BookPosting-red);
 }
 
-.Shop-addMoreImage {
+.BookPosting-addMoreImage {
   flex: 0 0 105px;
   height: 145px;
   border: 0;
@@ -464,40 +573,36 @@
   transition: 0.25s ease;
 }
 
-.Shop-addMoreImage svg {
+.BookPosting-addMoreImage svg {
   font-size: 20px;
 }
 
-.Shop-addMoreImage span {
+.BookPosting-addMoreImage span {
   font-size: 10px;
 }
 
-.Shop-addMoreImage:hover {
+.BookPosting-addMoreImage:hover {
   background: #eaf0f5;
-  color: var(--Shop-primary);
+  color: var(--BookPosting-primary);
 }
 
 /* =========================================================
    FORM ACTION
 ========================================================= */
 
-.Shop-formActions {
+.BookPosting-formActions {
   display: flex;
   justify-content: flex-start;
   margin-top: 10px;
 }
 
-.Shop-submitButton {
+.BookPosting-submitButton {
   min-width: 140px;
   height: 44px;
   padding: 0 20px;
   border: 0;
   border-radius: 8px;
-  background: linear-gradient(
-    135deg,
-    #ff650f,
-    #ff4f00
-  );
+  background: linear-gradient(135deg, #ff650f, #ff4f00);
   color: white;
   display: flex;
   align-items: center;
@@ -510,7 +615,7 @@
   transition: 0.25s ease;
 }
 
-.Shop-submitButton:hover {
+.BookPosting-submitButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 25px rgba(255, 90, 10, 0.28);
 }
@@ -519,54 +624,54 @@
    LIST HEADER
 ========================================================= */
 
-.Shop-listHeader {
+.BookPosting-listHeader {
   padding: 18px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  border-bottom: 1px solid var(--Shop-border);
+  border-bottom: 1px solid var(--BookPosting-border);
 }
 
-.Shop-listTitle {
+.BookPosting-listTitle {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
 }
 
-.Shop-listTitle > span {
+.BookPosting-listTitle > span {
   width: 33px;
   height: 33px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--Shop-primary);
+  color: var(--BookPosting-primary);
   background: #fff2eb;
   border-radius: 9px;
 }
 
-.Shop-listTitle h2 {
+.BookPosting-listTitle h2 {
   margin: 0;
   font-size: 17px;
   font-weight: 800;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
 }
 
-.Shop-listTitle h2 small {
+.BookPosting-listTitle h2 small {
   margin-left: 5px;
   color: #8195a8;
   font-size: 12px;
   font-weight: 700;
 }
 
-.Shop-listTitle p {
+.BookPosting-listTitle p {
   margin: 3px 0 0;
   font-size: 10px;
   color: #94a5b5;
 }
 
-.Shop-listTools {
+.BookPosting-listTools {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -576,7 +681,7 @@
    SEARCH
 ========================================================= */
 
-.Shop-searchBox {
+.BookPosting-searchBox {
   width: 185px;
   height: 38px;
   border: 1px solid #e0e8ef;
@@ -588,22 +693,22 @@
   background: #fbfdff;
 }
 
-.Shop-searchBox svg {
+.BookPosting-searchBox svg {
   color: #8da0b2;
   font-size: 12px;
 }
 
-.Shop-searchBox input {
+.BookPosting-searchBox input {
   border: 0;
   outline: 0;
   background: transparent;
   width: 100%;
   min-width: 0;
   font-size: 11px;
-  color: var(--Shop-text);
+  color: var(--BookPosting-text);
 }
 
-.Shop-searchBox input::placeholder {
+.BookPosting-searchBox input::placeholder {
   color: #9babbc;
 }
 
@@ -611,8 +716,8 @@
    FILTER
 ========================================================= */
 
-.Shop-filterBox {
-  width: 170px;
+.BookPosting-filterBox {
+  width: 190px;
   height: 38px;
   border: 1px solid #e0e8ef;
   border-radius: 8px;
@@ -623,12 +728,12 @@
   background: #fbfdff;
 }
 
-.Shop-filterBox svg {
+.BookPosting-filterBox svg {
   color: #8da0b2;
   font-size: 11px;
 }
 
-.Shop-filterBox select {
+.BookPosting-filterBox select {
   width: 100%;
   border: 0;
   outline: 0;
@@ -641,12 +746,12 @@
    EXPORT
 ========================================================= */
 
-.Shop-exportButton {
+.BookPosting-exportButton {
   height: 38px;
   padding: 0 13px;
   border: 0;
   border-radius: 8px;
-  background: var(--Shop-primary);
+  background: var(--BookPosting-primary);
   color: white;
   display: flex;
   align-items: center;
@@ -657,8 +762,8 @@
   transition: 0.25s ease;
 }
 
-.Shop-exportButton:hover {
-  background: var(--Shop-primaryDark);
+.BookPosting-exportButton:hover {
+  background: var(--BookPosting-primaryDark);
   transform: translateY(-1px);
 }
 
@@ -666,7 +771,7 @@
    SELECTION BAR
 ========================================================= */
 
-.Shop-selectionBar {
+.BookPosting-selectionBar {
   margin: 12px 20px 0;
   padding: 8px 12px;
   border-radius: 7px;
@@ -678,13 +783,13 @@
   font-size: 11px;
 }
 
-.Shop-selectionBar div {
+.BookPosting-selectionBar div {
   display: flex;
   align-items: center;
   gap: 7px;
 }
 
-.Shop-selectionBar button {
+.BookPosting-selectionBar button {
   border: 0;
   background: transparent;
   color: #2375b9;
@@ -697,18 +802,18 @@
    TABLE
 ========================================================= */
 
-.Shop-tableWrapper {
+.BookPosting-tableWrapper {
   width: 100%;
   overflow-x: auto;
 }
 
-.Shop-table {
+.BookPosting-table {
   width: 100%;
   min-width: 1050px;
   border-collapse: collapse;
 }
 
-.Shop-table th {
+.BookPosting-table th {
   height: 42px;
   padding: 0 8px;
   background: #f8fafc;
@@ -717,32 +822,33 @@
   font-weight: 800;
   text-align: left;
   white-space: nowrap;
-  border-bottom: 1px solid var(--Shop-border);
+  border-bottom: 1px solid var(--BookPosting-border);
 }
 
-.Shop-table td {
+.BookPosting-table td {
   height: 58px;
   padding: 7px 8px;
   border-bottom: 1px solid #edf1f5;
-  color: var(--Shop-text);
+  color: var(--BookPosting-text);
   font-size: 11px;
   vertical-align: middle;
 }
 
-.Shop-table tbody tr {
+.BookPosting-table tbody tr {
   transition: 0.2s ease;
 }
 
-.Shop-table tbody tr:hover {
+.BookPosting-table tbody tr:hover {
   background: #fbfdff;
 }
 
-.Shop-table tbody tr.Shop-selectedRow {
+.BookPosting-table tbody tr.BookPosting-selectedRow {
   background: #fff8f3;
 }
 
-.Shop-table input[type="checkbox"] {
+.BookPosting-table input[type="checkbox"] {
   appearance: none;
+  -webkit-appearance: none;
   width: 16px;
   height: 16px;
   border: 1.5px solid #b9c7d3;
@@ -752,12 +858,12 @@
   position: relative;
 }
 
-.Shop-table input[type="checkbox"]:checked {
-  border-color: var(--Shop-primary);
-  background: var(--Shop-primary);
+.BookPosting-table input[type="checkbox"]:checked {
+  border-color: var(--BookPosting-primary);
+  background: var(--BookPosting-primary);
 }
 
-.Shop-table input[type="checkbox"]:checked::after {
+.BookPosting-table input[type="checkbox"]:checked::after {
   content: "✓";
   position: absolute;
   inset: 0;
@@ -769,7 +875,7 @@
   font-weight: 900;
 }
 
-.Shop-checkboxColumn {
+.BookPosting-checkboxColumn {
   width: 40px;
 }
 
@@ -777,7 +883,7 @@
    TABLE IMAGE
 ========================================================= */
 
-.Shop-tableImage {
+.BookPosting-tableImage {
   width: 42px;
   height: 48px;
   overflow: hidden;
@@ -789,7 +895,7 @@
   color: #95a5b4;
 }
 
-.Shop-tableImage img {
+.BookPosting-tableImage img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -799,23 +905,23 @@
    BOOK INFO
 ========================================================= */
 
-.Shop-bookInfo {
+.BookPosting-bookInfo {
   max-width: 180px;
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.Shop-bookInfo strong {
+.BookPosting-bookInfo strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 11px;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
   font-weight: 800;
 }
 
-.Shop-bookInfo span {
+.BookPosting-bookInfo span {
   color: #91a0af;
   font-size: 9px;
 }
@@ -824,7 +930,7 @@
    CATEGORY BADGE
 ========================================================= */
 
-.Shop-categoryBadge {
+.BookPosting-categoryBadge {
   display: inline-flex;
   max-width: 160px;
   padding: 5px 8px;
@@ -836,35 +942,51 @@
   line-height: 1.2;
 }
 
+.BookPosting-categoryRegional {
+  background: #fff1e4;
+  color: #c2570c;
+}
+
 /* =========================================================
-   PRICE
+   PRICE & OFFER
 ========================================================= */
 
-.Shop-price {
+.BookPosting-price {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 5px;
   white-space: nowrap;
 }
 
-.Shop-price strong {
-  color: var(--Shop-navy);
+.BookPosting-price strong {
+  color: var(--BookPosting-navy);
   font-size: 12px;
 }
 
-.Shop-price del {
+.BookPosting-price del {
   color: #9aa7b3;
   font-size: 9px;
 }
 
+.BookPosting-offerBadge {
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #e7f9ef;
+  color: #159447;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 800;
+}
+
 /* =========================================================
-   STOCK
+   STOCK AVAILABLE
 ========================================================= */
 
-.Shop-stock {
+.BookPosting-stock {
   min-width: 34px;
   height: 25px;
-  padding: 0 7px;
+  padding: 0 9px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -873,39 +995,24 @@
   border-radius: 7px;
   font-size: 10px;
   font-weight: 800;
-}
-
-.Shop-stock.Shop-lowStock {
-  background: #fff1e9;
-  color: var(--Shop-primary);
-}
-
-/* =========================================================
-   RATING
-========================================================= */
-
-.Shop-rating {
-  display: flex;
-  align-items: center;
-  gap: 5px;
   white-space: nowrap;
 }
 
-.Shop-rating svg {
-  color: #ffb000;
-  font-size: 11px;
+.BookPosting-stock.BookPosting-lowStock {
+  background: #fff1e9;
+  color: var(--BookPosting-primary);
 }
 
-.Shop-rating span {
-  color: #536b81;
-  font-size: 10px;
+.BookPosting-stock.BookPosting-outStock {
+  background: #fff0f1;
+  color: var(--BookPosting-red);
 }
 
 /* =========================================================
    TOGGLE
 ========================================================= */
 
-.Shop-toggle {
+.BookPosting-toggle {
   width: 38px;
   height: 22px;
   border: 0;
@@ -919,7 +1026,7 @@
   justify-content: flex-start;
 }
 
-.Shop-toggle span {
+.BookPosting-toggle span {
   width: 16px;
   height: 16px;
   background: white;
@@ -928,13 +1035,13 @@
   transition: 0.25s ease;
 }
 
-.Shop-toggleActive {
-  background: var(--Shop-green);
+.BookPosting-toggleActive {
+  background: var(--BookPosting-green);
   justify-content: flex-end;
 }
 
-.Shop-toggleFeatured {
-  background: var(--Shop-primary);
+.BookPosting-toggleFeatured {
+  background: var(--BookPosting-primary);
   justify-content: flex-end;
 }
 
@@ -942,13 +1049,13 @@
    ACTIONS
 ========================================================= */
 
-.Shop-actions {
+.BookPosting-actions {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-.Shop-actionButton {
+.BookPosting-actionButton {
   width: 33px;
   height: 33px;
   border-radius: 7px;
@@ -962,34 +1069,34 @@
   font-size: 11px;
 }
 
-.Shop-viewAction {
+.BookPosting-viewAction {
   color: #526b82;
 }
 
-.Shop-viewAction:hover {
-  color: var(--Shop-navy);
+.BookPosting-viewAction:hover {
+  color: var(--BookPosting-navy);
   background: #f3f7fa;
 }
 
-.Shop-editAction {
-  color: var(--Shop-blue);
+.BookPosting-editAction {
+  color: var(--BookPosting-blue);
   background: #eff7ff;
   border-color: #d8ebff;
 }
 
-.Shop-editAction:hover {
-  background: var(--Shop-blue);
+.BookPosting-editAction:hover {
+  background: var(--BookPosting-blue);
   color: white;
 }
 
-.Shop-deleteAction {
-  color: var(--Shop-red);
+.BookPosting-deleteAction {
+  color: var(--BookPosting-red);
   background: #fff0f1;
   border-color: #ffdce0;
 }
 
-.Shop-deleteAction:hover {
-  background: var(--Shop-red);
+.BookPosting-deleteAction:hover {
+  background: var(--BookPosting-red);
   color: white;
 }
 
@@ -997,28 +1104,28 @@
    EMPTY STATE
 ========================================================= */
 
-.Shop-emptyState {
+.BookPosting-emptyState {
   height: 250px !important;
   text-align: center;
 }
 
-.Shop-emptyState svg {
+.BookPosting-emptyState svg {
   display: block;
   margin: 0 auto 10px;
   color: #a8b7c5;
   font-size: 30px;
 }
 
-.Shop-emptyState strong,
-.Shop-emptyState span {
+.BookPosting-emptyState strong,
+.BookPosting-emptyState span {
   display: block;
 }
 
-.Shop-emptyState strong {
+.BookPosting-emptyState strong {
   font-size: 14px;
 }
 
-.Shop-emptyState span {
+.BookPosting-emptyState span {
   margin-top: 4px;
   color: #95a5b3;
   font-size: 11px;
@@ -1028,7 +1135,7 @@
    PAGINATION
 ========================================================= */
 
-.Shop-pagination {
+.BookPosting-pagination {
   padding: 16px 20px;
   display: flex;
   align-items: center;
@@ -1036,23 +1143,23 @@
   gap: 15px;
 }
 
-.Shop-paginationInfo {
+.BookPosting-paginationInfo {
   color: #8194a7;
   font-size: 10px;
   white-space: nowrap;
 }
 
-.Shop-paginationInfo strong {
-  color: var(--Shop-text);
+.BookPosting-paginationInfo strong {
+  color: var(--BookPosting-text);
 }
 
-.Shop-paginationControls {
+.BookPosting-paginationControls {
   display: flex;
   align-items: center;
   gap: 5px;
 }
 
-.Shop-paginationControls button {
+.BookPosting-paginationControls button {
   min-width: 33px;
   height: 33px;
   padding: 0 9px;
@@ -1070,27 +1177,27 @@
   transition: 0.2s ease;
 }
 
-.Shop-paginationControls button:hover:not(:disabled) {
-  border-color: var(--Shop-primary);
-  color: var(--Shop-primary);
+.BookPosting-paginationControls button:hover:not(:disabled) {
+  border-color: var(--BookPosting-primary);
+  color: var(--BookPosting-primary);
 }
 
-.Shop-paginationControls button:disabled {
+.BookPosting-paginationControls button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-.Shop-paginationControls button.Shop-pageActive {
+.BookPosting-paginationControls button.BookPosting-pageActive {
   color: white;
-  background: var(--Shop-navy);
-  border-color: var(--Shop-navy);
+  background: var(--BookPosting-navy);
+  border-color: var(--BookPosting-navy);
 }
 
-.Shop-paginationControls button svg {
+.BookPosting-paginationControls button svg {
   font-size: 8px;
 }
 
-.Shop-perPage {
+.BookPosting-perPage {
   padding: 9px 12px;
   border: 1px solid #e1e8ee;
   border-radius: 7px;
@@ -1102,7 +1209,7 @@
    MODAL OVERLAY
 ========================================================= */
 
-.Shop-modalOverlay {
+.BookPosting-modalOverlay {
   position: fixed;
   z-index: 9999;
   inset: 0;
@@ -1112,10 +1219,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: ShopFadeIn 0.2s ease;
+  animation: BookPostingFadeIn 0.2s ease;
 }
 
-@keyframes ShopFadeIn {
+@keyframes BookPostingFadeIn {
   from {
     opacity: 0;
   }
@@ -1128,17 +1235,17 @@
    MODAL
 ========================================================= */
 
-.Shop-modal {
+.BookPosting-modal {
   width: min(900px, 100%);
   max-height: calc(100vh - 40px);
   overflow: auto;
   background: white;
   border-radius: 18px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
-  animation: ShopModalIn 0.25s ease;
+  animation: BookPostingModalIn 0.25s ease;
 }
 
-@keyframes ShopModalIn {
+@keyframes BookPostingModalIn {
   from {
     opacity: 0;
     transform: translateY(15px) scale(0.98);
@@ -1149,44 +1256,44 @@
   }
 }
 
-.Shop-modalHeader {
+.BookPosting-modalHeader {
   padding: 18px 20px;
-  border-bottom: 1px solid var(--Shop-border);
+  border-bottom: 1px solid var(--BookPosting-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.Shop-modalHeader > div {
+.BookPosting-modalHeader > div {
   display: flex;
   align-items: center;
   gap: 11px;
 }
 
-.Shop-modalIcon {
+.BookPosting-modalIcon {
   width: 38px;
   height: 38px;
   border-radius: 10px;
   background: #fff1e9;
-  color: var(--Shop-primary);
+  color: var(--BookPosting-primary);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.Shop-modalHeader h3 {
+.BookPosting-modalHeader h3 {
   margin: 0;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
   font-size: 17px;
 }
 
-.Shop-modalHeader p {
+.BookPosting-modalHeader p {
   margin: 3px 0 0;
   color: #91a1af;
   font-size: 10px;
 }
 
-.Shop-modalHeader > button {
+.BookPosting-modalHeader > button {
   width: 32px;
   height: 32px;
   border: 0;
@@ -1196,30 +1303,30 @@
   cursor: pointer;
 }
 
-.Shop-modalHeader > button:hover {
+.BookPosting-modalHeader > button:hover {
   background: #fff0f0;
-  color: var(--Shop-red);
+  color: var(--BookPosting-red);
 }
 
 /* =========================================================
    VIEW MODAL
 ========================================================= */
 
-.Shop-viewContent {
+.BookPosting-viewContent {
   padding: 20px;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   gap: 25px;
 }
 
-.Shop-viewImages {
+.BookPosting-viewImages {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 9px;
   align-content: start;
 }
 
-.Shop-viewImages img {
+.BookPosting-viewImages img {
   width: 100%;
   height: 175px;
   object-fit: cover;
@@ -1227,7 +1334,7 @@
   background: #f1f5f8;
 }
 
-.Shop-noImage {
+.BookPosting-noImage {
   height: 175px;
   grid-column: 1 / -1;
   border-radius: 10px;
@@ -1238,13 +1345,13 @@
   justify-content: center;
 }
 
-.Shop-viewTitleRow {
+.BookPosting-viewTitleRow {
   display: flex;
   justify-content: space-between;
   gap: 15px;
 }
 
-.Shop-viewCategory {
+.BookPosting-viewCategory {
   display: inline-flex;
   padding: 5px 8px;
   border-radius: 6px;
@@ -1254,71 +1361,75 @@
   font-weight: 800;
 }
 
-.Shop-viewTitleRow h2 {
+.BookPosting-viewTitleRow h2 {
   margin: 10px 0 4px;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
   font-size: 23px;
 }
 
-.Shop-viewTitleRow p {
+.BookPosting-viewTitleRow p {
   margin: 0;
   color: #8497a9;
   font-size: 12px;
 }
 
-.Shop-viewRating {
+.BookPosting-viewOffer {
   height: fit-content;
   padding: 7px 10px;
   border-radius: 7px;
-  background: #fff7df;
-  color: #9a7100;
+  background: #e7f9ef;
+  color: #159447;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-size: 11px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
-.Shop-viewRating svg {
-  color: #ffad00;
-}
-
-.Shop-viewGrid {
+.BookPosting-viewGrid {
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
-.Shop-viewGrid > div {
+.BookPosting-viewGrid > div {
   padding: 11px;
   border-radius: 8px;
   background: #f7fafc;
 }
 
-.Shop-viewGrid span {
+.BookPosting-viewGrid span {
   display: block;
   margin-bottom: 4px;
   color: #91a1af;
   font-size: 9px;
 }
 
-.Shop-viewGrid strong {
-  color: var(--Shop-navy);
+.BookPosting-viewGrid strong {
+  color: var(--BookPosting-navy);
   font-size: 12px;
 }
 
-.Shop-viewDescription {
+.BookPosting-viewGrid strong del {
+  margin-left: 6px;
+  color: #9aa7b3;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.BookPosting-viewDescription {
   margin-top: 18px;
 }
 
-.Shop-viewDescription h4 {
+.BookPosting-viewDescription h4 {
   margin: 0 0 7px;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
   font-size: 13px;
 }
 
-.Shop-viewDescription > div {
+.BookPosting-viewDescription > div {
   max-height: 190px;
   overflow-y: auto;
   color: #667d91;
@@ -1327,15 +1438,15 @@
   padding-right: 8px;
 }
 
-.Shop-modalFooter {
+.BookPosting-modalFooter {
   padding: 14px 20px;
-  border-top: 1px solid var(--Shop-border);
+  border-top: 1px solid var(--BookPosting-border);
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
 
-.Shop-modalFooter button {
+.BookPosting-modalFooter button {
   height: 38px;
   padding: 0 14px;
   border-radius: 8px;
@@ -1344,15 +1455,15 @@
   cursor: pointer;
 }
 
-.Shop-modalClose {
+.BookPosting-modalClose {
   border: 1px solid #dfe7ee;
   background: white;
   color: #60768a;
 }
 
-.Shop-modalEdit {
+.BookPosting-modalEdit {
   border: 0;
-  background: var(--Shop-primary);
+  background: var(--BookPosting-primary);
   color: white;
   display: flex;
   align-items: center;
@@ -1363,32 +1474,32 @@
    DELETE MODAL
 ========================================================= */
 
-.Shop-deleteModal {
+.BookPosting-deleteModal {
   width: min(410px, 100%);
   padding: 30px;
   text-align: center;
 }
 
-.Shop-deleteIcon {
+.BookPosting-deleteIcon {
   width: 58px;
   height: 58px;
   margin: 0 auto 15px;
   border-radius: 50%;
   background: #fff0f1;
-  color: var(--Shop-red);
+  color: var(--BookPosting-red);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 23px;
 }
 
-.Shop-deleteModal h3 {
+.BookPosting-deleteModal h3 {
   margin: 0;
-  color: var(--Shop-navy);
+  color: var(--BookPosting-navy);
   font-size: 19px;
 }
 
-.Shop-deleteModal p {
+.BookPosting-deleteModal p {
   margin: 9px auto 22px;
   max-width: 320px;
   color: #8295a7;
@@ -1396,13 +1507,13 @@
   line-height: 1.6;
 }
 
-.Shop-deleteActions {
+.BookPosting-deleteActions {
   display: flex;
   justify-content: center;
   gap: 8px;
 }
 
-.Shop-deleteActions button {
+.BookPosting-deleteActions button {
   min-width: 105px;
   height: 39px;
   border-radius: 8px;
@@ -1411,15 +1522,15 @@
   cursor: pointer;
 }
 
-.Shop-cancelDelete {
+.BookPosting-cancelDelete {
   border: 1px solid #dfe7ee;
   background: white;
   color: #60758a;
 }
 
-.Shop-confirmDelete {
+.BookPosting-confirmDelete {
   border: 0;
-  background: var(--Shop-red);
+  background: var(--BookPosting-red);
   color: white;
   display: flex;
   align-items: center;
@@ -1428,10 +1539,245 @@
 }
 
 /* =========================================================
+   SHARE MODAL
+========================================================= */
+
+.BookPosting-shareModal {
+  width: min(480px, 100%);
+}
+
+.BookPosting-shareBody {
+  padding: 20px;
+}
+
+.BookPosting-sharePreview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff6f0, #f4f9fd);
+  border: 1px solid #f3e4d9;
+}
+
+.BookPosting-shareThumbs {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-left: 12px;
+}
+
+.BookPosting-shareThumbs img {
+  position: relative;
+  width: 46px;
+  height: 62px;
+  margin-left: -12px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 6px 14px rgba(16, 42, 67, 0.2);
+}
+
+.BookPosting-shareThumbs img:nth-child(1) {
+  transform: rotate(-5deg);
+}
+
+.BookPosting-shareThumbs img:nth-child(3) {
+  transform: rotate(5deg);
+}
+
+.BookPosting-shareThumbEmpty {
+  width: 52px;
+  height: 62px;
+  margin-left: -12px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--BookPosting-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 6px 14px rgba(16, 42, 67, 0.12);
+}
+
+.BookPosting-shareInfo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.BookPosting-shareInfo strong {
+  color: var(--BookPosting-navy);
+  font-size: 14px;
+}
+
+.BookPosting-shareInfo span {
+  color: #7f93a6;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.BookPosting-shareLabel {
+  display: block;
+  margin: 20px 0 8px;
+  color: var(--BookPosting-navy);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.BookPosting-shareLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 5px 0 13px;
+  border: 1px solid #dfe7ee;
+  border-radius: 11px;
+  background: #fbfdff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.BookPosting-shareLink:focus-within {
+  border-color: var(--BookPosting-primary);
+  box-shadow: 0 0 0 3px rgba(255, 90, 10, 0.1);
+}
+
+.BookPosting-shareLink > svg {
+  flex-shrink: 0;
+  color: #8da0b2;
+  font-size: 12px;
+}
+
+.BookPosting-shareLink input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #4d6479;
+  font-family: inherit;
+  font-size: 12px;
+  text-overflow: ellipsis;
+}
+
+.BookPosting-shareLink button {
+  height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--BookPosting-navy);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.BookPosting-shareLink button:hover {
+  transform: translateY(-1px);
+  background: #0b2237;
+}
+
+.BookPosting-shareLink button.BookPosting-copied {
+  background: var(--BookPosting-green);
+}
+
+.BookPosting-shareGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.BookPosting-shareTarget {
+  padding: 12px 4px 10px;
+  border: 1px solid #e6edf3;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #4d6479;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.BookPosting-shareTarget span {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.BookPosting-shareTarget:hover {
+  transform: translateY(-3px);
+  border-color: #d3dfe9;
+  box-shadow: 0 10px 20px rgba(16, 42, 67, 0.09);
+}
+
+.BookPosting-share-whatsapp span {
+  background: #25d366;
+}
+
+.BookPosting-share-facebook span {
+  background: #1877f2;
+}
+
+.BookPosting-share-twitter span {
+  background: #1da1f2;
+}
+
+.BookPosting-share-telegram span {
+  background: #229ed9;
+}
+
+.BookPosting-share-email span {
+  background: #ff5a0a;
+}
+
+.BookPosting-nativeShare {
+  width: 100%;
+  height: 44px;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 11px;
+  background: linear-gradient(135deg, #ff650f, #ff4f00);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 9px 20px rgba(255, 90, 10, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.BookPosting-nativeShare:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(255, 90, 10, 0.3);
+}
+
+/* =========================================================
    TOAST
 ========================================================= */
 
-.Shop-toast {
+.BookPosting-toast {
   position: fixed;
   z-index: 10000;
   top: 24px;
@@ -1446,18 +1792,19 @@
   align-items: center;
   gap: 10px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.18);
-  animation: ShopToastIn 0.3s ease;
+  animation: BookPostingToastIn 0.3s ease;
   font-size: 12px;
   font-weight: 600;
 }
 
-.Shop-toastError {
+.BookPosting-toastError {
   background: #6f1d24;
 }
 
-.Shop-toastIcon {
+.BookPosting-toastIcon {
   width: 25px;
   height: 25px;
+  flex-shrink: 0;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.15);
   display: flex;
@@ -1465,7 +1812,7 @@
   justify-content: center;
 }
 
-@keyframes ShopToastIn {
+@keyframes BookPostingToastIn {
   from {
     opacity: 0;
     transform: translateX(20px);
@@ -1477,258 +1824,290 @@
 }
 
 /* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .BookPosting *,
+  .BookPosting-modalOverlay,
+  .BookPosting-modal,
+  .BookPosting-toast {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 1200px) {
-  .Shop {
+  .BookPosting {
     padding: 18px;
   }
 
-  .Shop-formGrid {
+  .BookPosting-formGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .Shop-bottomGrid {
+  .BookPosting-bottomGrid {
     grid-template-columns: 1fr;
   }
 
-  .Shop-imageUploadArea {
+  .BookPosting-imageUploadArea {
     min-height: 170px;
   }
 
-  .Shop-listHeader {
+  .BookPosting-listHeader {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .Shop-listTools {
+  .BookPosting-listTools {
     width: 100%;
   }
 
-  .Shop-searchBox {
+  .BookPosting-searchBox {
     flex: 1;
   }
 
-  .Shop-filterBox {
-    flex: 0 0 190px;
+  .BookPosting-filterBox {
+    flex: 0 0 200px;
   }
 }
 
 @media (max-width: 900px) {
-  .Shop-header {
+  .BookPosting-header {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .Shop-breadcrumb {
+  .BookPosting-headerRight {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .BookPosting-breadcrumb {
     display: none;
   }
 
-  .Shop-viewContent {
+  .BookPosting-viewContent {
     grid-template-columns: 1fr;
   }
 
-  .Shop-viewImages {
+  .BookPosting-viewImages {
     grid-template-columns: repeat(4, minmax(100px, 1fr));
   }
 
-  .Shop-viewImages img {
+  .BookPosting-viewImages img {
     height: 140px;
   }
 
-  .Shop-viewGrid {
+  .BookPosting-viewGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .Shop-pagination {
+  .BookPosting-pagination {
     flex-wrap: wrap;
   }
 
-  .Shop-paginationInfo {
+  .BookPosting-paginationInfo {
     width: 100%;
   }
 }
 
 @media (max-width: 650px) {
-  .Shop {
+  .BookPosting {
     padding: 10px;
   }
 
-  .Shop-header {
+  .BookPosting-header {
     margin-bottom: 13px;
   }
 
-  .Shop-headerLeft {
+  .BookPosting-headerLeft {
     align-items: flex-start;
   }
 
-  .Shop-headerIcon {
+  .BookPosting-headerIcon {
     width: 42px;
     height: 42px;
     font-size: 18px;
     border-radius: 12px;
   }
 
-  .Shop-header h1 {
+  .BookPosting-header h1 {
     font-size: 20px;
   }
 
-  .Shop-header p {
+  .BookPosting-header p {
     font-size: 10px;
     line-height: 1.5;
   }
 
-  .Shop-formCard {
+  .BookPosting-shareButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .BookPosting-formCard {
     padding: 14px;
     border-radius: 13px;
   }
 
-  .Shop-cardHeader {
+  .BookPosting-cardHeader {
     align-items: flex-start;
   }
 
-  .Shop-cardTitle h2 {
+  .BookPosting-cardTitle h2 {
     font-size: 16px;
   }
 
-  .Shop-clearButton {
+  .BookPosting-clearButton {
     padding: 8px 9px;
     font-size: 9px;
   }
 
-  .Shop-formGrid {
+  .BookPosting-formGrid {
     grid-template-columns: 1fr;
     gap: 10px;
     margin-bottom: 10px;
   }
 
-  .Shop-field input,
-  .Shop-field select {
+  .BookPosting-field input,
+  .BookPosting-field select {
     height: 40px;
   }
 
-  .Shop-bottomGrid {
+  .BookPosting-bottomGrid {
     gap: 13px;
   }
 
-  .Shop-imageUploadArea {
+  .BookPosting-imageUploadArea {
     min-height: 150px;
   }
 
-  .Shop-uploadBox {
+  .BookPosting-uploadBox {
     flex-basis: 145px;
     height: 130px;
   }
 
-  .Shop-imagePreview {
+  .BookPosting-imagePreview {
     flex-basis: 105px;
     width: 105px;
     height: 130px;
   }
 
-  .Shop-addMoreImage {
+  .BookPosting-addMoreImage {
     flex-basis: 90px;
     height: 130px;
   }
 
-  .Shop-submitButton {
+  .BookPosting-submitButton {
     width: 100%;
   }
 
-  .Shop-listHeader {
+  .BookPosting-listHeader {
     padding: 14px;
   }
 
-  .Shop-listTools {
+  .BookPosting-listTools {
     width: 100%;
     flex-direction: column;
     align-items: stretch;
   }
 
-  .Shop-searchBox,
-  .Shop-filterBox,
-  .Shop-exportButton {
+  .BookPosting-searchBox,
+  .BookPosting-filterBox,
+  .BookPosting-exportButton {
     width: 100%;
     flex: none;
   }
 
-  .Shop-exportButton {
+  .BookPosting-exportButton {
     justify-content: center;
   }
 
-  .Shop-selectionBar {
+  .BookPosting-selectionBar {
     margin-left: 14px;
     margin-right: 14px;
   }
 
-  .Shop-pagination {
+  .BookPosting-pagination {
     padding: 14px;
     justify-content: center;
   }
 
-  .Shop-paginationControls {
+  .BookPosting-paginationControls {
     width: 100%;
     justify-content: center;
     overflow-x: auto;
     padding-bottom: 2px;
   }
 
-  .Shop-paginationControls button {
+  .BookPosting-paginationControls button {
     flex-shrink: 0;
   }
 
-  .Shop-perPage {
+  .BookPosting-perPage {
     display: none;
   }
 
-  .Shop-modalOverlay {
+  .BookPosting-modalOverlay {
     padding: 10px;
   }
 
-  .Shop-modal {
+  .BookPosting-modal {
     max-height: calc(100vh - 20px);
     border-radius: 14px;
   }
 
-  .Shop-viewContent {
+  .BookPosting-viewContent {
     padding: 14px;
     gap: 15px;
   }
 
-  .Shop-viewImages {
+  .BookPosting-viewImages {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .Shop-viewImages img {
+  .BookPosting-viewImages img {
     height: 150px;
   }
 
-  .Shop-viewTitleRow {
+  .BookPosting-viewTitleRow {
     flex-direction: column;
   }
 
-  .Shop-viewTitleRow h2 {
+  .BookPosting-viewTitleRow h2 {
     font-size: 20px;
   }
 
-  .Shop-viewGrid {
+  .BookPosting-viewGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .Shop-modalFooter {
+  .BookPosting-modalFooter {
     padding: 12px;
   }
 
-  .Shop-modalFooter button {
+  .BookPosting-modalFooter button {
     flex: 1;
   }
 
-  .Shop-deleteModal {
+  .BookPosting-deleteModal {
     padding: 23px 16px;
   }
 
-  .Shop-toast {
+  .BookPosting-shareBody {
+    padding: 14px;
+  }
+
+  .BookPosting-shareGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .BookPosting-toast {
     top: 10px;
     left: 10px;
     right: 10px;
@@ -1738,32 +2117,37 @@
 }
 
 @media (max-width: 400px) {
-  .Shop-header h1 {
+  .BookPosting-header h1 {
     font-size: 18px;
   }
 
-  .Shop-header p {
+  .BookPosting-header p {
     font-size: 9px;
   }
 
-  .Shop-cardHeader {
+  .BookPosting-cardHeader {
     flex-direction: column;
   }
 
-  .Shop-clearButton {
+  .BookPosting-clearButton {
     width: 100%;
     justify-content: center;
   }
 
-  .Shop-viewGrid {
+  .BookPosting-viewGrid {
     grid-template-columns: 1fr;
   }
 
-  .Shop-deleteActions {
+  .BookPosting-deleteActions {
     flex-direction: column;
   }
 
-  .Shop-deleteActions button {
+  .BookPosting-deleteActions button {
     width: 100%;
+  }
+
+  .BookPosting-sharePreview {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

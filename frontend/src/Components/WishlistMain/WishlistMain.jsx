@@ -113,8 +113,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=85",
     price: 350,
     oldPrice: 599,
-    rating: 4.8,
-    reviews: "2.4K",
     discount: 42,
     badge: "Bestseller",
     badgeType: "orange",
@@ -130,8 +128,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=500&q=85",
     price: 299,
     oldPrice: 499,
-    rating: 4.7,
-    reviews: "1.2K",
     discount: 40,
     badge: "New Arrival",
     badgeType: "blue",
@@ -146,8 +142,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=500&q=85",
     price: 320,
     oldPrice: 550,
-    rating: 4.6,
-    reviews: "1.8K",
     discount: 42,
     badge: "Trending",
     badgeType: "green",
@@ -162,8 +156,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=500&q=85",
     price: 310,
     oldPrice: 499,
-    rating: 4.5,
-    reviews: "900",
     discount: 38,
     badge: "Popular",
     badgeType: "purple",
@@ -178,8 +170,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=85",
     price: 275,
     oldPrice: 450,
-    rating: 4.8,
-    reviews: "3.1K",
     discount: 39,
     badge: "Classic",
     badgeType: "orange",
@@ -194,8 +184,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&w=500&q=85",
     price: 299,
     oldPrice: 499,
-    rating: 4.7,
-    reviews: "4.2K",
     discount: 40,
     badge: "Bestseller",
     badgeType: "orange",
@@ -211,8 +199,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1511108690759-009324a90311?auto=format&fit=crop&w=500&q=85",
     price: 249,
     oldPrice: 399,
-    rating: 4.6,
-    reviews: "2.7K",
     discount: 38,
     badge: "Popular",
     badgeType: "purple",
@@ -227,8 +213,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=500&q=85",
     price: 399,
     oldPrice: 650,
-    rating: 4.8,
-    reviews: "1.9K",
     discount: 39,
     badge: "Editor's Pick",
     badgeType: "green",
@@ -243,8 +227,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=500&q=85",
     price: 349,
     oldPrice: 599,
-    rating: 4.9,
-    reviews: "3.8K",
     discount: 42,
     badge: "Trending",
     badgeType: "green",
@@ -259,8 +241,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=500&q=85",
     price: 289,
     oldPrice: 449,
-    rating: 4.5,
-    reviews: "870",
     discount: 36,
     badge: "New",
     badgeType: "blue",
@@ -275,8 +255,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=85",
     price: 319,
     oldPrice: 499,
-    rating: 4.7,
-    reviews: "2.2K",
     discount: 36,
     badge: "Popular",
     badgeType: "purple",
@@ -291,8 +269,6 @@ const initialWishlist = [
       "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=500&q=85",
     price: 299,
     oldPrice: 499,
-    rating: 4.6,
-    reviews: "1.6K",
     discount: 40,
     badge: "Indian Bestseller",
     badgeType: "orange",
@@ -352,8 +328,6 @@ const WishlistMain = () => {
         return items.sort((a, b) => a.price - b.price);
       case "price-high":
         return items.sort((a, b) => b.price - a.price);
-      case "rating":
-        return items.sort((a, b) => b.rating - a.rating);
       case "discount":
         return items.sort((a, b) => b.discount - a.discount);
       case "name":
@@ -497,16 +471,6 @@ const WishlistMain = () => {
 
   /* ---------- helpers ---------- */
 
-  const renderStars = (rating) => {
-    const full = Math.round(rating);
-    return (
-      <span className="WishlistMain__stars" aria-label={`Rated ${rating} out of 5`}>
-        {"★".repeat(full)}
-        <span className="WishlistMain__emptyStar">{"★".repeat(5 - full)}</span>
-      </span>
-    );
-  };
-
   const renderActionButton = (product, variant) => {
     const prefix = variant === "card" ? "WishlistMain__card" : "WishlistMain__";
 
@@ -647,7 +611,6 @@ const WishlistMain = () => {
                     <option value="newest">Date added</option>
                     <option value="price-low">Price: low to high</option>
                     <option value="price-high">Price: high to low</option>
-                    <option value="rating">Highest rated</option>
                     <option value="discount">Biggest discount</option>
                     <option value="name">Name: A to Z</option>
                   </select>
@@ -719,13 +682,6 @@ const WishlistMain = () => {
                         <div className="WishlistMain__productInfo">
                           <h3 title={product.title}>{product.title}</h3>
                           <p className="WishlistMain__author">by {product.author}</p>
-
-                          <div className="WishlistMain__rating">
-                            {renderStars(product.rating)}
-                            <span>
-                              {product.rating} ({product.reviews})
-                            </span>
-                          </div>
 
                           <span
                             className={`WishlistMain__badge WishlistMain__badge--${product.badgeType}`}
@@ -835,13 +791,6 @@ const WishlistMain = () => {
                     <div className="WishlistMain__cardContent">
                       <h3 title={product.title}>{product.title}</h3>
                       <p className="WishlistMain__cardAuthor">by {product.author}</p>
-
-                      <div className="WishlistMain__cardRating">
-                        {renderStars(product.rating)}
-                        <span>
-                          {product.rating} ({product.reviews})
-                        </span>
-                      </div>
 
                       <div className="WishlistMain__cardPrice">
                         <strong>{formatPrice(product.price)}</strong>

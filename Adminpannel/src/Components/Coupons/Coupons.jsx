@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
   Plus,
@@ -18,190 +18,329 @@ import {
   CalendarDays,
   ShoppingCart,
   Hash,
-  CircleDollarSign,
+  IndianRupee,
   Save,
   AlertTriangle,
   TicketPercent,
+  RefreshCw,
+  Copy,
+  Check,
+  Lock,
+  Infinity as InfinityIcon,
 } from "lucide-react";
 
 import "./Coupons.css";
 
+/* =========================================================
+   CONSTANTS & HELPERS
+========================================================= */
+
+const ITEMS_PER_PAGE = 8;
+
+const CODE_PREFIX = "BK";
+// No 0/O or 1/I so codes are easy to read and type
+const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+const DISCOUNT_PRESETS = [5, 10, 15, 20, 25, 30];
+const MIN_PURCHASE_PRESETS = [0, 299, 499, 999, 1499];
+
+const DISCOUNT_FILTERS = [
+  "All Discounts",
+  "Up to 10%",
+  "11% to 20%",
+  "Above 20%",
+];
+
+const randomChars = (length) => {
+  let output = "";
+  const cryptoObject =
+    typeof window !== "undefined" ? window.crypto : null;
+
+  if (cryptoObject && cryptoObject.getRandomValues) {
+    const values = new Uint32Array(length);
+    cryptoObject.getRandomValues(values);
+
+    for (let i = 0; i < length; i += 1) {
+      output += CODE_CHARS[values[i] % CODE_CHARS.length];
+    }
+  } else {
+    for (let i = 0; i < length; i += 1) {
+      output +=
+        CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+    }
+  }
+
+  return output;
+};
+
+// Generates a code that does not exist in the given list
+const generateUniqueCode = (existingCodes) => {
+  const taken = new Set(
+    existingCodes.map((code) => code.toUpperCase())
+  );
+
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const code = `${CODE_PREFIX}${randomChars(6)}`;
+    if (!taken.has(code)) return code;
+  }
+
+  return `${CODE_PREFIX}${Date.now().toString(36).toUpperCase()}`;
+};
+
+const todayISO = () => {
+  const date = new Date();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+};
+
+const formatDate = (iso) => {
+  if (!iso) return "-";
+  const [year, month, day] = iso.split("-");
+  return `${Number(day)} ${MONTHS[Number(month) - 1]} ${year}`;
+};
+
+const computeStatus = (startDate, endDate) => {
+  const today = todayISO();
+  if (startDate > today) return "Scheduled";
+  if (endDate < today) return "Expired";
+  return "Active";
+};
+
+const formatRupees = (value) =>
+  `₹${Number(value || 0).toLocaleString("en-IN")}`;
+
+const matchesDiscount = (percent, filter) => {
+  if (filter === "Up to 10%") return percent <= 10;
+  if (filter === "11% to 20%") return percent > 10 && percent <= 20;
+  if (filter === "Above 20%") return percent > 20;
+  return true;
+};
+
+const getUsagePercentage = (coupon) => {
+  if (coupon.usageLimit === "Unlimited") return null;
+  if (Number(coupon.usageLimit) === 0) return 0;
+
+  return Math.min(
+    100,
+    Math.round((coupon.used / Number(coupon.usageLimit)) * 100)
+  );
+};
+
+const copyToClipboard = async (text) => {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (error) {
+    // fall through to the legacy method
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const success = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return success;
+  } catch (error) {
+    return false;
+  }
+};
+
+const createEmptyForm = (code = "") => ({
+  code,
+  title: "",
+  description: "",
+  discountPercent: "",
+  minimumPurchase: "",
+  usageLimit: "",
+  unlimited: false,
+  startDate: "",
+  endDate: "",
+  status: "Active",
+});
+
+const initialCoupons = [
+  {
+    id: 1,
+    code: "WELCOME10",
+    title: "Welcome Discount",
+    description: "Get 10% off on your first order",
+    discountPercent: 10,
+    minimumPurchase: 499,
+    usageLimit: 1000,
+    used: 245,
+    startDate: "2026-09-01",
+    endDate: "2026-09-30",
+    status: "Active",
+  },
+  {
+    id: 2,
+    code: "BOOKLOVER",
+    title: "Book Lover Special",
+    description: "Get 20% off on orders above ₹999",
+    discountPercent: 20,
+    minimumPurchase: 999,
+    usageLimit: 500,
+    used: 132,
+    startDate: "2026-09-05",
+    endDate: "2026-10-05",
+    status: "Active",
+  },
+  {
+    id: 3,
+    code: "FESTIVE20",
+    title: "Festive Offer",
+    description: "Get 20% off on all books",
+    discountPercent: 20,
+    minimumPurchase: 799,
+    usageLimit: 2000,
+    used: 856,
+    startDate: "2026-10-01",
+    endDate: "2026-10-31",
+    status: "Scheduled",
+  },
+  {
+    id: 4,
+    code: "STUDENT15",
+    title: "Student Discount",
+    description: "Get 15% off (students only)",
+    discountPercent: 15,
+    minimumPurchase: 499,
+    usageLimit: 1000,
+    used: 410,
+    startDate: "2026-08-01",
+    endDate: "2026-08-31",
+    status: "Active",
+  },
+  {
+    id: 5,
+    code: "SAVE5",
+    title: "Small Saver",
+    description: "Get 5% off on every order",
+    discountPercent: 5,
+    minimumPurchase: 299,
+    usageLimit: 3000,
+    used: 923,
+    startDate: "2026-07-10",
+    endDate: "2026-08-10",
+    status: "Active",
+  },
+  {
+    id: 6,
+    code: "BIGSALE30",
+    title: "Big Sale",
+    description: "Get 30% off on large orders",
+    discountPercent: 30,
+    minimumPurchase: 1499,
+    usageLimit: "Unlimited",
+    used: 1240,
+    startDate: "2026-09-01",
+    endDate: "2026-12-31",
+    status: "Active",
+  },
+  {
+    id: 7,
+    code: "SUMMER25",
+    title: "Summer Sale",
+    description: "Get 25% off on all books",
+    discountPercent: 25,
+    minimumPurchase: 999,
+    usageLimit: 1500,
+    used: 1500,
+    startDate: "2026-06-01",
+    endDate: "2026-06-30",
+    status: "Expired",
+  },
+  {
+    id: 8,
+    code: "NEWUSER",
+    title: "New User Offer",
+    description: "Get 12% off on your first order",
+    discountPercent: 12,
+    minimumPurchase: 499,
+    usageLimit: 1000,
+    used: 1000,
+    startDate: "2026-05-01",
+    endDate: "2026-05-31",
+    status: "Expired",
+  },
+  {
+    id: 9,
+    code: "READMORE",
+    title: "Read More Offer",
+    description: "Get 15% off on selected books",
+    discountPercent: 15,
+    minimumPurchase: 599,
+    usageLimit: 1200,
+    used: 390,
+    startDate: "2026-10-05",
+    endDate: "2026-11-05",
+    status: "Scheduled",
+  },
+  {
+    id: 10,
+    code: "BOOK10",
+    title: "Book Savings",
+    description: "Get 10% off on orders above ₹699",
+    discountPercent: 10,
+    minimumPurchase: 699,
+    usageLimit: 800,
+    used: 325,
+    startDate: "2026-09-10",
+    endDate: "2026-10-20",
+    status: "Active",
+  },
+  {
+    id: 11,
+    code: "WEEKEND20",
+    title: "Weekend Special",
+    description: "20% discount on weekend orders",
+    discountPercent: 20,
+    minimumPurchase: 799,
+    usageLimit: 1000,
+    used: 210,
+    startDate: "2026-09-12",
+    endDate: "2026-10-12",
+    status: "Active",
+  },
+  {
+    id: 12,
+    code: "LOYAL18",
+    title: "Loyalty Reward",
+    description: "Get 18% off for returning customers",
+    discountPercent: 18,
+    minimumPurchase: 999,
+    usageLimit: "Unlimited",
+    used: 560,
+    startDate: "2026-09-15",
+    endDate: "2026-12-15",
+    status: "Active",
+  },
+];
+
 const Coupons = () => {
-  /* =========================================================
-     INITIAL DATA
-  ========================================================= */
-
-  const initialCoupons = [
-    {
-      id: 1,
-      code: "WELCOME10",
-      title: "Welcome Discount",
-      description: "Get 10% off on first order",
-      discountType: "Percentage",
-      discountValue: "10%",
-      minimumOrder: 499,
-      usageLimit: 1000,
-      used: 245,
-      startDate: "Sep 1, 2026",
-      endDate: "Sep 30, 2026",
-      status: "Active",
-    },
-    {
-      id: 2,
-      code: "BOOKLOVER",
-      title: "Book Lover Special",
-      description: "Flat ₹200 off on orders",
-      discountType: "Fixed",
-      discountValue: "₹200",
-      minimumOrder: 999,
-      usageLimit: 500,
-      used: 132,
-      startDate: "Sep 5, 2026",
-      endDate: "Oct 5, 2026",
-      status: "Active",
-    },
-    {
-      id: 3,
-      code: "FESTIVE20",
-      title: "Festive Offer",
-      description: "Get 20% off on all books",
-      discountType: "Percentage",
-      discountValue: "20%",
-      minimumOrder: 799,
-      usageLimit: 2000,
-      used: 856,
-      startDate: "Oct 1, 2026",
-      endDate: "Oct 31, 2026",
-      status: "Scheduled",
-    },
-    {
-      id: 4,
-      code: "STUDENT15",
-      title: "Student Discount",
-      description: "Get 15% off (student only)",
-      discountType: "Percentage",
-      discountValue: "15%",
-      minimumOrder: 499,
-      usageLimit: 1000,
-      used: 410,
-      startDate: "Aug 1, 2026",
-      endDate: "Aug 31, 2026",
-      status: "Active",
-    },
-    {
-      id: 5,
-      code: "FLAT50",
-      title: "Flat 50 Off",
-      description: "Flat ₹50 off on orders",
-      discountType: "Fixed",
-      discountValue: "₹50",
-      minimumOrder: 299,
-      usageLimit: 3000,
-      used: 923,
-      startDate: "Jul 10, 2026",
-      endDate: "Aug 10, 2026",
-      status: "Active",
-    },
-    {
-      id: 6,
-      code: "FREESHIP",
-      title: "Free Shipping",
-      description: "Free shipping on all orders",
-      discountType: "Free Shipping",
-      discountValue: "100%",
-      minimumOrder: 0,
-      usageLimit: "Unlimited",
-      used: 1240,
-      startDate: "Sep 1, 2026",
-      endDate: "Dec 31, 2026",
-      status: "Active",
-    },
-    {
-      id: 7,
-      code: "SUMMER25",
-      title: "Summer Sale",
-      description: "Get 25% off on all books",
-      discountType: "Percentage",
-      discountValue: "25%",
-      minimumOrder: 999,
-      usageLimit: 1500,
-      used: 1500,
-      startDate: "Jun 1, 2026",
-      endDate: "Jun 30, 2026",
-      status: "Expired",
-    },
-    {
-      id: 8,
-      code: "NEWUSER",
-      title: "New User Offer",
-      description: "Flat ₹100 off on first order",
-      discountType: "Fixed",
-      discountValue: "₹100",
-      minimumOrder: 499,
-      usageLimit: 1000,
-      used: 1000,
-      startDate: "May 1, 2026",
-      endDate: "May 31, 2026",
-      status: "Expired",
-    },
-    {
-      id: 9,
-      code: "READMORE",
-      title: "Read More Offer",
-      description: "Get 15% off on selected books",
-      discountType: "Percentage",
-      discountValue: "15%",
-      minimumOrder: 599,
-      usageLimit: 1200,
-      used: 390,
-      startDate: "Oct 5, 2026",
-      endDate: "Nov 5, 2026",
-      status: "Scheduled",
-    },
-    {
-      id: 10,
-      code: "BOOK100",
-      title: "Book Savings",
-      description: "Flat ₹100 off on orders",
-      discountType: "Fixed",
-      discountValue: "₹100",
-      minimumOrder: 699,
-      usageLimit: 800,
-      used: 325,
-      startDate: "Sep 10, 2026",
-      endDate: "Oct 20, 2026",
-      status: "Active",
-    },
-    {
-      id: 11,
-      code: "WEEKEND20",
-      title: "Weekend Special",
-      description: "20% discount on weekend orders",
-      discountType: "Percentage",
-      discountValue: "20%",
-      minimumOrder: 799,
-      usageLimit: 1000,
-      used: 210,
-      startDate: "Sep 12, 2026",
-      endDate: "Oct 12, 2026",
-      status: "Active",
-    },
-    {
-      id: 12,
-      code: "SHIPFREE",
-      title: "Shipping Saver",
-      description: "Free shipping on eligible orders",
-      discountType: "Free Shipping",
-      discountValue: "100%",
-      minimumOrder: 999,
-      usageLimit: "Unlimited",
-      used: 560,
-      startDate: "Sep 15, 2026",
-      endDate: "Dec 15, 2026",
-      status: "Active",
-    },
-  ];
-
   /* =========================================================
      STATES
   ========================================================= */
@@ -209,42 +348,50 @@ const Coupons = () => {
   const [coupons, setCoupons] = useState(initialCoupons);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [discountFilter, setDiscountFilter] = useState("All Discounts");
+  const [sortFilter, setSortFilter] = useState("Sort By: Latest");
 
-  const [statusFilter, setStatusFilter] =
-    useState("All Status");
-
-  const [discountFilter, setDiscountFilter] =
-    useState("All Discount Types");
-
-  const [sortFilter, setSortFilter] =
-    useState("Sort By: Latest");
-
-  const [selectedCoupons, setSelectedCoupons] =
-    useState([]);
-
+  const [selectedCoupons, setSelectedCoupons] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [modalType, setModalType] = useState(null);
-
-  const [selectedCoupon, setSelectedCoupon] =
-    useState(null);
+  const [selectedCoupon, setSelectedCoupon] = useState(null);
 
   const [formErrors, setFormErrors] = useState({});
+  const [formData, setFormData] = useState(createEmptyForm());
 
-  const [formData, setFormData] = useState({
-    code: "",
-    title: "",
-    description: "",
-    discountType: "Percentage",
-    discountValue: "",
-    minimumOrder: "",
-    usageLimit: "",
-    startDate: "",
-    endDate: "",
-    status: "Active",
+  const [copiedCode, setCopiedCode] = useState("");
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: "",
+    type: "success",
   });
 
-  const ITEMS_PER_PAGE = 8;
+  const toastTimer = useRef(null);
+  const copyTimer = useRef(null);
+
+  /* =========================================================
+     TOAST
+  ========================================================= */
+
+  const showToast = (message, type = "success") => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+
+    setToast({ show: true, message, type });
+
+    toastTimer.current = setTimeout(() => {
+      setToast((previous) => ({ ...previous, show: false }));
+    }, 2600);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    };
+  }, []);
 
   /* =========================================================
      STATISTICS
@@ -265,77 +412,43 @@ const Coupons = () => {
   ).length;
 
   /* =========================================================
-     FILTER + SEARCH
+     FILTER + SEARCH + SORT
   ========================================================= */
 
   const filteredCoupons = useMemo(() => {
     let result = [...coupons];
 
-    const search = searchTerm
-      .trim()
-      .toLowerCase();
+    const search = searchTerm.trim().toLowerCase();
 
     if (search) {
       result = result.filter(
         (coupon) =>
-          coupon.code
-            .toLowerCase()
-            .includes(search) ||
-          coupon.title
-            .toLowerCase()
-            .includes(search) ||
-          coupon.description
-            .toLowerCase()
-            .includes(search)
+          coupon.code.toLowerCase().includes(search) ||
+          coupon.title.toLowerCase().includes(search) ||
+          coupon.description.toLowerCase().includes(search)
       );
     }
 
     if (statusFilter !== "All Status") {
-      result = result.filter(
-        (coupon) =>
-          coupon.status === statusFilter
-      );
+      result = result.filter((coupon) => coupon.status === statusFilter);
     }
 
-    if (
-      discountFilter !==
-      "All Discount Types"
-    ) {
-      result = result.filter(
-        (coupon) =>
-          coupon.discountType ===
-          discountFilter
+    if (discountFilter !== "All Discounts") {
+      result = result.filter((coupon) =>
+        matchesDiscount(coupon.discountPercent, discountFilter)
       );
     }
 
     if (sortFilter === "Sort By: A-Z") {
-      result.sort((a, b) =>
-        a.title.localeCompare(b.title)
-      );
-    }
-
-    if (
-      sortFilter === "Sort By: Discount"
-    ) {
-      result.sort(
-        (a, b) =>
-          parseInt(b.discountValue) -
-          parseInt(a.discountValue)
-      );
-    }
-
-    if (sortFilter === "Sort By: Latest") {
+      result.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortFilter === "Sort By: Discount") {
+      result.sort((a, b) => b.discountPercent - a.discountPercent);
+    } else {
       result.sort((a, b) => b.id - a.id);
     }
 
     return result;
-  }, [
-    coupons,
-    searchTerm,
-    statusFilter,
-    discountFilter,
-    sortFilter,
-  ]);
+  }, [coupons, searchTerm, statusFilter, discountFilter, sortFilter]);
 
   /* =========================================================
      PAGINATION
@@ -343,62 +456,52 @@ const Coupons = () => {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(
-      filteredCoupons.length /
-        ITEMS_PER_PAGE
-    )
+    Math.ceil(filteredCoupons.length / ITEMS_PER_PAGE)
   );
 
   useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
+    if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
 
-  const startIndex =
-    (currentPage - 1) *
-    ITEMS_PER_PAGE;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const currentCoupons =
-    filteredCoupons.slice(
-      startIndex,
-      startIndex + ITEMS_PER_PAGE
-    );
+  const currentCoupons = filteredCoupons.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+
+  const pageStart = Math.max(
+    1,
+    Math.min(currentPage - 2, totalPages - 4)
+  );
+  const pageEnd = Math.min(totalPages, pageStart + 4);
+  const pageNumbers = Array.from(
+    { length: pageEnd - pageStart + 1 },
+    (_, index) => pageStart + index
+  );
 
   /* =========================================================
      SELECT ALL
   ========================================================= */
 
-  const currentCouponIds =
-    currentCoupons.map(
-      (coupon) => coupon.id
-    );
+  const currentCouponIds = currentCoupons.map((coupon) => coupon.id);
 
   const allCurrentSelected =
     currentCouponIds.length > 0 &&
-    currentCouponIds.every((id) =>
-      selectedCoupons.includes(id)
-    );
+    currentCouponIds.every((id) => selectedCoupons.includes(id));
 
   const someCurrentSelected =
-    currentCouponIds.some((id) =>
-      selectedCoupons.includes(id)
-    ) && !allCurrentSelected;
+    currentCouponIds.some((id) => selectedCoupons.includes(id)) &&
+    !allCurrentSelected;
 
   const handleSelectAll = () => {
     if (allCurrentSelected) {
       setSelectedCoupons((previous) =>
-        previous.filter(
-          (id) =>
-            !currentCouponIds.includes(id)
-        )
+        previous.filter((id) => !currentCouponIds.includes(id))
       );
     } else {
       setSelectedCoupons((previous) => [
-        ...new Set([
-          ...previous,
-          ...currentCouponIds,
-        ]),
+        ...new Set([...previous, ...currentCouponIds]),
       ]);
     }
   };
@@ -406,111 +509,185 @@ const Coupons = () => {
   const handleSelectCoupon = (id) => {
     setSelectedCoupons((previous) =>
       previous.includes(id)
-        ? previous.filter(
-            (couponId) =>
-              couponId !== id
-          )
+        ? previous.filter((couponId) => couponId !== id)
         : [...previous, id]
     );
   };
 
   /* =========================================================
-     FORM RESET
+     MODALS
   ========================================================= */
 
   const resetForm = () => {
-    setFormData({
-      code: "",
-      title: "",
-      description: "",
-      discountType: "Percentage",
-      discountValue: "",
-      minimumOrder: "",
-      usageLimit: "",
-      startDate: "",
-      endDate: "",
-      status: "Active",
-    });
-
+    setFormData(createEmptyForm());
     setFormErrors({});
   };
 
-  /* =========================================================
-     OPEN MODALS
-  ========================================================= */
-
   const openAddModal = () => {
-    resetForm();
-
     setSelectedCoupon(null);
-
+    setFormErrors({});
+    setFormData(
+      createEmptyForm(
+        generateUniqueCode(coupons.map((coupon) => coupon.code))
+      )
+    );
     setModalType("add");
   };
 
   const openViewModal = (coupon) => {
     setSelectedCoupon(coupon);
-
     setModalType("view");
   };
 
   const openEditModal = (coupon) => {
+    const isUnlimited = coupon.usageLimit === "Unlimited";
+
     setSelectedCoupon(coupon);
 
     setFormData({
       code: coupon.code,
       title: coupon.title,
       description: coupon.description,
-      discountType:
-        coupon.discountType,
-      discountValue:
-        coupon.discountValue,
-      minimumOrder:
-        coupon.minimumOrder === 0
-          ? "0"
-          : coupon.minimumOrder,
-      usageLimit:
-        coupon.usageLimit,
+      discountPercent: String(coupon.discountPercent),
+      minimumPurchase: String(coupon.minimumPurchase),
+      usageLimit: isUnlimited ? "" : String(coupon.usageLimit),
+      unlimited: isUnlimited,
       startDate: coupon.startDate,
       endDate: coupon.endDate,
       status: coupon.status,
     });
 
     setFormErrors({});
-
     setModalType("edit");
   };
 
   const openDeleteModal = (coupon) => {
     setSelectedCoupon(coupon);
-
     setModalType("delete");
   };
 
   const closeModal = () => {
     setModalType(null);
-
     setSelectedCoupon(null);
-
     resetForm();
   };
+
+  useEffect(() => {
+    if (!modalType) return undefined;
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") closeModal();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [modalType]);
 
   /* =========================================================
      FORM INPUT
   ========================================================= */
 
+  const clearError = (name) => {
+    setFormErrors((previous) =>
+      previous[name] ? { ...previous, [name]: "" } : previous
+    );
+  };
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
 
+    setFormData((previous) => ({ ...previous, [name]: value }));
+    clearError(name);
+  };
+
+  const handleNumberChange = (event) => {
+    const { name } = event.target;
+    let value = event.target.value.replace(/\D/g, "");
+
+    if (value !== "") value = String(Number(value));
+
+    if (name === "discountPercent" && Number(value) > 100) {
+      value = "100";
+    }
+
+    setFormData((previous) => ({ ...previous, [name]: value }));
+    clearError(name);
+  };
+
+  const setNumberField = (name, value) => {
+    setFormData((previous) => ({ ...previous, [name]: String(value) }));
+    clearError(name);
+  };
+
+  const handleDateChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((previous) => {
+      const next = { ...previous, [name]: value };
+
+      // Suggest a status from the chosen dates (can still be changed)
+      if (next.startDate && next.endDate) {
+        next.status = computeStatus(next.startDate, next.endDate);
+      }
+
+      return next;
+    });
+
+    clearError(name);
+    clearError("endDate");
+  };
+
+  const toggleUnlimited = () => {
     setFormData((previous) => ({
       ...previous,
-      [name]: value,
+      unlimited: !previous.unlimited,
+      usageLimit: "",
     }));
-
-    setFormErrors((previous) => ({
-      ...previous,
-      [name]: "",
-    }));
+    clearError("usageLimit");
   };
+
+  const regenerateCode = () => {
+    setFormData((previous) => ({
+      ...previous,
+      code: generateUniqueCode(coupons.map((coupon) => coupon.code)),
+    }));
+    clearError("code");
+  };
+
+  const handleCopyCode = async (code) => {
+    if (!code) return;
+
+    const success = await copyToClipboard(code);
+
+    if (success) {
+      setCopiedCode(code);
+      showToast(`Code ${code} copied`);
+
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopiedCode(""), 1800);
+    } else {
+      showToast("Copy failed. Please copy the code manually.", "error");
+    }
+  };
+
+  /* =========================================================
+     LIVE PREVIEW
+  ========================================================= */
+
+  const preview = useMemo(() => {
+    const percent = Number(formData.discountPercent) || 0;
+    const minimum = Number(formData.minimumPurchase) || 0;
+    const example = minimum > 0 ? minimum : 1000;
+    const saving = Math.round((example * percent) / 100);
+
+    return {
+      percent,
+      minimum,
+      example,
+      saving,
+      pay: example - saving,
+    };
+  }, [formData.discountPercent, formData.minimumPurchase]);
 
   /* =========================================================
      VALIDATION
@@ -519,174 +696,108 @@ const Coupons = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (!formData.code.trim()) {
-      errors.code =
-        "Coupon code is required.";
+    const code = formData.code.trim().toUpperCase();
+
+    if (!code) {
+      errors.code = "Coupon code is required.";
+    } else {
+      const duplicate = coupons.some(
+        (coupon) =>
+          coupon.code.toUpperCase() === code &&
+          (!selectedCoupon || coupon.id !== selectedCoupon.id)
+      );
+
+      if (duplicate) {
+        errors.code = "This code already exists. Generate a new one.";
+      }
     }
 
     if (!formData.title.trim()) {
-      errors.title =
-        "Coupon title is required.";
+      errors.title = "Coupon title is required.";
     }
 
     if (!formData.description.trim()) {
-      errors.description =
-        "Description is required.";
+      errors.description = "Description is required.";
     }
 
-    if (!formData.discountValue.trim()) {
-      errors.discountValue =
-        "Discount value is required.";
+    const percent = Number(formData.discountPercent);
+
+    if (formData.discountPercent === "" || percent < 1 || percent > 100) {
+      errors.discountPercent = "Enter a percentage between 1 and 100.";
     }
 
-    if (
-      formData.minimumOrder === "" ||
-      Number(formData.minimumOrder) < 0
-    ) {
-      errors.minimumOrder =
-        "Enter a valid minimum order.";
+    if (formData.minimumPurchase === "") {
+      errors.minimumPurchase =
+        "Enter the minimum purchase value (0 for no minimum).";
     }
 
-    if (!formData.usageLimit) {
-      errors.usageLimit =
-        "Usage limit is required.";
+    if (!formData.unlimited) {
+      const limit = Number(formData.usageLimit);
+
+      if (formData.usageLimit === "" || limit < 1) {
+        errors.usageLimit = "Enter a limit of 1 or more, or choose unlimited.";
+      } else if (selectedCoupon && limit < selectedCoupon.used) {
+        errors.usageLimit = `Cannot be lower than the ${selectedCoupon.used} already used.`;
+      }
     }
 
     if (!formData.startDate) {
-      errors.startDate =
-        "Start date is required.";
+      errors.startDate = "Start date is required.";
     }
 
     if (!formData.endDate) {
-      errors.endDate =
-        "End date is required.";
+      errors.endDate = "End date is required.";
+    } else if (formData.startDate && formData.endDate < formData.startDate) {
+      errors.endDate = "End date must be on or after the start date.";
     }
 
     setFormErrors(errors);
 
-    return (
-      Object.keys(errors).length === 0
-    );
+    return Object.keys(errors).length === 0;
   };
 
   /* =========================================================
-     ADD COUPON
+     ADD / UPDATE
   ========================================================= */
 
-  const handleAddCoupon = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
 
     if (!validateForm()) return;
 
-    const newCoupon = {
-      id: Date.now(),
-
-      code:
-        formData.code
-          .trim()
-          .toUpperCase(),
-
-      title:
-        formData.title.trim(),
-
-      description:
-        formData.description.trim(),
-
-      discountType:
-        formData.discountType,
-
-      discountValue:
-        formData.discountValue,
-
-      minimumOrder:
-        Number(formData.minimumOrder),
-
-      usageLimit:
-        formData.usageLimit ===
-        "Unlimited"
-          ? "Unlimited"
-          : Number(formData.usageLimit),
-
-      used: 0,
-
-      startDate:
-        formData.startDate,
-
-      endDate:
-        formData.endDate,
-
-      status:
-        formData.status,
+    const payload = {
+      code: formData.code.trim().toUpperCase(),
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      discountPercent: Number(formData.discountPercent),
+      minimumPurchase: Number(formData.minimumPurchase),
+      usageLimit: formData.unlimited
+        ? "Unlimited"
+        : Number(formData.usageLimit),
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      status: formData.status,
     };
 
-    setCoupons((previous) => [
-      newCoupon,
-      ...previous,
-    ]);
+    if (modalType === "add") {
+      setCoupons((previous) => [
+        { id: Date.now(), used: 0, ...payload },
+        ...previous,
+      ]);
 
-    setCurrentPage(1);
+      setCurrentPage(1);
+      showToast(`Coupon ${payload.code} created`);
+    } else if (selectedCoupon) {
+      setCoupons((previous) =>
+        previous.map((coupon) =>
+          coupon.id === selectedCoupon.id
+            ? { ...coupon, ...payload }
+            : coupon
+        )
+      );
 
-    closeModal();
-  };
-
-  /* =========================================================
-     UPDATE COUPON
-  ========================================================= */
-
-  const handleUpdateCoupon = (event) => {
-    event.preventDefault();
-
-    if (!validateForm()) return;
-
-    setCoupons((previous) =>
-      previous.map((coupon) =>
-        coupon.id ===
-        selectedCoupon.id
-          ? {
-              ...coupon,
-
-              code:
-                formData.code
-                  .trim()
-                  .toUpperCase(),
-
-              title:
-                formData.title.trim(),
-
-              description:
-                formData.description.trim(),
-
-              discountType:
-                formData.discountType,
-
-              discountValue:
-                formData.discountValue,
-
-              minimumOrder:
-                Number(
-                  formData.minimumOrder
-                ),
-
-              usageLimit:
-                formData.usageLimit ===
-                "Unlimited"
-                  ? "Unlimited"
-                  : Number(
-                      formData.usageLimit
-                    ),
-
-              startDate:
-                formData.startDate,
-
-              endDate:
-                formData.endDate,
-
-              status:
-                formData.status,
-            }
-          : coupon
-      )
-    );
+      showToast(`Coupon ${payload.code} updated`);
+    }
 
     closeModal();
   };
@@ -698,75 +809,37 @@ const Coupons = () => {
   const handleDeleteCoupon = () => {
     if (!selectedCoupon) return;
 
-    setCoupons((previous) =>
-      previous.filter(
-        (coupon) =>
-          coupon.id !==
-          selectedCoupon.id
-      )
-    );
+    const { id, code } = selectedCoupon;
 
+    setCoupons((previous) => previous.filter((coupon) => coupon.id !== id));
     setSelectedCoupons((previous) =>
-      previous.filter(
-        (id) =>
-          id !== selectedCoupon.id
-      )
+      previous.filter((couponId) => couponId !== id)
     );
 
     closeModal();
+    showToast(`Coupon ${code} deleted`);
   };
 
   /* =========================================================
      STATUS
   ========================================================= */
 
-  const updateStatus = (
-    coupon,
-    newStatus
-  ) => {
+  const updateStatus = (coupon, newStatus) => {
     setCoupons((previous) =>
       previous.map((item) =>
-        item.id === coupon.id
-          ? {
-              ...item,
-              status: newStatus,
-            }
-          : item
+        item.id === coupon.id ? { ...item, status: newStatus } : item
       )
     );
 
-    if (
-      selectedCoupon &&
-      selectedCoupon.id === coupon.id
-    ) {
-      setSelectedCoupon({
-        ...coupon,
-        status: newStatus,
-      });
+    if (selectedCoupon && selectedCoupon.id === coupon.id) {
+      setSelectedCoupon({ ...coupon, status: newStatus });
     }
   };
 
-  const handleStatusClick = (
-    coupon
-  ) => {
-    if (coupon.status === "Active") {
-      updateStatus(
-        coupon,
-        "Expired"
-      );
-    } else if (
-      coupon.status === "Expired"
-    ) {
-      updateStatus(
-        coupon,
-        "Scheduled"
-      );
-    } else {
-      updateStatus(
-        coupon,
-        "Active"
-      );
-    }
+  const handleStatusClick = (coupon) => {
+    if (coupon.status === "Active") updateStatus(coupon, "Expired");
+    else if (coupon.status === "Expired") updateStatus(coupon, "Scheduled");
+    else updateStatus(coupon, "Active");
   };
 
   /* =========================================================
@@ -778,138 +851,53 @@ const Coupons = () => {
       "ID",
       "Coupon Code",
       "Title",
-      "Discount Type",
-      "Discount Value",
-      "Minimum Order",
+      "Discount Percentage",
+      "Minimum Purchase",
       "Usage Limit",
       "Used",
-      "Validity Period",
+      "Start Date",
+      "End Date",
       "Status",
     ];
 
-    const rows = coupons.map(
-      (coupon) => [
-        coupon.id,
-        coupon.code,
-        coupon.title,
-        coupon.discountType,
-        coupon.discountValue,
-        coupon.minimumOrder,
-        coupon.usageLimit,
-        coupon.used,
-        `${coupon.startDate} - ${coupon.endDate}`,
-        coupon.status,
-      ]
-    );
+    const rows = coupons.map((coupon) => [
+      coupon.id,
+      coupon.code,
+      coupon.title,
+      `${coupon.discountPercent}%`,
+      coupon.minimumPurchase,
+      coupon.usageLimit,
+      coupon.used,
+      coupon.startDate,
+      coupon.endDate,
+      coupon.status,
+    ]);
 
-    const csv = [
-      headers,
-      ...rows,
-    ]
+    const csv = [headers, ...rows]
       .map((row) =>
         row
-          .map(
-            (value) =>
-              `"${String(
-                value
-              ).replace(
-                /"/g,
-                '""'
-              )}"`
-          )
+          .map((value) => `"${String(value).replace(/"/g, '""')}"`)
           .join(",")
       )
       .join("\n");
 
-    const blob = new Blob(
-      [csv],
-      {
-        type:
-          "text/csv;charset=utf-8;",
-      }
-    );
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
 
-    const url =
-      URL.createObjectURL(
-        blob
-      );
-
-    const link =
-      document.createElement(
-        "a"
-      );
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
     link.href = url;
+    link.download = "coupons.csv";
 
-    link.download =
-      "coupons.csv";
-
-    document.body.appendChild(
-      link
-    );
-
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 
-    document.body.removeChild(
-      link
-    );
+    URL.revokeObjectURL(url);
 
-    URL.revokeObjectURL(
-      url
-    );
-  };
-
-  /* =========================================================
-     PROGRESS
-  ========================================================= */
-
-  const getUsagePercentage = (
-    coupon
-  ) => {
-    if (
-      coupon.usageLimit ===
-      "Unlimited"
-    ) {
-      return 35;
-    }
-
-    if (
-      Number(coupon.usageLimit) ===
-      0
-    ) {
-      return 0;
-    }
-
-    return Math.min(
-      100,
-      Math.round(
-        (coupon.used /
-          Number(
-            coupon.usageLimit
-          )) *
-          100
-      )
-    );
-  };
-
-  /* =========================================================
-     DISCOUNT CLASS
-  ========================================================= */
-
-  const getDiscountClass = (
-    type
-  ) => {
-    if (type === "Fixed") {
-      return "Coupons__discount--fixed";
-    }
-
-    if (
-      type === "Free Shipping"
-    ) {
-      return "Coupons__discount--shipping";
-    }
-
-    return "Coupons__discount--percentage";
+    showToast("Coupons exported successfully");
   };
 
   /* =========================================================
@@ -918,21 +906,24 @@ const Coupons = () => {
 
   const clearFilters = () => {
     setSearchTerm("");
-
-    setStatusFilter(
-      "All Status"
-    );
-
-    setDiscountFilter(
-      "All Discount Types"
-    );
-
-    setSortFilter(
-      "Sort By: Latest"
-    );
-
+    setStatusFilter("All Status");
+    setDiscountFilter("All Discounts");
+    setSortFilter("Sort By: Latest");
     setCurrentPage(1);
   };
+
+  /* =========================================================
+     SMALL RENDER HELPERS
+  ========================================================= */
+
+  const renderStatusIcon = (status, size) => {
+    if (status === "Active") return <CheckCircle2 size={size} />;
+    if (status === "Scheduled") return <Clock3 size={size} />;
+    return <Ban size={size} />;
+  };
+
+  const renderMinimum = (value) =>
+    value > 0 ? formatRupees(value) : "No minimum";
 
   /* =========================================================
      JSX
@@ -940,167 +931,85 @@ const Coupons = () => {
 
   return (
     <div className="Coupons">
-
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
-
+      {/* HEADER */}
       <section className="Coupons__header">
-
         <div className="Coupons__heading">
-
-          <h1 className="Coupons__title">
-            Coupons
-          </h1>
+          <h1 className="Coupons__title">Coupons</h1>
 
           <p className="Coupons__subtitle">
-            Create and manage discount
-            coupons for your book store.
+            Create and manage discount coupons for your book store.
           </p>
-
         </div>
 
         <div className="Coupons__headerRight">
-
           <div className="Coupons__breadcrumb">
-
-            <span>
-              Dashboard
-            </span>
-
-            <span>
-              ›
-            </span>
-
-            <strong>
-              Coupons
-            </strong>
-
+            <span>Dashboard</span>
+            <span>›</span>
+            <strong>Coupons</strong>
           </div>
 
           <button
+            type="button"
             className="Coupons__addButton"
             onClick={openAddModal}
           >
             <Plus size={19} />
             Add Coupon
           </button>
-
         </div>
-
       </section>
 
-
-      {/* =====================================================
-          STATISTICS
-      ===================================================== */}
-
+      {/* STATISTICS */}
       <section className="Coupons__stats">
-
         <div className="Coupons__statCard Coupons__statCard--blue">
-
           <div className="Coupons__statIcon">
             <Tag size={25} />
           </div>
-
           <div className="Coupons__statContent">
-
-            <span>
-              Total Coupons
-            </span>
-
-            <strong>
-              {totalCoupons}
-            </strong>
-
+            <span>Total Coupons</span>
+            <strong>{totalCoupons}</strong>
           </div>
-
           <Tag className="Coupons__statWatermark" />
-
         </div>
 
-
         <div className="Coupons__statCard Coupons__statCard--green">
-
           <div className="Coupons__statIcon">
             <CheckCircle2 size={25} />
           </div>
-
           <div className="Coupons__statContent">
-
-            <span>
-              Active Coupons
-            </span>
-
-            <strong>
-              {activeCoupons}
-            </strong>
-
+            <span>Active Coupons</span>
+            <strong>{activeCoupons}</strong>
           </div>
-
           <Tag className="Coupons__statWatermark" />
-
         </div>
 
-
         <div className="Coupons__statCard Coupons__statCard--orange">
-
           <div className="Coupons__statIcon">
             <Clock3 size={25} />
           </div>
-
           <div className="Coupons__statContent">
-
-            <span>
-              Scheduled Coupons
-            </span>
-
-            <strong>
-              {scheduledCoupons}
-            </strong>
-
+            <span>Scheduled Coupons</span>
+            <strong>{scheduledCoupons}</strong>
           </div>
-
           <Tag className="Coupons__statWatermark" />
-
         </div>
 
-
         <div className="Coupons__statCard Coupons__statCard--red">
-
           <div className="Coupons__statIcon">
             <Ban size={25} />
           </div>
-
           <div className="Coupons__statContent">
-
-            <span>
-              Expired Coupons
-            </span>
-
-            <strong>
-              {expiredCoupons}
-            </strong>
-
+            <span>Expired Coupons</span>
+            <strong>{expiredCoupons}</strong>
           </div>
-
           <Tag className="Coupons__statWatermark" />
-
         </div>
-
       </section>
 
-
-      {/* =====================================================
-          TOOLBAR
-      ===================================================== */}
-
+      {/* TOOLBAR */}
       <section className="Coupons__toolbar">
-
         <div className="Coupons__filters">
-
           <div className="Coupons__search">
-
             <Search size={18} />
 
             <input
@@ -1108,1596 +1017,1022 @@ const Coupons = () => {
               placeholder="Search coupons by code, title..."
               value={searchTerm}
               onChange={(event) => {
-                setSearchTerm(
-                  event.target.value
-                );
-
+                setSearchTerm(event.target.value);
                 setCurrentPage(1);
               }}
             />
 
             {searchTerm && (
               <button
+                type="button"
                 className="Coupons__clearSearch"
-                onClick={() =>
-                  setSearchTerm("")
-                }
+                onClick={() => setSearchTerm("")}
+                aria-label="Clear search"
               >
                 <X size={14} />
               </button>
             )}
-
           </div>
 
-
           <div className="Coupons__select">
-
             <select
               value={statusFilter}
               onChange={(event) => {
-                setStatusFilter(
-                  event.target.value
-                );
-
+                setStatusFilter(event.target.value);
                 setCurrentPage(1);
               }}
             >
-              <option>
-                All Status
-              </option>
-
-              <option>
-                Active
-              </option>
-
-              <option>
-                Scheduled
-              </option>
-
-              <option>
-                Expired
-              </option>
+              <option>All Status</option>
+              <option>Active</option>
+              <option>Scheduled</option>
+              <option>Expired</option>
             </select>
-
             <ChevronDown size={16} />
-
           </div>
 
-
           <div className="Coupons__select Coupons__select--discount">
-
             <select
               value={discountFilter}
               onChange={(event) => {
-                setDiscountFilter(
-                  event.target.value
-                );
-
+                setDiscountFilter(event.target.value);
                 setCurrentPage(1);
               }}
             >
-              <option>
-                All Discount Types
-              </option>
-
-              <option>
-                Percentage
-              </option>
-
-              <option>
-                Fixed
-              </option>
-
-              <option>
-                Free Shipping
-              </option>
+              {DISCOUNT_FILTERS.map((option) => (
+                <option key={option}>{option}</option>
+              ))}
             </select>
-
             <ChevronDown size={16} />
-
           </div>
 
-
           <div className="Coupons__select Coupons__select--sort">
-
             <select
               value={sortFilter}
               onChange={(event) => {
-                setSortFilter(
-                  event.target.value
-                );
-
+                setSortFilter(event.target.value);
                 setCurrentPage(1);
               }}
             >
-              <option>
-                Sort By: Latest
-              </option>
-
-              <option>
-                Sort By: A-Z
-              </option>
-
-              <option>
-                Sort By: Discount
-              </option>
+              <option>Sort By: Latest</option>
+              <option>Sort By: A-Z</option>
+              <option>Sort By: Discount</option>
             </select>
-
             <ChevronDown size={16} />
-
           </div>
-
         </div>
 
-
         <div className="Coupons__toolbarRight">
-
-          {selectedCoupons.length >
-            0 && (
+          {selectedCoupons.length > 0 && (
             <div className="Coupons__selected">
-
-              <CheckCircle2
-                size={15}
-              />
-
-              <span>
-                {selectedCoupons.length}
-                {" "}selected
-              </span>
-
+              <CheckCircle2 size={15} />
+              <span>{selectedCoupons.length} selected</span>
               <button
-                onClick={() =>
-                  setSelectedCoupons(
-                    []
-                  )
-                }
+                type="button"
+                onClick={() => setSelectedCoupons([])}
+                aria-label="Clear selection"
               >
                 <X size={13} />
               </button>
-
             </div>
           )}
 
           <button
+            type="button"
             className="Coupons__exportButton"
             onClick={handleExport}
           >
             <Download size={17} />
             Export Excel
           </button>
-
         </div>
-
       </section>
 
-
-      {/* =====================================================
-          TABLE
-      ===================================================== */}
-
+      {/* TABLE */}
       <section className="Coupons__tableCard">
-
         <div className="Coupons__tableWrapper">
-
           <table className="Coupons__table">
-
             <thead>
-
               <tr>
-
                 <th>
-
                   <input
                     type="checkbox"
-                    checked={
-                      allCurrentSelected
-                    }
+                    checked={allCurrentSelected}
                     ref={(element) => {
                       if (element) {
-                        element.indeterminate =
-                          someCurrentSelected;
+                        element.indeterminate = someCurrentSelected;
                       }
                     }}
-                    onChange={
-                      handleSelectAll
-                    }
+                    onChange={handleSelectAll}
                   />
-
                 </th>
-
                 <th>#</th>
-
-                <th>
-                  Coupon Code
-                </th>
-
-                <th>
-                  Title
-                </th>
-
-                <th>
-                  Discount Type
-                </th>
-
-                <th>
-                  Discount Value
-                </th>
-
-                <th>
-                  Minimum Order
-                </th>
-
-                <th>
-                  Usage Limit
-                </th>
-
-                <th>
-                  Used
-                </th>
-
-                <th>
-                  Validity Period
-                </th>
-
-                <th>
-                  Status
-                </th>
-
-                <th>
-                  Actions
-                </th>
-
+                <th>Coupon Code</th>
+                <th>Title</th>
+                <th>Discount Percentage</th>
+                <th>Minimum Purchase</th>
+                <th>Usage Limit</th>
+                <th>Used</th>
+                <th>Validity Period</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-
             </thead>
 
-
             <tbody>
+              {currentCoupons.length > 0 ? (
+                currentCoupons.map((coupon, index) => {
+                  const percentage = getUsagePercentage(coupon);
 
-              {currentCoupons.length >
-              0 ? (
-                currentCoupons.map(
-                  (coupon, index) => {
+                  return (
+                    <tr
+                      key={coupon.id}
+                      className={
+                        selectedCoupons.includes(coupon.id)
+                          ? "Coupons__rowSelected"
+                          : ""
+                      }
+                    >
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedCoupons.includes(coupon.id)}
+                          onChange={() => handleSelectCoupon(coupon.id)}
+                        />
+                      </td>
 
-                    const percentage =
-                      getUsagePercentage(
-                        coupon
-                      );
+                      <td>
+                        <span className="Coupons__number">
+                          {startIndex + index + 1}
+                        </span>
+                      </td>
 
-                    return (
-                      <tr
-                        key={
-                          coupon.id
-                        }
-                        className={
-                          selectedCoupons.includes(
-                            coupon.id
-                          )
-                            ? "Coupons__rowSelected"
-                            : ""
-                        }
-                      >
-
-                        <td>
-
-                          <input
-                            type="checkbox"
-                            checked={selectedCoupons.includes(
-                              coupon.id
-                            )}
-                            onChange={() =>
-                              handleSelectCoupon(
-                                coupon.id
-                              )
-                            }
-                          />
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="Coupons__number">
-                            {startIndex +
-                              index +
-                              1}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="Coupons__code">
-                            {
-                              coupon.code
-                            }
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <div className="Coupons__titleCell">
-
-                            <strong>
-                              {
-                                coupon.title
-                              }
-                            </strong>
-
-                            <span>
-                              {
-                                coupon.description
-                              }
-                            </span>
-
-                          </div>
-
-                        </td>
-
-
-                        <td>
-
-                          <span
-                            className={`Coupons__discount ${getDiscountClass(
-                              coupon.discountType
-                            )}`}
-                          >
-                            {
-                              coupon.discountType
-                            }
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <strong className="Coupons__discountValue">
-                            {
-                              coupon.discountValue
-                            }
-                          </strong>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="Coupons__minimumOrder">
-                            {coupon.minimumOrder ===
-                            0
-                              ? "₹0"
-                              : `₹${coupon.minimumOrder.toLocaleString()}`}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="Coupons__usageLimit">
-                            {
-                              coupon.usageLimit
-                            }
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <div className="Coupons__usage">
-
-                            <div className="Coupons__usageTop">
-
-                              <strong>
-                                {
-                                  coupon.used
-                                }
-                              </strong>
-
-                              <span>
-                                {
-                                  coupon.usageLimit ===
-                                  "Unlimited"
-                                    ? ""
-                                    : `${percentage}%`}
-                              </span>
-
-                            </div>
-
-                            <div className="Coupons__usageBar">
-
-                              <span
-                                style={{
-                                  width: `${percentage}%`,
-                                }}
-                              />
-
-                            </div>
-
-                          </div>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="Coupons__validity">
-
-                            {
-                              coupon.startDate
-                            }
-
-                            <span>
-                              -
-                            </span>
-
-                            {
-                              coupon.endDate
-                            }
-
-                          </span>
-
-                        </td>
-
-
-                        <td>
+                      <td>
+                        <div className="Coupons__codeCell">
+                          <span className="Coupons__code">{coupon.code}</span>
 
                           <button
-                            className={`Coupons__status Coupons__status--${coupon.status.toLowerCase()}`}
-                            onClick={() =>
-                              handleStatusClick(
-                                coupon
-                              )
-                            }
+                            type="button"
+                            className="Coupons__copyMini"
+                            title="Copy code"
+                            aria-label={`Copy code ${coupon.code}`}
+                            onClick={() => handleCopyCode(coupon.code)}
                           >
-
-                            {coupon.status ===
-                              "Active" && (
-                              <CheckCircle2
-                                size={
-                                  13
-                                }
-                              />
+                            {copiedCode === coupon.code ? (
+                              <Check size={13} />
+                            ) : (
+                              <Copy size={13} />
                             )}
-
-                            {coupon.status ===
-                              "Scheduled" && (
-                              <Clock3
-                                size={
-                                  13
-                                }
-                              />
-                            )}
-
-                            {coupon.status ===
-                              "Expired" && (
-                              <Ban
-                                size={
-                                  13
-                                }
-                              />
-                            )}
-
-                            {
-                              coupon.status
-                            }
-
                           </button>
+                        </div>
+                      </td>
 
-                        </td>
+                      <td>
+                        <div className="Coupons__titleCell">
+                          <strong>{coupon.title}</strong>
+                          <span>{coupon.description}</span>
+                        </div>
+                      </td>
 
+                      <td>
+                        <span className="Coupons__discountBadge">
+                          <Percent size={11} />
+                          {coupon.discountPercent}% OFF
+                        </span>
+                      </td>
 
-                        <td>
+                      <td>
+                        <span
+                          className={`Coupons__minimumOrder ${
+                            coupon.minimumPurchase === 0
+                              ? "Coupons__minimumOrder--none"
+                              : ""
+                          }`}
+                        >
+                          {renderMinimum(coupon.minimumPurchase)}
+                        </span>
+                      </td>
 
-                          <div className="Coupons__actions">
+                      <td>
+                        <span className="Coupons__usageLimit">
+                          {coupon.usageLimit === "Unlimited" ? (
+                            <>
+                              <InfinityIcon size={14} />
+                              Unlimited
+                            </>
+                          ) : (
+                            Number(coupon.usageLimit).toLocaleString("en-IN")
+                          )}
+                        </span>
+                      </td>
 
-                            <button
-                              className="Coupons__action Coupons__action--view"
-                              title="View Coupon"
-                              onClick={() =>
-                                openViewModal(
-                                  coupon
-                                )
-                              }
-                            >
-                              <Eye
-                                size={
-                                  17
-                                }
-                              />
-                            </button>
-
-
-                            <button
-                              className="Coupons__action Coupons__action--edit"
-                              title="Edit Coupon"
-                              onClick={() =>
-                                openEditModal(
-                                  coupon
-                                )
-                              }
-                            >
-                              <Pencil
-                                size={
-                                  17
-                                }
-                              />
-                            </button>
-
-
-                            <button
-                              className="Coupons__action Coupons__action--delete"
-                              title="Delete Coupon"
-                              onClick={() =>
-                                openDeleteModal(
-                                  coupon
-                                )
-                              }
-                            >
-                              <Trash2
-                                size={
-                                  17
-                                }
-                              />
-                            </button>
-
+                      <td>
+                        <div className="Coupons__usage">
+                          <div className="Coupons__usageTop">
+                            <strong>
+                              {coupon.used.toLocaleString("en-IN")}
+                            </strong>
+                            <span>
+                              {percentage === null ? "" : `${percentage}%`}
+                            </span>
                           </div>
 
-                        </td>
+                          <div
+                            className={`Coupons__usageBar ${
+                              percentage === null
+                                ? "Coupons__usageBar--unlimited"
+                                : ""
+                            }`}
+                          >
+                            <span
+                              style={{
+                                width:
+                                  percentage === null
+                                    ? "100%"
+                                    : `${percentage}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </td>
 
-                      </tr>
-                    );
-                  }
-                )
+                      <td>
+                        <span className="Coupons__validity">
+                          {formatDate(coupon.startDate)}
+                          <span>-</span>
+                          {formatDate(coupon.endDate)}
+                        </span>
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          className={`Coupons__status Coupons__status--${coupon.status.toLowerCase()}`}
+                          onClick={() => handleStatusClick(coupon)}
+                          title="Click to change status"
+                        >
+                          {renderStatusIcon(coupon.status, 13)}
+                          {coupon.status}
+                        </button>
+                      </td>
+
+                      <td>
+                        <div className="Coupons__actions">
+                          <button
+                            type="button"
+                            className="Coupons__action Coupons__action--view"
+                            title="View Coupon"
+                            onClick={() => openViewModal(coupon)}
+                          >
+                            <Eye size={17} />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="Coupons__action Coupons__action--edit"
+                            title="Edit Coupon"
+                            onClick={() => openEditModal(coupon)}
+                          >
+                            <Pencil size={17} />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="Coupons__action Coupons__action--delete"
+                            title="Delete Coupon"
+                            onClick={() => openDeleteModal(coupon)}
+                          >
+                            <Trash2 size={17} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
-
                 <tr>
-
-                  <td
-                    colSpan="12"
-                    className="Coupons__empty"
-                  >
-
+                  <td colSpan="11" className="Coupons__empty">
                     <div className="Coupons__emptyContent">
-
                       <div className="Coupons__emptyIcon">
-                        <TicketPercent
-                          size={32}
-                        />
+                        <TicketPercent size={32} />
                       </div>
 
-                      <h3>
-                        No coupons found
-                      </h3>
+                      <h3>No coupons found</h3>
 
-                      <p>
-                        Try changing your
-                        search or filters.
-                      </p>
+                      <p>Try changing your search or filters.</p>
 
-                      <button
-                        onClick={
-                          clearFilters
-                        }
-                      >
+                      <button type="button" onClick={clearFilters}>
                         Clear Filters
                       </button>
-
                     </div>
-
                   </td>
-
                 </tr>
-
               )}
-
             </tbody>
-
           </table>
-
         </div>
 
-
-        {/* ===================================================
-            TABLE FOOTER
-        =================================================== */}
-
+        {/* TABLE FOOTER */}
         <div className="Coupons__tableFooter">
-
           <span className="Coupons__showing">
-
-            Showing{" "}
-            {filteredCoupons.length ===
-            0
-              ? 0
-              : startIndex + 1}
-
-            {" "}to{" "}
-
-            {Math.min(
-              startIndex +
-                ITEMS_PER_PAGE,
-              filteredCoupons.length
-            )}
-
-            {" "}of{" "}
-
-            {
-              filteredCoupons.length
-            }
-
-            {" "}coupons
-
+            Showing {filteredCoupons.length === 0 ? 0 : startIndex + 1} to{" "}
+            {Math.min(startIndex + ITEMS_PER_PAGE, filteredCoupons.length)} of{" "}
+            {filteredCoupons.length} coupons
           </span>
 
-
           <div className="Coupons__pagination">
-
             <button
-              disabled={
-                currentPage === 1
-              }
-              onClick={() =>
-                setCurrentPage(
-                  (page) =>
-                    Math.max(
-                      1,
-                      page - 1
-                    )
-                )
-              }
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              aria-label="Previous page"
             >
-              <ChevronLeft
-                size={17}
-              />
+              <ChevronLeft size={17} />
             </button>
 
+            {pageStart > 1 && <span className="Coupons__dots">...</span>}
 
-            {Array.from(
-              {
-                length:
-                  totalPages,
-              },
-              (_, index) =>
-                index + 1
-            )
-              .slice(0, 5)
-              .map((page) => (
+            {pageNumbers.map((page) => (
+              <button
+                type="button"
+                key={page}
+                className={currentPage === page ? "Coupons__page--active" : ""}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            ))}
 
-                <button
-                  key={page}
-                  className={
-                    currentPage ===
-                    page
-                      ? "Coupons__page--active"
-                      : ""
-                  }
-                  onClick={() =>
-                    setCurrentPage(
-                      page
-                    )
-                  }
-                >
-                  {page}
-                </button>
-
-              ))}
-
-
-            {totalPages > 5 && (
-              <span className="Coupons__dots">
-                ...
-              </span>
-            )}
-
+            {pageEnd < totalPages && <span className="Coupons__dots">...</span>}
 
             <button
-              disabled={
-                currentPage ===
-                totalPages
-              }
+              type="button"
+              disabled={currentPage === totalPages}
               onClick={() =>
-                setCurrentPage(
-                  (page) =>
-                    Math.min(
-                      totalPages,
-                      page + 1
-                    )
-                )
+                setCurrentPage((page) => Math.min(totalPages, page + 1))
               }
+              aria-label="Next page"
             >
-              <ChevronRight
-                size={17}
-              />
+              <ChevronRight size={17} />
             </button>
-
           </div>
-
         </div>
-
       </section>
 
-
-      {/* =====================================================
-          ADD / EDIT MODAL
-      ===================================================== */}
-
-      {(modalType === "add" ||
-        modalType === "edit") && (
-
+      {/* ADD / EDIT MODAL */}
+      {(modalType === "add" || modalType === "edit") && (
         <div
           className="Coupons__overlay"
           onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closeModal();
-            }
+            if (event.target === event.currentTarget) closeModal();
           }}
         >
-
-          <div className="Coupons__formModal">
-
+          <div
+            className="Coupons__formModal"
+            role="dialog"
+            aria-modal="true"
+            aria-label={modalType === "add" ? "Add coupon" : "Edit coupon"}
+          >
             <div className="Coupons__modalHeader">
-
               <div>
+                <span className="Coupons__eyebrow">COUPON MANAGEMENT</span>
 
-                <span className="Coupons__eyebrow">
-                  COUPON MANAGEMENT
-                </span>
-
-                <h2>
-                  {modalType ===
-                  "add"
-                    ? "Add New Coupon"
-                    : "Edit Coupon"}
-                </h2>
+                <h2>{modalType === "add" ? "Add New Coupon" : "Edit Coupon"}</h2>
 
                 <p>
-                  {modalType ===
-                  "add"
+                  {modalType === "add"
                     ? "Create a new discount coupon for your customers."
                     : "Update coupon information and settings."}
                 </p>
-
               </div>
 
               <button
+                type="button"
                 className="Coupons__closeButton"
-                onClick={
-                  closeModal
-                }
+                onClick={closeModal}
+                aria-label="Close"
               >
                 <X size={20} />
               </button>
-
             </div>
 
+            <form className="Coupons__form" onSubmit={handleSubmit} noValidate>
+              <div className="Coupons__formLayout">
+                {/* FIELDS */}
+                <div className="Coupons__formFields">
+                  {/* CODE */}
+                  <div className="Coupons__field">
+                    <label>
+                      Coupon Code
+                      <em>
+                        {modalType === "add" ? "Auto-generated" : "Locked"}
+                      </em>
+                    </label>
 
-            <form
-              className="Coupons__form"
-              onSubmit={
-                modalType ===
-                "add"
-                  ? handleAddCoupon
-                  : handleUpdateCoupon
-              }
-            >
+                    <div className="Coupons__codeRow">
+                      <div className="Coupons__inputWrapper Coupons__inputWrapper--readonly Coupons__inputWrapper--code">
+                        <Hash size={17} />
 
-              <div className="Coupons__formGrid">
+                        <input
+                          name="code"
+                          value={formData.code}
+                          readOnly
+                          aria-label="Coupon code"
+                        />
 
-                <div className="Coupons__field">
+                        {modalType === "edit" && <Lock size={14} />}
+                      </div>
 
-                  <label>
-                    Coupon Code *
-                  </label>
+                      {modalType === "add" && (
+                        <button
+                          type="button"
+                          className="Coupons__iconButton"
+                          onClick={regenerateCode}
+                          title="Generate a new code"
+                          aria-label="Generate a new code"
+                        >
+                          <RefreshCw size={17} />
+                        </button>
+                      )}
 
-                  <div className="Coupons__inputWrapper">
+                      <button
+                        type="button"
+                        className="Coupons__iconButton"
+                        onClick={() => handleCopyCode(formData.code)}
+                        title="Copy code"
+                        aria-label="Copy code"
+                      >
+                        {copiedCode === formData.code ? (
+                          <Check size={17} />
+                        ) : (
+                          <Copy size={17} />
+                        )}
+                      </button>
+                    </div>
 
-                    <Hash
-                      size={17}
-                    />
-
-                    <input
-                      name="code"
-                      value={
-                        formData.code
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="WELCOME10"
-                    />
-
-                  </div>
-
-                  {formErrors.code && (
-                    <small>
-                      {
-                        formErrors.code
-                      }
-                    </small>
-                  )}
-
-                </div>
-
-
-                <div className="Coupons__field">
-
-                  <label>
-                    Coupon Title *
-                  </label>
-
-                  <div className="Coupons__inputWrapper">
-
-                    <Tag
-                      size={17}
-                    />
-
-                    <input
-                      name="title"
-                      value={
-                        formData.title
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="Welcome Discount"
-                    />
-
-                  </div>
-
-                  {formErrors.title && (
-                    <small>
-                      {
-                        formErrors.title
-                      }
-                    </small>
-                  )}
-
-                </div>
-
-              </div>
-
-
-              <div className="Coupons__field">
-
-                <label>
-                  Description *
-                </label>
-
-                <textarea
-                  name="description"
-                  value={
-                    formData.description
-                  }
-                  onChange={
-                    handleInputChange
-                  }
-                  placeholder="Enter coupon description..."
-                  rows="3"
-                />
-
-                {formErrors.description && (
-                  <small>
-                    {
-                      formErrors.description
-                    }
-                  </small>
-                )}
-
-              </div>
-
-
-              <div className="Coupons__formGrid">
-
-                <div className="Coupons__field">
-
-                  <label>
-                    Discount Type *
-                  </label>
-
-                  <div className="Coupons__selectWrapper">
-
-                    <select
-                      name="discountType"
-                      value={
-                        formData.discountType
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                    >
-
-                      <option>
-                        Percentage
-                      </option>
-
-                      <option>
-                        Fixed
-                      </option>
-
-                      <option>
-                        Free Shipping
-                      </option>
-
-                    </select>
-
-                    <ChevronDown
-                      size={16}
-                    />
-
-                  </div>
-
-                </div>
-
-
-                <div className="Coupons__field">
-
-                  <label>
-                    Discount Value *
-                  </label>
-
-                  <div className="Coupons__inputWrapper">
-
-                    {formData.discountType ===
-                    "Percentage" ? (
-                      <Percent
-                        size={17}
-                      />
+                    {formErrors.code ? (
+                      <small className="Coupons__error">{formErrors.code}</small>
                     ) : (
-                      <CircleDollarSign
-                        size={17}
-                      />
+                      <small className="Coupons__hint">
+                        {modalType === "add"
+                          ? "A unique code is created for you. Tap refresh for another."
+                          : "Codes can't be changed after a coupon is created."}
+                      </small>
                     )}
-
-                    <input
-                      name="discountValue"
-                      value={
-                        formData.discountValue
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder={
-                        formData.discountType ===
-                        "Percentage"
-                          ? "10%"
-                          : "₹200"
-                      }
-                    />
-
                   </div>
 
-                  {formErrors.discountValue && (
-                    <small>
-                      {
-                        formErrors.discountValue
-                      }
-                    </small>
-                  )}
+                  {/* TITLE */}
+                  <div className="Coupons__field">
+                    <label>Coupon Title *</label>
 
+                    <div className="Coupons__inputWrapper">
+                      <Tag size={17} />
+
+                      <input
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        placeholder="Welcome Discount"
+                      />
+                    </div>
+
+                    {formErrors.title && (
+                      <small className="Coupons__error">{formErrors.title}</small>
+                    )}
+                  </div>
+
+                  {/* DESCRIPTION */}
+                  <div className="Coupons__field">
+                    <label>Description *</label>
+
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Enter coupon description..."
+                      rows="3"
+                    />
+
+                    {formErrors.description && (
+                      <small className="Coupons__error">
+                        {formErrors.description}
+                      </small>
+                    )}
+                  </div>
+
+                  {/* DISCOUNT PERCENTAGE */}
+                  <div className="Coupons__field">
+                    <label>Discount Percentage *</label>
+
+                    <div className="Coupons__inputWrapper">
+                      <Percent size={17} />
+
+                      <input
+                        name="discountPercent"
+                        value={formData.discountPercent}
+                        onChange={handleNumberChange}
+                        inputMode="numeric"
+                        placeholder="e.g. 15"
+                        maxLength={3}
+                      />
+
+                      <span className="Coupons__suffix">%</span>
+                    </div>
+
+                    <div className="Coupons__chips">
+                      {DISCOUNT_PRESETS.map((value) => (
+                        <button
+                          type="button"
+                          key={value}
+                          className={`Coupons__chip ${
+                            Number(formData.discountPercent) === value
+                              ? "Coupons__chip--active"
+                              : ""
+                          }`}
+                          onClick={() => setNumberField("discountPercent", value)}
+                        >
+                          {value}%
+                        </button>
+                      ))}
+                    </div>
+
+                    {formErrors.discountPercent && (
+                      <small className="Coupons__error">
+                        {formErrors.discountPercent}
+                      </small>
+                    )}
+                  </div>
+
+                  {/* MINIMUM PURCHASE */}
+                  <div className="Coupons__field">
+                    <label>Minimum Purchase Value *</label>
+
+                    <div className="Coupons__inputWrapper">
+                      <IndianRupee size={17} />
+
+                      <input
+                        name="minimumPurchase"
+                        value={formData.minimumPurchase}
+                        onChange={handleNumberChange}
+                        inputMode="numeric"
+                        placeholder="e.g. 499"
+                      />
+                    </div>
+
+                    <div className="Coupons__chips">
+                      {MIN_PURCHASE_PRESETS.map((value) => (
+                        <button
+                          type="button"
+                          key={value}
+                          className={`Coupons__chip ${
+                            formData.minimumPurchase !== "" &&
+                            Number(formData.minimumPurchase) === value
+                              ? "Coupons__chip--active"
+                              : ""
+                          }`}
+                          onClick={() => setNumberField("minimumPurchase", value)}
+                        >
+                          {value === 0 ? "No minimum" : formatRupees(value)}
+                        </button>
+                      ))}
+                    </div>
+
+                    {formErrors.minimumPurchase ? (
+                      <small className="Coupons__error">
+                        {formErrors.minimumPurchase}
+                      </small>
+                    ) : (
+                      <small className="Coupons__hint">
+                        The coupon works only when the cart total reaches this
+                        amount.
+                      </small>
+                    )}
+                  </div>
+
+                  {/* USAGE LIMIT */}
+                  <div className="Coupons__field">
+                    <label>Usage Limit *</label>
+
+                    <div
+                      className={`Coupons__inputWrapper ${
+                        formData.unlimited ? "Coupons__inputWrapper--disabled" : ""
+                      }`}
+                    >
+                      <ShoppingCart size={17} />
+
+                      <input
+                        name="usageLimit"
+                        value={formData.unlimited ? "" : formData.usageLimit}
+                        onChange={handleNumberChange}
+                        inputMode="numeric"
+                        placeholder={
+                          formData.unlimited
+                            ? "Unlimited uses"
+                            : "e.g. 1000 uses"
+                        }
+                        disabled={formData.unlimited}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      className="Coupons__switchRow"
+                      role="switch"
+                      aria-checked={formData.unlimited}
+                      onClick={toggleUnlimited}
+                    >
+                      <span
+                        className={`Coupons__switch ${
+                          formData.unlimited ? "Coupons__switch--on" : ""
+                        }`}
+                      >
+                        <span />
+                      </span>
+                      Unlimited uses
+                    </button>
+
+                    {formErrors.usageLimit && (
+                      <small className="Coupons__error">
+                        {formErrors.usageLimit}
+                      </small>
+                    )}
+                  </div>
+
+                  {/* DATES */}
+                  <div className="Coupons__formGrid">
+                    <div className="Coupons__field">
+                      <label>Start Date *</label>
+
+                      <div className="Coupons__inputWrapper">
+                        <CalendarDays size={17} />
+
+                        <input
+                          type="date"
+                          name="startDate"
+                          value={formData.startDate}
+                          onChange={handleDateChange}
+                        />
+                      </div>
+
+                      {formErrors.startDate && (
+                        <small className="Coupons__error">
+                          {formErrors.startDate}
+                        </small>
+                      )}
+                    </div>
+
+                    <div className="Coupons__field">
+                      <label>End Date *</label>
+
+                      <div className="Coupons__inputWrapper">
+                        <CalendarDays size={17} />
+
+                        <input
+                          type="date"
+                          name="endDate"
+                          min={formData.startDate || undefined}
+                          value={formData.endDate}
+                          onChange={handleDateChange}
+                        />
+                      </div>
+
+                      {formErrors.endDate && (
+                        <small className="Coupons__error">
+                          {formErrors.endDate}
+                        </small>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* STATUS */}
+                  <div className="Coupons__field">
+                    <label>Status</label>
+
+                    <div className="Coupons__selectWrapper">
+                      <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleInputChange}
+                      >
+                        <option>Active</option>
+                        <option>Scheduled</option>
+                        <option>Expired</option>
+                      </select>
+
+                      <ChevronDown size={16} />
+                    </div>
+
+                    <small className="Coupons__hint">
+                      Suggested automatically from the dates. You can change it.
+                    </small>
+                  </div>
                 </div>
 
+                {/* LIVE PREVIEW */}
+                <aside className="Coupons__preview">
+                  <span className="Coupons__previewLabel">Live preview</span>
+
+                  <div className="Coupons__ticket">
+                    <div className="Coupons__ticketTop">
+                      <TicketPercent size={20} />
+                      <span>{formData.title.trim() || "Coupon title"}</span>
+                    </div>
+
+                    <div className="Coupons__ticketDiscount">
+                      <strong>{preview.percent}%</strong>
+                      <span>OFF</span>
+                    </div>
+
+                    <p className="Coupons__ticketRule">
+                      {preview.minimum > 0
+                        ? `On orders of ${formatRupees(preview.minimum)} or more`
+                        : "No minimum purchase needed"}
+                    </p>
+
+                    <div className="Coupons__ticketDivider" />
+
+                    <div className="Coupons__ticketCode">
+                      {formData.code || "-"}
+                    </div>
+
+                    <p className="Coupons__ticketMeta">
+                      {formData.startDate && formData.endDate
+                        ? `Valid ${formatDate(formData.startDate)} - ${formatDate(
+                            formData.endDate
+                          )}`
+                        : "Choose the validity dates"}
+                    </p>
+                  </div>
+
+                  {preview.percent > 0 && (
+                    <div className="Coupons__example">
+                      <span>Example</span>
+                      <p>
+                        On a <strong>{formatRupees(preview.example)}</strong>{" "}
+                        order the customer saves{" "}
+                        <strong>{formatRupees(preview.saving)}</strong> and pays{" "}
+                        <strong>{formatRupees(preview.pay)}</strong>.
+                      </p>
+                    </div>
+                  )}
+                </aside>
               </div>
-
-
-              <div className="Coupons__formGrid">
-
-                <div className="Coupons__field">
-
-                  <label>
-                    Minimum Order
-                  </label>
-
-                  <div className="Coupons__inputWrapper">
-
-                    <CircleDollarSign
-                      size={17}
-                    />
-
-                    <input
-                      type="number"
-                      min="0"
-                      name="minimumOrder"
-                      value={
-                        formData.minimumOrder
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="499"
-                    />
-
-                  </div>
-
-                  {formErrors.minimumOrder && (
-                    <small>
-                      {
-                        formErrors.minimumOrder
-                      }
-                    </small>
-                  )}
-
-                </div>
-
-
-                <div className="Coupons__field">
-
-                  <label>
-                    Usage Limit
-                  </label>
-
-                  <div className="Coupons__inputWrapper">
-
-                    <ShoppingCart
-                      size={17}
-                    />
-
-                    <input
-                      name="usageLimit"
-                      value={
-                        formData.usageLimit
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="1000 or Unlimited"
-                    />
-
-                  </div>
-
-                  {formErrors.usageLimit && (
-                    <small>
-                      {
-                        formErrors.usageLimit
-                      }
-                    </small>
-                  )}
-
-                </div>
-
-              </div>
-
-
-              <div className="Coupons__formGrid">
-
-                <div className="Coupons__field">
-
-                  <label>
-                    Start Date *
-                  </label>
-
-                  <div className="Coupons__inputWrapper">
-
-                    <CalendarDays
-                      size={17}
-                    />
-
-                    <input
-                      name="startDate"
-                      value={
-                        formData.startDate
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="Sep 1, 2026"
-                    />
-
-                  </div>
-
-                  {formErrors.startDate && (
-                    <small>
-                      {
-                        formErrors.startDate
-                      }
-                    </small>
-                  )}
-
-                </div>
-
-
-                <div className="Coupons__field">
-
-                  <label>
-                    End Date *
-                  </label>
-
-                  <div className="Coupons__inputWrapper">
-
-                    <CalendarDays
-                      size={17}
-                    />
-
-                    <input
-                      name="endDate"
-                      value={
-                        formData.endDate
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="Sep 30, 2026"
-                    />
-
-                  </div>
-
-                  {formErrors.endDate && (
-                    <small>
-                      {
-                        formErrors.endDate
-                      }
-                    </small>
-                  )}
-
-                </div>
-
-              </div>
-
-
-              <div className="Coupons__field">
-
-                <label>
-                  Status
-                </label>
-
-                <div className="Coupons__selectWrapper">
-
-                  <select
-                    name="status"
-                    value={
-                      formData.status
-                    }
-                    onChange={
-                      handleInputChange
-                    }
-                  >
-
-                    <option>
-                      Active
-                    </option>
-
-                    <option>
-                      Scheduled
-                    </option>
-
-                    <option>
-                      Expired
-                    </option>
-
-                  </select>
-
-                  <ChevronDown
-                    size={16}
-                  />
-
-                </div>
-
-              </div>
-
 
               <div className="Coupons__formFooter">
-
                 <button
                   type="button"
                   className="Coupons__cancelButton"
-                  onClick={
-                    closeModal
-                  }
+                  onClick={closeModal}
                 >
                   Cancel
                 </button>
 
-                <button
-                  type="submit"
-                  className="Coupons__saveButton"
-                >
-                  <Save
-                    size={17}
-                  />
-
-                  {modalType ===
-                  "add"
-                    ? "Create Coupon"
-                    : "Save Changes"}
+                <button type="submit" className="Coupons__saveButton">
+                  <Save size={17} />
+                  {modalType === "add" ? "Create Coupon" : "Save Changes"}
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
       )}
 
-
-      {/* =====================================================
-          VIEW MODAL
-      ===================================================== */}
-
-      {modalType ===
-        "view" &&
-        selectedCoupon && (
-
+      {/* VIEW MODAL */}
+      {modalType === "view" && selectedCoupon && (
         <div
           className="Coupons__overlay"
           onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closeModal();
-            }
+            if (event.target === event.currentTarget) closeModal();
           }}
         >
-
-          <div className="Coupons__viewModal">
-
+          <div
+            className="Coupons__viewModal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Coupon details"
+          >
             <div className="Coupons__modalHeader">
-
               <div>
+                <span className="Coupons__eyebrow">COUPON DETAILS</span>
 
-                <span className="Coupons__eyebrow">
-                  COUPON DETAILS
-                </span>
+                <h2>Coupon Details</h2>
 
-                <h2>
-                  Coupon Details
-                </h2>
-
-                <p>
-                  Complete information
-                  about this coupon.
-                </p>
-
+                <p>Complete information about this coupon.</p>
               </div>
 
               <button
+                type="button"
                 className="Coupons__closeButton"
-                onClick={
-                  closeModal
-                }
+                onClick={closeModal}
+                aria-label="Close"
               >
                 <X size={20} />
               </button>
-
             </div>
 
-
             <div className="Coupons__viewBody">
-
               <div className="Coupons__couponHero">
-
                 <div className="Coupons__couponIcon">
-
-                  <TicketPercent
-                    size={32}
-                  />
-
+                  <TicketPercent size={32} />
                 </div>
 
                 <div className="Coupons__couponHeroInfo">
-
-                  <span>
-                    COUPON CODE
-                  </span>
+                  <span>COUPON CODE</span>
 
                   <h3>
-                    {
-                      selectedCoupon.code
-                    }
+                    {selectedCoupon.code}
+                    <button
+                      type="button"
+                      className="Coupons__copyMini"
+                      title="Copy code"
+                      aria-label="Copy code"
+                      onClick={() => handleCopyCode(selectedCoupon.code)}
+                    >
+                      {copiedCode === selectedCoupon.code ? (
+                        <Check size={14} />
+                      ) : (
+                        <Copy size={14} />
+                      )}
+                    </button>
                   </h3>
 
-                  <p>
-                    {
-                      selectedCoupon.title
-                    }
-                  </p>
-
+                  <p>{selectedCoupon.title}</p>
                 </div>
 
                 <button
+                  type="button"
                   className={`Coupons__status Coupons__status--${selectedCoupon.status.toLowerCase()}`}
-                  onClick={() =>
-                    handleStatusClick(
-                      selectedCoupon
-                    )
-                  }
+                  onClick={() => handleStatusClick(selectedCoupon)}
                 >
-
-                  {selectedCoupon.status ===
-                    "Active" && (
-                    <CheckCircle2
-                      size={14}
-                    />
-                  )}
-
-                  {selectedCoupon.status ===
-                    "Scheduled" && (
-                    <Clock3
-                      size={14}
-                    />
-                  )}
-
-                  {selectedCoupon.status ===
-                    "Expired" && (
-                    <Ban
-                      size={14}
-                    />
-                  )}
-
-                  {
-                    selectedCoupon.status
-                  }
-
+                  {renderStatusIcon(selectedCoupon.status, 14)}
+                  {selectedCoupon.status}
                 </button>
-
               </div>
-
 
               <div className="Coupons__detailGrid">
-
                 <div className="Coupons__detailCard">
-
                   <div className="Coupons__detailIcon">
-                    <Percent
-                      size={19}
-                    />
+                    <Percent size={19} />
                   </div>
-
-                  <span>
-                    Discount
-                  </span>
-
-                  <strong>
-                    {
-                      selectedCoupon.discountValue
-                    }
-                  </strong>
-
+                  <span>Discount Percentage</span>
+                  <strong>{selectedCoupon.discountPercent}% OFF</strong>
                 </div>
 
-
                 <div className="Coupons__detailCard">
-
                   <div className="Coupons__detailIcon">
-                    <CircleDollarSign
-                      size={19}
-                    />
+                    <IndianRupee size={19} />
                   </div>
-
-                  <span>
-                    Minimum Order
-                  </span>
-
-                  <strong>
-                    {selectedCoupon.minimumOrder ===
-                    0
-                      ? "₹0"
-                      : `₹${selectedCoupon.minimumOrder.toLocaleString()}`}
-                  </strong>
-
+                  <span>Minimum Purchase</span>
+                  <strong>{renderMinimum(selectedCoupon.minimumPurchase)}</strong>
                 </div>
 
-
                 <div className="Coupons__detailCard">
-
                   <div className="Coupons__detailIcon">
-                    <ShoppingCart
-                      size={19}
-                    />
+                    <ShoppingCart size={19} />
                   </div>
-
-                  <span>
-                    Usage
-                  </span>
-
+                  <span>Usage</span>
                   <strong>
-                    {
-                      selectedCoupon.used
-                    }{" "}
-                    /
-                    {" "}
-                    {
-                      selectedCoupon.usageLimit
-                    }
+                    {selectedCoupon.used.toLocaleString("en-IN")} /{" "}
+                    {selectedCoupon.usageLimit === "Unlimited"
+                      ? "Unlimited"
+                      : Number(selectedCoupon.usageLimit).toLocaleString("en-IN")}
                   </strong>
-
                 </div>
 
-
                 <div className="Coupons__detailCard">
-
                   <div className="Coupons__detailIcon">
-                    <CalendarDays
-                      size={19}
-                    />
+                    <CalendarDays size={19} />
                   </div>
-
-                  <span>
-                    Validity
-                  </span>
-
+                  <span>Validity</span>
                   <strong>
-                    {
-                      selectedCoupon.startDate
-                    }
-                    {" - "}
-                    {
-                      selectedCoupon.endDate
-                    }
+                    {formatDate(selectedCoupon.startDate)} -{" "}
+                    {formatDate(selectedCoupon.endDate)}
                   </strong>
-
                 </div>
-
               </div>
-
 
               <div className="Coupons__viewDescription">
-
-                <span>
-                  DESCRIPTION
-                </span>
-
-                <p>
-                  {
-                    selectedCoupon.description
-                  }
-                </p>
-
+                <span>DESCRIPTION</span>
+                <p>{selectedCoupon.description}</p>
               </div>
-
 
               <div className="Coupons__viewUsage">
-
                 <div className="Coupons__viewUsageHeader">
-
-                  <span>
-                    Coupon Usage
-                  </span>
+                  <span>Coupon Usage</span>
 
                   <strong>
-                    {
-                      getUsagePercentage(
-                        selectedCoupon
-                      )
-                    }
-                    %
+                    {getUsagePercentage(selectedCoupon) === null
+                      ? "No limit"
+                      : `${getUsagePercentage(selectedCoupon)}%`}
                   </strong>
-
                 </div>
 
-                <div className="Coupons__viewUsageBar">
-
+                <div
+                  className={`Coupons__viewUsageBar ${
+                    getUsagePercentage(selectedCoupon) === null
+                      ? "Coupons__viewUsageBar--unlimited"
+                      : ""
+                  }`}
+                >
                   <span
                     style={{
-                      width: `${getUsagePercentage(
-                        selectedCoupon
-                      )}%`,
+                      width: `${
+                        getUsagePercentage(selectedCoupon) === null
+                          ? 100
+                          : getUsagePercentage(selectedCoupon)
+                      }%`,
                     }}
                   />
-
                 </div>
-
               </div>
-
             </div>
 
-
             <div className="Coupons__viewFooter">
-
               <button
+                type="button"
                 className="Coupons__cancelButton"
-                onClick={
-                  closeModal
-                }
+                onClick={closeModal}
               >
                 Close
               </button>
 
               <button
+                type="button"
                 className="Coupons__saveButton"
-                onClick={() =>
-                  openEditModal(
-                    selectedCoupon
-                  )
-                }
+                onClick={() => openEditModal(selectedCoupon)}
               >
-                <Pencil
-                  size={17}
-                />
+                <Pencil size={17} />
                 Edit Coupon
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
 
-
-      {/* =====================================================
-          DELETE MODAL
-      ===================================================== */}
-
-      {modalType ===
-        "delete" &&
-        selectedCoupon && (
-
+      {/* DELETE MODAL */}
+      {modalType === "delete" && selectedCoupon && (
         <div
           className="Coupons__overlay"
           onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
-              closeModal();
-            }
+            if (event.target === event.currentTarget) closeModal();
           }}
         >
-
-          <div className="Coupons__deleteModal">
-
+          <div
+            className="Coupons__deleteModal"
+            role="alertdialog"
+            aria-modal="true"
+            aria-label="Delete coupon"
+          >
             <div className="Coupons__deleteIcon">
-              <AlertTriangle
-                size={30}
-              />
+              <AlertTriangle size={30} />
             </div>
 
-            <h2>
-              Delete Coupon?
-            </h2>
+            <h2>Delete Coupon?</h2>
 
             <p>
-              Are you sure you want
-              to permanently delete{" "}
-              <strong>
-                {
-                  selectedCoupon.code
-                }
-              </strong>
-              ?
+              Are you sure you want to permanently delete{" "}
+              <strong>{selectedCoupon.code}</strong>?
             </p>
 
             <div className="Coupons__deleteActions">
-
               <button
+                type="button"
                 className="Coupons__cancelButton"
-                onClick={
-                  closeModal
-                }
+                onClick={closeModal}
               >
                 Cancel
               </button>
 
               <button
+                type="button"
                 className="Coupons__deleteButton"
-                onClick={
-                  handleDeleteCoupon
-                }
+                onClick={handleDeleteCoupon}
               >
-                <Trash2
-                  size={17}
-                />
+                <Trash2 size={17} />
                 Delete Coupon
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
 
+      {/* TOAST */}
+      {toast.show && (
+        <div
+          className={`Coupons__toast ${
+            toast.type === "error" ? "Coupons__toast--error" : ""
+          }`}
+          role="status"
+        >
+          <span className="Coupons__toastIcon">
+            {toast.type === "error" ? (
+              <AlertTriangle size={14} />
+            ) : (
+              <Check size={14} />
+            )}
+          </span>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };

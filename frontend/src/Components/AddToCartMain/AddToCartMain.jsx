@@ -164,8 +164,6 @@ const initialCart = [
     price: 350,
     oldPrice: 599,
     discount: 42,
-    rating: 4.8,
-    reviews: "2.4K",
     badge: "Bestseller",
     quantity: 1,
     selected: true,
@@ -179,8 +177,6 @@ const initialCart = [
     price: 299,
     oldPrice: 499,
     discount: 40,
-    rating: 4.7,
-    reviews: "1.2K",
     badge: "New Arrival",
     quantity: 2,
     selected: true,
@@ -194,8 +190,6 @@ const initialCart = [
     price: 320,
     oldPrice: 550,
     discount: 42,
-    rating: 4.6,
-    reviews: "1.8K",
     badge: "Trending",
     quantity: 1,
     selected: true,
@@ -211,8 +205,6 @@ const initialRecommendations = [
       "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=400&q=85",
     price: 310,
     oldPrice: 499,
-    rating: 4.5,
-    reviews: "900",
     liked: false,
   },
   {
@@ -223,8 +215,6 @@ const initialRecommendations = [
       "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=85",
     price: 275,
     oldPrice: 450,
-    rating: 4.8,
-    reviews: "3.1K",
     liked: false,
   },
   {
@@ -235,8 +225,6 @@ const initialRecommendations = [
       "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&w=400&q=85",
     price: 299,
     oldPrice: 499,
-    rating: 4.7,
-    reviews: "4.2K",
     liked: false,
   },
   {
@@ -247,8 +235,6 @@ const initialRecommendations = [
       "https://images.unsplash.com/photo-1511108690759-009324a90311?auto=format&fit=crop&w=400&q=85",
     price: 249,
     oldPrice: 399,
-    rating: 4.6,
-    reviews: "2.7K",
     liked: false,
   },
   {
@@ -259,8 +245,6 @@ const initialRecommendations = [
       "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=400&q=85",
     price: 349,
     oldPrice: 599,
-    rating: 4.9,
-    reviews: "3.8K",
     liked: false,
   },
   {
@@ -271,8 +255,6 @@ const initialRecommendations = [
       "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=400&q=85",
     price: 319,
     oldPrice: 499,
-    rating: 4.7,
-    reviews: "2.2K",
     liked: false,
   },
 ];
@@ -518,8 +500,6 @@ const AddToCartMain = () => {
         itemCount === 1 ? "item" : "items"
       }. Total ${formatPrice(grandTotal)}.`
     );
-
-    // Replace with your route, e.g. navigate("/checkout")
   };
 
   const continueShopping = () => {
@@ -579,24 +559,6 @@ const AddToCartMain = () => {
     recommendationStart,
     recommendationStart + visibleCount
   );
-
-  /* ---------- stars ---------- */
-
-  const renderStars = (rating) => {
-    const fullStars = Math.round(rating);
-
-    return (
-      <span
-        className="AddToCartMain__stars"
-        aria-label={`Rated ${rating} out of 5`}
-      >
-        {"★".repeat(fullStars)}
-        <span className="AddToCartMain__emptyStar">
-          {"★".repeat(5 - fullStars)}
-        </span>
-      </span>
-    );
-  };
 
   /* =========================================================
      RENDER
@@ -673,17 +635,11 @@ const AddToCartMain = () => {
                       <div className="AddToCartMain__productInfo">
                         <h3 title={item.title}>{item.title}</h3>
                         <p>by {item.author}</p>
-
-                        <div className="AddToCartMain__rating">
-                          {renderStars(item.rating)}
-                          <span>
-                            {item.rating} ({item.reviews})
+                        {item.badge && (
+                          <span className="AddToCartMain__badge">
+                            {item.badge}
                           </span>
-                        </div>
-
-                        <span className="AddToCartMain__badge">
-                          {item.badge}
-                        </span>
+                        )}
                       </div>
                     </div>
 
@@ -1058,13 +1014,6 @@ const AddToCartMain = () => {
                   <div className="AddToCartMain__recommendationInfo">
                     <h3 title={product.title}>{product.title}</h3>
                     <p>{product.author}</p>
-
-                    <div className="AddToCartMain__recommendationRating">
-                      {renderStars(product.rating)}
-                      <span>
-                        {product.rating} ({product.reviews})
-                      </span>
-                    </div>
 
                     <div className="AddToCartMain__recommendationBottom">
                       <div>

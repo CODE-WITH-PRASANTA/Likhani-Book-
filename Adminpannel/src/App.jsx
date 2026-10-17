@@ -20,11 +20,11 @@ import Users from "./Components/Users/Users";
 import Reviews from "./Components/Reviews/Reviews";
 import Coupons from "./Components/Coupons/Coupons";
 import Supports from "./Components/Supports/Supports";
-import Shop from "./Components/Shop/Shop";
 import BlogManagement from "./Components/BlogManagement/BlogManagement";
 import BlogPosting from "./Components/BlogPosting/BlogPosting";
 import Login from "./Components/Login/Login";
 import MyProfile from "./Components/MyProfile/MyProfile";
+import BookPosting from "./Components/BookPosting/BookPosting";
 
 const App = () => {
   return (
@@ -42,7 +42,7 @@ const App = () => {
           {/* Books */}
           <Route path="books" element={<Books />} />
           <Route path="categories" element={<Categories />} />
-          <Route path="shop" element={<Shop />} />
+          <Route path="book-posting" element={<BookPosting/>} />
 
         
           {/* Orders and customers */}
