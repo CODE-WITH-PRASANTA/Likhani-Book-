@@ -202,8 +202,11 @@
 .BookDetails__cover img {
   width: 100%;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .BookDetails__cover.is-broken::after,
@@ -685,8 +688,11 @@
 .BookDetails__relCover img {
   width: 100%;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .BookDetails__relCard:hover .BookDetails__relCover {

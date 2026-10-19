@@ -1,4 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  useShopStore,
+  addToCart,
+  decrementCart,
+  updateCartQty,
+  toggleWishlist,
+  syncWithCatalog,
+} from "../ShopMain/useShopStore";
+import { fetchAllCatalogBooks } from "../../api/booksService";
+import { slugify } from "../ShopMain/ShopMain";
 import "./AddToCartMain.css";
 
 /* =========================================================
@@ -143,7 +154,7 @@ const formatPrice = (price) =>
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price || 0);
 
 const getVisibleCount = () => {
   if (typeof window === "undefined") return 4;
@@ -154,121 +165,25 @@ const getVisibleCount = () => {
   return 1;
 };
 
-const initialCart = [
-  {
-    id: 1,
-    title: "Atomic Habits",
-    author: "James Clear",
-    image:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=85",
-    price: 350,
-    oldPrice: 599,
-    discount: 42,
-    badge: "Bestseller",
-    quantity: 1,
-    selected: true,
-  },
-  {
-    id: 2,
-    title: "Ikigai",
-    author: "Héctor García",
-    image:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=500&q=85",
-    price: 299,
-    oldPrice: 499,
-    discount: 40,
-    badge: "New Arrival",
-    quantity: 2,
-    selected: true,
-  },
-  {
-    id: 3,
-    title: "The Psychology of Money",
-    author: "Morgan Housel",
-    image:
-      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=500&q=85",
-    price: 320,
-    oldPrice: 550,
-    discount: 42,
-    badge: "Trending",
-    quantity: 1,
-    selected: true,
-  },
-];
-
-const initialRecommendations = [
-  {
-    id: 101,
-    title: "Deep Work",
-    author: "Cal Newport",
-    image:
-      "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=400&q=85",
-    price: 310,
-    oldPrice: 499,
-    liked: false,
-  },
-  {
-    id: 102,
-    title: "The Alchemist",
-    author: "Paulo Coelho",
-    image:
-      "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=85",
-    price: 275,
-    oldPrice: 450,
-    liked: false,
-  },
-  {
-    id: 103,
-    title: "Rich Dad Poor Dad",
-    author: "Robert Kiyosaki",
-    image:
-      "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&w=400&q=85",
-    price: 299,
-    oldPrice: 499,
-    liked: false,
-  },
-  {
-    id: 104,
-    title: "Think and Grow Rich",
-    author: "Napoleon Hill",
-    image:
-      "https://images.unsplash.com/photo-1511108690759-009324a90311?auto=format&fit=crop&w=400&q=85",
-    price: 249,
-    oldPrice: 399,
-    liked: false,
-  },
-  {
-    id: 105,
-    title: "Can't Hurt Me",
-    author: "David Goggins",
-    image:
-      "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=400&q=85",
-    price: 349,
-    oldPrice: 599,
-    liked: false,
-  },
-  {
-    id: 106,
-    title: "The Power of Now",
-    author: "Eckhart Tolle",
-    image:
-      "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=400&q=85",
-    price: 319,
-    oldPrice: 499,
-    liked: false,
-  },
-];
-
 /* =========================================================
    COMPONENT
 ========================================================= */
 
 const AddToCartMain = () => {
-  const [cartItems, setCartItems] = useState(initialCart);
-  const [savedItems, setSavedItems] = useState([]);
-  const [recommendations, setRecommendations] = useState(
-    initialRecommendations
-  );
+  const navigate = useNavigate();
+  const { cart, wishlist } = useShopStore();
+  const [catalogBooks, setCatalogBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [unselectedIds, setUnselectedIds] = useState(new Set());
+  const [savedForLaterIds, setSavedForLaterIds] = useState(() => {
+    try {
+      const raw = localStorage.getItem("likhani-saved-later");
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const [coupon, setCoupon] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
@@ -279,6 +194,61 @@ const AddToCartMain = () => {
 
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
+
+  // Sync savedForLater
+  useEffect(() => {
+    try {
+      localStorage.setItem("likhani-saved-later", JSON.stringify(savedForLaterIds));
+    } catch {}
+  }, [savedForLaterIds]);
+
+  // Fetch catalog books
+  useEffect(() => {
+    let active = true;
+    fetchAllCatalogBooks().then((books) => {
+      if (active) {
+        setCatalogBooks(books || []);
+        setLoading(false);
+        if (Array.isArray(books) && books.length > 0) {
+          syncWithCatalog(books.map((b) => b.id));
+        }
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Derive cart items
+  const cartItems = useMemo(() => {
+    const bookMap = new Map(catalogBooks.map((b) => [String(b.id), b]));
+    return Object.entries(cart)
+      .map(([id, qty]) => {
+        const book = bookMap.get(String(id));
+        if (!book || qty <= 0) return null;
+        return {
+          ...book,
+          quantity: qty,
+          selected: !unselectedIds.has(String(id)),
+        };
+      })
+      .filter(Boolean);
+  }, [catalogBooks, cart, unselectedIds]);
+
+  // Derive saved for later items
+  const savedItems = useMemo(() => {
+    const bookMap = new Map(catalogBooks.map((b) => [String(b.id), b]));
+    return savedForLaterIds
+      .map((id) => bookMap.get(String(id)))
+      .filter(Boolean);
+  }, [catalogBooks, savedForLaterIds]);
+
+  // Derive recommendations from real books not in cart and not saved
+  const recommendations = useMemo(() => {
+    return catalogBooks
+      .filter((b) => !cart[b.id] && !savedForLaterIds.includes(String(b.id)))
+      .slice(0, 12);
+  }, [catalogBooks, cart, savedForLaterIds]);
 
   /* ---------- responsive slider count ---------- */
 
@@ -333,7 +303,7 @@ const AddToCartMain = () => {
   const originalTotal = useMemo(
     () =>
       selectedItems.reduce(
-        (total, item) => total + item.oldPrice * item.quantity,
+        (total, item) => total + (item.oldPrice || item.price) * item.quantity,
         0
       ),
     [selectedItems]
@@ -363,96 +333,75 @@ const AddToCartMain = () => {
   /* ---------- quantity ---------- */
 
   const updateQuantity = (id, change) => {
-    setCartItems((previous) =>
-      previous.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: Math.max(1, Math.min(MAX_QTY, item.quantity + change)),
-            }
-          : item
-      )
-    );
+    if (change > 0) {
+      addToCart(id, change);
+    } else {
+      decrementCart(id, Math.abs(change));
+    }
   };
 
   /* ---------- selection ---------- */
 
   const toggleSelected = (id) => {
-    setCartItems((previous) =>
-      previous.map((item) =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
-    );
+    const strId = String(id);
+    setUnselectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(strId)) next.delete(strId);
+      else next.add(strId);
+      return next;
+    });
   };
 
   const toggleSelectAll = () => {
-    const nextValue = !allSelected;
-    setCartItems((previous) =>
-      previous.map((item) => ({ ...item, selected: nextValue }))
-    );
+    if (allSelected) {
+      setUnselectedIds(new Set(cartItems.map((item) => String(item.id))));
+    } else {
+      setUnselectedIds(new Set());
+    }
   };
 
   /* ---------- delete ---------- */
 
   const deleteItem = (id) => {
-    const index = cartItems.findIndex((item) => item.id === id);
-    const product = cartItems[index];
-    if (!product) return;
-
-    setCartItems((previous) => previous.filter((item) => item.id !== id));
-
-    showToast(`"${product.title}" deleted from cart.`, () =>
-      setCartItems((previous) => {
-        const copy = [...previous];
-        copy.splice(Math.min(index, copy.length), 0, product);
-        return copy;
-      })
-    );
+    const product = cartItems.find((item) => String(item.id) === String(id));
+    updateCartQty(id, 0);
+    if (product) {
+      showToast(`"${product.title}" removed from cart.`);
+    }
   };
 
   const deleteSelected = () => {
     if (!selectedItems.length) return;
-
-    const removed = cartItems.filter((item) => item.selected);
-    const previousCart = cartItems;
-
-    setCartItems((previous) => previous.filter((item) => !item.selected));
-
-    showToast(
-      `${removed.length} ${
-        removed.length === 1 ? "item" : "items"
-      } deleted from cart.`,
-      () => setCartItems(previousCart)
-    );
+    const count = selectedItems.length;
+    selectedItems.forEach((item) => updateCartQty(item.id, 0));
+    showToast(`${count} ${count === 1 ? "item" : "items"} removed from cart.`);
   };
 
   /* ---------- save for later ---------- */
 
   const saveForLater = (id) => {
-    const product = cartItems.find((item) => item.id === id);
-    if (!product) return;
-
-    setCartItems((previous) => previous.filter((item) => item.id !== id));
-    setSavedItems((previous) => [
-      ...previous.filter((item) => item.id !== id),
-      { ...product, selected: true },
+    const product = cartItems.find((item) => String(item.id) === String(id));
+    updateCartQty(id, 0);
+    setSavedForLaterIds((previous) => [
+      ...previous.filter((x) => String(x) !== String(id)),
+      String(id),
     ]);
-
-    showToast(`"${product.title}" saved for later.`);
+    if (product) {
+      showToast(`"${product.title}" saved for later.`);
+    }
   };
 
   const moveSavedToCart = (id) => {
-    const product = savedItems.find((item) => item.id === id);
-    if (!product) return;
-
-    setSavedItems((previous) => previous.filter((item) => item.id !== id));
-    setCartItems((previous) => [...previous, { ...product, selected: true }]);
-
-    showToast(`"${product.title}" moved to cart.`);
+    const product = savedItems.find((item) => String(item.id) === String(id));
+    setSavedForLaterIds((previous) => previous.filter((x) => String(x) !== String(id)));
+    addToCart(id, 1);
+    if (product) {
+      showToast(`"${product.title}" moved to cart.`);
+    }
   };
 
   const deleteSaved = (id) => {
-    setSavedItems((previous) => previous.filter((item) => item.id !== id));
+    setSavedForLaterIds((previous) => previous.filter((item) => String(item) !== String(id)));
   };
 
   /* ---------- coupon ---------- */
@@ -503,49 +452,17 @@ const AddToCartMain = () => {
   };
 
   const continueShopping = () => {
-    window.location.href = "/shop";
+    navigate("/shop");
   };
 
   /* ---------- recommendations ---------- */
 
   const toggleRecommendationLike = (id) => {
-    setRecommendations((previous) =>
-      previous.map((item) =>
-        item.id === id ? { ...item, liked: !item.liked } : item
-      )
-    );
+    toggleWishlist(id);
   };
 
   const addRecommendationToCart = (product) => {
-    setCartItems((previous) => {
-      const existing = previous.find((item) => item.title === product.title);
-
-      if (existing) {
-        return previous.map((item) =>
-          item.id === existing.id
-            ? {
-                ...item,
-                quantity: Math.min(item.quantity + 1, MAX_QTY),
-                selected: true,
-              }
-            : item
-        );
-      }
-
-      return [
-        ...previous,
-        {
-          ...product,
-          discount: Math.round(
-            ((product.oldPrice - product.price) / product.oldPrice) * 100
-          ),
-          badge: "Recommended",
-          quantity: 1,
-          selected: true,
-        },
-      ];
-    });
-
+    addToCart(product.id, 1);
     showToast(`"${product.title}" added to cart.`);
   };
 
@@ -567,7 +484,15 @@ const AddToCartMain = () => {
   return (
     <section className="AddToCartMain">
       <div className="AddToCartMain__container">
-        {cartItems.length > 0 ? (
+        {loading ? (
+          <div className="AddToCartMain__empty" style={{ minHeight: "360px" }}>
+            <div className="AddToCartMain__emptyIcon" style={{ animation: "pulse 1.5s infinite" }}>
+              <CartIcon size={44} />
+            </div>
+            <h2>Loading your cart...</h2>
+            <p>Please wait a moment while we fetch your cart items.</p>
+          </div>
+        ) : cartItems.length > 0 ? (
           <div className="AddToCartMain__layout">
             {/* ===================== CART ===================== */}
 
@@ -608,113 +533,124 @@ const AddToCartMain = () => {
               </div>
 
               <div className="AddToCartMain__cartItems">
-                {cartItems.map((item) => (
-                  <article
-                    className={`AddToCartMain__cartItem ${
-                      item.selected ? "" : "is-unselected"
-                    }`}
-                    key={item.id}
-                  >
-                    {/* PRODUCT */}
-                    <div className="AddToCartMain__product">
-                      <label
-                        className="AddToCartMain__checkbox"
-                        aria-label={`Select ${item.title}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={item.selected}
-                          onChange={() => toggleSelected(item.id)}
-                        />
-                      </label>
+                {cartItems.map((item) => {
+                  const bookSlug = slugify(item.title) || item.id;
+                  const detailsUrl = `/shop/${bookSlug}`;
 
-                      <div className="AddToCartMain__productImage">
-                        <img src={item.image} alt={item.title} loading="lazy" />
+                  return (
+                    <article
+                      className={`AddToCartMain__cartItem ${
+                        item.selected ? "" : "is-unselected"
+                      }`}
+                      key={item.id}
+                    >
+                      {/* PRODUCT */}
+                      <div className="AddToCartMain__product">
+                        <label
+                          className="AddToCartMain__checkbox"
+                          aria-label={`Select ${item.title}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={item.selected}
+                            onChange={() => toggleSelected(item.id)}
+                          />
+                        </label>
+
+                        <Link to={detailsUrl} className="AddToCartMain__productImage">
+                          <img src={item.image} alt={item.title} loading="lazy" />
+                        </Link>
+
+                        <div className="AddToCartMain__productInfo">
+                          <Link to={detailsUrl} style={{ textDecoration: "none", color: "inherit" }}>
+                            <h3 title={item.title}>{item.title}</h3>
+                          </Link>
+                          <p>by {item.author}</p>
+                          {item.badge && (
+                            <span className="AddToCartMain__badge">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      <div className="AddToCartMain__productInfo">
-                        <h3 title={item.title}>{item.title}</h3>
-                        <p>by {item.author}</p>
-                        {item.badge && (
-                          <span className="AddToCartMain__badge">
-                            {item.badge}
-                          </span>
+                      {/* PRICE */}
+                      <div
+                        className="AddToCartMain__cell AddToCartMain__price"
+                        data-label="Price"
+                      >
+                        <strong>{formatPrice(item.price)}</strong>
+                        {item.oldPrice && item.oldPrice > item.price && (
+                          <>
+                            <del>{formatPrice(item.oldPrice)}</del>
+                            {item.discount > 0 && <span>{item.discount}% off</span>}
+                          </>
                         )}
                       </div>
-                    </div>
 
-                    {/* PRICE */}
-                    <div
-                      className="AddToCartMain__cell AddToCartMain__price"
-                      data-label="Price"
-                    >
-                      <strong>{formatPrice(item.price)}</strong>
-                      <del>{formatPrice(item.oldPrice)}</del>
-                      <span>{item.discount}% off</span>
-                    </div>
+                      {/* QUANTITY */}
+                      <div
+                        className="AddToCartMain__cell"
+                        data-label="Quantity"
+                      >
+                        <div className="AddToCartMain__quantity">
+                          <button
+                            type="button"
+                            aria-label="Decrease quantity"
+                            disabled={item.quantity <= 1}
+                            onClick={() => updateQuantity(item.id, -1)}
+                          >
+                            <MinusIcon size={16} />
+                          </button>
 
-                    {/* QUANTITY */}
-                    <div
-                      className="AddToCartMain__cell"
-                      data-label="Quantity"
-                    >
-                      <div className="AddToCartMain__quantity">
+                          <span aria-live="polite">{item.quantity}</span>
+
+                          <button
+                            type="button"
+                            aria-label="Increase quantity"
+                            disabled={item.quantity >= MAX_QTY}
+                            onClick={() => updateQuantity(item.id, 1)}
+                          >
+                            <PlusIcon size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* SUBTOTAL */}
+                      <div
+                        className="AddToCartMain__cell AddToCartMain__subtotal"
+                        data-label="Subtotal"
+                      >
+                        {formatPrice(item.price * item.quantity)}
+                      </div>
+
+                      {/* ACTIONS */}
+                      <div className="AddToCartMain__actions">
                         <button
                           type="button"
-                          aria-label="Decrease quantity"
-                          disabled={item.quantity <= 1}
-                          onClick={() => updateQuantity(item.id, -1)}
+                          className="AddToCartMain__save"
+                          onClick={() => saveForLater(item.id)}
                         >
-                          <MinusIcon size={16} />
+                          <span>
+                            <BookmarkIcon size={20} />
+                          </span>
+                          <small>Save for later</small>
                         </button>
 
-                        <span aria-live="polite">{item.quantity}</span>
-
                         <button
                           type="button"
-                          aria-label="Increase quantity"
-                          disabled={item.quantity >= MAX_QTY}
-                          onClick={() => updateQuantity(item.id, 1)}
+                          className="AddToCartMain__delete"
+                          onClick={() => deleteItem(item.id)}
                         >
-                          <PlusIcon size={16} />
+                          <span>
+                            <TrashIcon size={20} />
+                          </span>
+                          <small>Delete</small>
                         </button>
                       </div>
-                    </div>
-
-                    {/* SUBTOTAL */}
-                    <div
-                      className="AddToCartMain__cell AddToCartMain__subtotal"
-                      data-label="Subtotal"
-                    >
-                      {formatPrice(item.price * item.quantity)}
-                    </div>
-
-                    {/* ACTIONS */}
-                    <div className="AddToCartMain__actions">
-                      <button
-                        type="button"
-                        className="AddToCartMain__save"
-                        onClick={() => saveForLater(item.id)}
-                      >
-                        <span>
-                          <BookmarkIcon size={20} />
-                        </span>
-                        <small>Save for later</small>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="AddToCartMain__delete"
-                        onClick={() => deleteItem(item.id)}
-                      >
-                        <span>
-                          <TrashIcon size={20} />
-                        </span>
-                        <small>Delete</small>
-                      </button>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
             </div>
 
@@ -890,14 +826,14 @@ const AddToCartMain = () => {
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added any books to your cart yet.</p>
 
-            <button
-              type="button"
+            <Link
+              to="/shop"
               className="AddToCartMain__shopButton"
-              onClick={continueShopping}
+              style={{ textDecoration: "none" }}
             >
               Explore books
               <ArrowRightIcon size={20} />
-            </button>
+            </Link>
           </div>
         )}
 
@@ -910,145 +846,165 @@ const AddToCartMain = () => {
             </h2>
 
             <div className="AddToCartMain__savedList">
-              {savedItems.map((item) => (
-                <article className="AddToCartMain__savedItem" key={item.id}>
-                  <div className="AddToCartMain__savedImage">
-                    <img src={item.image} alt={item.title} loading="lazy" />
-                  </div>
+              {savedItems.map((item) => {
+                const bookSlug = slugify(item.title) || item.id;
+                const detailsUrl = `/shop/${bookSlug}`;
 
-                  <div className="AddToCartMain__savedInfo">
-                    <h3>{item.title}</h3>
-                    <p>by {item.author}</p>
+                return (
+                  <article className="AddToCartMain__savedItem" key={item.id}>
+                    <Link to={detailsUrl} className="AddToCartMain__savedImage">
+                      <img src={item.image} alt={item.title} loading="lazy" />
+                    </Link>
 
-                    <div className="AddToCartMain__savedPrice">
-                      <strong>{formatPrice(item.price)}</strong>
-                      <del>{formatPrice(item.oldPrice)}</del>
+                    <div className="AddToCartMain__savedInfo">
+                      <Link to={detailsUrl} style={{ textDecoration: "none", color: "inherit" }}>
+                        <h3>{item.title}</h3>
+                      </Link>
+                      <p>by {item.author}</p>
+
+                      <div className="AddToCartMain__savedPrice">
+                        <strong>{formatPrice(item.price)}</strong>
+                        {item.oldPrice && item.oldPrice > item.price && (
+                          <del>{formatPrice(item.oldPrice)}</del>
+                        )}
+                      </div>
+
+                      <div className="AddToCartMain__savedActions">
+                        <button
+                          type="button"
+                          className="AddToCartMain__moveToCart"
+                          onClick={() => moveSavedToCart(item.id)}
+                        >
+                          <CartIcon size={18} />
+                          Move to cart
+                        </button>
+
+                        <button
+                          type="button"
+                          className="AddToCartMain__savedDelete"
+                          aria-label={`Delete ${item.title}`}
+                          onClick={() => deleteSaved(item.id)}
+                        >
+                          <TrashIcon size={19} />
+                        </button>
+                      </div>
                     </div>
-
-                    <div className="AddToCartMain__savedActions">
-                      <button
-                        type="button"
-                        className="AddToCartMain__moveToCart"
-                        onClick={() => moveSavedToCart(item.id)}
-                      >
-                        <CartIcon size={18} />
-                        Move to cart
-                      </button>
-
-                      <button
-                        type="button"
-                        className="AddToCartMain__savedDelete"
-                        aria-label={`Delete ${item.title}`}
-                        onClick={() => deleteSaved(item.id)}
-                      >
-                        <TrashIcon size={19} />
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           </section>
         )}
 
         {/* ================= RECOMMENDATIONS ================= */}
 
-        <section className="AddToCartMain__recommendations">
-          <div className="AddToCartMain__recommendationTop">
-            <div>
-              <span className="AddToCartMain__eyebrow">Curated for you</span>
-              <h2>You may also like</h2>
-            </div>
+        {recommendations.length > 0 && (
+          <section className="AddToCartMain__recommendations">
+            <div className="AddToCartMain__recommendationTop">
+              <div>
+                <span className="AddToCartMain__eyebrow">Curated for you</span>
+                <h2>You may also like</h2>
+              </div>
 
-            <div className="AddToCartMain__recommendationControls">
-              <button
-                type="button"
-                className="AddToCartMain__sliderArrow"
-                aria-label="Previous books"
-                onClick={previousRecommendations}
-                disabled={recommendationStart === 0}
-              >
-                <ChevronLeftIcon size={22} />
-              </button>
-
-              <button
-                type="button"
-                className="AddToCartMain__sliderArrow"
-                aria-label="Next books"
-                onClick={nextRecommendations}
-                disabled={recommendationStart >= maxStart}
-              >
-                <ChevronRightIcon size={22} />
-              </button>
-
-              <button
-                type="button"
-                className="AddToCartMain__viewAll"
-                onClick={continueShopping}
-              >
-                View all
-                <ArrowRightIcon size={18} />
-              </button>
-            </div>
-          </div>
-
-          <div
-            className="AddToCartMain__recommendationGrid"
-            style={{ "--cols": visibleCount }}
-          >
-            {visibleRecommendations.map((product) => {
-              const off = Math.round(
-                ((product.oldPrice - product.price) / product.oldPrice) * 100
-              );
-
-              return (
-                <article
-                  className="AddToCartMain__recommendationCard"
-                  key={product.id}
+              <div className="AddToCartMain__recommendationControls">
+                <button
+                  type="button"
+                  className="AddToCartMain__sliderArrow"
+                  aria-label="Previous books"
+                  onClick={previousRecommendations}
+                  disabled={recommendationStart === 0}
                 >
-                  <div className="AddToCartMain__recommendationImage">
-                    <img src={product.image} alt={product.title} loading="lazy" />
-                    <span className="AddToCartMain__offTag">{off}% off</span>
-                  </div>
+                  <ChevronLeftIcon size={22} />
+                </button>
 
-                  <div className="AddToCartMain__recommendationInfo">
-                    <h3 title={product.title}>{product.title}</h3>
-                    <p>{product.author}</p>
+                <button
+                  type="button"
+                  className="AddToCartMain__sliderArrow"
+                  aria-label="Next books"
+                  onClick={nextRecommendations}
+                  disabled={recommendationStart >= maxStart}
+                >
+                  <ChevronRightIcon size={22} />
+                </button>
 
-                    <div className="AddToCartMain__recommendationBottom">
-                      <div>
-                        <strong>{formatPrice(product.price)}</strong>
-                        <del>{formatPrice(product.oldPrice)}</del>
+                <button
+                  type="button"
+                  className="AddToCartMain__viewAll"
+                  onClick={continueShopping}
+                >
+                  View all
+                  <ArrowRightIcon size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div
+              className="AddToCartMain__recommendationGrid"
+              style={{ "--cols": visibleCount }}
+            >
+              {visibleRecommendations.map((product) => {
+                const bookSlug = slugify(product.title) || product.id;
+                const detailsUrl = `/shop/${bookSlug}`;
+                const isLiked = wishlist.includes(String(product.id));
+                const off =
+                  product.discount ||
+                  (product.oldPrice && product.oldPrice > product.price
+                    ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+                    : 0);
+
+                return (
+                  <article
+                    className="AddToCartMain__recommendationCard"
+                    key={product.id}
+                  >
+                    <Link to={detailsUrl} className="AddToCartMain__recommendationImage">
+                      <img src={product.image} alt={product.title} loading="lazy" />
+                      {off > 0 && <span className="AddToCartMain__offTag">{off}% off</span>}
+                    </Link>
+
+                    <div className="AddToCartMain__recommendationInfo">
+                      <Link to={detailsUrl} style={{ textDecoration: "none", color: "inherit" }}>
+                        <h3 title={product.title}>{product.title}</h3>
+                      </Link>
+                      <p>{product.author}</p>
+
+                      <div className="AddToCartMain__recommendationBottom">
+                        <div>
+                          <strong>{formatPrice(product.price)}</strong>
+                          {product.oldPrice && product.oldPrice > product.price && (
+                            <del>{formatPrice(product.oldPrice)}</del>
+                          )}
+                        </div>
+
+                        <button
+                          type="button"
+                          aria-label={
+                            isLiked
+                              ? "Remove from wishlist"
+                              : "Add to wishlist"
+                          }
+                          className={isLiked ? "AddToCartMain__liked" : ""}
+                          onClick={() => toggleRecommendationLike(product.id)}
+                        >
+                          <HeartIcon filled={isLiked} size={20} />
+                        </button>
                       </div>
 
                       <button
                         type="button"
-                        aria-label={
-                          product.liked
-                            ? "Remove from wishlist"
-                            : "Add to wishlist"
-                        }
-                        className={product.liked ? "AddToCartMain__liked" : ""}
-                        onClick={() => toggleRecommendationLike(product.id)}
+                        className="AddToCartMain__recommendationAdd"
+                        onClick={() => addRecommendationToCart(product)}
                       >
-                        <HeartIcon filled={product.liked} size={20} />
+                        <PlusIcon size={18} />
+                        Add to cart
                       </button>
                     </div>
-
-                    <button
-                      type="button"
-                      className="AddToCartMain__recommendationAdd"
-                      onClick={() => addRecommendationToCart(product)}
-                    >
-                      <PlusIcon size={18} />
-                      Add to cart
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* ===================== TOAST ===================== */}

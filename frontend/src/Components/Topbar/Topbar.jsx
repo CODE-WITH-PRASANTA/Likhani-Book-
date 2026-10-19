@@ -82,7 +82,7 @@ const Topbar = () => {
           {!currentUser && (
             <Link
               to="/login"
-              className="topbar__item topbar__link"
+              className="topbar__login-btn"
               aria-label="User Login"
             >
               <svg
@@ -90,7 +90,7 @@ const Topbar = () => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 aria-hidden="true"

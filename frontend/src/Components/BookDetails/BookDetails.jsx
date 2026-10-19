@@ -1,83 +1,93 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
+import API, { BASE_URL } from "../../api/axios";
+import {
+  useShopStore,
+  addToCart as addToCartGlobal,
+  toggleWishlist as toggleWishlistGlobal,
+} from "../ShopMain/useShopStore";
+import { slugify } from "../ShopMain/ShopMain";
 import "./BookDetails.css";
-
-/* =========================================================
-   DATA
-   ---------------------------------------------------------
-   Put your real book photos inside:  public/images/
-   using the file names below (or change the paths).
-   If an image is missing, a premium designed book cover is
-   shown automatically, so the page never looks empty.
-========================================================= */
-
-const book = {
-  id: 101,
-  title: "Osho Acharya Rajanisha Jiban O Darshan",
-  author: "Pradeshi Barik",
-  price: 425,
-  category: "Odia Books",
-  stock: true,
-  description:
-    "Explore the life, philosophy and teachings of Osho Acharya Rajanish through this thoughtful Odia book. A meaningful addition to your personal library and a wonderful choice for readers who enjoy philosophy and literature.",
-  images: [
-    "/images/osho-book.jpg",
-    "/images/osho-book-back.jpg",
-    "/images/osho-book-inside.jpg",
-  ],
-};
-
-const VIEW_LABELS = ["Front cover", "Back cover", "Inside pages"];
-
-const relatedBooks = [
-  {
-    id: 1,
-    title: "Sei Sahasineemane",
-    author: "Odia Library",
-    category: "Biography",
-    price: 290,
-    image: "/images/sei-sahasineemane.jpg",
-  },
-  {
-    id: 2,
-    title: "Padmapatrre Jeevan",
-    author: "Odia Library",
-    category: "Literature",
-    price: 600,
-    image: "/images/padmapatre-jeevan.jpg",
-  },
-  {
-    id: 3,
-    title: "Sherlock Holmes Kahani Part-4",
-    author: "Odia Library",
-    category: "Fiction",
-    price: 80,
-    image: "/images/sherlock-holmes.jpg",
-  },
-  {
-    id: 4,
-    title: "Koutilya Arthashastra (Odia)",
-    author: "Odia Library",
-    category: "History",
-    price: 150,
-    image: "/images/koutilya-arthashastra.jpg",
-  },
-];
 
 /* Cover colour themes - picked from the title so each book is unique */
 const TONES = ["navy", "teal", "wine", "forest", "plum"];
 
 const toneFor = (text = "") =>
   TONES[
-    Array.from(text).reduce((sum, char) => sum + char.charCodeAt(0), 0) %
+    Array.from(String(text)).reduce((sum, char) => sum + char.charCodeAt(0), 0) %
       TONES.length
   ];
 
-/* =========================================================
-   SMALL REUSABLE PIECES
-========================================================= */
+const normalizeImageUrl = (img) => {
+  if (!img || typeof img !== "string") {
+    return "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&auto=format&fit=crop&q=80";
+  }
+  if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("data:")) {
+    return img;
+  }
+  const clean = img.startsWith("/") ? img : `/${img}`;
+  return `${BASE_URL}${clean}`;
+};
 
-/* Shows the real image when it loads, otherwise the fallback */
+const formatBook = (raw) => {
+  if (!raw) return null;
+  const id = String(raw._id || raw.id || "");
+  const numericPrice = Number(raw.price) || 0;
+  const numericOffer = Number(raw.offerPrice) || 0;
+  const hasOffer = numericOffer > 0 && numericOffer < numericPrice;
+  const finalPrice = hasOffer ? numericOffer : numericPrice;
+  const oldPrice = hasOffer ? numericPrice : null;
+  const discount = hasOffer
+    ? Math.round(((numericPrice - numericOffer) / numericPrice) * 100)
+    : 0;
+
+  let images = [];
+  if (Array.isArray(raw.images) && raw.images.length > 0) {
+    images = raw.images.filter(Boolean).map(normalizeImageUrl);
+  }
+  if (!images.length && raw.image) {
+    images = [normalizeImageUrl(raw.image)];
+  }
+  if (!images.length) {
+    images = ["https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&auto=format&fit=crop&q=80"];
+  }
+
+  // Ensure 3 views for 3D stage
+  if (images.length === 1) {
+    images = [images[0], images[0], images[0]];
+  } else if (images.length === 2) {
+    images = [images[0], images[1], images[0]];
+  }
+
+  return {
+    id,
+    title: raw.title || "Untitled Book",
+    author: raw.author || "Likhani Author",
+    category: raw.category || "General",
+    price: finalPrice,
+    oldPrice: oldPrice,
+    discount: discount,
+    stock: raw.stock === undefined || raw.stock === null ? true : Number(raw.stock) > 0,
+    stockCount: Math.max(Number(raw.stock) || 0, 0),
+    description:
+      raw.description ||
+      "Explore the profound insights and narrative of this exceptional book. A wonderful addition to your personal library and a timeless choice for passionate readers.",
+    images: images,
+    image: images[0],
+    sku: raw.isbn ? `ISBN-${raw.isbn}` : `LKH-${id.slice(-6).toUpperCase()}`,
+    isbn: raw.isbn || `978-${Math.abs(Array.from(raw.title || "book").reduce((sum, ch) => sum + ch.charCodeAt(0), 1048291048))}`,
+    publisher: raw.publisher || "Lekhani Publications",
+    pages: Number(raw.pages) || 284,
+    language: raw.language || "English",
+    year: Number(raw.year) || 2024,
+    format: raw.format || "Paperback",
+    featured: Boolean(raw.featured),
+  };
+};
+
+const VIEW_LABELS = ["Front cover", "Back cover", "Inside pages"];
+
+/* Shows real image when loaded, otherwise fallback */
 const SmartImage = ({ src, alt, className = "", fallback = null }) => {
   const [status, setStatus] = useState("loading");
   const imgRef = useRef(null);
@@ -110,8 +120,8 @@ const SmartImage = ({ src, alt, className = "", fallback = null }) => {
   );
 };
 
-/* Designed front cover (used when no photo is available) */
-const CoverArt = ({ title, author, category, mini = false }) => (
+/* Designed front cover fallback */
+const CoverArt = ({ title = "", author = "", category = "", mini = false }) => (
   <div
     className={`BookDetails-art BookDetails-art--${toneFor(title)} ${
       mini ? "BookDetails-art--mini" : ""
@@ -131,15 +141,16 @@ const CoverArt = ({ title, author, category, mini = false }) => (
 );
 
 /* Gallery fallbacks: front / back / inside pages */
-const GalleryView = ({ index, mini = false }) => {
-  const tone = toneFor(book.title);
+const GalleryView = ({ index, currentBook, mini = false }) => {
+  const title = currentBook?.title || "Book";
+  const tone = toneFor(title);
 
   if (index === 0) {
     return (
       <CoverArt
-        title={book.title}
-        author={book.author}
-        category={book.category}
+        title={currentBook?.title}
+        author={currentBook?.author}
+        category={currentBook?.category}
         mini={mini}
       />
     );
@@ -157,7 +168,7 @@ const GalleryView = ({ index, mini = false }) => {
         <span className="BookDetails-art-spine BookDetails-art-spine--back" />
         <div className="BookDetails-back-body">
           <small>About this book</small>
-          <p>{book.description}</p>
+          <p>{currentBook?.description}</p>
           <span className="BookDetails-barcode" />
         </div>
       </div>
@@ -171,7 +182,7 @@ const GalleryView = ({ index, mini = false }) => {
       aria-label="Inside pages"
     >
       <div className="BookDetails-page BookDetails-page--left">
-        <small>{book.title}</small>
+        <small>{currentBook?.title}</small>
         <span className="BookDetails-page-ornament">&#10070;</span>
         <i />
         <i />
@@ -232,54 +243,143 @@ const BenefitIcon = ({ name }) => {
 };
 
 /* =========================================================
-   PAGE
+   MAIN COMPONENT
 ========================================================= */
 
 const BookDetails = () => {
+  const { slug } = useParams();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const initialBook = location.state?.product ? formatBook(location.state.product) : null;
+  const [book, setBook] = useState(initialBook);
+  const [relatedBooks, setRelatedBooks] = useState([]);
+  const [loading, setLoading] = useState(!initialBook);
   const [quantity, setQuantity] = useState(1);
-  const [cartCount, setCartCount] = useState(0);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+  const [activeTab, setActiveTab] = useState("specs");
   const [notice, setNotice] = useState("");
   const noticeTimer = useRef(null);
 
-  useEffect(() => () => window.clearTimeout(noticeTimer.current), []);
+  const { wishlist, cart } = useShopStore();
+  const isWishlisted = book ? wishlist.includes(book.id) : false;
+  const inCartQty = book ? (cart[book.id] || 0) : 0;
 
   const showNotice = (message) => {
     window.clearTimeout(noticeTimer.current);
     setNotice(message);
-    noticeTimer.current = window.setTimeout(() => setNotice(""), 2500);
+    noticeTimer.current = window.setTimeout(() => setNotice(""), 3000);
   };
 
+  useEffect(() => {
+    let isMounted = true;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const fetchBookData = async () => {
+      try {
+        const [booksRes, postingRes] = await Promise.allSettled([
+          API.get("/books", { params: { limit: 100 } }),
+          API.get("/book-posting", { params: { limit: 100 } }),
+        ]);
+
+        const allRaw = [];
+        if (booksRes.status === "fulfilled" && Array.isArray(booksRes.value?.data?.data)) {
+          allRaw.push(...booksRes.value.data.data);
+        }
+        if (postingRes.status === "fulfilled" && Array.isArray(postingRes.value?.data?.data)) {
+          allRaw.push(...postingRes.value.data.data);
+        }
+
+        const idParam = searchParams.get("id");
+        const targetSlug = slug ? String(slug).toLowerCase().trim() : "";
+
+        // Find the matched book
+        let found = allRaw.find((item) => {
+          if (!item) return false;
+          const itemId = String(item._id || item.id || "");
+          const itemTitle = String(item.title || "");
+          const itemSlug = slugify(itemTitle);
+          return (
+            (targetSlug && itemSlug === targetSlug) ||
+            (targetSlug && itemId === targetSlug) ||
+            (idParam && itemId === idParam) ||
+            (targetSlug && itemTitle.toLowerCase() === decodeURIComponent(targetSlug).toLowerCase())
+          );
+        });
+
+        if (!found && location.state?.product) {
+          found = location.state.product;
+        }
+
+        if (isMounted) {
+          if (found) {
+            const formatted = formatBook(found);
+            setBook(formatted);
+
+            // Related books: same category or others
+            const others = allRaw
+              .filter((item) => String(item._id || item.id) !== formatted.id)
+              .map(formatBook)
+              .filter(Boolean);
+
+            const sameCategory = others.filter((o) => o.category === formatted.category);
+            const otherCategories = others.filter((o) => o.category !== formatted.category);
+            const combined = [...sameCategory, ...otherCategories].slice(0, 4);
+            setRelatedBooks(combined);
+          } else if (allRaw.length > 0) {
+            const first = formatBook(allRaw[0]);
+            setBook(first);
+            setRelatedBooks(allRaw.slice(1, 5).map(formatBook).filter(Boolean));
+          }
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to load book details:", err);
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchBookData();
+
+    return () => {
+      isMounted = false;
+      window.clearTimeout(noticeTimer.current);
+    };
+  }, [slug, searchParams]);
+
   const addToCart = () => {
-    setCartCount((previous) => previous + quantity);
+    if (!book || !book.stock) return;
+    addToCartGlobal(book.id, quantity);
     showNotice(
-      `${quantity} ${quantity === 1 ? "book" : "books"} added to cart.`
+      `${quantity} ${quantity === 1 ? "book" : "books"} "${book.title}" added to cart.`
     );
   };
 
   const toggleWishlist = () => {
-    setIsWishlisted((previous) => !previous);
+    if (!book) return;
+    const added = toggleWishlistGlobal(book.id);
     showNotice(
-      isWishlisted ? "Removed from your wishlist." : "Added to your wishlist."
+      added
+        ? `"${book.title}" added to your wishlist.`
+        : `"${book.title}" removed from your wishlist.`
     );
   };
 
   const shareBook = async () => {
+    if (!book) return;
     try {
       if (navigator.share) {
         await navigator.share({
           title: book.title,
-          text: `Discover ${book.title} by ${book.author}.`,
+          text: `Discover "${book.title}" by ${book.author} on Lekhani Books.`,
           url: window.location.href,
         });
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(window.location.href);
-        showNotice("Book link copied successfully.");
+        showNotice("Book link copied to clipboard!");
       } else {
-        showNotice("Copy the current page URL to share this book.");
+        showNotice("Copy current URL to share this book.");
       }
     } catch (error) {
       if (error.name !== "AbortError") {
@@ -290,8 +390,48 @@ const BookDetails = () => {
 
   const openRelatedBook = (item) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    navigate(`/book-details/${item.id}`);
+    const bookSlug = slugify(item.title) || item.id;
+    navigate(`/shop/${bookSlug}`, { state: { product: item } });
   };
+
+  if (loading && !book) {
+    return (
+      <main className="BookDetails">
+        <div className="BookDetails-container" style={{ padding: "80px 20px", textAlign: "center" }}>
+          <div style={{ fontSize: "1.5rem", fontWeight: "600", color: "#102f4b" }}>
+            Loading book details...
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!book) {
+    return (
+      <main className="BookDetails">
+        <div className="BookDetails-container" style={{ padding: "80px 20px", textAlign: "center" }}>
+          <h2 style={{ fontSize: "2rem", color: "#102f4b", marginBottom: "16px" }}>Book Not Found</h2>
+          <p style={{ color: "#687f91", marginBottom: "28px" }}>
+            The requested book could not be found or may have been removed.
+          </p>
+          <Link
+            to="/shop"
+            style={{
+              display: "inline-block",
+              background: "#102f4b",
+              color: "#fff",
+              padding: "12px 28px",
+              borderRadius: "30px",
+              fontWeight: "700",
+              textDecoration: "none",
+            }}
+          >
+            &larr; Back to Shop Catalog
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   const stageModifier =
     activeImage === 1
@@ -315,7 +455,15 @@ const BookDetails = () => {
           <nav className="BookDetails-breadcrumb" aria-label="Breadcrumb">
             <Link to="/">Home</Link>
             <span>&rsaquo;</span>
-            <Link to="/library">Library</Link>
+            <Link to="/shop">Shop</Link>
+            {book.category && (
+              <>
+                <span>&rsaquo;</span>
+                <Link to={`/shop?category=${encodeURIComponent(book.category)}`}>
+                  {book.category}
+                </Link>
+              </>
+            )}
             <span>&rsaquo;</span>
             <span className="BookDetails-current-crumb">{book.title}</span>
           </nav>
@@ -324,24 +472,22 @@ const BookDetails = () => {
             {/* ---------- Gallery ---------- */}
             <div className="BookDetails-gallery">
               <div className="BookDetails-thumbnails">
-                {book.images.map((image, index) => (
+                {book.images.map((img, index) => (
                   <button
                     type="button"
-                    key={image}
+                    key={`${img}-${index}`}
                     className={`BookDetails-thumbnail ${
-                      activeImage === index
-                        ? "BookDetails-thumbnail-active"
-                        : ""
+                      activeImage === index ? "BookDetails-thumbnail-active" : ""
                     }`}
                     onClick={() => setActiveImage(index)}
-                    aria-label={`View ${VIEW_LABELS[index]}`}
+                    aria-label={`View ${VIEW_LABELS[index] || `Image ${index + 1}`}`}
                     aria-pressed={activeImage === index}
                   >
                     <SmartImage
-                      src={image}
-                      alt={`${book.title} - ${VIEW_LABELS[index]}`}
+                      src={img}
+                      alt={`${book.title} - ${VIEW_LABELS[index] || `Image ${index + 1}`}`}
                       className="BookDetails-thumb-image"
-                      fallback={<GalleryView index={index} mini />}
+                      fallback={<GalleryView index={index} currentBook={book} mini />}
                     />
                   </button>
                 ))}
@@ -349,7 +495,7 @@ const BookDetails = () => {
 
               <div className="BookDetails-stage">
                 <span className="BookDetails-stage-chip">
-                  Reader&apos;s Collection
+                  {book.featured ? "Featured Bestseller" : "Reader's Collection"}
                 </span>
 
                 <div
@@ -358,16 +504,16 @@ const BookDetails = () => {
                 >
                   <SmartImage
                     src={book.images[activeImage]}
-                    alt={`${book.title} - ${VIEW_LABELS[activeImage]}`}
+                    alt={`${book.title} - ${VIEW_LABELS[activeImage] || "Cover"}`}
                     className="BookDetails-cover-image"
-                    fallback={<GalleryView index={activeImage} />}
+                    fallback={<GalleryView index={activeImage} currentBook={book} />}
                   />
                 </div>
 
                 <span className="BookDetails-stage-floor" aria-hidden="true" />
 
                 <span className="BookDetails-stage-caption">
-                  {VIEW_LABELS[activeImage]}
+                  {VIEW_LABELS[activeImage] || `View ${activeImage + 1}`}
                 </span>
               </div>
             </div>
@@ -385,34 +531,37 @@ const BookDetails = () => {
                 by <strong>{book.author}</strong>
               </p>
 
-              <div className="BookDetails-rating">
-                <span
-                  className="BookDetails-stars"
-                  aria-label="Rated 4.8 out of 5"
-                >
-                  &#9733;&#9733;&#9733;&#9733;&#9733;
-                </span>
-                <span className="BookDetails-rating-score">4.8</span>
-                <span className="BookDetails-rating-muted">
-                  (Reader favourite)
-                </span>
-                <span className="BookDetails-rating-divider" />
+              <div className="BookDetails-stock-row">
                 <span
                   className={`BookDetails-stock ${
                     book.stock ? "" : "BookDetails-stock--out"
                   }`}
                 >
                   <i />
-                  {book.stock ? "In Stock" : "Out of Stock"}
+                  {book.stock
+                    ? `In Stock (${book.stockCount} available)`
+                    : "Out of Stock"}
                 </span>
               </div>
 
               <div className="BookDetails-price-block">
-                <span className="BookDetails-price">
-                  &#8377;{book.price.toLocaleString("en-IN")}
-                </span>
+                <div className="BookDetails-price-row">
+                  <span className="BookDetails-price">
+                    &#8377;{Number(book.price || 0).toLocaleString("en-IN")}
+                  </span>
+                  {book.oldPrice && (
+                    <span className="BookDetails-old-price">
+                      &#8377;{Number(book.oldPrice).toLocaleString("en-IN")}
+                    </span>
+                  )}
+                  {book.discount > 0 && (
+                    <span className="BookDetails-discount-badge">
+                      -{book.discount}% OFF
+                    </span>
+                  )}
+                </div>
                 <span className="BookDetails-tax">
-                  Inclusive of applicable taxes
+                  Inclusive of all applicable taxes &bull; SKU: {book.sku}
                 </span>
               </div>
 
@@ -435,9 +584,11 @@ const BookDetails = () => {
 
                   <button
                     type="button"
-                    disabled={quantity >= 10}
+                    disabled={quantity >= Math.min(10, book.stockCount || 10)}
                     onClick={() =>
-                      setQuantity((previous) => Math.min(10, previous + 1))
+                      setQuantity((previous) =>
+                        Math.min(Math.min(10, book.stockCount || 10), previous + 1)
+                      )
                     }
                     aria-label="Increase quantity"
                   >
@@ -462,7 +613,11 @@ const BookDetails = () => {
                     <circle cx="10" cy="19" r="1.5" fill="currentColor" />
                     <circle cx="18" cy="19" r="1.5" fill="currentColor" />
                   </svg>
-                  {book.stock ? "ADD TO CART" : "OUT OF STOCK"}
+                  {!book.stock
+                    ? "OUT OF STOCK"
+                    : inCartQty > 0
+                    ? `ADD MORE (${inCartQty} in cart)`
+                    : "ADD TO CART"}
                 </button>
 
                 <button
@@ -524,11 +679,10 @@ const BookDetails = () => {
                 </button>
               </div>
 
-              {cartCount > 0 && (
+              {inCartQty > 0 && (
                 <div className="BookDetails-cart-summary">
                   <span>&#10003;</span>
-                  {cartCount} {cartCount === 1 ? "book" : "books"} added in
-                  this session
+                  {inCartQty} {inCartQty === 1 ? "book" : "books"} currently in your shopping cart
                 </div>
               )}
 
@@ -539,7 +693,7 @@ const BookDetails = () => {
                   </span>
                   <div>
                     <strong>Genuine Books</strong>
-                    <small>Quality reading</small>
+                    <small>100% authentic editions</small>
                   </div>
                 </div>
 
@@ -548,8 +702,8 @@ const BookDetails = () => {
                     <BenefitIcon name="order" />
                   </span>
                   <div>
-                    <strong>Easy Ordering</strong>
-                    <small>Simple checkout</small>
+                    <strong>Fast Delivery</strong>
+                    <small>Direct to your doorstep</small>
                   </div>
                 </div>
 
@@ -558,8 +712,8 @@ const BookDetails = () => {
                     <BenefitIcon name="shield" />
                   </span>
                   <div>
-                    <strong>Secure Shopping</strong>
-                    <small>Shop with confidence</small>
+                    <strong>Secure Checkout</strong>
+                    <small>Protected payment</small>
                   </div>
                 </div>
               </div>
@@ -568,74 +722,244 @@ const BookDetails = () => {
         </div>
       </section>
 
-      {/* Recommended books */}
-      <section className="BookDetails-related-section">
+      {/* Comprehensive Book Details & Specifications Tabs */}
+      <section className="BookDetails-details-section">
         <div className="BookDetails-container">
-          <div className="BookDetails-related-heading">
-            <div>
-              <span className="BookDetails-related-eyebrow">
-                MORE TO DISCOVER
-              </span>
-              <h2 className="BookDetails-related-title">
-                You Might Also <em>Like</em>
-              </h2>
-              <p>Curated recommendations from our library collection.</p>
-            </div>
-
-            <Link className="BookDetails-view-all" to="/library">
-              View All Library <span>&rarr;</span>
-            </Link>
+          <div className="BookDetails-tabs-nav">
+            <button
+              type="button"
+              className={`BookDetails-tab-btn ${activeTab === "specs" ? "is-active" : ""}`}
+              onClick={() => setActiveTab("specs")}
+            >
+              Book Specifications
+            </button>
+            <button
+              type="button"
+              className={`BookDetails-tab-btn ${activeTab === "description" ? "is-active" : ""}`}
+              onClick={() => setActiveTab("description")}
+            >
+              Synopsis & Overview
+            </button>
+            <button
+              type="button"
+              className={`BookDetails-tab-btn ${activeTab === "shipping" ? "is-active" : ""}`}
+              onClick={() => setActiveTab("shipping")}
+            >
+              Delivery & Returns
+            </button>
           </div>
 
-          <div className="BookDetails-related-grid">
-            {relatedBooks.map((item) => (
-              <article className="BookDetails-related-card" key={item.id}>
-                <button
-                  type="button"
-                  className="BookDetails-related-image-wrap"
-                  onClick={() => openRelatedBook(item)}
-                  aria-label={`View ${item.title}`}
-                >
-                  <span className="BookDetails-related-book">
-                    <SmartImage
-                      src={item.image}
-                      alt={item.title}
-                      className="BookDetails-related-image"
-                      fallback={
-                        <CoverArt
-                          title={item.title}
-                          author={item.author}
-                          category={item.category}
-                        />
-                      }
-                    />
-                  </span>
-                  <span className="BookDetails-related-overlay">
-                    View Book <span>&nearr;</span>
-                  </span>
-                </button>
+          <div className="BookDetails-tab-content">
+            {activeTab === "specs" && (
+              <div className="BookDetails-specs-panel">
+                <div className="BookDetails-panel-header">
+                  <h3 className="BookDetails-panel-title">Book Specifications & Attributes</h3>
+                  <p className="BookDetails-panel-subtitle">
+                    Complete catalog details for edition authentication and reference.
+                  </p>
+                </div>
 
-                <div className="BookDetails-related-info">
-                  <span className="BookDetails-related-category">
-                    {item.category}
-                  </span>
-                  <h3>{item.title}</h3>
-                  <div className="BookDetails-related-bottom">
-                    <span>&#8377;{item.price.toLocaleString("en-IN")}</span>
-                    <button
-                      type="button"
-                      onClick={() => openRelatedBook(item)}
-                      aria-label={`Explore ${item.title}`}
-                    >
-                      &rarr;
-                    </button>
+                <div className="BookDetails-specs-grid">
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Book Title</span>
+                    <strong className="BookDetails-spec-value">{book.title}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Author</span>
+                    <strong className="BookDetails-spec-value">{book.author}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Category / Genre</span>
+                    <strong className="BookDetails-spec-value">{book.category}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Publisher</span>
+                    <strong className="BookDetails-spec-value">{book.publisher}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Binding / Format</span>
+                    <strong className="BookDetails-spec-value">{book.format}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Language</span>
+                    <strong className="BookDetails-spec-value">{book.language}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Page Count</span>
+                    <strong className="BookDetails-spec-value">{book.pages} Pages</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Publication Year</span>
+                    <strong className="BookDetails-spec-value">{book.year}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">ISBN Identifier</span>
+                    <strong className="BookDetails-spec-value">{book.isbn}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Catalog SKU</span>
+                    <strong className="BookDetails-spec-value">{book.sku}</strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Stock Availability</span>
+                    <strong className="BookDetails-spec-value">
+                      {book.stock ? (
+                        <span className="BookDetails-spec-stock in-stock">
+                          In Stock ({book.stockCount} units available)
+                        </span>
+                      ) : (
+                        <span className="BookDetails-spec-stock out-stock">
+                          Out of Stock
+                        </span>
+                      )}
+                    </strong>
+                  </div>
+                  <div className="BookDetails-spec-card">
+                    <span className="BookDetails-spec-key">Country of Origin</span>
+                    <strong className="BookDetails-spec-value">India</strong>
                   </div>
                 </div>
-              </article>
-            ))}
+              </div>
+            )}
+
+            {activeTab === "description" && (
+              <div className="BookDetails-overview-panel">
+                <div className="BookDetails-panel-header">
+                  <h3 className="BookDetails-panel-title">About "{book.title}"</h3>
+                  <p className="BookDetails-panel-subtitle">Written by {book.author}</p>
+                </div>
+
+                <div className="BookDetails-description-full">
+                  <p>{book.description}</p>
+                </div>
+
+                <div className="BookDetails-feature-highlights">
+                  <div className="BookDetails-feature-item">
+                    <span className="BookDetails-feature-icon">&#9733;</span>
+                    <div>
+                      <strong>Compelling Narrative</strong>
+                      <p>Carefully crafted prose that informs, inspires, and engages readers.</p>
+                    </div>
+                  </div>
+                  <div className="BookDetails-feature-item">
+                    <span className="BookDetails-feature-icon">&#10003;</span>
+                    <div>
+                      <strong>Authentic Edition</strong>
+                      <p>Guaranteed authentic print with clear typography and premium binding.</p>
+                    </div>
+                  </div>
+                  <div className="BookDetails-feature-item">
+                    <span className="BookDetails-feature-icon">&#10084;</span>
+                    <div>
+                      <strong>Reader Favourite</strong>
+                      <p>Highly recommended by readers in the {book.category} genre.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "shipping" && (
+              <div className="BookDetails-shipping-panel">
+                <div className="BookDetails-panel-header">
+                  <h3 className="BookDetails-panel-title">Shipping, Delivery & Returns</h3>
+                  <p className="BookDetails-panel-subtitle">Safe doorstep delivery and customer guarantees.</p>
+                </div>
+
+                <div className="BookDetails-policy-grid">
+                  <div className="BookDetails-policy-card">
+                    <h4>Standard Delivery (3-5 Days)</h4>
+                    <p>Free delivery on all orders above &#8377;499. Flat &#8377;49 shipping on smaller orders.</p>
+                  </div>
+                  <div className="BookDetails-policy-card">
+                    <h4>Same-Day / Next-Day Dispatch</h4>
+                    <p>Orders placed before 2 PM are processed and handed over to courier partners within 24 hours.</p>
+                  </div>
+                  <div className="BookDetails-policy-card">
+                    <h4>7 Days Return & Replacement</h4>
+                    <p>Hassle-free return or replacement if the book arrives damaged, defective, or misprinted.</p>
+                  </div>
+                  <div className="BookDetails-policy-card">
+                    <h4>Tamper-Proof Packaging</h4>
+                    <p>Every book is double-wrapped with protective bubble cushioning and waterproof outer bag.</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
+
+      {/* Recommended books */}
+      {relatedBooks.length > 0 && (
+        <section className="BookDetails-related-section">
+          <div className="BookDetails-container">
+            <div className="BookDetails-related-heading">
+              <div>
+                <span className="BookDetails-related-eyebrow">
+                  MORE TO DISCOVER
+                </span>
+                <h2 className="BookDetails-related-title">
+                  You Might Also <em>Like</em>
+                </h2>
+                <p>Curated recommendations from our {book.category} collection.</p>
+              </div>
+
+              <Link className="BookDetails-view-all" to="/shop">
+                View All Books <span>&rarr;</span>
+              </Link>
+            </div>
+
+            <div className="BookDetails-related-grid">
+              {relatedBooks.map((item) => (
+                <article className="BookDetails-related-card" key={item.id}>
+                  <button
+                    type="button"
+                    className="BookDetails-related-image-wrap"
+                    onClick={() => openRelatedBook(item)}
+                    aria-label={`View ${item.title}`}
+                  >
+                    <span className="BookDetails-related-book">
+                      <SmartImage
+                        src={item.image}
+                        alt={item.title}
+                        className="BookDetails-related-image"
+                        fallback={
+                          <CoverArt
+                            title={item.title}
+                            author={item.author}
+                            category={item.category}
+                          />
+                        }
+                      />
+                    </span>
+                    <span className="BookDetails-related-overlay">
+                      View Book <span>&nearr;</span>
+                    </span>
+                  </button>
+
+                  <div className="BookDetails-related-info">
+                    <span className="BookDetails-related-category">
+                      {item.category}
+                    </span>
+                    <h3>{item.title}</h3>
+                    <div className="BookDetails-related-bottom">
+                      <span>&#8377;{Number(item.price).toLocaleString("en-IN")}</span>
+                      <button
+                        type="button"
+                        onClick={() => openRelatedBook(item)}
+                        aria-label={`Explore ${item.title}`}
+                      >
+                        &rarr;
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 };

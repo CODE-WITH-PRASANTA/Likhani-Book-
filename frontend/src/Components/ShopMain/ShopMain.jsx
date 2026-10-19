@@ -18,13 +18,15 @@ import {
   FaChevronRight,
   FaCheck,
   FaBookOpen,
+  FaPlus,
+  FaMinus,
 } from "react-icons/fa";
 
 import {
   SHOP_PATH,
   formatPrice,
 } from "./shopData";
-import { useShopStore, useToast, toggleWishlist, addToCart } from "./useShopStore";
+import { useShopStore, useToast, toggleWishlist, addToCart, decrementCart } from "./useShopStore";
 
 const sortOptions = [
   "Default Sorting",
@@ -34,9 +36,17 @@ const sortOptions = [
   "Price: High To Low",
 ];
 
-const PRICE_MIN = 100;
-const PRICE_MAX = 5000;
+const PRICE_MIN = 0;
+const PRICE_MAX = 10000;
 const ITEMS_PER_PAGE = 8;
+
+export const slugify = (text = "") =>
+  text
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 const handleImageError = (event) => {
   event.currentTarget.style.visibility = "hidden";
@@ -86,18 +96,32 @@ const ShopMain = () => {
 
         const map = new Map();
         rawList.forEach((b) => {
-          if (b && (b.status === "Published" || !b.status)) {
+          if (b && (b.status === "Published" || !b.status || b.status?.toLowerCase() === "published")) {
             const id = String(b._id || b.id);
             if (!map.has(id)) {
+              const numericPrice = Number(b.price) || 0;
+              const numericOffer = Number(b.offerPrice) || 0;
+              const finalPrice =
+                numericOffer > 0 && numericOffer < numericPrice
+                  ? numericOffer
+                  : numericPrice;
+              const oldPrice =
+                numericOffer > 0 && numericPrice > numericOffer ? numericPrice : null;
+              const onSale = Boolean(numericOffer > 0 && numericPrice > numericOffer);
+              const discount =
+                onSale && numericPrice > 0
+                  ? Math.round(((numericPrice - numericOffer) / numericPrice) * 100)
+                  : 0;
+
               map.set(id, {
                 id,
                 sku: b.isbn ? `ISBN-${b.isbn}` : `LKH-${id.slice(-4)}`,
-                title: b.title,
+                title: b.title || "Untitled Book",
                 author: b.author || "Likhani Author",
-                price: b.offerPrice || b.price,
-                oldPrice: b.offerPrice && b.price > b.offerPrice ? b.price : null,
-                category: b.category,
-                hot: b.featured || false,
+                price: finalPrice,
+                oldPrice: oldPrice,
+                category: b.category || "Uncategorized",
+                hot: Boolean(b.featured),
                 image: b.image
                   ? (b.image.startsWith("http") || b.image.startsWith("data:")
                       ? b.image
@@ -108,15 +132,12 @@ const ShopMain = () => {
                       ? b.image
                       : `${BASE_URL}${b.image.startsWith("/") ? "" : "/"}${b.image}`)
                   : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=1000&auto=format&fit=crop&q=80",
-                inStock: b.stock > 0,
-                onSale: Boolean(b.offerPrice && b.price > b.offerPrice),
+                inStock: b.stock === undefined || b.stock === null ? true : Number(b.stock) > 0,
+                onSale: onSale,
                 popularity: 90,
                 latestDate: b.createdAt || new Date().toISOString(),
                 description: b.description || "",
-                discount:
-                  b.offerPrice && b.price > b.offerPrice
-                    ? Math.round(((b.price - b.offerPrice) / b.price) * 100)
-                    : 0,
+                discount: discount,
               });
             }
           }
@@ -220,6 +241,15 @@ const ShopMain = () => {
     showToast(`"${product.title}" added to cart.`);
   };
 
+  const handleIncrement = (product) => {
+    if (!product.inStock) return;
+    addToCart(product.id, 1);
+  };
+
+  const handleDecrement = (product) => {
+    decrementCart(product.id, 1);
+  };
+
   /* ---------- filter helpers ---------- */
 
   const activeFilterCount =
@@ -251,7 +281,8 @@ const ShopMain = () => {
       result = result.filter(
         (p) =>
           p.title?.toLowerCase().includes(search) ||
-          p.category?.toLowerCase().includes(search)
+          p.category?.toLowerCase().includes(search) ||
+          p.author?.toLowerCase().includes(search)
       );
     }
 
@@ -276,20 +307,26 @@ const ShopMain = () => {
     if (onSaleOnly) result = result.filter((p) => p.onSale);
     if (wishlistOnly) result = result.filter((p) => wishlist.includes(p.id));
 
-    result = result.filter((p) => p.price >= priceMin && p.price <= priceMax);
+    if (priceMin > PRICE_MIN || priceMax < PRICE_MAX) {
+      result = result.filter((p) => {
+        const pPrice = Number(p.price);
+        if (isNaN(pPrice)) return true;
+        return pPrice >= priceMin && pPrice <= priceMax;
+      });
+    }
 
     switch (selectedSort) {
       case "Sort By Popularity":
-        result.sort((a, b) => b.popularity - a.popularity);
+        result.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
         break;
       case "Sort By Latest":
-        result.sort((a, b) => new Date(b.latestDate) - new Date(a.latestDate));
+        result.sort((a, b) => new Date(b.latestDate || 0) - new Date(a.latestDate || 0));
         break;
       case "Price: Low To High":
-        result.sort((a, b) => a.price - b.price);
+        result.sort((a, b) => (a.price || 0) - (b.price || 0));
         break;
       case "Price: High To Low":
-        result.sort((a, b) => b.price - a.price);
+        result.sort((a, b) => (b.price || 0) - (a.price || 0));
         break;
       default:
         break;
@@ -297,6 +334,7 @@ const ShopMain = () => {
 
     return result;
   }, [
+    allProducts,
     searchTerm,
     selectedCategory,
     inStockOnly,
@@ -489,6 +527,34 @@ const ShopMain = () => {
               </div>
             </div>
 
+            {/* Quick Access: Wishlist & Cart */}
+            <div className="ShopMain__block">
+              <h3 className="ShopMain__blockTitle">My Wishlist & Cart</h3>
+              <div className="ShopMain__quickBar">
+                <button
+                  type="button"
+                  className={`ShopMain__quickBtn ${wishlistOnly ? "is-active" : ""}`}
+                  onClick={() => setWishlistOnly((prev) => !prev)}
+                  title="Filter books by Wishlist"
+                  aria-pressed={wishlistOnly}
+                >
+                  <span className="ShopMain__quickLabel">
+                    <FaHeart className="ShopMain__quickIcon is-wishlist" />
+                    <span>My Wishlist</span>
+                  </span>
+                  <b className="ShopMain__quickCount">{wishlist.length}</b>
+                </button>
+
+                <Link to="/cart" className="ShopMain__quickLink" title="View Shopping Cart">
+                  <span className="ShopMain__quickLabel">
+                    <FaShoppingBasket className="ShopMain__quickIcon is-cart" />
+                    <span>Shopping Cart</span>
+                  </span>
+                  <b className="ShopMain__quickCount">{cartCount}</b>
+                </Link>
+              </div>
+            </div>
+
             {/* Price */}
             <div className="ShopMain__block">
               <h3 className="ShopMain__blockTitle">Price range</h3>
@@ -566,32 +632,9 @@ const ShopMain = () => {
                 Filters
                 {activeFilterCount > 0 && <b>{activeFilterCount}</b>}
               </button>
-
-              <span className="ShopMain__results">
-                Showing <strong>{rangeStart}–{rangeEnd}</strong> of{" "}
-                <strong>{filteredProducts.length}</strong> books
-              </span>
             </div>
 
             <div className="ShopMain__topControls">
-              <button
-                type="button"
-                className={`ShopMain__chip ${wishlistOnly ? "is-active" : ""}`}
-                onClick={() => setWishlistOnly((prev) => !prev)}
-                aria-pressed={wishlistOnly}
-                title="Show wishlist only"
-              >
-                <FaHeart />
-                <span>Wishlist</span>
-                <b>{wishlist.length}</b>
-              </button>
-
-              <div className="ShopMain__chip ShopMain__chip--static" title="Items in cart">
-                <FaShoppingBasket />
-                <span>Cart</span>
-                <b>{cartCount}</b>
-              </div>
-
               <label className="ShopMain__sort">
                 <span className="ShopMain__srOnly">Sort products</span>
                 <select value={selectedSort} onChange={(e) => setSelectedSort(e.target.value)}>
@@ -649,6 +692,8 @@ const ShopMain = () => {
               currentProducts.map((product) => {
                 const liked = wishlist.includes(product.id);
                 const inCart = cart[product.id] || 0;
+                const bookSlug = slugify(product.title) || product.id;
+                const detailsUrl = `/shop/${bookSlug}`;
 
                 return (
                   <article
@@ -681,18 +726,22 @@ const ShopMain = () => {
                         {liked ? <FaHeart /> : <FaRegHeart />}
                       </button>
 
-                      <div className="ShopMain__cover">
-                        <img
-                          src={product.image}
-                          alt=""
-                          loading="lazy"
-                          onError={handleImageError}
-                        />
-                      </div>
-
-                      <span className="ShopMain__viewHint">
-                        View details <FaArrowRight />
-                      </span>
+                      <Link
+                        to={detailsUrl}
+                        state={{ product, bookId: product.id, slug: bookSlug }}
+                        className="ShopMain__coverLink"
+                        aria-label={`View ${product.title}`}
+                      >
+                        <div className="ShopMain__cover">
+                          <img
+                            src={product.image}
+                            alt={product.title || "Book cover"}
+                            className="ShopMain__coverImg"
+                            loading="lazy"
+                            onError={handleImageError}
+                          />
+                        </div>
+                      </Link>
                     </div>
 
                     {/* Info */}
@@ -701,7 +750,8 @@ const ShopMain = () => {
 
                       <h3 className="ShopMain__title">
                         <Link
-                          to={`${SHOP_PATH}/${product.id}`}
+                          to={detailsUrl}
+                          state={{ product, bookId: product.id, slug: bookSlug }}
                           className="ShopMain__titleLink"
                         >
                           {product.title}
@@ -719,19 +769,52 @@ const ShopMain = () => {
                         )}
                       </div>
 
-                      <button
-                        type="button"
-                        className={`ShopMain__addBtn ${inCart ? "is-added" : ""}`}
-                        onClick={() => handleAddToCart(product)}
-                        disabled={!product.inStock}
-                      >
-                        {inCart ? <FaCheck /> : <FaShoppingBasket />}
-                        {!product.inStock
-                          ? "Out of stock"
-                          : inCart
-                          ? `In cart (${inCart})`
-                          : "Add to cart"}
-                      </button>
+                      {!product.inStock ? (
+                        <button
+                          type="button"
+                          className="ShopMain__addBtn is-disabled"
+                          disabled
+                        >
+                          <FaShoppingBasket />
+                          Out of stock
+                        </button>
+                      ) : inCart > 0 ? (
+                        <div
+                          className="ShopMain__qtyCounter"
+                          role="group"
+                          aria-label={`Quantity counter for ${product.title}`}
+                        >
+                          <button
+                            type="button"
+                            className="ShopMain__qtyBtn ShopMain__qtyBtn--minus"
+                            onClick={() => handleDecrement(product)}
+                            aria-label={`Decrease quantity of ${product.title}`}
+                          >
+                            <FaMinus />
+                          </button>
+                          <span className="ShopMain__qtyNumber" aria-live="polite">
+                            {inCart}
+                          </span>
+                          <button
+                            type="button"
+                            className="ShopMain__qtyBtn ShopMain__qtyBtn--plus"
+                            onClick={() => handleIncrement(product)}
+                            disabled={inCart >= (product.stockCount || 10)}
+                            aria-label={`Increase quantity of ${product.title}`}
+                          >
+                            <FaPlus />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="ShopMain__addBtn"
+                          onClick={() => handleAddToCart(product)}
+                        >
+                          <FaShoppingBasket />
+                          Add to cart
+                        </button>
+                      )}
                     </div>
                   </article>
                 );

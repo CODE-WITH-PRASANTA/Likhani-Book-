@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useShopStore, syncWithCatalog } from "../ShopMain/useShopStore";
 import API, { BASE_URL } from "../../api/axios";
 import defaultBookImg from "../../assets/05.webp";
 import logo from "../../assets/booklogo.webp";
@@ -153,6 +154,8 @@ const GridIcon = ({ size = 18 }) => (
 const Navbar = () => {
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
+  const { wishlist, cartCount } = useShopStore();
+  const wishlistCount = wishlist.length;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -284,6 +287,9 @@ const Navbar = () => {
         if (isMounted) {
           setCategories(finalCategories);
           setAllBooks(dbBooks);
+          if (dbBooks.length > 0) {
+            syncWithCatalog(dbBooks.map((b) => b.id));
+          }
           if (finalCategories.length > 0) {
             setActiveCat(finalCategories[0].slug);
           } else {
@@ -738,7 +744,7 @@ const Navbar = () => {
               aria-label="View Wishlist"
               onClick={() => handleNavClick("/wishlist")}
             >
-              <span className="nav-badge">0</span>
+              <span className="nav-badge">{wishlistCount}</span>
               <svg
                 viewBox="0 0 24 24"
                 width="19"
@@ -759,7 +765,7 @@ const Navbar = () => {
               aria-label="View Shopping Cart"
               onClick={() => handleNavClick("/cart")}
             >
-              <span className="nav-badge">0</span>
+              <span className="nav-badge">{cartCount}</span>
               <svg
                 viewBox="0 0 24 24"
                 width="19"
@@ -861,15 +867,7 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
-              ) : (
-                <Link
-                  to="/signup"
-                  className="nav-btn-signup"
-                  onClick={() => handleNavClick("/signup")}
-                >
-                  Sign Up
-                </Link>
-              )
+              ) : null
             )}
 
             {/* Mobile Hamburger Toggle */}
@@ -1053,7 +1051,7 @@ const Navbar = () => {
                 className="nav-drawer-link"
                 onClick={() => handleNavClick("/wishlist")}
               >
-                <span>Wishlist</span>
+                <span>Wishlist {wishlistCount > 0 ? `(${wishlistCount})` : ""}</span>
                 <span className="drawer-arrow">&rarr;</span>
               </Link>
 
@@ -1062,7 +1060,7 @@ const Navbar = () => {
                 className="nav-drawer-link"
                 onClick={() => handleNavClick("/cart")}
               >
-                <span>Cart</span>
+                <span>Cart {cartCount > 0 ? `(${cartCount})` : ""}</span>
                 <span className="drawer-arrow">&rarr;</span>
               </Link>
 
@@ -1138,11 +1136,11 @@ const Navbar = () => {
                 </div>
               ) : (
                 <Link
-                  to="/signup"
+                  to="/login"
                   className="nav-drawer-signup"
-                  onClick={() => handleNavClick("/signup")}
+                  onClick={() => handleNavClick("/login")}
                 >
-                  Sign Up
+                  Login
                 </Link>
               )}
             </nav>

@@ -682,7 +682,15 @@
   font-weight: 700;
 }
 
-/* Rating row */
+/* Stock row */
+
+.BookDetails-stock-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
 
 .BookDetails-rating {
   display: flex;
@@ -763,6 +771,30 @@
   font-size: 41px;
   font-weight: 700;
   line-height: 1.2;
+}
+
+.BookDetails-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.BookDetails-old-price {
+  color: var(--BookDetails-muted);
+  font-size: 22px;
+  text-decoration: line-through;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.BookDetails-discount-badge {
+  background: #ff5252;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
 }
 
 .BookDetails-tax {
@@ -994,6 +1026,223 @@
 @keyframes BookDetails-notice-in {
   from { opacity: 0; transform: translateY(-7px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   COMPREHENSIVE SPECIFICATIONS & DETAILS TABS
+========================================================= */
+
+.BookDetails-details-section {
+  padding: 48px 0 64px;
+  background: #fbfcfd;
+  border-top: 1px solid var(--BookDetails-border);
+}
+
+.BookDetails-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  border-bottom: 2px solid var(--BookDetails-border);
+  padding-bottom: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.BookDetails-tabs-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.BookDetails-tab-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  color: var(--BookDetails-muted);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.BookDetails-tab-btn:hover {
+  color: var(--BookDetails-navy);
+}
+
+.BookDetails-tab-btn.is-active {
+  color: var(--BookDetails-navy);
+  font-weight: 700;
+}
+
+.BookDetails-tab-btn.is-active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--BookDetails-orange);
+  border-radius: 3px;
+}
+
+.BookDetails-tab-content {
+  background: #fff;
+  border: 1px solid var(--BookDetails-border);
+  border-radius: 18px;
+  padding: 36px 40px;
+  box-shadow: 0 4px 20px rgba(16, 47, 75, 0.04);
+}
+
+.BookDetails-panel-header {
+  margin-bottom: 26px;
+}
+
+.BookDetails-panel-title {
+  color: var(--BookDetails-navy);
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.BookDetails-panel-subtitle {
+  color: var(--BookDetails-muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Specs Grid */
+.BookDetails-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.BookDetails-spec-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.BookDetails-spec-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.BookDetails-spec-key {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--BookDetails-muted);
+}
+
+.BookDetails-spec-value {
+  color: var(--BookDetails-navy);
+  font-size: 15px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.BookDetails-spec-stock.in-stock {
+  color: #0d8a5b;
+}
+
+.BookDetails-spec-stock.out-stock {
+  color: #d93838;
+}
+
+/* Description / Overview */
+.BookDetails-description-full {
+  color: var(--BookDetails-text);
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 32px;
+  max-width: 90ch;
+}
+
+.BookDetails-feature-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--BookDetails-border);
+}
+
+.BookDetails-feature-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.BookDetails-feature-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 91, 18, 0.1);
+  color: var(--BookDetails-orange);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.BookDetails-feature-item strong {
+  display: block;
+  color: var(--BookDetails-navy);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.BookDetails-feature-item p {
+  color: var(--BookDetails-muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Shipping / Policies */
+.BookDetails-policy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.BookDetails-policy-card {
+  padding: 22px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+}
+
+.BookDetails-policy-card h4 {
+  color: var(--BookDetails-navy);
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.BookDetails-policy-card p {
+  color: var(--BookDetails-muted);
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .BookDetails-tab-content {
+    padding: 24px 20px;
+  }
+  .BookDetails-specs-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* =========================================================

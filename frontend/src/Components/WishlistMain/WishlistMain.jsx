@@ -1,4 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { useShopStore, toggleWishlist, addToCart, syncWithCatalog } from "../ShopMain/useShopStore";
+import { fetchAllCatalogBooks } from "../../api/booksService";
+import { slugify } from "../ShopMain/ShopMain";
 import "./WishlistMain.css";
 
 /* =========================================================
@@ -100,183 +104,6 @@ const ArrowRightIcon = (p) => (
   </Icon>
 );
 
-/* =========================================================
-   DATA
-========================================================= */
-
-const initialWishlist = [
-  {
-    id: 1,
-    title: "Atomic Habits",
-    author: "James Clear",
-    image:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=85",
-    price: 350,
-    oldPrice: 599,
-    discount: 42,
-    badge: "Bestseller",
-    badgeType: "orange",
-    stock: true,
-    stockText: "Only 5 left!",
-    low: true,
-  },
-  {
-    id: 2,
-    title: "Ikigai",
-    author: "Héctor García",
-    image:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=500&q=85",
-    price: 299,
-    oldPrice: 499,
-    discount: 40,
-    badge: "New Arrival",
-    badgeType: "blue",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-  {
-    id: 3,
-    title: "The Psychology of Money",
-    author: "Morgan Housel",
-    image:
-      "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=500&q=85",
-    price: 320,
-    oldPrice: 550,
-    discount: 42,
-    badge: "Trending",
-    badgeType: "green",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-  {
-    id: 4,
-    title: "Deep Work",
-    author: "Cal Newport",
-    image:
-      "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=500&q=85",
-    price: 310,
-    oldPrice: 499,
-    discount: 38,
-    badge: "Popular",
-    badgeType: "purple",
-    stock: false,
-    stockText: "Get an alert when it returns",
-  },
-  {
-    id: 5,
-    title: "The Alchemist",
-    author: "Paulo Coelho",
-    image:
-      "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=85",
-    price: 275,
-    oldPrice: 450,
-    discount: 39,
-    badge: "Classic",
-    badgeType: "orange",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-  {
-    id: 6,
-    title: "Rich Dad Poor Dad",
-    author: "Robert Kiyosaki",
-    image:
-      "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&w=500&q=85",
-    price: 299,
-    oldPrice: 499,
-    discount: 40,
-    badge: "Bestseller",
-    badgeType: "orange",
-    stock: true,
-    stockText: "Only 3 left!",
-    low: true,
-  },
-  {
-    id: 7,
-    title: "Think and Grow Rich",
-    author: "Napoleon Hill",
-    image:
-      "https://images.unsplash.com/photo-1511108690759-009324a90311?auto=format&fit=crop&w=500&q=85",
-    price: 249,
-    oldPrice: 399,
-    discount: 38,
-    badge: "Popular",
-    badgeType: "purple",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-  {
-    id: 8,
-    title: "The 7 Habits of Highly Effective People",
-    author: "Stephen R. Covey",
-    image:
-      "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=500&q=85",
-    price: 399,
-    oldPrice: 650,
-    discount: 39,
-    badge: "Editor's Pick",
-    badgeType: "green",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-  {
-    id: 9,
-    title: "Can't Hurt Me",
-    author: "David Goggins",
-    image:
-      "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=500&q=85",
-    price: 349,
-    oldPrice: 599,
-    discount: 42,
-    badge: "Trending",
-    badgeType: "green",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-  {
-    id: 10,
-    title: "Atomic Focus",
-    author: "Chris Bailey",
-    image:
-      "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=500&q=85",
-    price: 289,
-    oldPrice: 449,
-    discount: 36,
-    badge: "New",
-    badgeType: "blue",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-  {
-    id: 11,
-    title: "The Power of Now",
-    author: "Eckhart Tolle",
-    image:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=85",
-    price: 319,
-    oldPrice: 499,
-    discount: 36,
-    badge: "Popular",
-    badgeType: "purple",
-    stock: false,
-    stockText: "Get an alert when it returns",
-  },
-  {
-    id: 12,
-    title: "Do Epic Shit",
-    author: "Ankur Warikoo",
-    image:
-      "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=500&q=85",
-    price: 299,
-    oldPrice: 499,
-    discount: 40,
-    badge: "Indian Bestseller",
-    badgeType: "orange",
-    stock: true,
-    stockText: "Ready to ship",
-  },
-];
-
 const ITEMS_PER_PAGE = 8;
 
 const formatPrice = (price) =>
@@ -284,16 +111,18 @@ const formatPrice = (price) =>
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price || 0);
 
 /* =========================================================
    COMPONENT
 ========================================================= */
 
 const WishlistMain = () => {
-  const [wishlistItems, setWishlistItems] = useState(initialWishlist);
+  const { wishlist, cart } = useShopStore();
+  const [catalogBooks, setCatalogBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [selectedItems, setSelectedItems] = useState([]);
-  const [cartIds, setCartIds] = useState([]);
   const [notifyIds, setNotifyIds] = useState([]);
   const [viewMode, setViewMode] = useState("list");
   const [sortBy, setSortBy] = useState("newest");
@@ -302,6 +131,28 @@ const WishlistMain = () => {
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
   const contentRef = useRef(null);
+
+  /* ---------- fetch catalog books ---------- */
+  useEffect(() => {
+    let active = true;
+    fetchAllCatalogBooks().then((books) => {
+      if (active) {
+        setCatalogBooks(books || []);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  /* ---------- derive wishlist items ---------- */
+  const wishlistItems = useMemo(() => {
+    const bookMap = new Map(catalogBooks.map((b) => [String(b.id), b]));
+    return wishlist
+      .map((id) => bookMap.get(String(id)))
+      .filter(Boolean);
+  }, [catalogBooks, wishlist]);
 
   /* ---------- toast ---------- */
 
@@ -329,7 +180,7 @@ const WishlistMain = () => {
       case "price-high":
         return items.sort((a, b) => b.price - a.price);
       case "discount":
-        return items.sort((a, b) => b.discount - a.discount);
+        return items.sort((a, b) => (b.discount || 0) - (a.discount || 0));
       case "name":
         return items.sort((a, b) => a.title.localeCompare(b.title));
       default:
@@ -377,70 +228,41 @@ const WishlistMain = () => {
   /* ---------- remove ---------- */
 
   const handleRemove = (id) => {
-    const index = wishlistItems.findIndex((item) => item.id === id);
-    const product = wishlistItems[index];
-    if (!product) return;
+    const product = wishlistItems.find((item) => String(item.id) === String(id));
+    toggleWishlist(id);
+    setSelectedItems((prev) => prev.filter((x) => String(x) !== String(id)));
 
-    const wasSelected = selectedItems.includes(id);
-
-    setWishlistItems((prev) => prev.filter((item) => item.id !== id));
-    setSelectedItems((prev) => prev.filter((x) => x !== id));
-
-    showToast(`"${product.title}" removed from wishlist.`, () => {
-      setWishlistItems((prev) => {
-        const copy = [...prev];
-        copy.splice(Math.min(index, copy.length), 0, product);
-        return copy;
-      });
-      if (wasSelected) setSelectedItems((prev) => [...prev, id]);
-    });
+    if (product) {
+      showToast(`"${product.title}" removed from wishlist.`);
+    }
   };
 
   const handleRemoveSelected = () => {
     if (!selectedItems.length) return;
-
-    const previousItems = wishlistItems;
-    const previousSelected = selectedItems;
     const count = selectedItems.length;
-
-    setWishlistItems((prev) => prev.filter((item) => !selectedItems.includes(item.id)));
+    selectedItems.forEach((id) => toggleWishlist(id));
     setSelectedItems([]);
-
-    showToast(
-      `${count} ${count === 1 ? "book" : "books"} removed from wishlist.`,
-      () => {
-        setWishlistItems(previousItems);
-        setSelectedItems(previousSelected);
-      }
-    );
+    showToast(`${count} ${count === 1 ? "book" : "books"} removed from wishlist.`);
   };
 
   /* ---------- cart & notify ---------- */
 
   const handleAddToCart = (product) => {
-    if (cartIds.includes(product.id)) {
-      showToast(`"${product.title}" is already in your cart.`);
-      return;
-    }
-
-    setCartIds((prev) => [...prev, product.id]);
+    addToCart(product.id, 1);
     showToast(`"${product.title}" added to cart.`);
   };
 
   const handleAddSelectedToCart = () => {
     const toAdd = wishlistItems.filter(
-      (item) =>
-        selectedItems.includes(item.id) &&
-        item.stock &&
-        !cartIds.includes(item.id)
+      (item) => selectedItems.includes(item.id) && item.stock
     );
 
     if (!toAdd.length) {
-      showToast("Select in-stock books that are not in your cart yet.");
+      showToast("Select in-stock books to add to cart.");
       return;
     }
 
-    setCartIds((prev) => [...prev, ...toAdd.map((item) => item.id)]);
+    toAdd.forEach((item) => addToCart(item.id, 1));
     showToast(`${toAdd.length} ${toAdd.length === 1 ? "book" : "books"} added to cart.`);
   };
 
@@ -473,9 +295,10 @@ const WishlistMain = () => {
 
   const renderActionButton = (product, variant) => {
     const prefix = variant === "card" ? "WishlistMain__card" : "WishlistMain__";
+    const qtyInCart = cart[product.id] || 0;
+    const inCart = qtyInCart > 0;
 
     if (product.stock) {
-      const inCart = cartIds.includes(product.id);
       return (
         <button
           type="button"
@@ -485,7 +308,7 @@ const WishlistMain = () => {
           onClick={() => handleAddToCart(product)}
         >
           {inCart ? <CheckIcon size={19} /> : <CartIcon size={19} />}
-          {inCart ? "Added to cart" : "Add to cart"}
+          {inCart ? (qtyInCart > 1 ? `In cart (${qtyInCart})` : "In cart") : "Add to cart"}
         </button>
       );
     }
@@ -557,7 +380,15 @@ const WishlistMain = () => {
   return (
     <section className="WishlistMain">
       <div className="WishlistMain__container" ref={contentRef}>
-        {wishlistItems.length > 0 ? (
+        {loading ? (
+          <div className="WishlistMain__empty" style={{ minHeight: "360px" }}>
+            <div className="WishlistMain__emptyIcon" style={{ animation: "pulse 1.5s infinite" }}>
+              <HeartIcon size={44} />
+            </div>
+            <h2>Loading your wishlist...</h2>
+            <p>Please wait a moment while we fetch your saved books.</p>
+          </div>
+        ) : wishlistItems.length > 0 ? (
           <>
             {/* ===================== TOOLBAR ===================== */}
 
@@ -656,16 +487,125 @@ const WishlistMain = () => {
                 </div>
 
                 <div className="WishlistMain__list">
-                  {currentItems.map((product) => (
+                  {currentItems.map((product) => {
+                    const bookSlug = slugify(product.title) || product.id;
+                    const detailsUrl = `/shop/${bookSlug}`;
+
+                    return (
+                      <article
+                        className={`WishlistMain__listItem ${
+                          selectedItems.includes(product.id) ? "is-selected" : ""
+                        }`}
+                        key={product.id}
+                      >
+                        <div className="WishlistMain__product">
+                          <label
+                            className="WishlistMain__checkbox"
+                            aria-label={`Select ${product.title}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedItems.includes(product.id)}
+                              onChange={() => handleSingleSelect(product.id)}
+                            />
+                          </label>
+
+                          <Link to={detailsUrl} className="WishlistMain__imageBox" style={{ textDecoration: "none" }}>
+                            <img src={product.image} alt={product.title} loading="lazy" />
+                          </Link>
+
+                          <div className="WishlistMain__productInfo">
+                            <Link to={detailsUrl} style={{ textDecoration: "none", color: "inherit" }}>
+                              <h3 title={product.title}>{product.title}</h3>
+                            </Link>
+                            <p className="WishlistMain__author">by {product.author}</p>
+
+                            {product.badge && (
+                              <span
+                                className={`WishlistMain__badge WishlistMain__badge--${product.badgeType || "blue"}`}
+                              >
+                                {product.badge}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="WishlistMain__cell WishlistMain__price" data-label="Price">
+                          <strong>{formatPrice(product.price)}</strong>
+                          {product.oldPrice && product.oldPrice > product.price && (
+                            <div>
+                              <del>{formatPrice(product.oldPrice)}</del>
+                              {product.discount > 0 && <span>{product.discount}% off</span>}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="WishlistMain__cell WishlistMain__stock" data-label="Stock status">
+                          <span
+                            className={`WishlistMain__stockBadge ${
+                              product.stock
+                                ? "WishlistMain__stockBadge--available"
+                                : "WishlistMain__stockBadge--out"
+                            }`}
+                          >
+                            <i>
+                              {product.stock ? <CheckIcon size={12} /> : <CloseIcon size={12} />}
+                            </i>
+                            {product.stock ? "In stock" : "Out of stock"}
+                          </span>
+
+                          <small
+                            className={
+                              product.low
+                                ? "is-low"
+                                : product.stock
+                                ? ""
+                                : "WishlistMain__notifyText"
+                            }
+                          >
+                            {product.stockText || (product.stock ? "Ready to ship" : "Currently unavailable")}
+                          </small>
+                        </div>
+
+                        <div className="WishlistMain__actions">
+                          <button
+                            type="button"
+                            className="WishlistMain__delete"
+                            onClick={() => handleRemove(product.id)}
+                            aria-label={`Delete ${product.title} from wishlist`}
+                            title="Delete"
+                          >
+                            <TrashIcon size={21} />
+                            <span>Delete</span>
+                          </button>
+
+                          {renderActionButton(product, "list")}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ===================== GRID VIEW ===================== */}
+
+            {viewMode === "grid" && (
+              <div className="WishlistMain__grid">
+                {currentItems.map((product) => {
+                  const bookSlug = slugify(product.title) || product.id;
+                  const detailsUrl = `/shop/${bookSlug}`;
+
+                  return (
                     <article
-                      className={`WishlistMain__listItem ${
+                      className={`WishlistMain__card ${
                         selectedItems.includes(product.id) ? "is-selected" : ""
                       }`}
                       key={product.id}
                     >
-                      <div className="WishlistMain__product">
+                      <div className="WishlistMain__cardImage">
                         <label
-                          className="WishlistMain__checkbox"
+                          className="WishlistMain__cardCheckbox"
                           aria-label={`Select ${product.title}`}
                         >
                           <input
@@ -675,148 +615,65 @@ const WishlistMain = () => {
                           />
                         </label>
 
-                        <div className="WishlistMain__imageBox">
-                          <img src={product.image} alt={product.title} loading="lazy" />
-                        </div>
-
-                        <div className="WishlistMain__productInfo">
-                          <h3 title={product.title}>{product.title}</h3>
-                          <p className="WishlistMain__author">by {product.author}</p>
-
-                          <span
-                            className={`WishlistMain__badge WishlistMain__badge--${product.badgeType}`}
-                          >
-                            {product.badge}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="WishlistMain__cell WishlistMain__price" data-label="Price">
-                        <strong>{formatPrice(product.price)}</strong>
-                        <div>
-                          <del>{formatPrice(product.oldPrice)}</del>
-                          <span>{product.discount}% off</span>
-                        </div>
-                      </div>
-
-                      <div className="WishlistMain__cell WishlistMain__stock" data-label="Stock status">
-                        <span
-                          className={`WishlistMain__stockBadge ${
-                            product.stock
-                              ? "WishlistMain__stockBadge--available"
-                              : "WishlistMain__stockBadge--out"
-                          }`}
-                        >
-                          <i>
-                            {product.stock ? <CheckIcon size={12} /> : <CloseIcon size={12} />}
-                          </i>
-                          {product.stock ? "In stock" : "Out of stock"}
-                        </span>
-
-                        <small
-                          className={
-                            product.low
-                              ? "is-low"
-                              : product.stock
-                              ? ""
-                              : "WishlistMain__notifyText"
-                          }
-                        >
-                          {product.stockText}
-                        </small>
-                      </div>
-
-                      <div className="WishlistMain__actions">
                         <button
                           type="button"
-                          className="WishlistMain__delete"
+                          className="WishlistMain__cardRemove"
                           onClick={() => handleRemove(product.id)}
                           aria-label={`Delete ${product.title} from wishlist`}
                           title="Delete"
                         >
-                          <TrashIcon size={21} />
-                          <span>Delete</span>
+                          <TrashIcon size={19} />
                         </button>
 
-                        {renderActionButton(product, "list")}
+                        <Link to={detailsUrl} style={{ display: "block", width: "100%", height: "100%" }}>
+                          <img src={product.image} alt={product.title} loading="lazy" />
+                        </Link>
+
+                        {product.badge && (
+                          <span
+                            className={`WishlistMain__cardBadge WishlistMain__cardBadge--${product.badgeType || "blue"}`}
+                          >
+                            {product.badge}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="WishlistMain__cardContent">
+                        <Link to={detailsUrl} style={{ textDecoration: "none", color: "inherit" }}>
+                          <h3 title={product.title}>{product.title}</h3>
+                        </Link>
+                        <p className="WishlistMain__cardAuthor">by {product.author}</p>
+
+                        <div className="WishlistMain__cardPrice">
+                          <strong>{formatPrice(product.price)}</strong>
+                          {product.oldPrice && product.oldPrice > product.price && (
+                            <>
+                              <del>{formatPrice(product.oldPrice)}</del>
+                              {product.discount > 0 && <span>{product.discount}% off</span>}
+                            </>
+                          )}
+                        </div>
+
+                        <div
+                          className={`WishlistMain__cardStock ${
+                            product.stock
+                              ? product.low
+                                ? "WishlistMain__cardStock--low"
+                                : "WishlistMain__cardStock--available"
+                              : "WishlistMain__cardStock--out"
+                          }`}
+                        >
+                          <i>
+                            {product.stock ? <CheckIcon size={13} /> : <CloseIcon size={13} />}
+                          </i>
+                          {product.stock ? (product.stockText || "Ready to ship") : "Currently unavailable"}
+                        </div>
+
+                        {renderActionButton(product, "card")}
                       </div>
                     </article>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ===================== GRID VIEW ===================== */}
-
-            {viewMode === "grid" && (
-              <div className="WishlistMain__grid">
-                {currentItems.map((product) => (
-                  <article
-                    className={`WishlistMain__card ${
-                      selectedItems.includes(product.id) ? "is-selected" : ""
-                    }`}
-                    key={product.id}
-                  >
-                    <div className="WishlistMain__cardImage">
-                      <label
-                        className="WishlistMain__cardCheckbox"
-                        aria-label={`Select ${product.title}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedItems.includes(product.id)}
-                          onChange={() => handleSingleSelect(product.id)}
-                        />
-                      </label>
-
-                      <button
-                        type="button"
-                        className="WishlistMain__cardRemove"
-                        onClick={() => handleRemove(product.id)}
-                        aria-label={`Delete ${product.title} from wishlist`}
-                        title="Delete"
-                      >
-                        <TrashIcon size={19} />
-                      </button>
-
-                      <img src={product.image} alt={product.title} loading="lazy" />
-
-                      <span
-                        className={`WishlistMain__cardBadge WishlistMain__cardBadge--${product.badgeType}`}
-                      >
-                        {product.badge}
-                      </span>
-                    </div>
-
-                    <div className="WishlistMain__cardContent">
-                      <h3 title={product.title}>{product.title}</h3>
-                      <p className="WishlistMain__cardAuthor">by {product.author}</p>
-
-                      <div className="WishlistMain__cardPrice">
-                        <strong>{formatPrice(product.price)}</strong>
-                        <del>{formatPrice(product.oldPrice)}</del>
-                        <span>{product.discount}% off</span>
-                      </div>
-
-                      <div
-                        className={`WishlistMain__cardStock ${
-                          product.stock
-                            ? product.low
-                              ? "WishlistMain__cardStock--low"
-                              : "WishlistMain__cardStock--available"
-                            : "WishlistMain__cardStock--out"
-                        }`}
-                      >
-                        <i>
-                          {product.stock ? <CheckIcon size={13} /> : <CloseIcon size={13} />}
-                        </i>
-                        {product.stock ? product.stockText : "Currently unavailable"}
-                      </div>
-
-                      {renderActionButton(product, "card")}
-                    </div>
-                  </article>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -845,16 +702,14 @@ const WishlistMain = () => {
               the heart on any book to keep it here.
             </p>
 
-            <button
-              type="button"
+            <Link
+              to="/shop"
               className="WishlistMain__shopButton"
-              onClick={() => {
-                window.location.href = "/shop";
-              }}
+              style={{ textDecoration: "none" }}
             >
               Explore books
               <ArrowRightIcon size={20} />
-            </button>
+            </Link>
           </div>
         )}
       </div>
