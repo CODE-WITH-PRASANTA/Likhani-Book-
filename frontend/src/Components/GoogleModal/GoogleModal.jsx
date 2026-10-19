@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiX, FiCheck, FiArrowRight } from "react-icons/fi";
-import { authenticateWithGoogle } from "../../utils/googleAuth";
+import { authenticateWithGoogle, getGoogleClientId } from "../../utils/googleAuth";
 import "./GoogleModal.css";
 
 const GoogleModal = ({ isOpen, onClose, onSuccess }) => {
@@ -83,6 +83,23 @@ const GoogleModal = ({ isOpen, onClose, onSuccess }) => {
         <p className="GoogleModal__sub">
           Continue to <strong>Lekhani Book</strong>
         </p>
+
+        {!getGoogleClientId() && (
+          <div
+            style={{
+              padding: "8px 12px",
+              marginBottom: "14px",
+              borderRadius: "6px",
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              color: "#1e40af",
+              fontSize: "11.5px",
+              lineHeight: 1.45,
+            }}
+          >
+            <strong>Note:</strong> Set <code>VITE_GOOGLE_CLIENT_ID</code> in <code>frontend/.env</code> to enable live Google popup. In the meantime, you can test one-click sign in below:
+          </div>
+        )}
 
         {errorMsg && <div className="GoogleModal__error">{errorMsg}</div>}
 

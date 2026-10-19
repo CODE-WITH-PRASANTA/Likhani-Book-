@@ -60,6 +60,10 @@ const BookPosting = () => {
     stock: "",
     status: true,
     featured: false,
+    publisher: "",
+    pages: "",
+    language: "English",
+    year: new Date().getFullYear(),
     description: "",
   };
 
@@ -170,10 +174,10 @@ const BookPosting = () => {
   const getDiscountPercent = (book) =>
     hasOffer(book)
       ? Math.round(
-          ((Number(book.price) - Number(book.offerPrice)) /
-            Number(book.price)) *
-            100
-        )
+        ((Number(book.price) - Number(book.offerPrice)) /
+          Number(book.price)) *
+        100
+      )
       : 0;
 
   const getFinalPrice = (book) =>
@@ -329,6 +333,10 @@ const BookPosting = () => {
         stock: Number(formData.stock),
         status: formData.status ? "Published" : "Draft",
         featured: formData.featured,
+        publisher: formData.publisher ? formData.publisher.trim() : "",
+        pages: formData.pages !== "" ? Number(formData.pages) : 0,
+        language: formData.language ? formData.language.trim() : "English",
+        year: formData.year !== "" ? Number(formData.year) : new Date().getFullYear(),
         description: formData.description,
         image: selectedImages[0]?.preview || "",
         images: selectedImages.map((item) => item.preview),
@@ -367,6 +375,10 @@ const BookPosting = () => {
       stock: book.stock !== undefined ? book.stock : "",
       status: book.status === true || book.status === "Published",
       featured: book.featured || false,
+      publisher: book.publisher || "",
+      pages: book.pages !== undefined && book.pages !== null ? book.pages : "",
+      language: book.language || "English",
+      year: book.year !== undefined && book.year !== null ? book.year : new Date().getFullYear(),
       description: book.description || "",
     });
 
@@ -685,6 +697,10 @@ const BookPosting = () => {
       "Stock Available",
       "Status",
       "Featured",
+      "Publisher",
+      "Pages",
+      "Language",
+      "Year",
     ];
 
     const rows = books.map((book) => [
@@ -697,6 +713,10 @@ const BookPosting = () => {
       book.stock,
       book.status ? "Published" : "Unpublished",
       book.featured ? "Yes" : "No",
+      book.publisher || "",
+      book.pages || 0,
+      book.language || "English",
+      book.year || "",
     ]);
 
     const csv = [headers, ...rows]
@@ -859,13 +879,12 @@ const BookPosting = () => {
               </div>
 
               <small
-                className={`BookPosting-hint ${
-                  offerPreview
+                className={`BookPosting-hint ${offerPreview
                     ? offerPreview.valid
                       ? "BookPosting-hintSuccess"
                       : "BookPosting-hintError"
                     : ""
-                }`}
+                  }`}
               >
                 {offerPreview
                   ? offerPreview.text
@@ -930,6 +949,58 @@ const BookPosting = () => {
                   <option value="yes">Yes</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* ROW 3 - PUBLISHER, PAGES, LANGUAGE, YEAR */}
+          <div className="BookPosting-formGrid">
+            <div className="BookPosting-field">
+              <label>Publisher</label>
+
+              <input
+                type="text"
+                name="publisher"
+                value={formData.publisher}
+                onChange={handleInputChange}
+                placeholder="Publisher"
+              />
+            </div>
+
+            <div className="BookPosting-field">
+              <label>Pages</label>
+
+              <input
+                type="number"
+                min="0"
+                name="pages"
+                value={formData.pages}
+                onChange={handleInputChange}
+                placeholder="0"
+              />
+            </div>
+
+            <div className="BookPosting-field">
+              <label>Language</label>
+
+              <input
+                type="text"
+                name="language"
+                value={formData.language}
+                onChange={handleInputChange}
+                placeholder="English"
+              />
+            </div>
+
+            <div className="BookPosting-field">
+              <label>Year</label>
+
+              <input
+                type="number"
+                name="year"
+                value={formData.year}
+                onChange={handleInputChange}
+                placeholder={new Date().getFullYear().toString()}
+              />
             </div>
           </div>
 
@@ -1206,12 +1277,11 @@ const BookPosting = () => {
 
                     <td>
                       <span
-                        className={`BookPosting-categoryBadge ${
-                          book.category === "Odia Literature" ||
-                          book.category === "Hindi Literature"
+                        className={`BookPosting-categoryBadge ${book.category === "Odia Literature" ||
+                            book.category === "Hindi Literature"
                             ? "BookPosting-categoryRegional"
                             : ""
-                        }`}
+                          }`}
                       >
                         {book.category}
                       </span>
@@ -1234,28 +1304,26 @@ const BookPosting = () => {
 
                     <td>
                       <span
-                        className={`BookPosting-stock ${
-                          book.stock === 0
+                        className={`BookPosting-stock ${book.stock === 0
                             ? "BookPosting-outStock"
                             : book.stock <= 5
-                            ? "BookPosting-lowStock"
-                            : ""
-                        }`}
+                              ? "BookPosting-lowStock"
+                              : ""
+                          }`}
                       >
                         {book.stock === 0
                           ? "Out of stock"
                           : book.stock <= 5
-                          ? `${book.stock} left`
-                          : book.stock}
+                            ? `${book.stock} left`
+                            : book.stock}
                       </span>
                     </td>
 
                     <td>
                       <button
                         type="button"
-                        className={`BookPosting-toggle ${
-                          book.status ? "BookPosting-toggleActive" : ""
-                        }`}
+                        className={`BookPosting-toggle ${book.status ? "BookPosting-toggleActive" : ""
+                          }`}
                         onClick={() => toggleStatus(book.id)}
                         aria-label="Toggle status"
                       >
@@ -1266,9 +1334,8 @@ const BookPosting = () => {
                     <td>
                       <button
                         type="button"
-                        className={`BookPosting-toggle ${
-                          book.featured ? "BookPosting-toggleFeatured" : ""
-                        }`}
+                        className={`BookPosting-toggle ${book.featured ? "BookPosting-toggleFeatured" : ""
+                          }`}
                         onClick={() => toggleFeatured(book.id)}
                         aria-label="Toggle featured"
                       >
@@ -1456,6 +1523,26 @@ const BookPosting = () => {
                   <div>
                     <span>Featured</span>
                     <strong>{modal.book.featured ? "Yes" : "No"}</strong>
+                  </div>
+
+                  <div>
+                    <span>Publisher</span>
+                    <strong>{modal.book.publisher || "N/A"}</strong>
+                  </div>
+
+                  <div>
+                    <span>Pages</span>
+                    <strong>{modal.book.pages || 0}</strong>
+                  </div>
+
+                  <div>
+                    <span>Language</span>
+                    <strong>{modal.book.language || "English"}</strong>
+                  </div>
+
+                  <div>
+                    <span>Year</span>
+                    <strong>{modal.book.year || "N/A"}</strong>
                   </div>
                 </div>
 
@@ -1649,9 +1736,8 @@ const BookPosting = () => {
       {/* TOAST */}
       {toast.show && (
         <div
-          className={`BookPosting-toast ${
-            toast.type === "error" ? "BookPosting-toastError" : ""
-          }`}
+          className={`BookPosting-toast ${toast.type === "error" ? "BookPosting-toastError" : ""
+            }`}
           role="status"
         >
           <div className="BookPosting-toastIcon">

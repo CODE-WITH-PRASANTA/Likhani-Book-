@@ -508,6 +508,39 @@ exports.toggleCouponStatus = async (req, res) => {
 };
 
 // =========================================================
+// GET ACTIVE PUBLIC COUPONS FOR CART / SHOP
+// =========================================================
+exports.getActiveCoupons = async (req, res) => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const coupons = await Coupon.find({
+      status: { $ne: "Disabled" },
+      startDate: { $lte: today },
+      endDate: { $gte: today },
+    })
+      .sort({ discountPercent: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      count: coupons.length,
+      data: coupons.map((c) => ({
+        id: c._id.toString(),
+        code: c.code,
+        title: c.title,
+        description: c.description,
+        discountPercent: c.discountPercent,
+        minimumPurchase: c.minimumPurchase,
+        endDate: c.endDate,
+      })),
+    });
+  } catch (error) {
+    console.error("GET ACTIVE COUPONS ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// =========================================================
 // VALIDATE COUPON FOR CART / CHECKOUT
 // =========================================================
 exports.validateCouponForCart = async (req, res) => {
@@ -515,31 +548,35 @@ exports.validateCouponForCart = async (req, res) => {
     const { code, cartTotal = 0 } = req.body;
 
     if (!code || typeof code !== "string" || !code.trim()) {
-      return res.status(400).json({ success: false, message: "Please provide a coupon code" });
+      return res.status(400).json({ success: false, message: "Please enter a coupon code." });
     }
 
-    const coupon = await Coupon.findOne({ code: code.trim().toUpperCase() });
+    const cleanCode = code.trim().toUpperCase();
+    const coupon = await Coupon.findOne({ code: cleanCode });
     if (!coupon) {
-      return res.status(404).json({ success: false, message: "Invalid coupon code" });
+      return res.status(404).json({ success: false, message: `Coupon "${cleanCode}" is invalid.` });
     }
 
     // Check status
     if (coupon.status === "Disabled") {
-      return res.status(400).json({ success: false, message: "This coupon is currently disabled" });
+      return res.status(400).json({ success: false, message: "This coupon is currently disabled." });
     }
 
     const today = new Date().toISOString().split("T")[0];
-    if (coupon.startDate > today) {
+
+    // Check start date / scheduled
+    if (coupon.status === "Scheduled" || coupon.startDate > today) {
       return res.status(400).json({
         success: false,
-        message: `This coupon is not active yet. Valid from ${coupon.startDate}`,
+        message: `This coupon is not active yet. Valid from ${coupon.startDate}.`,
       });
     }
 
-    if (coupon.endDate < today) {
+    // Check deadline / expiry
+    if (coupon.status === "Expired" || coupon.endDate < today) {
       return res.status(400).json({
         success: false,
-        message: `This coupon expired on ${coupon.endDate}`,
+        message: `This coupon expired on ${coupon.endDate}. Deadline has passed.`,
       });
     }
 
@@ -548,17 +585,24 @@ exports.validateCouponForCart = async (req, res) => {
       if (coupon.used >= coupon.usageLimit) {
         return res.status(400).json({
           success: false,
-          message: "This coupon has reached its maximum usage limit",
+          message: "This coupon has reached its maximum usage limit.",
         });
       }
     }
 
     // Check minimum purchase
-    const total = Number(cartTotal) || 0;
+    const total = Math.max(Number(cartTotal) || 0, 0);
+    if (total === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Your cart has no selected items. Please select items first.",
+      });
+    }
+
     if (total < coupon.minimumPurchase) {
       return res.status(400).json({
         success: false,
-        message: `Minimum purchase of ₹${coupon.minimumPurchase} required for this coupon`,
+        message: `Minimum order of ₹${coupon.minimumPurchase} required for this coupon (add ₹${coupon.minimumPurchase - total} more).`,
       });
     }
 
@@ -568,13 +612,16 @@ exports.validateCouponForCart = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: `Coupon applied: ${coupon.discountPercent}% off`,
+      message: `Coupon "${coupon.code}" applied! You saved ₹${discountAmount.toLocaleString("en-IN")} (${coupon.discountPercent}% off).`,
       data: {
         code: coupon.code,
+        title: coupon.title,
+        description: coupon.description,
         discountPercent: coupon.discountPercent,
         discountAmount,
         finalAmount,
         minimumPurchase: coupon.minimumPurchase,
+        endDate: coupon.endDate,
       },
     });
   } catch (error) {

@@ -30,77 +30,6 @@ const slugify = (text) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-/* Inline icons (stroke based, inherit currentColor) */
-const iconPaths = {
-  fiction: (
-    <>
-      <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
-      <path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
-    </>
-  ),
-  "non-fiction": (
-    <>
-      <path d="M9 18h6" />
-      <path d="M10 22h4" />
-      <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2.3h6c0-1.1.4-1.8 1-2.3A7 7 0 0 0 12 2z" />
-    </>
-  ),
-  "childrens-books": (
-    <>
-      <circle cx="12" cy="12" r="10" />
-      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-      <path d="M9 9h.01M15 9h.01" />
-    </>
-  ),
-  academic: (
-    <>
-      <path d="M22 10 12 5 2 10l10 5 10-5z" />
-      <path d="M6 12v5c3 2 9 2 12 0v-5" />
-    </>
-  ),
-  comics: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" />,
-  bestsellers: (
-    <>
-      <path d="m22 7-8.5 8.5-5-5L2 17" />
-      <path d="M16 7h6v6" />
-    </>
-  ),
-  stationery: (
-    <>
-      <path d="M12 20h9" />
-      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-    </>
-  ),
-  blogs: (
-    <>
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <path d="M14 2v6h6" />
-      <path d="M8 13h8M8 17h6" />
-    </>
-  ),
-};
-
-const CategoryIcon = ({ name, size = 19 }) => (
-  <svg
-    viewBox="0 0 24 24"
-    width={size}
-    height={size}
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.7"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    {iconPaths[name] || (
-      <>
-        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
-        <path d="M6 6h10M6 10h10" />
-      </>
-    )}
-  </svg>
-);
-
 const Chevron = ({ size = 14, className = "" }) => (
   <svg
     className={className}
@@ -542,11 +471,7 @@ const Navbar = () => {
                   onFocus={() => setActiveCat(cat.slug)}
                   onClick={() => handleNavClick(catTarget(cat))}
                 >
-                  <span className="cat-ico">
-                    <CategoryIcon name={cat.slug} />
-                  </span>
                   <span className="cat-label">{cat.label}</span>
-                  {cat.tag && <em className="cat-tag">{cat.tag}</em>}
                   <Chevron className="cat-chevron" />
                 </Link>
               </li>
@@ -827,6 +752,29 @@ const Navbar = () => {
                         <span>Profile</span>
                       </Link>
                       <Link
+                        to="/addresses"
+                        className="nav-user-item"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span>My Addresses</span>
+                      </Link>
+                      <Link
+                        to="/orders"
+                        className="nav-user-item"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                          <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                          <line x1="12" y1="22.08" x2="12" y2="12" />
+                        </svg>
+                        <span>My Orders</span>
+                      </Link>
+                      <Link
                         to="/wishlist"
                         className="nav-user-item"
                         onClick={() => setIsUserMenuOpen(false)}
@@ -948,7 +896,6 @@ const Navbar = () => {
                             onClick={() => handleNavClick(cat.to)}
                           >
                             <span className="drawer-cat-row-label">
-                              <CategoryIcon name={cat.slug} size={17} />
                               {cat.label}
                             </span>
                           </Link>
@@ -992,7 +939,6 @@ const Navbar = () => {
                             }
                           >
                             <span className="drawer-cat-row-label">
-                              <CategoryIcon name={cat.slug} size={17} />
                               {cat.label}
                             </span>
                             <Chevron size={14} className="drawer-cat-caret" />
@@ -1109,6 +1055,30 @@ const Navbar = () => {
                     }}
                   >
                     <span>Profile</span>
+                    <span className="drawer-arrow">&rarr;</span>
+                  </Link>
+                  <Link
+                    to="/addresses"
+                    className="nav-drawer-link"
+                    style={{ padding: "8px 0", color: "#17547b", fontWeight: 600 }}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleNavClick("/addresses");
+                    }}
+                  >
+                    <span>My Addresses</span>
+                    <span className="drawer-arrow">&rarr;</span>
+                  </Link>
+                  <Link
+                    to="/orders"
+                    className="nav-drawer-link"
+                    style={{ padding: "8px 0", color: "#17547b", fontWeight: 600 }}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleNavClick("/orders");
+                    }}
+                  >
+                    <span>My Orders</span>
                     <span className="drawer-arrow">&rarr;</span>
                   </Link>
                   <button

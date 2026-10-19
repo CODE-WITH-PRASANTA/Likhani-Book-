@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './CartPage.css';
 
 // React Icons
@@ -36,6 +38,8 @@ const initialCart = [
 ];
 
 const CartPage = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState(initialCart);
   const [coupon, setCoupon] = useState('');
 
@@ -67,6 +71,18 @@ const CartPage = () => {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
+
+  const handleProceedToCheckout = () => {
+    if (!cartItems.length) {
+      alert("Your cart is empty.");
+      return;
+    }
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/cart-page' } });
+      return;
+    }
+    alert(`Proceeding to checkout. Total: $${subtotal.toFixed(2)}`);
+  };
 
   return (
     <div className="CartPage">
@@ -162,13 +178,6 @@ const CartPage = () => {
               </span>
             </div>
 
-            <div className="CartPage-summary-row">
-              <span>Shipping:</span>
-              <span className="CartPage-summary-value CartPage-free-text">
-                Free
-              </span>
-            </div>
-
             <div className="CartPage-summary-row CartPage-total-row">
               <span>Total:</span>
               <span className="CartPage-total-value">
@@ -176,7 +185,10 @@ const CartPage = () => {
               </span>
             </div>
 
-            <button className="CartPage-btn CartPage-btn-slide CartPage-checkout-btn">
+            <button
+              className="CartPage-btn CartPage-btn-slide CartPage-checkout-btn"
+              onClick={handleProceedToCheckout}
+            >
               <span>Proceed To Checkout</span>
             </button>
           </div>

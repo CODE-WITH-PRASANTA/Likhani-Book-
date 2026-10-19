@@ -49,10 +49,10 @@ const Footer = () => {
   };
 
   const customerLinks = [
-    { label: "Store List", href: "#store-list" },
-    { label: "Opening Hours", href: "#opening-hours" },
-    { label: "Contact Us", href: "#contact-us" },
-    { label: "Return Policy", href: "/return-policy" },
+    { label: "My Orders", href: "/orders" },
+    { label: "Manage Addresses", href: "/addresses" },
+    { label: "Contact Us", href: "/contact" },
+    { label: "Return Policy", href: "/refund-policy" },
     { label: "Terms & Conditions", href: "/terms-and-conditions" },
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Refund Policy", href: "/refund-policy" },

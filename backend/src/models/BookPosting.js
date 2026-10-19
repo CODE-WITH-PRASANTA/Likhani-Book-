@@ -47,6 +47,27 @@ const bookPostingSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    publisher: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: [150, "Publisher cannot exceed 150 characters"],
+    },
+    pages: {
+      type: Number,
+      min: [0, "Pages cannot be negative"],
+      default: 0,
+    },
+    language: {
+      type: String,
+      trim: true,
+      default: "English",
+      maxlength: [100, "Language cannot exceed 100 characters"],
+    },
+    year: {
+      type: Number,
+      default: () => new Date().getFullYear(),
+    },
     description: {
       type: String,
       default: "",
@@ -66,7 +87,10 @@ const bookPostingSchema = new mongoose.Schema(
 );
 
 // Search index on title and author
-bookPostingSchema.index({ title: "text", author: "text" });
+bookPostingSchema.index(
+  { title: "text", author: "text" },
+  { language_override: "none", default_language: "none" }
+);
 bookPostingSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("BookPosting", bookPostingSchema);

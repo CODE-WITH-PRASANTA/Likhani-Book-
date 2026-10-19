@@ -29,6 +29,8 @@ import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import TermAndCondition from "./Components/TermAndCondition/TermAndCondition";
 import BookDetails from "./Components/BookDetails/BookDetails";
 import Profile from "./Pages/Profile/Profile";
+import Addresses from "./Pages/Addresses/Addresses";
+import Orders from "./Pages/Orders/Orders";
 
 import { AuthProvider } from "./context/AuthContext";
 
@@ -116,6 +118,36 @@ const App = () => {
         <Route
           path="/profile"
           element={<Profile/>}
+        />
+        <Route
+          path="/personal-information"
+          element={<Profile/>}
+        />
+        <Route
+          path="/account"
+          element={<Profile/>}
+        />
+
+        <Route
+          path="/addresses"
+          element={<Addresses/>}
+        />
+
+        <Route
+          path="/orders"
+          element={<Orders/>}
+        />
+        <Route
+          path="/orders/:orderId"
+          element={<Orders/>}
+        />
+        <Route
+          path="/my-orders"
+          element={<Orders/>}
+        />
+        <Route
+          path="/my-orders/:orderId"
+          element={<Orders/>}
         />
 
         <Route

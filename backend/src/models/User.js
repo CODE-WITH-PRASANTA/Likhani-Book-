@@ -2,6 +2,67 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const addressSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: [true, "Phone is required"],
+      trim: true,
+    },
+    pincode: {
+      type: String,
+      required: [true, "Pincode is required"],
+      trim: true,
+    },
+    locality: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    street: {
+      type: String,
+      required: [true, "Address is required"],
+      trim: true,
+    },
+    city: {
+      type: String,
+      required: [true, "City is required"],
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: [true, "State is required"],
+      trim: true,
+      default: "Odisha",
+    },
+    landmark: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    alternatePhone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    addressType: {
+      type: String,
+      enum: ["Home", "Work"],
+      default: "Home",
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
+
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -36,6 +97,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", ""],
+      default: "",
+    },
     password: {
       type: String,
       select: false, // Hidden by default from queries
@@ -59,6 +125,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: "",
     },
+    addresses: [addressSchema],
     orders: {
       type: Number,
       default: 0,

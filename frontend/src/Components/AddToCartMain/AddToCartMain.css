@@ -86,6 +86,164 @@
 }
 
 /* =========================================================
+   FLIPKART-STYLE DELIVERY ADDRESS BAR IN CART
+========================================================= */
+
+.AddToCartMain__deliveryBar {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 20px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.AddToCartMain__deliveryBar:hover {
+  border-color: #bcd4e6;
+}
+
+.AddToCartMain__deliveryBarLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+}
+
+.AddToCartMain__deliveryPinIcon {
+  color: #12598f;
+  margin-top: 2px;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.AddToCartMain__deliveryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.AddToCartMain__deliveryTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.AddToCartMain__deliveryTo {
+  font-size: 13.5px;
+  color: #555555;
+}
+
+.AddToCartMain__deliveryName {
+  font-size: 14px;
+  color: #212121;
+  font-weight: 700;
+}
+
+.AddToCartMain__deliveryBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.AddToCartMain__deliveryBadge--home {
+  background: #f0f0f0;
+  color: #555555;
+}
+
+.AddToCartMain__deliveryBadge--work {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.AddToCartMain__deliveryBadgeDefault {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  letter-spacing: 0.5px;
+}
+
+.AddToCartMain__deliveryFullAddress {
+  font-size: 13px;
+  color: #666666;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.AddToCartMain__deliveryActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.AddToCartMain__ordersHeaderLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f7fb;
+  border: 1px solid #c2def0;
+  color: #12598f;
+  border-radius: 4px;
+  padding: 6.5px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.AddToCartMain__ordersHeaderLink:hover {
+  background: #e1eff8;
+  border-color: #9acbe8;
+}
+
+.AddToCartMain__changeAddressBtn {
+  background: #ffffff;
+  border: 1px solid #12598f;
+  color: #12598f;
+  border-radius: 4px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.AddToCartMain__changeAddressBtn:hover {
+  background: #12598f;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .AddToCartMain__deliveryBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .AddToCartMain__deliveryBarRight {
+    width: 100%;
+  }
+  .AddToCartMain__deliveryActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .AddToCartMain__changeAddressBtn {
+    align-self: flex-end;
+  }
+}
+
+/* =========================================================
    CART BOX
 ========================================================= */
 
@@ -558,6 +716,41 @@
   color: var(--green);
 }
 
+.AddToCartMain__summaryItemsContainer {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 12px;
+  margin-bottom: 16px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.AddToCartMain__summaryItemRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.AddToCartMain__summaryItemName {
+  color: var(--ink-soft) !important;
+  font-size: 14.5px !important;
+  font-weight: 500;
+  max-width: 190px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+
+.AddToCartMain__summaryItemsContainer strong {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  white-space: nowrap;
+}
+
 .AddToCartMain__total {
   margin: 0 26px;
   padding: 20px 0;
@@ -767,6 +960,46 @@
 
 .AddToCartMain__couponError {
   color: #c43131;
+}
+
+.AddToCartMain__availableCoupons {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #e8d7ce;
+}
+
+.AddToCartMain__availableCoupons small {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.AddToCartMain__couponPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.AddToCartMain__couponPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 1px dashed var(--brown-400);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--brown-800);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.AddToCartMain__couponPill:hover {
+  background: var(--brown-100);
+  border-color: var(--brown-700);
+  transform: translateY(-1px);
 }
 
 .AddToCartMain__secure {

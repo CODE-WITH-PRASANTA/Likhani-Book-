@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FiUser,
   FiMail,
@@ -17,10 +17,14 @@ import {
 } from "react-icons/fi";
 import API from "../../api/axios";
 import GoogleModal from "../GoogleModal/GoogleModal";
+import { launchGoogleAuth } from "../../utils/googleAuth";
 import { useAuth } from "../../context/AuthContext";
 import "./SignUp.css";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/";
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -39,6 +43,22 @@ const SignUp = () => {
   const [serverError, setServerError] = useState("");
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
+
+  const handleGoogleSignup = () => {
+    launchGoogleAuth({
+      onSuccess: () => {
+        navigate(from, { replace: true });
+      },
+      onError: (err) => {
+        setServerError(
+          err?.response?.data?.message || err?.message || "Google sign-in failed. Please try again."
+        );
+      },
+      onFallback: () => {
+        setIsGoogleModalOpen(true);
+      },
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -102,8 +122,6 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -128,7 +146,7 @@ const SignUp = () => {
 
         setSignupSuccess(true);
         setTimeout(() => {
-          navigate("/");
+          navigate(from, { replace: true });
         }, 1200);
       }
     } catch (err) {
@@ -141,15 +159,11 @@ const SignUp = () => {
     }
   };
 
-  const handleGoogleSignup = () => {
-    setIsGoogleModalOpen(true);
-  };
-
   // Safe fallback to prevent reference errors during browser caching / HMR
   const handleFacebookSignup = () => {};
 
   const handleLogin = () => {
-    navigate("/login");
+    navigate("/login", { state: location.state });
   };
 
   return (
@@ -232,24 +246,6 @@ const SignUp = () => {
               </div>
             </div>
 
-            {/* Decorative Book */}
-            <div className="SignUp__bookDecoration">
-              <div className="SignUp__book SignUp__book--one">
-                Good Ideas Start
-                <br />
-                With Great Books
-              </div>
-
-              <div className="SignUp__book SignUp__book--two">
-                LEKHANI
-              </div>
-
-              <div className="SignUp__book SignUp__book--three"></div>
-            </div>
-
-            <div className="SignUp__sparkle SignUp__sparkle--one"></div>
-            <div className="SignUp__sparkle SignUp__sparkle--two"></div>
-            <div className="SignUp__sparkle SignUp__sparkle--three"></div>
           </div>
 
           {/* ================= SIGNUP CARD ================= */}
@@ -628,7 +624,7 @@ const SignUp = () => {
               {/* Login */}
               <div className="SignUp__login">
                 <span>Already have an account?</span>
-                <Link to="/login" className="SignUp__loginLink">
+                <Link to="/login" state={location.state} className="SignUp__loginLink">
                   Login
                 </Link>
               </div>
@@ -642,7 +638,7 @@ const SignUp = () => {
         isOpen={isGoogleModalOpen}
         onClose={() => setIsGoogleModalOpen(false)}
         onSuccess={() => {
-          navigate("/");
+          navigate(from, { replace: true });
         }}
       />
     </main>

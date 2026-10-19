@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FiMail,
   FiLock,
@@ -9,6 +9,7 @@ import {
   FiArrowRight,
   FiCheck,
   FiAlertCircle,
+  FiInfo,
   FiCompass,
   FiPackage,
   FiHeart,
@@ -16,11 +17,14 @@ import {
 } from "react-icons/fi";
 import API from "../../api/axios";
 import GoogleModal from "../GoogleModal/GoogleModal";
+import { launchGoogleAuth } from "../../utils/googleAuth";
 import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/";
   const { currentUser, login, logout } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -32,7 +36,15 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loginAlert, setLoginAlert] = useState(null);
+  const [loginAlert, setLoginAlert] = useState(() => {
+    if (location.state?.from) {
+      return {
+        type: "info",
+        message: "Please sign in to proceed to checkout.",
+      };
+    }
+    return null;
+  });
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   const handleChange = (e) => {
@@ -98,7 +110,7 @@ const Login = () => {
         });
 
         setTimeout(() => {
-          navigate("/");
+          navigate(from, { replace: true });
         }, 1000);
       }
     } catch (err) {
@@ -115,7 +127,20 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    setIsGoogleModalOpen(true);
+    launchGoogleAuth({
+      onSuccess: () => {
+        navigate(from, { replace: true });
+      },
+      onError: (err) => {
+        setLoginAlert({
+          type: "error",
+          message: err?.response?.data?.message || err?.message || "Google sign-in failed. Please try again.",
+        });
+      },
+      onFallback: () => {
+        setIsGoogleModalOpen(true);
+      },
+    });
   };
 
   const handleForgotPassword = () => {
@@ -193,21 +218,6 @@ const Login = () => {
                 </div>
               </div>
             </div>
-
-            {/* Book Decoration */}
-            <div className="Login__bookDecoration">
-              <div className="Login__book Login__book--one">
-                Stories Await
-                <br />
-                Your Return
-              </div>
-              <div className="Login__book Login__book--two">LEKHANI</div>
-              <div className="Login__book Login__book--three"></div>
-            </div>
-
-            <div className="Login__sparkle Login__sparkle--one"></div>
-            <div className="Login__sparkle Login__sparkle--two"></div>
-            <div className="Login__sparkle Login__sparkle--three"></div>
           </div>
 
           {/* ================= LOGIN CARD ================= */}
@@ -224,7 +234,13 @@ const Login = () => {
 
             {loginAlert && (
               <div className={`Login__alert Login__alert--${loginAlert.type}`}>
-                {loginAlert.type === "success" ? <FiCheck /> : <FiAlertCircle />}
+                {loginAlert.type === "success" ? (
+                  <FiCheck />
+                ) : loginAlert.type === "info" ? (
+                  <FiInfo />
+                ) : (
+                  <FiAlertCircle />
+                )}
                 <span>{loginAlert.message}</span>
               </div>
             )}
@@ -271,15 +287,27 @@ const Login = () => {
                   </span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxWidth: "280px", margin: "0 auto" }}>
-                  <button
-                    type="button"
-                    className="Login__submitButton"
-                    style={{ margin: 0, justifyContent: "center" }}
-                    onClick={() => navigate("/")}
-                  >
-                    Go to Homepage
-                    <FiArrowRight />
-                  </button>
+                  {from && from !== "/" ? (
+                    <button
+                      type="button"
+                      className="Login__submitButton"
+                      style={{ margin: 0, justifyContent: "center" }}
+                      onClick={() => navigate(from)}
+                    >
+                      {from === "/cart" ? "Proceed to Checkout / Cart" : "Continue"}
+                      <FiArrowRight />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="Login__submitButton"
+                      style={{ margin: 0, justifyContent: "center" }}
+                      onClick={() => navigate("/")}
+                    >
+                      Go to Homepage
+                      <FiArrowRight />
+                    </button>
+                  )}
                   <button
                     type="button"
                     style={{
@@ -443,7 +471,7 @@ const Login = () => {
               {/* Switch to SignUp */}
               <div className="Login__signUpPrompt">
                 <span>Don't have an account?</span>
-                <Link to="/signup" className="Login__signUpLink">
+                <Link to="/signup" state={location.state} className="Login__signUpLink">
                   Create Account
                 </Link>
               </div>
@@ -457,7 +485,7 @@ const Login = () => {
         isOpen={isGoogleModalOpen}
         onClose={() => setIsGoogleModalOpen(false)}
         onSuccess={() => {
-          navigate("/");
+          navigate(from, { replace: true });
         }}
       />
     </main>

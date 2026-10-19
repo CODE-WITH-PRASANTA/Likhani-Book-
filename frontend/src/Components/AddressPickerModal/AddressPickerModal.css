@@ -1,0 +1,421 @@
+/* =========================================================
+   ADDRESS PICKER MODAL (FLIPKART STYLE)
+========================================================= */
+
+.AddressPickerModal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: modalFade 0.2s ease-out;
+}
+
+@keyframes modalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.AddressPickerModal__container {
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScale {
+  from { transform: scale(0.96) translateY(12px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.AddressPickerModal__header {
+  padding: 16px 20px;
+  background: #12598f;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.AddressPickerModal__headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.AddressPickerModal__pinIcon {
+  font-size: 20px;
+  color: #55b6ff;
+}
+
+.AddressPickerModal__headerLeft h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.AddressPickerModal__closeBtn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.AddressPickerModal__closeBtn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.AddressPickerModal__body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.AddressPickerModal__addNewBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f7fbfe;
+  border: 1px dashed #12598f;
+  border-radius: 6px;
+  color: #12598f;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.AddressPickerModal__addNewBtn:hover {
+  background: #eaf3fb;
+}
+
+.AddressPickerModal__form {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.AddressPickerModal__formTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #d1e3f2;
+}
+
+.AddressPickerModal__formTitle {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #12598f;
+}
+
+.AddressPickerModal__useLocationBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #12598f;
+  color: #ffffff;
+  border: 1px solid #0e4875;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(18, 89, 143, 0.2);
+  transition: all 0.2s ease;
+}
+
+.AddressPickerModal__useLocationBtn:hover:not(:disabled) {
+  background: #0e4875;
+  box-shadow: 0 2px 5px rgba(18, 89, 143, 0.3);
+}
+
+.AddressPickerModal__useLocationBtn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  background: #2a6f97;
+}
+
+.AddressPickerModal__useLocationBtn svg {
+  font-size: 13px;
+}
+
+.AddressPickerModal__locationSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: modalLocSpin 0.75s linear infinite;
+  display: inline-block;
+}
+
+@keyframes modalLocSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.AddressPickerModal__locNotice {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.AddressPickerModal__locNotice--success {
+  background: #e6f9ed;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.AddressPickerModal__locNotice--warn {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.AddressPickerModal__typeSelector {
+  display: flex;
+  gap: 16px;
+}
+
+.AddressPickerModal__typeOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.AddressPickerModal__typeOption--active {
+  background: #eef7fc;
+  border-color: #12598f;
+  color: #12598f;
+  font-weight: 600;
+}
+
+.AddressPickerModal__formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.AddressPickerModal__formCol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.AddressPickerModal__formCol input,
+.AddressPickerModal__formCol textarea {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.AddressPickerModal__formCol input:focus,
+.AddressPickerModal__formCol textarea:focus {
+  outline: none;
+  border-color: #12598f;
+}
+
+.AddressPickerModal__formCol span {
+  font-size: 11px;
+  color: #dc2626;
+}
+
+.AddressPickerModal__formActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.AddressPickerModal__saveBtn {
+  padding: 9px 18px;
+  background: #12598f;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.AddressPickerModal__cancelBtn {
+  padding: 9px 14px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.AddressPickerModal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.AddressPickerModal__card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.AddressPickerModal__card:hover {
+  border-color: #93c5fd;
+  background: #fafcfe;
+}
+
+.AddressPickerModal__card--selected {
+  border-color: #12598f;
+  background: #f4f9fd;
+  box-shadow: 0 0 0 1px #12598f;
+}
+
+.AddressPickerModal__radioCol input {
+  margin-top: 4px;
+  cursor: pointer;
+  accent-color: #12598f;
+  transform: scale(1.15);
+}
+
+.AddressPickerModal__cardContent {
+  flex: 1;
+}
+
+.AddressPickerModal__cardTags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.AddressPickerModal__cardTags strong {
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.AddressPickerModal__cardPhone {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.AddressPickerModal__badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.AddressPickerModal__badge--home {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.AddressPickerModal__badge--work {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.AddressPickerModal__badgeDefault {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.AddressPickerModal__addressText {
+  margin: 0;
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.AddressPickerModal__deliverBtn {
+  margin-top: 10px;
+  padding: 8px 18px;
+  background: #12598f;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(18, 89, 143, 0.25);
+}
+
+.AddressPickerModal__deliverBtn:hover {
+  background: #0d426a;
+}
+
+.AddressPickerModal__footer {
+  padding: 12px 20px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  background: #f8fafc;
+}
+
+.AddressPickerModal__confirmBtn {
+  padding: 10px 24px;
+  background: #12598f;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.AddressPickerModal__confirmBtn:hover {
+  background: #0d426a;
+}

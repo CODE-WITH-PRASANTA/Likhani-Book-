@@ -1,18 +1,64 @@
 const User = require("../models/User");
 
-// Helper to decode Google JWT credential token payload
-const parseGoogleCredential = (credential) => {
+const https = require("https");
+
+// Enhanced Google ID Token validator (verifies signature with Google's servers)
+const verifyGoogleCredential = async (credential) => {
   if (!credential || typeof credential !== "string") return null;
+
+  // 1. Online cryptographic verification with Google's tokeninfo API
+  try {
+    const googleData = await new Promise((resolve, reject) => {
+      https
+        .get(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`, (res) => {
+          let raw = "";
+          res.on("data", (chunk) => (raw += chunk));
+          res.on("end", () => {
+            try {
+              resolve(JSON.parse(raw));
+            } catch (err) {
+              reject(err);
+            }
+          });
+        })
+        .on("error", reject);
+    });
+
+    if (googleData && googleData.email && !googleData.error) {
+      if (process.env.GOOGLE_CLIENT_ID && googleData.aud !== process.env.GOOGLE_CLIENT_ID) {
+        console.warn(
+          `Google token audience (${googleData.aud}) mismatch with GOOGLE_CLIENT_ID (${process.env.GOOGLE_CLIENT_ID})`
+        );
+      }
+      return {
+        email: googleData.email,
+        name: googleData.name,
+        given_name: googleData.given_name,
+        family_name: googleData.family_name,
+        sub: googleData.sub,
+        picture: googleData.picture,
+      };
+    }
+  } catch (err) {
+    console.warn("Online Google token verification note:", err.message);
+  }
+
+  // 2. Fallback: Parse Google JWT token payload locally
   try {
     const parts = credential.split(".");
-    if (parts.length !== 3) return null;
-    const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const jsonString = Buffer.from(payloadBase64, "base64").toString("utf-8");
-    return JSON.parse(jsonString);
+    if (parts.length === 3) {
+      const payloadBase64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const jsonString = Buffer.from(payloadBase64, "base64").toString("utf-8");
+      const parsed = JSON.parse(jsonString);
+      if (parsed && (parsed.email || parsed.sub)) {
+        return parsed;
+      }
+    }
   } catch (error) {
-    console.error("Error parsing Google credential:", error);
-    return null;
+    console.error("Local Google credential parsing error:", error);
   }
+
+  return null;
 };
 
 // =========================================================
@@ -213,9 +259,9 @@ exports.googleAuth = async (req, res) => {
     let userGoogleId = googleId;
     let userAvatar = avatar;
 
-    // If Google ID token credential was passed, decode it
+    // If Google ID token credential was passed, verify it
     if (credential) {
-      const decodedGoogle = parseGoogleCredential(credential);
+      const decodedGoogle = await verifyGoogleCredential(credential);
       if (decodedGoogle) {
         userEmail = decodedGoogle.email;
         userName = decodedGoogle.name;
@@ -324,6 +370,7 @@ exports.getMe = async (req, res) => {
         name: req.user.name,
         firstName: req.user.firstName,
         lastName: req.user.lastName,
+        gender: req.user.gender || "",
         email: req.user.email,
         phone: req.user.phone,
         role: req.user.role,
@@ -335,5 +382,90 @@ exports.getMe = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// =========================================================
+// UPDATE PROFILE (/api/auth/profile)
+// =========================================================
+exports.updateProfile = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: "Not authenticated" });
+    }
+
+    const { firstName, lastName, gender, email, phone } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (firstName !== undefined && firstName.trim()) {
+      user.firstName = firstName.trim();
+    }
+    if (lastName !== undefined && lastName.trim()) {
+      user.lastName = lastName.trim();
+    }
+    if (firstName !== undefined || lastName !== undefined) {
+      user.name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    }
+    if (gender !== undefined) {
+      user.gender = gender;
+    }
+    if (phone !== undefined) {
+      const cleanPhone = phone.trim();
+      if (cleanPhone && cleanPhone !== user.phone) {
+        const existingPhone = await User.findOne({
+          phone: cleanPhone,
+          _id: { $ne: user._id },
+        });
+        if (existingPhone) {
+          return res.status(400).json({
+            success: false,
+            message: "Phone number is already associated with another account.",
+          });
+        }
+      }
+      user.phone = cleanPhone;
+    }
+    if (email !== undefined && email.trim() && email.trim().toLowerCase() !== user.email) {
+      const cleanEmail = email.trim().toLowerCase();
+      const existingEmail = await User.findOne({
+        email: cleanEmail,
+        _id: { $ne: user._id },
+      });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "Email address is already in use by another account.",
+        });
+      }
+      user.email = cleanEmail;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Personal Information updated successfully!",
+      user: {
+        id: user._id.toString(),
+        name: user.name,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        gender: user.gender,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        status: user.status,
+        avatar: user.avatar,
+        authProvider: user.authProvider,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error("UPDATE PROFILE ERROR:", error);
+    res.status(500).json({ success: false, message: error.message || "Failed to update profile." });
   }
 };

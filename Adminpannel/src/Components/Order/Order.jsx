@@ -26,185 +26,96 @@ import {
   FiSliders,
   FiPrinter,
 } from "react-icons/fi";
+import API from "../../api/axios";
+import { downloadInvoice } from "../../utils/invoiceGenerator";
 import "./Order.css";
 
 const Order = () => {
   const ORDERS_PER_PAGE = 10;
-  const TOTAL_PAGES = 8;
 
-  const books = [
-    { title: "Atomic Habits", author: "James Clear", color: "#e2b887", text: "ATOMIC\nHABITS", price: 499 },
-    { title: "Deep Work", author: "Cal Newport", color: "#1f3b64", text: "DEEP\nWORK", price: 450 },
-    { title: "Ikigai", author: "Héctor García", color: "#2d7a6e", text: "IKIGAI", price: 399 },
-    { title: "Rich Dad Poor Dad", author: "Robert Kiyosaki", color: "#8a2435", text: "RICH\nDAD", price: 400 },
-    { title: "The 48 Laws of Power", author: "Robert Greene", color: "#2d2a32", text: "THE\nPOWER", price: 650 },
-    { title: "The Magic of Thinking Big", author: "David Schwartz", color: "#dc3545", text: "THINK\nBIG", price: 350 },
-    { title: "Sapiens", author: "Yuval Noah Harari", color: "#8a7b66", text: "SAPIENS", price: 550 },
-    { title: "The Psychology of Money", author: "Morgan Housel", color: "#194a7a", text: "PSYCHOLOGY", price: 399 },
-  ];
+  // Real orders from database
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const initialOrders = [
-    {
-      id: "#ORD1250",
-      customer: "Rohan Kumar",
-      email: "rohan@gmail.com",
-      phone: "+91 98765 43210",
-      city: "Bhubaneswar, Odisha",
-      books: [0, 1],
-      more: 2,
-      amount: 1450,
-      payment: "Paid",
-      status: "Delivered",
-      date: "03 Oct 2026",
-      time: "10:30 AM",
-    },
-    {
-      id: "#ORD1249",
-      customer: "Priya Das",
-      email: "priya@gmail.com",
-      phone: "+91 98765 12345",
-      city: "Cuttack, Odisha",
-      books: [2, 3],
-      more: 1,
-      amount: 799,
-      payment: "Paid",
-      status: "Shipped",
-      date: "02 Oct 2026",
-      time: "05:45 PM",
-    },
-    {
-      id: "#ORD1248",
-      customer: "Amit Sahu",
-      email: "amit@gmail.com",
-      phone: "+91 91234 56789",
-      city: "Kendrapara, Odisha",
-      books: [4, 5],
-      more: 3,
-      amount: 2199,
-      payment: "COD",
-      status: "Processing",
-      date: "02 Oct 2026",
-      time: "01:20 PM",
-    },
-    {
-      id: "#ORD1247",
-      customer: "Sneha Patel",
-      email: "sneha@gmail.com",
-      phone: "+91 99887 66554",
-      city: "Bhubaneswar, Odisha",
-      books: [0, 6],
-      more: 1,
-      amount: 899,
-      payment: "Paid",
-      status: "Pending",
-      date: "01 Oct 2026",
-      time: "11:15 AM",
-    },
-    {
-      id: "#ORD1246",
-      customer: "Vikash Singh",
-      email: "vikash@gmail.com",
-      phone: "+91 98761 23456",
-      city: "Puri, Odisha",
-      books: [1, 5],
-      more: 2,
-      amount: 1299,
-      payment: "Paid",
-      status: "Delivered",
-      date: "01 Oct 2026",
-      time: "09:45 AM",
-    },
-    {
-      id: "#ORD1245",
-      customer: "Neha Rani",
-      email: "neha@gmail.com",
-      phone: "+91 87654 32109",
-      city: "Balasore, Odisha",
-      books: [6, 7],
-      more: 1,
-      amount: 649,
-      payment: "Failed",
-      status: "Cancelled",
-      date: "30 Sep 2026",
-      time: "06:30 PM",
-    },
-    {
-      id: "#ORD1244",
-      customer: "Karan Mehta",
-      email: "karan@gmail.com",
-      phone: "+91 90909 12345",
-      city: "Rourkela, Odisha",
-      books: [7, 1],
-      more: 4,
-      amount: 1999,
-      payment: "Paid",
-      status: "Shipped",
-      date: "29 Sep 2026",
-      time: "03:10 PM",
-    },
-    {
-      id: "#ORD1243",
-      customer: "Megha Singh",
-      email: "megha@gmail.com",
-      phone: "+91 93456 78901",
-      city: "Berhampur, Odisha",
-      books: [3, 2],
-      more: 1,
-      amount: 999,
-      payment: "Paid",
-      status: "Delivered",
-      date: "28 Sep 2026",
-      time: "12:40 PM",
-    },
-    {
-      id: "#ORD1242",
-      customer: "Tushar Raut",
-      email: "tushar@gmail.com",
-      phone: "+91 92345 67890",
-      city: "Angul, Odisha",
-      books: [5, 4],
-      more: 2,
-      amount: 1099,
-      payment: "COD",
-      status: "Pending",
-      date: "27 Sep 2026",
-      time: "04:15 PM",
-    },
-    {
-      id: "#ORD1241",
-      customer: "Anjali Verma",
-      email: "anjali@gmail.com",
-      phone: "+91 98712 34567",
-      city: "Delhi, India",
-      books: [6, 4],
-      more: 1,
-      amount: 749,
-      payment: "Paid",
-      status: "Processing",
-      date: "26 Sep 2026",
-      time: "11:25 AM",
-    },
-  ];
+  const fetchOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/orders");
+      if (res.data && res.data.success && Array.isArray(res.data.orders)) {
+        const formatted = res.data.orders.map((order, idx) => {
+          const orderDate = new Date(order.createdAt || Date.now());
+          const dateStr = orderDate.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
+          const timeStr = orderDate.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
 
-  const [orders, setOrders] = useState(() => {
-    const result = [];
-    for (let page = 0; page < TOTAL_PAGES; page++) {
-      initialOrders.forEach((order, index) => {
-        result.push({
-          ...order,
-          id: `#ORD${1250 - page * 10 - index}`,
-          amount:
-            page === 0
-              ? order.amount
-              : Math.max(
-                  499,
-                  order.amount + ((page * 97 + index * 43) % 500) - 200
-                ),
+          const items = Array.isArray(order.items) ? order.items : [];
+          const fullAddr = order.shippingAddress
+            ? `${order.shippingAddress.street || ""}, ${
+                order.shippingAddress.locality
+                  ? order.shippingAddress.locality + ", "
+                  : ""
+              }${order.shippingAddress.city || ""}, ${
+                order.shippingAddress.state || "Odisha"
+              } - ${order.shippingAddress.pincode || ""}`
+            : "Address not specified";
+
+          return {
+            id:
+              order.orderId ||
+              (order._id ? `ORD-${order._id.slice(-6).toUpperCase()}` : `#ORD${1000 + idx}`),
+            orderId:
+              order.orderId ||
+              (order._id ? `ORD-${order._id.slice(-6).toUpperCase()}` : `#ORD${1000 + idx}`),
+            rawId: order._id,
+            customer: order.shippingAddress?.fullName || order.user?.name || "Customer",
+            email: order.shippingAddress?.email || order.user?.email || "customer@example.com",
+            phone: order.shippingAddress?.phone || order.user?.phone || "-",
+            city: order.shippingAddress?.city
+              ? `${order.shippingAddress.city}, ${order.shippingAddress.state || "Odisha"}`
+              : "Odisha, India",
+            fullAddress: fullAddr,
+            amount: Number(order.pricing?.totalAmount || 0),
+            payment: (() => {
+              const s = (order.paymentInfo?.status || "").toLowerCase();
+              if (s === "paid" || s === "success") return "Paid";
+              if (s === "failed") return "Failed";
+              return "Pending";
+            })(),
+            paymentMethod: order.paymentInfo?.method || "Razorpay",
+            paymentId: order.paymentInfo?.razorpayPaymentId || "",
+            status: order.orderStatus || "Placed",
+            date: dateStr,
+            time: timeStr,
+            items: items,
+            books: items.map((it) => it.title || "Book"),
+            more: items.length > 2 ? items.length - 2 : 0,
+            pricing: order.pricing,
+            couponCode: order.pricing?.couponCode || "",
+            discount: Number(order.pricing?.discount || 0),
+            rawOrder: order,
+          };
         });
-      });
+        setOrders(formatted);
+      } else {
+        setOrders([]);
+      }
+    } catch (err) {
+      console.error("Failed to load real orders from backend:", err);
+      setOrders([]);
+    } finally {
+      setLoading(false);
     }
-    return result;
-  });
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -223,12 +134,26 @@ const Order = () => {
 
   const tabs = [
     "All Orders",
-    "Pending",
+    "Placed",
     "Processing",
     "Shipped",
     "Delivered",
     "Cancelled",
   ];
+
+  // Dynamic statistics calculated from real orders in database
+  const totalOrdersCount = orders.length;
+  const grossRevenue = orders.reduce(
+    (sum, o) => sum + (Number(o.amount) || 0),
+    0
+  );
+  const deliveredCount = orders.filter((o) => o.status === "Delivered").length;
+  const pendingCount = orders.filter(
+    (o) =>
+      o.status === "Placed" ||
+      o.status === "Pending" ||
+      o.status === "Processing"
+  ).length;
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
@@ -238,19 +163,24 @@ const Order = () => {
         order.id.toLowerCase().includes(searchText) ||
         order.customer.toLowerCase().includes(searchText) ||
         order.email.toLowerCase().includes(searchText) ||
-        order.books.some((book) =>
-          books[book].title.toLowerCase().includes(searchText)
-        );
+        (Array.isArray(order.items) &&
+          order.items.some(
+            (book) =>
+              (book.title && book.title.toLowerCase().includes(searchText)) ||
+              (book.author && book.author.toLowerCase().includes(searchText))
+          ));
 
       const matchesStatus =
-        statusFilter === "All Status" || order.status === statusFilter;
+        statusFilter === "All Status" ||
+        order.status.toLowerCase() === statusFilter.toLowerCase();
 
       const matchesPayment =
         paymentFilter === "All Payment Status" ||
-        order.payment === paymentFilter;
+        order.payment.toLowerCase() === paymentFilter.toLowerCase();
 
       const matchesTab =
-        activeTab === "All Orders" || order.status === activeTab;
+        activeTab === "All Orders" ||
+        order.status.toLowerCase() === activeTab.toLowerCase();
 
       return matchesSearch && matchesStatus && matchesPayment && matchesTab;
     });
@@ -258,7 +188,7 @@ const Order = () => {
 
   const totalPages = Math.max(
     1,
-    Math.min(TOTAL_PAGES, Math.ceil(filteredOrders.length / ORDERS_PER_PAGE))
+    Math.ceil(filteredOrders.length / ORDERS_PER_PAGE)
   );
 
   const startIndex = (currentPage - 1) * ORDERS_PER_PAGE;
@@ -273,7 +203,7 @@ const Order = () => {
   const getTabCount = (tab) =>
     tab === "All Orders"
       ? orders.length
-      : orders.filter((order) => order.status === tab).length;
+      : orders.filter((order) => order.status?.toLowerCase() === tab.toLowerCase()).length;
 
   const handleSearch = (value) => {
     setSearch(value);
@@ -357,25 +287,44 @@ const Order = () => {
     setDeleteOrder(order);
   };
 
-  const saveEdit = () => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === editOrder.id
-          ? {
-              ...order,
-              ...editForm,
-              amount: Number(editForm.amount),
-            }
-          : order
-      )
-    );
-    closeModal();
+  const saveEdit = async () => {
+    try {
+      if (editOrder.rawId) {
+        await API.put(`/orders/${editOrder.rawId}/status`, {
+          orderStatus: editForm.status,
+          paymentStatus: editForm.payment,
+        });
+      }
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === editOrder.id
+            ? {
+                ...order,
+                ...editForm,
+                amount: Number(editForm.amount),
+              }
+            : order
+        )
+      );
+      closeModal();
+    } catch (err) {
+      console.error("Failed to update order:", err);
+      alert("Failed to update order in database.");
+    }
   };
 
-  const deleteConfirmed = () => {
-    setOrders((prev) => prev.filter((order) => order.id !== deleteOrder.id));
-    setSelectedOrders((prev) => prev.filter((id) => id !== deleteOrder.id));
-    closeModal();
+  const deleteConfirmed = async () => {
+    try {
+      if (deleteOrder.rawId) {
+        await API.delete(`/orders/${deleteOrder.rawId}`);
+      }
+      setOrders((prev) => prev.filter((order) => order.id !== deleteOrder.id));
+      setSelectedOrders((prev) => prev.filter((id) => id !== deleteOrder.id));
+      closeModal();
+    } catch (err) {
+      console.error("Failed to delete order:", err);
+      alert("Failed to delete order from database.");
+    }
   };
 
   const resetFilters = () => {
@@ -391,24 +340,34 @@ const Order = () => {
    * Premium Print & PDF Receipt Generator
    * Generates a branded, printable tax invoice window with auto-print & download trigger
    */
+  const handleDownloadInvoice = (order) => {
+    setDownloadingId(order.id);
+    downloadInvoice(order);
+    setTimeout(() => {
+      setDownloadingId(null);
+    }, 450);
+  };
+
   const handleDownloadReceipt = (order) => {
+    return handleDownloadInvoice(order);
     setDownloadingId(order.id);
 
-    const items = order.books.map((bookIdx) => books[bookIdx]);
-    if (order.more > 0) {
-      for (let i = 0; i < order.more; i++) {
-        items.push({
-          title: `Additional Curated Title #${i + 1}`,
-          author: "Publisher Direct",
-          price: Math.round((order.amount * 0.4) / order.more),
-        });
-      }
-    }
+    const items =
+      Array.isArray(order.items) && order.items.length > 0
+        ? order.items
+        : [
+            {
+              title: "Curated Books Package",
+              author: "Lekhani Publications",
+              price: order.amount,
+              quantity: 1,
+            },
+          ];
 
     const subtotal = Math.round(order.amount / 1.05);
     const gstTax = order.amount - subtotal;
     const shipping = order.amount > 1000 ? 0 : 50;
-    const grandTotal = order.amount + shipping;
+    const grandTotal = order.amount;
 
     const receiptHtml = `
       <!DOCTYPE html>
@@ -449,29 +408,29 @@ const Order = () => {
             align-items: center;
             gap: 12px;
           }
-          .logo-badge {
+          .logo-mark {
             width: 44px;
             height: 44px;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             border-radius: 10px;
-            background: #2563eb;
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 900;
-            font-size: 20px;
-          }
-          .company-title {
             font-size: 22px;
             font-weight: 800;
-            margin: 0;
-            color: #0f172a;
-            letter-spacing: -0.5px;
           }
-          .company-desc {
+          .company-name {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #0f172a;
+            margin: 0;
+          }
+          .company-tag {
             font-size: 11px;
             color: #64748b;
-            margin: 2px 0 0;
+            margin-top: 2px;
           }
           .invoice-meta {
             text-align: right;
@@ -480,22 +439,20 @@ const Order = () => {
             display: inline-block;
             background: #eff6ff;
             color: #2563eb;
-            font-size: 12px;
-            font-weight: 800;
+            font-size: 11px;
+            font-weight: 700;
             padding: 4px 10px;
-            border-radius: 20px;
+            border-radius: 9999px;
             letter-spacing: 0.5px;
-            margin-bottom: 6px;
           }
           .invoice-id {
             font-size: 20px;
             font-weight: 800;
-            margin: 0;
-            font-family: monospace;
-            color: #1e293b;
+            color: #0f172a;
+            margin: 8px 0 4px;
           }
           .invoice-date {
-            font-size: 11px;
+            font-size: 12px;
             color: #64748b;
             margin-top: 4px;
           }
@@ -598,143 +555,102 @@ const Order = () => {
             font-size: 11px;
             color: #94a3b8;
           }
-          .action-bar {
-            margin-bottom: 24px;
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-          }
-          .print-btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
-          }
-          .close-btn {
-            background: #ffffff;
-            color: #334155;
-            border: 1px solid #cbd5e1;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-          }
-          @media print {
-            body { background: white; padding: 0; }
-            .invoice-card { border: none; box-shadow: none; padding: 10px; }
-            .action-bar { display: none !important; }
-          }
         </style>
       </head>
       <body>
-        <div style="width: 100%; max-width: 800px;">
-          <div class="action-bar">
-            <button class="close-btn" onclick="window.close()">Close Window</button>
-            <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+        <div class="invoice-card">
+          <div class="header-row">
+            <div class="company-logo">
+              <div class="logo-mark">L</div>
+              <div>
+                <h1 class="company-name">LEKHANI BOOKS</h1>
+                <div class="company-tag">Publications & Direct Distribution • Reg. Govt. of Odisha</div>
+              </div>
+            </div>
+            <div class="invoice-meta">
+              <span class="invoice-pill">TAX INVOICE / RECEIPT</span>
+              <h2 class="invoice-id">${order.id}</h2>
+              <div class="invoice-date">Date: <strong>${order.date}</strong> at ${order.time}</div>
+              <div class="invoice-date">Status: <strong>${order.status}</strong></div>
+            </div>
           </div>
 
-          <div class="invoice-card">
-            <div class="header-row">
-              <div class="company-logo">
-                <div class="logo-badge">BK</div>
-                <div>
-                  <h1 class="company-title">BOOKSPHERE INC.</h1>
-                  <p class="company-desc">Fulfillment Center & Registered Bookseller</p>
-                  <p class="company-desc">GSTIN: 21AAACB1234D1Z8 • contact@booksphere.com</p>
-                </div>
-              </div>
-              <div class="invoice-meta">
-                <span class="invoice-pill">TAX INVOICE / RECEIPT</span>
-                <h2 class="invoice-id">${order.id}</h2>
-                <div class="invoice-date">Date: <strong>${order.date}</strong> at ${order.time}</div>
-                <div class="invoice-date">Status: <strong>${order.status}</strong></div>
-              </div>
+          <div class="billing-grid">
+            <div class="bill-col">
+              <h4>Customer Billed To</h4>
+              <strong>${order.customer}</strong>
+              <p>${order.email}</p>
+              <p>${order.phone}</p>
+              <p>${order.fullAddress || order.city}</p>
             </div>
-
-            <div class="billing-grid">
-              <div class="bill-col">
-                <h4>Customer Billed To</h4>
-                <strong>${order.customer}</strong>
-                <p>${order.email}</p>
-                <p>${order.phone}</p>
-                <p>${order.city}</p>
-              </div>
-              <div class="bill-col">
-                <h4>Payment & Logistics</h4>
-                <p>Payment Mode: <strong>${order.payment}</strong></p>
-                <p>Fulfillment: <strong>Expedited Courier Service</strong></p>
-                <span class="status-badge ${order.payment === "Paid" ? "badge-paid" : "badge-cod"}">
-                  Payment Status: ${order.payment.toUpperCase()}
-                </span>
-              </div>
+            <div class="bill-col">
+              <h4>Payment & Logistics</h4>
+              <p>Payment Mode: <strong>${order.paymentMethod || order.payment}</strong></p>
+              <p>Fulfillment: <strong>Expedited Courier Service</strong></p>
+              <span class="status-badge ${order.payment === "Paid" ? "badge-paid" : "badge-cod"}">
+                Payment Status: ${order.payment.toUpperCase()}
+              </span>
             </div>
+          </div>
 
-            <table class="items-table">
-              <thead>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 45%;">Item Description</th>
+                <th style="text-align: center;">Qty</th>
+                <th style="text-align: right;">Unit Price</th>
+                <th style="text-align: right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items
+                .map(
+                  (it, idx) => `
                 <tr>
-                  <th style="width: 45%;">Item Description</th>
-                  <th style="text-align: center;">Qty</th>
-                  <th style="text-align: right;">Unit Price</th>
-                  <th style="text-align: right;">Amount</th>
+                  <td>
+                    <strong>${idx + 1}. ${it.title}</strong>
+                    <div style="font-size: 10.5px; color: #64748b;">${it.author || "Standard Edition"}</div>
+                  </td>
+                  <td style="text-align: center;">${it.quantity || 1}</td>
+                  <td style="text-align: right;">₹${Number(it.price || 0).toLocaleString("en-IN")}</td>
+                  <td style="text-align: right;">₹${(Number(it.price || 0) * Number(it.quantity || 1)).toLocaleString("en-IN")}</td>
                 </tr>
-              </thead>
-              <tbody>
-                ${items
-                  .map(
-                    (it, idx) => `
-                  <tr>
-                    <td>
-                      <strong>${idx + 1}.${it.title}</strong>
-                      <div style="font-size: 10.5px; color: #64748b;">${it.author || "Standard Edition"}</div>
-                    </td>
-                    <td style="text-align: center;">1</td>
-                    <td style="text-align: right;">₹${(it.price || 499).toLocaleString("en-IN")}</td>
-                    <td style="text-align: right;">₹${(it.price || 499).toLocaleString("en-IN")}</td>
-                  </tr>
-                `
-                  )
-                  .join("")}
-              </tbody>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
+
+          <div class="summary-wrapper">
+            <table class="summary-table">
+              <tr>
+                <td>Taxable Subtotal</td>
+                <td>₹${subtotal.toLocaleString("en-IN")}</td>
+              </tr>
+              <tr>
+                <td>Estimated GST (5%)</td>
+                <td>₹${gstTax.toLocaleString("en-IN")}</td>
+              </tr>
+              <tr>
+                <td>Standard Shipping</td>
+                <td>${shipping === 0 ? "FREE" : "₹" + shipping}</td>
+              </tr>
+              <tr>
+                <td class="summary-total">Total Amount</td>
+                <td class="summary-total">₹${grandTotal.toLocaleString("en-IN")}</td>
+              </tr>
             </table>
+          </div>
 
-            <div class="summary-wrapper">
-              <table class="summary-table">
-                <tr>
-                  <td>Taxable Subtotal</td>
-                  <td>₹${subtotal.toLocaleString("en-IN")}</td>
-                </tr>
-                <tr>
-                  <td>Estimated GST (5%)</td>
-                  <td>₹${gstTax.toLocaleString("en-IN")}</td>
-                </tr>
-                <tr>
-                  <td>Standard Shipping</td>
-                  <td>${shipping === 0 ? "FREE" : "₹" + shipping}</td>
-                </tr>
-                <tr>
-                  <td class="summary-total">Total Amount</td>
-                  <td class="summary-total">₹${grandTotal.toLocaleString("en-IN")}</td>
-                </tr>
-              </table>
-            </div>
-
-            <div class="footer-section">
-              <span>Thank you for shopping with us! This is a system-generated authentic tax receipt.</span>
-              <span>Ref: ${order.id.replace("#", "")}-${Date.now().toString().slice(-6)}</span>
-            </div>
+          <div class="footer-section">
+            <span>Thank you for shopping with us! This is a system-generated authentic tax receipt.</span>
+            <span>Ref: ${order.id.replace("#", "")}-${Date.now().toString().slice(-6)}</span>
           </div>
         </div>
       </body>
       </html>
     `;
 
-    // Open receipt in clean print-ready pop-up window
     const printWindow = window.open("", "_blank", "width=880,height=920");
     if (printWindow) {
       printWindow.document.open();
@@ -742,7 +658,6 @@ const Order = () => {
       printWindow.document.close();
       printWindow.focus();
     } else {
-      // Fallback: Trigger instant JSON receipt download if popups are blocked
       const dataStr =
         "data:text/json;charset=utf-8," +
         encodeURIComponent(
@@ -795,8 +710,12 @@ const Order = () => {
         </div>
 
         <div className="OrderHeaderActions">
-          <button className="OrderSecondaryBtn" onClick={resetFilters} title="Refresh Table">
-            <FiRefreshCw />
+          <button
+            className="OrderSecondaryBtn"
+            onClick={fetchOrders}
+            title="Refresh Real Orders"
+          >
+            <FiRefreshCw className={loading ? "OrderSpinIcon" : ""} />
             <span>Sync</span>
           </button>
           <button className="OrderPrimaryBtn" title="Export CSV Data">
@@ -806,7 +725,7 @@ const Order = () => {
         </div>
       </header>
 
-      {/* STATS OVERVIEW */}
+      {/* STATS OVERVIEW - REAL VALUES FROM DATABASE */}
       <section className="OrderStatsGrid">
         <div className="OrderStatCard OrderStatCardOrders">
           <div className="OrderStatIcon OrderStatBlue">
@@ -814,8 +733,8 @@ const Order = () => {
           </div>
           <div className="OrderStatContent">
             <span>TOTAL ORDERS</span>
-            <strong>1,248</strong>
-            <small className="OrderPositive">↑ 12.4% vs last mo</small>
+            <strong>{totalOrdersCount}</strong>
+            <small className="OrderPositive">Live from database</small>
           </div>
         </div>
 
@@ -825,8 +744,8 @@ const Order = () => {
           </div>
           <div className="OrderStatContent">
             <span>GROSS REVENUE</span>
-            <strong>₹2,45,680</strong>
-            <small className="OrderPositive">↑ 18.2% vs last mo</small>
+            <strong>₹{grossRevenue.toLocaleString("en-IN")}</strong>
+            <small className="OrderPositive">Calculated live</small>
           </div>
         </div>
 
@@ -836,8 +755,12 @@ const Order = () => {
           </div>
           <div className="OrderStatContent">
             <span>DELIVERED RATIO</span>
-            <strong>980</strong>
-            <small className="OrderPositive">↑ 94.6% success</small>
+            <strong>{deliveredCount}</strong>
+            <small className="OrderPositive">
+              {totalOrdersCount > 0
+                ? `${Math.round((deliveredCount / totalOrdersCount) * 100)}% completed`
+                : "0% completed"}
+            </small>
           </div>
         </div>
 
@@ -847,8 +770,8 @@ const Order = () => {
           </div>
           <div className="OrderStatContent">
             <span>PENDING ACTION</span>
-            <strong>168</strong>
-            <small className="OrderNegative">↓ 4.8% SLA alert</small>
+            <strong>{pendingCount}</strong>
+            <small className="OrderNegative">Requires attention</small>
           </div>
         </div>
       </section>
@@ -903,6 +826,7 @@ const Order = () => {
               }}
             >
               <option>All Status</option>
+              <option>Placed</option>
               <option>Pending</option>
               <option>Processing</option>
               <option>Shipped</option>
@@ -922,16 +846,12 @@ const Order = () => {
             >
               <option>All Payment Status</option>
               <option>Paid</option>
+              <option>Pending</option>
               <option>COD</option>
               <option>Failed</option>
               <option>Refunded</option>
             </select>
             <FiChevronDown />
-          </div>
-
-          <div className="OrderDateBox">
-            <FiCalendar />
-            <span>Oct 01 - Oct 31, 2026</span>
           </div>
 
           <button className="OrderResetButton" onClick={resetFilters}>
@@ -969,134 +889,34 @@ const Order = () => {
             </thead>
 
             <tbody>
-              {currentOrders.map((order) => {
-                const isSelected = selectedOrders.includes(order.id);
-                const isDownloading = downloadingId === order.id;
-
-                return (
-                  <tr
-                    key={order.id}
-                    className={isSelected ? "OrderRowSelected" : ""}
-                  >
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={() => handleSelectOrder(order.id)}
-                      />
-                    </td>
-                    <td>
-                      <span className="OrderId">{order.id}</span>
-                    </td>
-                    <td>
-                      <div className="OrderCustomer">
-                        <div className="OrderAvatar">
-                          {order.customer.charAt(0)}
-                        </div>
-                        <div className="OrderCustomerInfo">
-                          <strong>{order.customer}</strong>
-                          <span>{order.email}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="OrderBooks">
-                        {order.books.map((bookIndex, index) => {
-                          const book = books[bookIndex];
-                          return (
-                            <div
-                              key={index}
-                              className="OrderBookCover"
-                              style={{ background: book.color }}
-                              title={book.title}
-                            >
-                              {book.text.split("\n").map((text) => (
-                                <span key={text}>{text}</span>
-                              ))}
-                            </div>
-                          );
-                        })}
-                        {order.more > 0 && (
-                          <span className="OrderMoreBooks">
-                            +{order.more} more
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="OrderAmount">
-                        ₹{order.amount.toLocaleString("en-IN")}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={getPaymentClass(order.payment)}>
-                        <span className="OrderBadgeDot" />
-                        {order.payment}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={getStatusClass(order.status)}>
-                        <span className="OrderBadgeDot" />
-                        {order.status}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="OrderDateTime">
-                        <strong>{order.date}</strong>
-                        <span>{order.time}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="OrderActions">
-                        {/* PREMIUM RECEIPT DOWNLOAD BUTTON */}
-                        <button
-                          className={`OrderActionButton OrderReceiptButton ${
-                            isDownloading ? "OrderReceiptLoading" : ""
-                          }`}
-                          title="Download & Print Order Tax Receipt"
-                          onClick={() => handleDownloadReceipt(order)}
-                          disabled={isDownloading}
-                        >
-                          <FiPrinter />
-                          <span>{isDownloading ? "Printing..." : "Receipt"}</span>
-                        </button>
-
-                        <button
-                          className="OrderActionButton OrderViewButton"
-                          title="View order"
-                          onClick={() => openView(order)}
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="OrderActionButton OrderEditButton"
-                          title="Edit order"
-                          onClick={() => openEdit(order)}
-                        >
-                          <FiEdit3 />
-                        </button>
-                        <button
-                          className="OrderActionButton OrderDeleteButton"
-                          title="Delete order"
-                          onClick={() => openDelete(order)}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {currentOrders.length === 0 && (
+              {loading ? (
+                <tr>
+                  <td colSpan="9" style={{ textAlign: "center", padding: "48px 20px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "10px",
+                        color: "#2563eb",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <FiRefreshCw className="OrderSpinIcon" style={{ fontSize: "18px" }} />
+                      <span>Fetching real orders from database...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : currentOrders.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="OrderEmptyState">
                     <div className="OrderEmptyBox">
                       <FiPackage />
-                      <h3>No Matching Orders Found</h3>
+                      <h3>No Orders Found</h3>
                       <p>
-                        We couldn't find anything matching your filters or
-                        search terms. Try clearing or updating your filters.
+                        {search || statusFilter !== "All Status" || activeTab !== "All Orders"
+                          ? "We couldn't find anything matching your filters or search terms."
+                          : "No real orders in database yet. Orders placed on the storefront will appear here instantly."}
                       </p>
                       <button className="OrderResetButton" onClick={resetFilters}>
                         Reset All Filters
@@ -1104,6 +924,159 @@ const Order = () => {
                     </div>
                   </td>
                 </tr>
+              ) : (
+                currentOrders.map((order) => {
+                  const isSelected = selectedOrders.includes(order.id);
+                  const isDownloading = downloadingId === order.id;
+
+                  return (
+                    <tr
+                      key={order.id}
+                      className={isSelected ? "OrderRowSelected" : ""}
+                    >
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleSelectOrder(order.id)}
+                        />
+                      </td>
+                      <td>
+                        <span className="OrderId">{order.id}</span>
+                      </td>
+                      <td>
+                        <div className="OrderCustomer">
+                          <div className="OrderAvatar">
+                            {order.customer.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="OrderCustomerInfo">
+                            <strong>{order.customer}</strong>
+                            <span>{order.email}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="OrderBooks">
+                          {order.items && order.items.length > 0 ? (
+                            <>
+                              {order.items.slice(0, 2).map((item, index) => (
+                                <div
+                                  key={index}
+                                  className="OrderBookCover"
+                                  style={{
+                                    background: "#1e3a8a",
+                                    overflow: "hidden",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                  }}
+                                  title={`${item.title} by ${item.author || "Author"}`}
+                                >
+                                  {item.coverImage ? (
+                                    <img
+                                      src={item.coverImage}
+                                      alt={item.title}
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                      onError={(e) => {
+                                        e.target.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <span
+                                      style={{
+                                        fontSize: "8.5px",
+                                        padding: "2px",
+                                        textAlign: "center",
+                                        color: "#fff",
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      {(item.title || "BOOK").slice(0, 7)}
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                              {order.items.length > 2 && (
+                                <span className="OrderMoreBooks">
+                                  +{order.items.length - 2} more
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span style={{ fontSize: "12px", color: "#64748b" }}>
+                              1 Package
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <span className="OrderAmount">
+                          ₹{order.amount.toLocaleString("en-IN")}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={getPaymentClass(order.payment)}>
+                          <span className="OrderBadgeDot" />
+                          {order.payment}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={getStatusClass(order.status)}>
+                          <span className="OrderBadgeDot" />
+                          {order.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="OrderDateTime">
+                          <strong>{order.date}</strong>
+                          <span>{order.time}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="OrderActions">
+                          {/* INVOICE DOWNLOAD BUTTON */}
+                          <button
+                            className={`OrderActionButton OrderReceiptButton ${
+                              isDownloading ? "OrderReceiptLoading" : ""
+                            }`}
+                            title="Download Official Tax Invoice"
+                            onClick={() => handleDownloadInvoice(order)}
+                            disabled={isDownloading}
+                          >
+                            <FiDownload />
+                            <span>{isDownloading ? "Downloading..." : "Invoice"}</span>
+                          </button>
+
+                          <button
+                            className="OrderActionButton OrderViewButton"
+                            title="View order"
+                            onClick={() => openView(order)}
+                          >
+                            <FiEye />
+                          </button>
+                          <button
+                            className="OrderActionButton OrderEditButton"
+                            title="Edit order"
+                            onClick={() => openEdit(order)}
+                          >
+                            <FiEdit3 />
+                          </button>
+                          <button
+                            className="OrderActionButton OrderDeleteButton"
+                            title="Delete order"
+                            onClick={() => openDelete(order)}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -1178,11 +1151,11 @@ const Order = () => {
               <div className="OrderModalHeaderBtns">
                 <button
                   className="OrderReceiptDownloadHeaderBtn"
-                  onClick={() => handleDownloadReceipt(viewOrder)}
-                  title="Print / Save Tax Receipt"
+                  onClick={() => handleDownloadInvoice(viewOrder)}
+                  title="Download Official Tax Invoice"
                 >
-                  <FiPrinter />
-                  <span>Download Receipt</span>
+                  <FiDownload />
+                  <span>Download Invoice</span>
                 </button>
                 <button className="OrderCloseButton" onClick={closeModal}>
                   <FiX />
@@ -1192,7 +1165,7 @@ const Order = () => {
 
             <div className="OrderViewTop">
               <div className="OrderBigAvatar">
-                {viewOrder.customer.charAt(0)}
+                {viewOrder.customer.charAt(0).toUpperCase()}
               </div>
               <div className="OrderViewTopDetails">
                 <h3>{viewOrder.customer}</h3>
@@ -1223,38 +1196,96 @@ const Order = () => {
                 <FiMapPin />
                 <div>
                   <span>Delivery Destination</span>
-                  <strong>{viewOrder.city}</strong>
+                  <strong>{viewOrder.fullAddress || viewOrder.city}</strong>
                 </div>
               </div>
               <div className="OrderDetailItem">
                 <FiCreditCard />
                 <div>
                   <span>Payment Method & Status</span>
-                  <strong>{viewOrder.payment} (Verified)</strong>
+                  <strong>
+                    {viewOrder.paymentMethod || "Razorpay"} ({viewOrder.payment})
+                  </strong>
                 </div>
               </div>
             </div>
 
             <div className="OrderModalSection">
-              <h3>Items in Package ({viewOrder.books.length + viewOrder.more})</h3>
+              <h3>Items in Package ({viewOrder.items?.length || 0})</h3>
               <div className="OrderModalBooks">
-                {viewOrder.books.map((bookIndex, index) => {
-                  const book = books[bookIndex];
-                  return (
-                    <div className="OrderModalBook" key={index}>
+                {viewOrder.items && viewOrder.items.length > 0 ? (
+                  viewOrder.items.map((item, index) => (
+                    <div
+                      className="OrderModalBook"
+                      key={index}
+                      style={{ gap: "12px", alignItems: "center" }}
+                    >
                       <div
                         className="OrderModalBookCover"
-                        style={{ background: book.color }}
+                        style={{
+                          background: "#1e3a8a",
+                          width: "48px",
+                          height: "64px",
+                          borderRadius: "4px",
+                          overflow: "hidden",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
                       >
-                        {book.text.split("\n").map((t) => (
-                          <span key={t}>{t}</span>
-                        ))}
+                        {item.coverImage ? (
+                          <img
+                            src={item.coverImage}
+                            alt={item.title}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: "8.5px",
+                              color: "#fff",
+                              textAlign: "center",
+                              padding: "2px",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {(item.title || "BOOK").slice(0, 10)}
+                          </span>
+                        )}
                       </div>
-                      <strong>{book.title}</strong>
-                      <small>Qty: 1</small>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "2px",
+                          textAlign: "left",
+                        }}
+                      >
+                        <strong style={{ fontSize: "13.5px", color: "#0f172a" }}>
+                          {item.title}
+                        </strong>
+                        <small style={{ color: "#64748b" }}>
+                          By {item.author || "Unknown"}
+                        </small>
+                        <small style={{ color: "#2563eb", fontWeight: 600 }}>
+                          Qty: {item.quantity || 1} • ₹{item.price}
+                        </small>
+                      </div>
                     </div>
-                  );
-                })}
+                  ))
+                ) : (
+                  <p style={{ color: "#64748b", margin: 0 }}>
+                    Package items information not specified.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1268,7 +1299,9 @@ const Order = () => {
               <div>
                 <span>Payment State</span>
                 <strong
-                  className={viewOrder.payment === "Paid" ? "OrderPositive" : "OrderNegative"}
+                  className={
+                    viewOrder.payment === "Paid" ? "OrderPositive" : "OrderNegative"
+                  }
                 >
                   {viewOrder.payment}
                 </strong>
@@ -1340,6 +1373,7 @@ const Order = () => {
                     }
                   >
                     <option>Paid</option>
+                    <option>Pending</option>
                     <option>COD</option>
                     <option>Failed</option>
                     <option>Refunded</option>
@@ -1362,6 +1396,7 @@ const Order = () => {
 
                 <div className="OrderStatusOptions">
                   {[
+                    "Placed",
                     "Pending",
                     "Processing",
                     "Shipped",
@@ -1418,15 +1453,19 @@ const Order = () => {
             <div className="OrderDeleteIcon">
               <FiAlertTriangle />
             </div>
-            <h2>Confirm Permanent Deletion</h2>
+            <h2>Remove Order Record?</h2>
             <p>
-              Are you sure you want to remove <strong>{deleteOrder.id}</strong> belonging to <strong>{deleteOrder.customer}</strong>? This action cannot be reverted.
+              Are you sure you want to permanently delete order record{" "}
+              <strong>{deleteOrder.id}</strong> belonging to{" "}
+              <strong>{deleteOrder.customer}</strong>? This action cannot be
+              undone.
             </p>
-            <div className="OrderDeleteActions">
+
+            <div className="OrderModalFooter">
               <button className="OrderCancelButton" onClick={closeModal}>
                 Cancel
               </button>
-              <button className="OrderConfirmDelete" onClick={deleteConfirmed}>
+              <button className="OrderDeleteConfirmButton" onClick={deleteConfirmed}>
                 <FiTrash2 />
                 <span>Delete Order</span>
               </button>

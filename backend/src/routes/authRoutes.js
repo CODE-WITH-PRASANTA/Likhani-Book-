@@ -5,6 +5,7 @@ const {
   login,
   googleAuth,
   getMe,
+  updateProfile,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
 
@@ -16,5 +17,14 @@ router.post("/google", googleAuth);
 
 // Protected routes
 router.get("/me", protect, getMe);
+router.put("/profile", protect, updateProfile);
+
+// Address management routes
+const addressController = require("../controllers/addressController");
+router.get("/addresses", protect, addressController.getAddresses);
+router.post("/addresses", protect, addressController.addAddress);
+router.put("/addresses/:id", protect, addressController.updateAddress);
+router.delete("/addresses/:id", protect, addressController.deleteAddress);
+router.put("/addresses/:id/default", protect, addressController.setDefaultAddress);
 
 module.exports = router;

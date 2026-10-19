@@ -49,6 +49,19 @@ export const AuthProvider = ({ children }) => {
     window.dispatchEvent(new Event("lekhani_auth_change"));
   };
 
+  const updateUser = (updatedUserData) => {
+    setCurrentUser((prev) => {
+      const merged = { ...prev, ...updatedUserData };
+      try {
+        localStorage.setItem("lekhani_user", JSON.stringify(merged));
+      } catch (e) {
+        console.error("Failed to save updated user:", e);
+      }
+      return merged;
+    });
+    window.dispatchEvent(new Event("lekhani_auth_change"));
+  };
+
   const logout = () => {
     localStorage.removeItem("lekhani_token");
     localStorage.removeItem("lekhani_user");
@@ -64,6 +77,7 @@ export const AuthProvider = ({ children }) => {
         token,
         isAuthenticated: !!currentUser && !!token,
         login,
+        updateUser,
         logout,
       }}
     >

@@ -4,7 +4,7 @@
 
 .SignUp {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 132px);
   background: #f8fafc;
   color: #101b32;
   overflow: hidden;
@@ -27,7 +27,7 @@
 
 .SignUp__section {
   position: relative;
-  min-height: 100vh;
+  min-height: calc(100vh - 132px);
   width: 100%;
   display: flex;
   align-items: center;
@@ -97,12 +97,12 @@
   z-index: 2;
   width: min(1180px, calc(100% - 80px));
   margin: 0 auto;
-  min-height: 100vh;
+  min-height: auto;
   display: grid;
   grid-template-columns: 0.88fr 1.12fr;
   align-items: center;
-  gap: 70px;
-  padding: 60px 0;
+  gap: 50px;
+  padding: 24px 0 32px;
 }
 
 /* =========================================================
@@ -111,11 +111,11 @@
 
 .SignUp__content {
   position: relative;
-  min-height: 680px;
+  min-height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 30px 10px 30px 0;
+  padding: 10px 10px 10px 0;
 }
 
 .SignUp__eyebrow {
@@ -133,10 +133,10 @@
   margin: 0;
   color: #101a31;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(46px, 4vw, 64px);
-  line-height: 0.98;
+  font-size: clamp(36px, 3.3vw, 50px);
+  line-height: 1.05;
   font-weight: 700;
-  letter-spacing: -1.8px;
+  letter-spacing: -1.4px;
 }
 
 .SignUp__title span {
@@ -167,10 +167,10 @@
 
 .SignUp__description {
   max-width: 480px;
-  margin: 0 0 28px;
+  margin: 0 0 20px;
   color: #5d6677;
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.6;
   font-weight: 400;
 }
 
@@ -179,34 +179,35 @@
 ========================================================= */
 
 .SignUp__features {
-  display: flex;
-  flex-direction: column;
-  gap: 17px;
-  max-width: 430px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 18px;
+  max-width: 500px;
+  margin-bottom: 24px;
 }
 
 .SignUp__feature {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   transition:
     transform 0.3s ease,
     opacity 0.3s ease;
 }
 
 .SignUp__feature:hover {
-  transform: translateX(7px);
+  transform: translateY(-2px);
 }
 
 .SignUp__featureIcon {
-  width: 43px;
-  height: 43px;
-  min-width: 43px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 20px;
+  font-size: 19px;
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
@@ -237,9 +238,9 @@
 }
 
 .SignUp__featureContent h3 {
-  margin: 0 0 3px;
+  margin: 0 0 2px;
   color: #16213a;
-  font-size: 15px;
+  font-size: 13.5px;
   line-height: 1.25;
   font-weight: 700;
 }
@@ -247,8 +248,8 @@
 .SignUp__featureContent p {
   margin: 0;
   color: #687285;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 /* =========================================================
@@ -1035,6 +1036,7 @@
   .SignUp__features {
     width: 100%;
     display: flex;
+    flex-direction: column;
     gap: 12px;
   }
 

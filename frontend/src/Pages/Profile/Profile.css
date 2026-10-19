@@ -1,146 +1,634 @@
 /* =========================================================
-   PROFILE PAGE STYLING
+   FLIPKART-STYLE PERSONAL INFORMATION PAGE (PROFILE)
 ========================================================= */
 
 .ProfilePage {
   min-height: 80vh;
-  background: #f4f7fb;
-  padding: 50px 20px 80px;
+  background-color: #f1f3f6;
+  padding: 24px 16px 60px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #212121;
 }
 
 .ProfilePage__container {
-  max-width: 980px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.ProfilePage__header {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  border: 1px solid #dce5f0;
-  box-shadow: 0 10px 30px rgba(18, 43, 76, 0.05);
+/* Breadcrumb Navigation */
+.ProfilePage__breadcrumb {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #878787;
+  margin-bottom: 16px;
+}
+
+.ProfilePage__breadcrumb a {
+  color: #878787;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.ProfilePage__breadcrumb a:hover {
+  color: #12598f;
+}
+
+.ProfilePage__breadcrumbCurrent {
+  color: #212121;
+  font-weight: 500;
+}
+
+/* Toast Message */
+.ProfilePage__toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  animation: slideDownToast 0.3s ease-out;
+}
+
+.ProfilePage__toast--success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.ProfilePage__toast--error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+@keyframes slideDownToast {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Layout (Sidebar + Content) */
+.ProfilePage__layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* =========================================================
+   SIDEBAR (Matches Flipkart & Orders page)
+========================================================= */
+
+.ProfilePage__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ProfilePage__userCard {
+  background: #ffffff;
+  padding: 14px 16px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ProfilePage__userAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #12598f;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .ProfilePage__userMeta {
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.ProfilePage__avatar {
-  width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #17547b, #2279b3);
-  color: #ffffff;
+.ProfilePage__hello {
+  font-size: 12px;
+  color: #878787;
+}
+
+.ProfilePage__userName {
+  font-size: 15px;
+  color: #212121;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ProfilePage__nav {
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.ProfilePage__navSection {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ProfilePage__navSection:last-child {
+  border-bottom: none;
+}
+
+.ProfilePage__navSectionTitle {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #878787;
+  letter-spacing: 0.5px;
+  padding: 14px 20px 8px;
+}
+
+.ProfilePage__navLink {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 700;
-  box-shadow: 0 6px 18px rgba(23, 84, 123, 0.25);
-  flex-shrink: 0;
-}
-
-.ProfilePage__info h1 {
-  margin: 0 0 6px;
-  font-size: 24px;
-  color: #101c34;
-  font-weight: 700;
-}
-
-.ProfilePage__info p {
-  margin: 0;
+  gap: 14px;
+  padding: 12px 20px;
+  color: #212121;
+  text-decoration: none;
   font-size: 14px;
-  color: #6a788e;
+  transition: all 0.2s ease;
 }
 
-.ProfilePage__actions {
-  display: flex;
-  gap: 12px;
+.ProfilePage__navLink svg {
+  font-size: 17px;
+  color: #12598f;
+}
+
+.ProfilePage__navLink:hover {
+  background: #f7f9fc;
+  color: #12598f;
+}
+
+.ProfilePage__navLink--active {
+  background: #f0f7fb;
+  color: #12598f;
+  font-weight: 600;
 }
 
 .ProfilePage__logoutBtn {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 10px 18px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 14px;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  color: #c62828;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
 }
 
 .ProfilePage__logoutBtn:hover {
-  background: #dc2626;
-  color: #ffffff;
-  border-color: #dc2626;
+  background: #fef2f2;
 }
 
-/* Details Grid */
-.ProfilePage__card {
+/* =========================================================
+   RIGHT CONTENT AREA (FLIPKART PERSONAL INFORMATION STYLE)
+========================================================= */
+
+.ProfilePage__content {
   background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  border: 1px solid #dce5f0;
-  box-shadow: 0 10px 30px rgba(18, 43, 76, 0.05);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 28px 36px 36px;
 }
 
-.ProfilePage__cardTitle {
-  margin: 0 0 24px;
-  font-size: 18px;
-  color: #101c34;
-  font-weight: 700;
+/* Section Block */
+.ProfilePage__section {
+  margin-bottom: 34px;
+}
+
+.ProfilePage__sectionHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #edf2f7;
-}
-
-.ProfilePage__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 24px;
+  margin-bottom: 18px;
 }
 
-.ProfilePage__field {
+.ProfilePage__sectionTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212121;
+}
+
+.ProfilePage__editAction {
+  background: none;
+  border: none;
+  color: #12598f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.ProfilePage__editAction:hover {
+  color: #0d426a;
+  text-decoration: underline;
+}
+
+.ProfilePage__cancelAction {
+  background: none;
+  border: none;
+  color: #12598f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.ProfilePage__cancelAction:hover {
+  color: #0d426a;
+  text-decoration: underline;
+}
+
+/* Form & Inputs */
+.ProfilePage__form {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 18px;
 }
 
-.ProfilePage__label {
-  font-size: 12px;
+.ProfilePage__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ProfilePage__inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 240px;
+}
+
+.ProfilePage__inputGroup--wide {
+  width: 320px;
+}
+
+.ProfilePage__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 2px;
+  font-size: 14px;
+  color: #212121;
+  background: #fafafa;
+  transition: all 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.ProfilePage__input:disabled {
+  background: #fafafa;
+  color: #475569;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+.ProfilePage__input:focus:not(:disabled) {
+  outline: none;
+  background: #ffffff;
+  border-color: #12598f;
+  box-shadow: 0 0 0 2px rgba(18, 89, 143, 0.15);
+}
+
+.ProfilePage__input--error {
+  border-color: #c62828 !important;
+}
+
+.ProfilePage__errorMsg {
+  font-size: 11.5px;
+  color: #c62828;
+}
+
+/* Save Button (Flipkart bold blue button) */
+.ProfilePage__saveBtn {
+  align-self: flex-start;
+  padding: 12px 28px;
+  background: #12598f;
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  font-size: 14px;
   font-weight: 700;
-  color: #79899f;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.ProfilePage__value {
+.ProfilePage__saveBtn:hover:not(:disabled) {
+  background: #0d426a;
+  box-shadow: 0 3px 8px rgba(18, 89, 143, 0.25);
+}
+
+.ProfilePage__saveBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Gender Selection */
+.ProfilePage__genderWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.ProfilePage__genderLabel {
+  font-size: 14px;
+  color: #666666;
+  font-weight: 500;
+}
+
+.ProfilePage__genderOptions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.ProfilePage__radioLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #212121;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ProfilePage__radioLabel--disabled {
+  cursor: default;
+  color: #555555;
+}
+
+.ProfilePage__radioLabel input {
+  display: none;
+}
+
+.ProfilePage__radioCustom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #878787;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.ProfilePage__radioLabel input:checked + .ProfilePage__radioCustom {
+  border-color: #12598f;
+}
+
+.ProfilePage__radioLabel input:checked + .ProfilePage__radioCustom::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  background: #12598f;
+  border-radius: 50%;
+}
+
+/* =========================================================
+   FAQS SECTION (Flipkart Style)
+========================================================= */
+
+.ProfilePage__faqs {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 26px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ProfilePage__faqsTitle {
+  margin: 0 0 6px;
   font-size: 15px;
   font-weight: 600;
-  color: #101c34;
-  padding: 10px 14px;
-  background: #f7fafc;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  color: #212121;
 }
 
-@media (max-width: 640px) {
-  .ProfilePage__header {
+.ProfilePage__faqItem {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ProfilePage__faqItem h4 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #212121;
+}
+
+.ProfilePage__faqItem p {
+  margin: 0;
+  font-size: 13px;
+  color: #666666;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   DEACTIVATE ACCOUNT
+========================================================= */
+
+.ProfilePage__deactivateWrap {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.ProfilePage__deactivateBtn {
+  background: none;
+  border: none;
+  color: #12598f;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.ProfilePage__deactivateBtn:hover {
+  color: #c62828;
+  text-decoration: underline;
+}
+
+/* =========================================================
+   CONFIRMATION MODAL
+========================================================= */
+
+.ProfilePage__modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.ProfilePage__modal {
+  background: #ffffff;
+  border-radius: 8px;
+  max-width: 440px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: modalScale 0.2s ease-out;
+}
+
+@keyframes modalScale {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.ProfilePage__modalHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ProfilePage__modalWarning {
+  color: #d97706;
+  font-size: 24px;
+  display: flex;
+}
+
+.ProfilePage__modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #212121;
+  flex: 1;
+}
+
+.ProfilePage__modalClose {
+  background: none;
+  border: none;
+  color: #878787;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.ProfilePage__modalClose:hover {
+  color: #212121;
+  background: #f1f5f9;
+}
+
+.ProfilePage__modalText {
+  font-size: 13.5px;
+  color: #555555;
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.ProfilePage__modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.ProfilePage__modalCancelBtn {
+  padding: 9px 18px;
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #555555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ProfilePage__modalCancelBtn:hover {
+  background: #f1f5f9;
+}
+
+.ProfilePage__modalConfirmBtn {
+  padding: 9px 18px;
+  background: #c62828;
+  border: none;
+  border-radius: 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ProfilePage__modalConfirmBtn:hover {
+  background: #b71c1c;
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN
+========================================================= */
+
+@media (max-width: 900px) {
+  .ProfilePage__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .ProfilePage__content {
+    padding: 20px 16px;
+  }
+
+  .ProfilePage__inputGroup,
+  .ProfilePage__inputGroup--wide {
+    width: 100%;
+  }
+
+  .ProfilePage__row {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+
+  .ProfilePage__saveBtn {
+    width: 100%;
+    text-align: center;
   }
 }

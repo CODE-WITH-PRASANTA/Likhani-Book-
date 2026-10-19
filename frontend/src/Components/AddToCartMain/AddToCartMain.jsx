@@ -10,6 +10,11 @@ import {
 } from "../ShopMain/useShopStore";
 import { fetchAllCatalogBooks } from "../../api/booksService";
 import { slugify } from "../ShopMain/ShopMain";
+import API from "../../api/axios";
+import { useAuth } from "../../context/AuthContext";
+import CheckoutModal from "../CheckoutModal/CheckoutModal";
+import AddressPickerModal from "../AddressPickerModal/AddressPickerModal";
+import { fetchUserAddresses } from "../../api/addressService";
 import "./AddToCartMain.css";
 
 /* =========================================================
@@ -140,14 +145,26 @@ const ShieldIcon = (p) => (
   </Icon>
 );
 
+const MapPinIcon = (p) => (
+  <Icon {...p}>
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </Icon>
+);
+
+const PackageIcon = (p) => (
+  <Icon {...p}>
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+    <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+    <line x1="12" y1="22.08" x2="12" y2="12" />
+  </Icon>
+);
+
 /* =========================================================
    CONSTANTS & HELPERS
 ========================================================= */
 
-const FREE_SHIPPING_LIMIT = 999;
-const SHIPPING_FEE = 49;
 const MAX_QTY = 10;
-const COUPON_CODE = "BOOK10";
 
 const formatPrice = (price) =>
   new Intl.NumberFormat("en-IN", {
@@ -171,9 +188,16 @@ const getVisibleCount = () => {
 
 const AddToCartMain = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, currentUser } = useAuth();
   const { cart, wishlist } = useShopStore();
   const [catalogBooks, setCatalogBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Flipkart-style delivery address state
+  const [userAddresses, setUserAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [isAddressPickerOpen, setIsAddressPickerOpen] = useState(false);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   const [unselectedIds, setUnselectedIds] = useState(new Set());
   const [savedForLaterIds, setSavedForLaterIds] = useState(() => {
@@ -186,8 +210,10 @@ const AddToCartMain = () => {
   });
 
   const [coupon, setCoupon] = useState("");
-  const [couponApplied, setCouponApplied] = useState(false);
-  const [couponMessage, setCouponMessage] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponMessage, setCouponMessage] = useState({ text: "", type: "" });
+  const [availableCoupons, setAvailableCoupons] = useState([]);
 
   const [recommendationStart, setRecommendationStart] = useState(0);
   const [visibleCount, setVisibleCount] = useState(getVisibleCount);
@@ -199,8 +225,28 @@ const AddToCartMain = () => {
   useEffect(() => {
     try {
       localStorage.setItem("likhani-saved-later", JSON.stringify(savedForLaterIds));
-    } catch {}
+    } catch { }
   }, [savedForLaterIds]);
+
+  // Load saved delivery addresses for logged in user
+  useEffect(() => {
+    if (currentUser) {
+      let active = true;
+      fetchUserAddresses().then((addrs) => {
+        if (active && Array.isArray(addrs)) {
+          setUserAddresses(addrs);
+          const defaultAddr = addrs.find((a) => a.isDefault) || addrs[0] || null;
+          setSelectedAddress((prev) => prev || defaultAddr);
+        }
+      });
+      return () => {
+        active = false;
+      };
+    } else {
+      setUserAddresses([]);
+      setSelectedAddress(null);
+    }
+  }, [currentUser]);
 
   // Fetch catalog books
   useEffect(() => {
@@ -216,6 +262,25 @@ const AddToCartMain = () => {
     });
     return () => {
       active = false;
+    };
+  }, []);
+
+  // Fetch active coupons from backend
+  useEffect(() => {
+    let isMounted = true;
+    const fetchActiveCoupons = async () => {
+      try {
+        const res = await API.get("/coupons/active");
+        if (isMounted && res.data?.success && Array.isArray(res.data.data)) {
+          setAvailableCoupons(res.data.data);
+        }
+      } catch (err) {
+        console.warn("Could not load active coupons:", err?.message);
+      }
+    };
+    fetchActiveCoupons();
+    return () => {
+      isMounted = false;
     };
   }, []);
 
@@ -310,25 +375,43 @@ const AddToCartMain = () => {
   );
 
   const productDiscount = Math.max(originalTotal - subtotal, 0);
-  const couponDiscount = couponApplied ? Math.round(subtotal * 0.1) : 0;
 
-  const shipping =
-    selectedItems.length === 0 || subtotal >= FREE_SHIPPING_LIMIT
-      ? 0
-      : SHIPPING_FEE;
+  // Dynamic coupon discount based on backend validated coupon
+  const couponDiscount = useMemo(() => {
+    if (!appliedCoupon || !selectedItems.length) return 0;
+    if (appliedCoupon.minimumPurchase && subtotal < appliedCoupon.minimumPurchase) {
+      return 0;
+    }
+    return Math.min(
+      Math.round((subtotal * appliedCoupon.discountPercent) / 100),
+      subtotal
+    );
+  }, [appliedCoupon, subtotal, selectedItems.length]);
 
-  const grandTotal = Math.max(subtotal + shipping - couponDiscount, 0);
+  const grandTotal = Math.max(subtotal - couponDiscount, 0);
 
   const totalSavings = productDiscount + couponDiscount;
 
   const allSelected =
     cartItems.length > 0 && cartItems.every((item) => item.selected);
 
-  const freeShippingLeft = Math.max(FREE_SHIPPING_LIMIT - subtotal, 0);
-  const freeShippingProgress = Math.min(
-    (subtotal / FREE_SHIPPING_LIMIT) * 100,
-    100
-  );
+  // Re-verify coupon minimum purchase when subtotal or items change
+  useEffect(() => {
+    if (appliedCoupon && selectedItems.length > 0) {
+      if (appliedCoupon.minimumPurchase && subtotal < appliedCoupon.minimumPurchase) {
+        setCouponMessage({
+          text: `Coupon "${appliedCoupon.code}" requires minimum purchase of ₹${appliedCoupon.minimumPurchase} (add ₹${appliedCoupon.minimumPurchase - subtotal} more).`,
+          type: "error",
+        });
+      } else {
+        const currentDiscount = Math.round((subtotal * appliedCoupon.discountPercent) / 100);
+        setCouponMessage({
+          text: `Coupon "${appliedCoupon.code}" applied! You save ₹${currentDiscount.toLocaleString("en-IN")} (${appliedCoupon.discountPercent}% off).`,
+          type: "success",
+        });
+      }
+    }
+  }, [subtotal, appliedCoupon, selectedItems.length]);
 
   /* ---------- quantity ---------- */
 
@@ -404,36 +487,67 @@ const AddToCartMain = () => {
     setSavedForLaterIds((previous) => previous.filter((item) => String(item) !== String(id)));
   };
 
-  /* ---------- coupon ---------- */
+  /* ---------- backend coupon validation & application ---------- */
 
-  const applyCoupon = () => {
-    const code = coupon.trim().toUpperCase();
+  const applyCoupon = async (codeOverride = null) => {
+    const targetCode = (typeof codeOverride === "string" ? codeOverride : coupon).trim().toUpperCase();
 
-    if (!code) {
-      setCouponApplied(false);
-      setCouponMessage("Please enter a coupon code.");
+    if (!targetCode) {
+      setCouponMessage({ text: "Please enter a coupon code.", type: "error" });
       return;
     }
 
-    if (!selectedItems.length) {
-      setCouponApplied(false);
-      setCouponMessage("Select at least one item to use a coupon.");
+    if (!selectedItems.length || subtotal <= 0) {
+      setCouponMessage({ text: "Please select at least one item before applying a coupon.", type: "error" });
       return;
     }
 
-    if (code === COUPON_CODE) {
-      setCouponApplied(true);
-      setCouponMessage("Coupon applied. You get 10% off.");
-    } else {
-      setCouponApplied(false);
-      setCouponMessage(`Invalid coupon. Try ${COUPON_CODE}.`);
+    try {
+      setCouponLoading(true);
+      setCouponMessage({ text: "", type: "" });
+
+      const res = await API.post("/coupons/validate", {
+        code: targetCode,
+        cartTotal: subtotal,
+      });
+
+      if (res.data?.success && res.data?.data) {
+        const data = res.data.data;
+        setAppliedCoupon(data);
+        setCoupon(data.code);
+        setCouponMessage({
+          text: res.data.message || `Coupon "${data.code}" applied! You get ${data.discountPercent}% off.`,
+          type: "success",
+        });
+        showToast(`Coupon "${data.code}" applied: ${data.discountPercent}% off!`);
+      } else {
+        setAppliedCoupon(null);
+        setCouponMessage({
+          text: res.data?.message || "Failed to apply coupon.",
+          type: "error",
+        });
+      }
+    } catch (err) {
+      setAppliedCoupon(null);
+      const errorMsg =
+        err.response?.data?.message ||
+        (err.response?.status === 404
+          ? `Coupon "${targetCode}" is invalid.`
+          : "Could not validate coupon. Please try again.");
+      setCouponMessage({ text: errorMsg, type: "error" });
+    } finally {
+      setCouponLoading(false);
     }
   };
 
   const removeCoupon = () => {
+    const code = appliedCoupon?.code || coupon;
     setCoupon("");
-    setCouponApplied(false);
-    setCouponMessage("");
+    setAppliedCoupon(null);
+    setCouponMessage({ text: "", type: "" });
+    if (code) {
+      showToast(`Coupon "${code}" removed.`);
+    }
   };
 
   /* ---------- checkout / navigation ---------- */
@@ -444,11 +558,19 @@ const AddToCartMain = () => {
       return;
     }
 
-    showToast(
-      `Proceeding to checkout with ${itemCount} ${
-        itemCount === 1 ? "item" : "items"
-      }. Total ${formatPrice(grandTotal)}.`
-    );
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: "/cart" } });
+      return;
+    }
+
+    setIsCheckoutModalOpen(true);
+  };
+
+  const handleOrderSuccess = (order) => {
+    selectedItems.forEach((item) => updateCartQty(item.id, 0));
+    setAppliedCoupon(null);
+    setCoupon("");
+    showToast(`Order #${order.receipt || order.id} placed successfully!`);
   };
 
   const continueShopping = () => {
@@ -497,6 +619,93 @@ const AddToCartMain = () => {
             {/* ===================== CART ===================== */}
 
             <div className="AddToCartMain__cartBox">
+              {/* Flipkart-Style Delivery Address Bar */}
+              <div className="AddToCartMain__deliveryBar">
+                <div className="AddToCartMain__deliveryBarLeft">
+                  <div className="AddToCartMain__deliveryPinIcon">
+                    <MapPinIcon size={22} />
+                  </div>
+                  <div className="AddToCartMain__deliveryInfo">
+                    {currentUser ? (
+                      selectedAddress ? (
+                        <>
+                          <div className="AddToCartMain__deliveryTitleRow">
+                            <span className="AddToCartMain__deliveryTo">Deliver to:</span>
+                            <strong className="AddToCartMain__deliveryName">
+                              {selectedAddress.name}, {selectedAddress.pincode}
+                            </strong>
+                            <span
+                              className={`AddToCartMain__deliveryBadge AddToCartMain__deliveryBadge--${
+                                selectedAddress.addressType?.toLowerCase() || "home"
+                              }`}
+                            >
+                              {selectedAddress.addressType?.toUpperCase() || "HOME"}
+                            </span>
+                            {selectedAddress.isDefault && (
+                              <span className="AddToCartMain__deliveryBadgeDefault">
+                                DEFAULT
+                              </span>
+                            )}
+                          </div>
+                          <p className="AddToCartMain__deliveryFullAddress">
+                            {selectedAddress.street}
+                            {selectedAddress.locality ? `, ${selectedAddress.locality}` : ""}, {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
+                          </p>
+                        </>
+                      ) : (
+                        <div className="AddToCartMain__deliveryTitleRow">
+                          <span className="AddToCartMain__deliveryTo">
+                            No delivery address added yet. Add an address to proceed.
+                          </span>
+                        </div>
+                      )
+                    ) : (
+                      <div className="AddToCartMain__deliveryTitleRow">
+                        <span className="AddToCartMain__deliveryTo">
+                          Log in to select a delivery address and enjoy seamless checkout.
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="AddToCartMain__deliveryBarRight">
+                  {currentUser ? (
+                    <div className="AddToCartMain__deliveryActions">
+                      <Link
+                        to="/orders"
+                        className="AddToCartMain__ordersHeaderLink"
+                        title="View your previous orders"
+                      >
+                        <PackageIcon size={16} />
+                        <span>My Orders</span>
+                      </Link>
+                      <button
+                        type="button"
+                        className="AddToCartMain__changeAddressBtn"
+                        onClick={() => {
+                          if (userAddresses.length === 0) {
+                            navigate("/addresses");
+                          } else {
+                            setIsAddressPickerOpen(true);
+                          }
+                        }}
+                      >
+                        {selectedAddress ? "Change" : "Add Address"}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="AddToCartMain__changeAddressBtn"
+                      onClick={() => navigate("/login", { state: { from: "/cart" } })}
+                    >
+                      Login
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className="AddToCartMain__cartToolbar">
                 <label className="AddToCartMain__selectAll">
                   <input
@@ -539,9 +748,8 @@ const AddToCartMain = () => {
 
                   return (
                     <article
-                      className={`AddToCartMain__cartItem ${
-                        item.selected ? "" : "is-unselected"
-                      }`}
+                      className={`AddToCartMain__cartItem ${item.selected ? "" : "is-unselected"
+                        }`}
                       key={item.id}
                     >
                       {/* PRODUCT */}
@@ -662,33 +870,19 @@ const AddToCartMain = () => {
                 <h2>Order summary</h2>
               </div>
 
-              {/* Free shipping progress */}
-              {selectedItems.length > 0 && (
-                <div className="AddToCartMain__shipping">
-                  <div className="AddToCartMain__shippingText">
-                    <TruckIcon size={20} />
-                    {freeShippingLeft > 0 ? (
-                      <p>
-                        Add <strong>{formatPrice(freeShippingLeft)}</strong>{" "}
-                        more for free shipping
-                      </p>
-                    ) : (
-                      <p>
-                        <strong>You get free shipping</strong> on this order
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="AddToCartMain__progress">
-                    <div style={{ width: `${freeShippingProgress}%` }} />
-                  </div>
-                </div>
-              )}
-
               <div className="AddToCartMain__summaryRows">
-                <div>
-                  <span>Items ({itemCount})</span>
-                  <strong>{formatPrice(originalTotal)}</strong>
+                <div className="AddToCartMain__summaryItemsContainer">
+                  {selectedItems.map((item) => (
+                    <div key={item.id} className="AddToCartMain__summaryItemRow">
+                      <span className="AddToCartMain__summaryItemName" title={item.title}>
+                        {item.title}
+                        {item.quantity > 1 ? ` (×${item.quantity})` : ""}
+                      </span>
+                      <strong>
+                        {formatPrice((item.oldPrice || item.price) * item.quantity)}
+                      </strong>
+                    </div>
+                  ))}
                 </div>
 
                 <div>
@@ -698,23 +892,14 @@ const AddToCartMain = () => {
                   </strong>
                 </div>
 
-                {couponApplied && (
+                {appliedCoupon && couponDiscount > 0 && (
                   <div>
-                    <span>Coupon ({COUPON_CODE})</span>
+                    <span>Coupon ({appliedCoupon.code})</span>
                     <strong className="AddToCartMain__discount">
                       − {formatPrice(couponDiscount)}
                     </strong>
                   </div>
                 )}
-
-                <div>
-                  <span>Shipping</span>
-                  <strong
-                    className={shipping === 0 ? "AddToCartMain__free" : ""}
-                  >
-                    {shipping === 0 ? "FREE" : formatPrice(shipping)}
-                  </strong>
-                </div>
               </div>
 
               <div className="AddToCartMain__total">
@@ -767,18 +952,23 @@ const AddToCartMain = () => {
                 <div className="AddToCartMain__couponInput">
                   <input
                     type="text"
-                    placeholder="Enter coupon code"
+                    placeholder="Enter coupon code (e.g. BKPADUM3)"
                     value={coupon}
-                    disabled={couponApplied}
-                    onChange={(event) => setCoupon(event.target.value)}
+                    disabled={Boolean(appliedCoupon) || couponLoading}
+                    onChange={(event) => {
+                      setCoupon(event.target.value.toUpperCase());
+                      if (couponMessage.text && !appliedCoupon) {
+                        setCouponMessage({ text: "", type: "" });
+                      }
+                    }}
                     onKeyDown={(event) => {
-                      if (event.key === "Enter" && !couponApplied) {
+                      if (event.key === "Enter" && !appliedCoupon && !couponLoading) {
                         applyCoupon();
                       }
                     }}
                   />
 
-                  {couponApplied ? (
+                  {appliedCoupon ? (
                     <button
                       type="button"
                       className="is-remove"
@@ -787,27 +977,50 @@ const AddToCartMain = () => {
                       Remove
                     </button>
                   ) : (
-                    <button type="button" onClick={applyCoupon}>
-                      Apply
+                    <button
+                      type="button"
+                      onClick={() => applyCoupon()}
+                      disabled={couponLoading || !coupon.trim()}
+                    >
+                      {couponLoading ? "Checking..." : "Apply"}
                     </button>
                   )}
                 </div>
 
-                {couponMessage && (
+                {couponMessage.text && (
                   <p
                     className={
-                      couponApplied
+                      couponMessage.type === "success"
                         ? "AddToCartMain__couponSuccess"
                         : "AddToCartMain__couponError"
                     }
                   >
-                    {couponMessage}
+                    {couponMessage.text}
                   </p>
                 )}
 
-                <small>
-                  Try <strong>{COUPON_CODE}</strong> for 10% extra discount.
-                </small>
+                {/* AVAILABLE ACTIVE COUPONS FROM BACKEND */}
+                {availableCoupons.length > 0 && !appliedCoupon && (
+                  <div className="AddToCartMain__availableCoupons">
+                    <small>Available coupons:</small>
+                    <div className="AddToCartMain__couponPills">
+                      {availableCoupons.slice(0, 3).map((c) => (
+                        <button
+                          key={c.id || c.code}
+                          type="button"
+                          className="AddToCartMain__couponPill"
+                          title={`Valid till ${c.endDate}. Min purchase: ₹${c.minimumPurchase}`}
+                          onClick={() => {
+                            setCoupon(c.code);
+                            applyCoupon(c.code);
+                          }}
+                        >
+                          <strong>{c.code}</strong> ({c.discountPercent}% OFF)
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="AddToCartMain__secure">
@@ -826,14 +1039,31 @@ const AddToCartMain = () => {
             <h2>Your cart is empty</h2>
             <p>Looks like you haven't added any books to your cart yet.</p>
 
-            <Link
-              to="/shop"
-              className="AddToCartMain__shopButton"
-              style={{ textDecoration: "none" }}
-            >
-              Explore books
-              <ArrowRightIcon size={20} />
-            </Link>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap", marginTop: "16px" }}>
+              <Link
+                to="/shop"
+                className="AddToCartMain__shopButton"
+                style={{ textDecoration: "none" }}
+              >
+                Explore books
+                <ArrowRightIcon size={20} />
+              </Link>
+              {currentUser && (
+                <Link
+                  to="/orders"
+                  className="AddToCartMain__shopButton"
+                  style={{
+                    textDecoration: "none",
+                    background: "#f0f7fb",
+                    color: "#12598f",
+                    border: "1px solid #c2def0",
+                  }}
+                >
+                  <PackageIcon size={18} />
+                  View Past Orders
+                </Link>
+              )}
+            </div>
           </div>
         )}
 
@@ -1037,6 +1267,34 @@ const AddToCartMain = () => {
           </button>
         </div>
       )}
+
+      {/* Flipkart-Style Address Picker Modal */}
+      <AddressPickerModal
+        isOpen={isAddressPickerOpen}
+        onClose={() => setIsAddressPickerOpen(false)}
+        addresses={userAddresses}
+        selectedAddressId={selectedAddress?._id}
+        onSelectAddress={(addr) => setSelectedAddress(addr)}
+        onAddressListUpdated={(updated) => {
+          setUserAddresses(updated);
+          const current = updated.find((a) => a.isDefault) || updated[0];
+          setSelectedAddress(current);
+        }}
+      />
+
+      {/* Razorpay Checkout & Payment Modal */}
+      <CheckoutModal
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        items={selectedItems}
+        subtotal={subtotal}
+        discount={couponDiscount}
+        couponCode={appliedCoupon?.code || ""}
+        grandTotal={grandTotal}
+        currentUser={currentUser}
+        selectedAddress={selectedAddress}
+        onOrderSuccess={handleOrderSuccess}
+      />
     </section>
   );
 };

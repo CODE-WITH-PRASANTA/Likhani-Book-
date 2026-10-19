@@ -11,6 +11,9 @@ router.post("/bulk-delete", couponController.bulkDeleteCoupons);
 // Toggle/update status
 router.patch("/:id/status", couponController.toggleCouponStatus);
 
+// Active public coupons
+router.get("/active", couponController.getActiveCoupons);
+
 // Standard CRUD endpoints
 router.get("/", couponController.getCoupons);
 router.get("/:id", couponController.getCouponById);

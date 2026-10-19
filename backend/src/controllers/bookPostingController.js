@@ -131,6 +131,10 @@ exports.createBookPosting = async (req, res) => {
       stock = 0,
       status = "Published",
       featured = false,
+      publisher = "",
+      pages = 0,
+      language = "English",
+      year = new Date().getFullYear(),
       description = "",
       image: textImage = "",
       images: bodyImages,
@@ -191,6 +195,10 @@ exports.createBookPosting = async (req, res) => {
       stock: numericStock,
       status: calculatedStatus,
       featured: featured === true || featured === "true",
+      publisher: typeof publisher === "string" ? publisher.trim() : "",
+      pages: pages !== "" && !isNaN(pages) ? Math.max(Number(pages) || 0, 0) : 0,
+      language: typeof language === "string" && language.trim() ? language.trim() : "English",
+      year: year !== "" && !isNaN(year) ? Number(year) : new Date().getFullYear(),
       description: description ? description.trim() : "",
       image: primaryImage,
       images: imagesArray,
@@ -238,6 +246,19 @@ exports.updateBookPosting = async (req, res) => {
     if (updateData.author !== undefined) updateData.author = updateData.author.trim();
     if (updateData.category !== undefined) updateData.category = updateData.category.trim();
     if (updateData.description !== undefined) updateData.description = updateData.description.trim();
+
+    if (updateData.publisher !== undefined) {
+      updateData.publisher = typeof updateData.publisher === "string" ? updateData.publisher.trim() : "";
+    }
+    if (updateData.pages !== undefined) {
+      updateData.pages = updateData.pages !== "" && !isNaN(updateData.pages) ? Math.max(Number(updateData.pages) || 0, 0) : 0;
+    }
+    if (updateData.language !== undefined) {
+      updateData.language = typeof updateData.language === "string" && updateData.language.trim() ? updateData.language.trim() : "English";
+    }
+    if (updateData.year !== undefined) {
+      updateData.year = updateData.year !== "" && !isNaN(updateData.year) ? Number(updateData.year) : new Date().getFullYear();
+    }
 
     if (updateData.price !== undefined) updateData.price = Number(updateData.price);
     if (updateData.offerPrice !== undefined) {

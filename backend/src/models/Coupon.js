@@ -70,7 +70,6 @@ const couponSchema = new mongoose.Schema(
 );
 
 // Indexes
-couponSchema.index({ code: 1 }, { unique: true });
 couponSchema.index({ status: 1 });
 couponSchema.index({ createdAt: -1 });
 
