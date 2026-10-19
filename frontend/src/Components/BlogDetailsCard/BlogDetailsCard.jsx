@@ -1,67 +1,152 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom'
 import {
   FaUser,
   FaComments,
   FaTag,
   FaSearch,
   FaCalendarAlt,
-  FaQuoteRight,
   FaFacebookF,
   FaTwitter,
   FaLinkedinIn,
-  FaStar,
-  FaRegStar,
   FaArrowRight,
+  FaArrowLeft,
 } from 'react-icons/fa'
+import API, { IMG_URL } from '../../api/axios'
 import './BlogDetailsCard.css'
 
-// Import WebP assets
+// Fallback assets
 import mainHeroImg from '../../assets/16.webp'
-import galleryImg1 from '../../assets/05.webp'
-import galleryImg2 from '../../assets/08.webp'
 import recentPost1 from '../../assets/11.webp'
 import recentPost2 from '../../assets/12.webp'
 import recentPost3 from '../../assets/13.webp'
-import userAvatar1 from '../../assets/14.webp'
-import userAvatar2 from '../../assets/12.webp'
 
 const BlogDetailsCard = () => {
-  // State management
-  const [searchQuery, setSearchQuery] = useState('')
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      name: 'Leslie Alexander',
-      date: 'March 20, 2024 at 2:37 pm',
-      avatar: userAvatar1,
-      rating: 5,
-      comment:
-        'Neque porro est qui dolorem ipsum quia quaed inventor veritatis et quasi architecto var sed efficitur turpis gilla sed sit amet finibus eros. Lorem Ipsum is simply dummy',
-    },
-    {
-      id: 2,
-      name: 'Alex Flores',
-      date: 'March 20, 2024 at 2:37 pm',
-      avatar: userAvatar2,
-      rating: 4,
-      comment:
-        'Neque porro est qui dolorem ipsum quia quaed inventor veritatis et quasi architecto var sed efficitur turpis gilla sed sit amet finibus eros. Lorem Ipsum is simply dummy',
-    },
-  ])
+  const { slug } = useParams()
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
 
+  const blogId = searchParams.get('id')
+  const blogSlugParam = searchParams.get('slug')
+  const targetIdentifier = slug || blogSlugParam || blogId
+
+  const [currentBlog, setCurrentBlog] = useState(null)
+  const [recentBlogs, setRecentBlogs] = useState([])
+  const [categories, setCategories] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  // Search & Comment states
+  const [searchQuery, setSearchQuery] = useState('')
+  const [comments, setComments] = useState([])
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
-    rating: 5,
   })
+  const [commentSuccess, setCommentSuccess] = useState('')
 
-  // Event handlers
+  // Helper to resolve image URLs
+  const getImageUrl = (imgPath, fallback = mainHeroImg) => {
+    if (!imgPath) return fallback
+    if (imgPath.startsWith('http://') || imgPath.startsWith('https://') || imgPath.startsWith('data:')) {
+      return imgPath
+    }
+    return `${IMG_URL}${imgPath.startsWith('/') ? '' : '/'}${imgPath}`
+  }
+
+  // Format date helper
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'Recent'
+    try {
+      const d = new Date(dateStr)
+      if (isNaN(d.getTime())) return dateStr
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    } catch {
+      return dateStr
+    }
+  }
+
+  // Fetch current blog, dynamic categories, and recent posts in parallel with fail-safe completion
+  useEffect(() => {
+    let cancelled = false
+
+    // Safety timeout: ensure loading state is cleared even on slow network
+    const safetyTimer = setTimeout(() => {
+      if (!cancelled) {
+        setIsLoading(false)
+      }
+    }, 3500)
+
+    const loadData = async () => {
+      try {
+        setIsLoading(true)
+        setNotFound(false)
+
+        const [blogResult, catResult, recentResult] = await Promise.allSettled([
+          targetIdentifier
+            ? API.get(`/blogs/${encodeURIComponent(targetIdentifier)}`)
+            : API.get('/blogs', { params: { limit: 1, status: 'Published' } }),
+          API.get('/blogs/categories'),
+          API.get('/blogs', { params: { limit: 4, status: 'Published', sort: 'latest' } }),
+        ])
+
+        if (cancelled) return
+
+        // 1. Process blog details
+        let fetchedBlog = null
+        if (blogResult.status === 'fulfilled' && blogResult.value?.data?.success) {
+          const resData = blogResult.value.data.data
+          fetchedBlog = Array.isArray(resData) ? resData[0] : resData
+        }
+
+        if (fetchedBlog) {
+          setCurrentBlog(fetchedBlog)
+          setNotFound(false)
+        } else {
+          setNotFound(true)
+        }
+
+        // 2. Process dynamic categories
+        if (catResult.status === 'fulfilled' && catResult.value?.data?.success) {
+          setCategories(catResult.value.data.data || [])
+        }
+
+        // 3. Process recent blogs
+        if (recentResult.status === 'fulfilled' && recentResult.value?.data?.success) {
+          const list = recentResult.value.data.data || []
+          setRecentBlogs(list.filter((b) => b._id !== fetchedBlog?._id))
+        }
+      } catch (err) {
+        console.error('Error in blog details loader:', err)
+        if (!cancelled) setNotFound(true)
+      } finally {
+        clearTimeout(safetyTimer)
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadData()
+
+    return () => {
+      cancelled = true
+      clearTimeout(safetyTimer)
+    }
+  }, [targetIdentifier])
+
+  // Form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  // Handle post comment
   const handlePostComment = (e) => {
     e.preventDefault()
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
@@ -71,27 +156,113 @@ const BlogDetailsCard = () => {
 
     const newComment = {
       id: Date.now(),
-      name: formData.name,
+      name: formData.name.trim(),
       date: new Date().toLocaleDateString('en-US', {
-        month: 'long',
+        month: 'short',
         day: 'numeric',
         year: 'numeric',
-      }) + ' at ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      avatar: userAvatar1,
-      rating: formData.rating,
-      comment: formData.message,
+      }),
+      comment: formData.message.trim(),
     }
 
-    setComments((prev) => [...prev, newComment])
-    setFormData({ name: '', email: '', message: '', rating: 5 })
+    setComments((prev) => [newComment, ...prev])
+    setFormData({ name: '', email: '', message: '' })
+    setCommentSuccess('Thank you! Your comment has been posted.')
+    setTimeout(() => setCommentSuccess(''), 4000)
   }
 
+  // Handle sidebar search submit
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      alert(`Searching for: ${searchQuery}`)
+      navigate(`/blog?search=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
+
+  // Handle category click
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/blog?category=${encodeURIComponent(categoryName)}`)
+  }
+
+  // Render Loading
+  if (isLoading) {
+    return (
+      <section className="BlogDetailsCard-wrapper">
+        <div style={{ textAlign: 'center', padding: '100px 20px' }}>
+          <div
+            style={{
+              width: '45px',
+              height: '45px',
+              border: '3px solid #e2e8f0',
+              borderTopColor: '#0b556a',
+              borderRadius: '50%',
+              margin: '0 auto 18px',
+              animation: 'blogDetailsSpin 0.8s linear infinite',
+            }}
+          />
+          <p style={{ color: '#64748b', fontSize: '16px', fontWeight: 500 }}>
+            Loading blog post...
+          </p>
+          <style>
+            {`@keyframes blogDetailsSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}
+          </style>
+        </div>
+      </section>
+    )
+  }
+
+  // Render Not Found
+  if (notFound || !currentBlog) {
+    return (
+      <section className="BlogDetailsCard-wrapper">
+        <div
+          style={{
+            maxWidth: '600px',
+            margin: '80px auto',
+            textAlign: 'center',
+            padding: '40px 24px',
+            background: '#ffffff',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+          }}
+        >
+          <h2 style={{ fontSize: '24px', color: '#0d2c44', marginBottom: '12px', fontWeight: 700 }}>
+            Blog Post Not Found
+          </h2>
+          <p style={{ color: '#64748b', fontSize: '15px', lineHeight: '1.6', marginBottom: '24px' }}>
+            The requested article could not be located. It might have been updated or removed.
+          </p>
+          <Link
+            to="/blog"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: '#0b556a',
+              color: '#ffffff',
+              padding: '10px 24px',
+              borderRadius: '6px',
+              textDecoration: 'none',
+              fontWeight: 600,
+              fontSize: '14px',
+            }}
+          >
+            <FaArrowLeft /> Back to All Blogs
+          </Link>
+        </div>
+      </section>
+    )
+  }
+
+  const postImage = getImageUrl(currentBlog.image, mainHeroImg)
+  const postAuthor = currentBlog.author
+    ? currentBlog.author.startsWith('By ')
+      ? currentBlog.author
+      : `By ${currentBlog.author}`
+    : 'By Admin'
+  const postCategory = currentBlog.category || 'General'
+  const postTitle = currentBlog.title || 'Untitled Post'
 
   return (
     <section className="BlogDetailsCard-wrapper">
@@ -102,142 +273,169 @@ const BlogDetailsCard = () => {
           <div className="BlogDetailsCard-hero">
             <div className="BlogDetailsCard-image-box">
               <img
-                src={mainHeroImg}
-                alt="Main Blog Banner"
+                src={postImage}
+                alt={postTitle}
                 className="BlogDetailsCard-hover-img"
+                onError={(e) => {
+                  e.target.onerror = null
+                  e.target.src = mainHeroImg
+                }}
               />
             </div>
             <div className="BlogDetailsCard-hero-meta">
               <span>
-                <FaUser className="BlogDetailsCard-meta-icon" /> By Admin
+                <FaUser className="BlogDetailsCard-meta-icon" /> {postAuthor}
               </span>
               <span>
-                <FaComments className="BlogDetailsCard-meta-icon" />{' '}
-                {comments.length} Comments
+                <FaComments className="BlogDetailsCard-meta-icon" /> {comments.length} Comments
               </span>
               <span>
-                <FaTag className="BlogDetailsCard-meta-icon" /> Book Store
+                <FaTag className="BlogDetailsCard-meta-icon" /> {postCategory}
               </span>
+              {currentBlog.createdAt && (
+                <span>
+                  <FaCalendarAlt className="BlogDetailsCard-meta-icon" /> {formatDate(currentBlog.createdAt)}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Title & Paragraphs */}
+          {/* Article Body */}
           <article className="BlogDetailsCard-article">
-            <h1 className="BlogDetailsCard-title">
-              Eu Parturient Dictumst Frames Quam Temper
-            </h1>
-            <p className="BlogDetailsCard-text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris efficitur et ipsum ut volutpat. Morbi a mollis felis. Nam consectetur lectus vel lorem facilisis, quis viverra purus pharetra. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce dui lacus, tempor a metus vel, varius rhoncus nunc. Suspendisse luctus feugiat dictum. Curabitur ipsum velit, viverra in pretium eget, molestie maximus magna. Aliquam elementum vel turpis non bibendum. Cras in consequat neque.
-            </p>
-            <p className="BlogDetailsCard-text">
-              Nunc tincidunt cursus lectus ac semper. Aenean ullamcorper quis arcu molestie consequat. Interdum et malesuada fames ac ante ipsum primis in faucibus. Ut nec lobortis elit, eu ultrices justo. Fusce auctor erat est, non fringilla nibh tempus quis. Aenean dignissim turpis ut interdum interdum. Nam molestie sed ex non tempus. Donec sodales aliquam orci non imperdiet. Quisque tempus dolor id nisi blandit tempor ut id lacus. Aliquam mattis tempor posuere. Sed ut sollicitudin velit.
-            </p>
-            <p className="BlogDetailsCard-text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris efficitur et ipsum ut volutpat. Morbi a mollis felis. Nam consectetur lectus vel lorem facilisis, quis viverra purus pharetra. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce dui lacus, tempor a metus vel, varius rhoncus nunc. Suspendisse luctus feugiat dictum. Curabitur ipsum velit, viverra in pretium eget, molestie maximus magna. Aliquam elementum vel turpis non bibendum. Cras in consequat neque.
-            </p>
+            <h1 className="BlogDetailsCard-title">{postTitle}</h1>
 
-            {/* Gallery Section */}
-            <div className="BlogDetailsCard-gallery">
-              <div className="BlogDetailsCard-gallery-item">
-                <img
-                  src={galleryImg1}
-                  alt="Gallery Item 1"
-                  className="BlogDetailsCard-hover-img"
-                />
-              </div>
-              <div className="BlogDetailsCard-gallery-item">
-                <img
-                  src={galleryImg2}
-                  alt="Gallery Item 2"
-                  className="BlogDetailsCard-hover-img"
-                />
-              </div>
-            </div>
-
-            <p className="BlogDetailsCard-text">
-              Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, made of owl the quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure and dolor in reprehenderit.Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, made of owl the quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure and dolor in reprehenderit.
-            </p>
-
-            {/* Quote Box */}
-            <blockquote className="BlogDetailsCard-quote">
-              <p>
-                Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Mauris Efficitur Et Ipsum Ut Volutpat. Morbi A Mollis Felis. Nam Consectetur Lectus Vel Lorem Facilisis, Quis Viverra Purus Pharetra. Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit. Fusce Dui Lacus, Tempor A Metus Vel, Varius Rhoncus Nunc. Suspendisse Luctus Feugiat Dictum. Curabitur Ipsum Velit, Viverra In Pretium Eget, Molestie Maximus Magna. Aliquam Elementum Vel Turpis Non Bibendum.
+            {/* Short Description */}
+            {currentBlog.shortDescription && (
+              <p
+                style={{
+                  fontSize: '17px',
+                  fontWeight: 500,
+                  color: '#334155',
+                  lineHeight: '1.7',
+                  marginBottom: '24px',
+                  borderLeft: '4px solid #0b556a',
+                  paddingLeft: '16px',
+                  background: '#f8fafc',
+                  paddingTop: '12px',
+                  paddingBottom: '12px',
+                  borderRadius: '0 8px 8px 0',
+                }}
+              >
+                {currentBlog.shortDescription}
               </p>
-              <FaQuoteRight className="BlogDetailsCard-quote-icon" />
-            </blockquote>
+            )}
 
-            <p className="BlogDetailsCard-text">
-              Nunc tincidunt cursus lectus ac semper. Aenean ullamcorper quis arcu molestie consequat. Interdum et malesuada fames ac ante ipsum primis in faucibus. Ut nec lobortis elit, eu ultrices justo. Fusce auctor erat est, non fringilla nibh tempus quis. Aenean dignissim turpis ut interdum interdum. Nam molestie sed ex non tempus. Donec sodales aliquam orci non imperdiet. Quisque tempus dolor id nisi blandit tempor ut id lacus. Aliquam mattis tempor posuere.
-            </p>
+            {/* Full Content */}
+            {currentBlog.description ? (
+              <div
+                className="BlogDetailsCard-text"
+                dangerouslySetInnerHTML={{ __html: currentBlog.description }}
+                style={{ lineHeight: '1.8', color: '#475569', marginBottom: '28px', fontSize: '1rem' }}
+              />
+            ) : (
+              <p className="BlogDetailsCard-text" style={{ fontStyle: 'italic', color: '#94a3b8' }}>
+                No additional description provided for this article.
+              </p>
+            )}
 
             {/* Tags & Social Share */}
             <div className="BlogDetailsCard-share-bar">
               <div className="BlogDetailsCard-tags-container">
                 <span className="BlogDetailsCard-share-label">Tags:</span>
-                <button className="BlogDetailsCard-tag-btn">Adventure</button>
-                <button className="BlogDetailsCard-tag-btn">Education</button>
-                <button className="BlogDetailsCard-tag-btn">Store</button>
+                {Array.isArray(currentBlog.tags) && currentBlog.tags.length > 0 ? (
+                  currentBlog.tags.map((t, idx) => (
+                    <button
+                      key={idx}
+                      className="BlogDetailsCard-tag-btn"
+                      type="button"
+                      onClick={() => navigate(`/blog?search=${encodeURIComponent(t)}`)}
+                      title={`Search blogs tagged with ${t}`}
+                    >
+                      {t}
+                    </button>
+                  ))
+                ) : (
+                  <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{postCategory}</span>
+                )}
               </div>
               <div className="BlogDetailsCard-social-container">
                 <span className="BlogDetailsCard-share-label">Share:</span>
-                <a href="#facebook" className="BlogDetailsCard-social-icon">
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="BlogDetailsCard-social-icon"
+                  aria-label="Facebook"
+                >
                   <FaFacebookF />
                 </a>
-                <a href="#twitter" className="BlogDetailsCard-social-icon">
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(postTitle)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="BlogDetailsCard-social-icon"
+                  aria-label="Twitter"
+                >
                   <FaTwitter />
                 </a>
-                <a href="#linkedin" className="BlogDetailsCard-social-icon">
+                <a
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="BlogDetailsCard-social-icon"
+                  aria-label="LinkedIn"
+                >
                   <FaLinkedinIn />
                 </a>
               </div>
             </div>
           </article>
 
-          {/* Comments List */}
+          {/* Comments Section */}
           <div className="BlogDetailsCard-comments-section">
             <h2 className="BlogDetailsCard-section-heading">
               {comments.length < 10 ? `0${comments.length}` : comments.length} Comments
             </h2>
 
-            <div className="BlogDetailsCard-comments-list">
-              {comments.map((item) => (
-                <div className="BlogDetailsCard-comment-item" key={item.id}>
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className="BlogDetailsCard-avatar"
-                  />
-                  <div className="BlogDetailsCard-comment-content">
-                    <div className="BlogDetailsCard-comment-header">
-                      <div>
-                        <h4 className="BlogDetailsCard-comment-author">
-                          {item.name}
-                        </h4>
-                        <span className="BlogDetailsCard-comment-date">
-                          {item.date}
-                        </span>
+            {comments.length === 0 ? (
+              <p style={{ color: '#64748b', fontStyle: 'italic', marginBottom: '30px' }}>
+                No comments yet. Be the first to share your thoughts on this article!
+              </p>
+            ) : (
+              <div className="BlogDetailsCard-comments-list">
+                {comments.map((item) => (
+                  <div key={item.id} className="BlogDetailsCard-comment-item">
+                    <div className="BlogDetailsCard-comment-body">
+                      <div className="BlogDetailsCard-comment-header">
+                        <div>
+                          <h4 className="BlogDetailsCard-commenter-name">{item.name}</h4>
+                          <span className="BlogDetailsCard-comment-date">{item.date}</span>
+                        </div>
                       </div>
-                      <div className="BlogDetailsCard-rating-stars">
-                        {[...Array(5)].map((_, i) =>
-                          i < item.rating ? (
-                            <FaStar key={i} className="BlogDetailsCard-star-filled" />
-                          ) : (
-                            <FaRegStar key={i} className="BlogDetailsCard-star-empty" />
-                          )
-                        )}
-                      </div>
+                      <p className="BlogDetailsCard-comment-text">{item.comment}</p>
                     </div>
-                    <p className="BlogDetailsCard-comment-text">{item.comment}</p>
-                    <button className="BlogDetailsCard-reply-btn">Reply</button>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                ))}
+              </div>
+            )}
 
-          {/* Leave a Comment Form */}
-          <div className="BlogDetailsCard-form-section">
-            <h2 className="BlogDetailsCard-section-heading">Leave A Comments</h2>
+            {/* Comment Form */}
+            <h2 className="BlogDetailsCard-section-heading">Leave A Comment</h2>
+            {commentSuccess && (
+              <div
+                style={{
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  color: '#166534',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  marginBottom: '20px',
+                  fontSize: '14px',
+                }}
+              >
+                {commentSuccess}
+              </div>
+            )}
             <form onSubmit={handlePostComment} className="BlogDetailsCard-form">
               <div className="BlogDetailsCard-form-row">
                 <div className="BlogDetailsCard-field-group">
@@ -271,8 +469,8 @@ const BlogDetailsCard = () => {
                 <textarea
                   id="message"
                   name="message"
-                  rows="6"
-                  placeholder="Write Message"
+                  rows="5"
+                  placeholder="Write your comment..."
                   value={formData.message}
                   onChange={handleInputChange}
                   required
@@ -294,87 +492,80 @@ const BlogDetailsCard = () => {
             <form onSubmit={handleSearchSubmit} className="BlogDetailsCard-search-box">
               <input
                 type="text"
-                placeholder="Search here"
+                placeholder="Search blog..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit">
+              <button type="submit" aria-label="Search">
                 <FaSearch />
               </button>
             </form>
           </div>
 
-          {/* Categories Widget */}
+          {/* Dynamic Categories Widget */}
           <div className="BlogDetailsCard-widget">
             <h3 className="BlogDetailsCard-widget-title">Categories</h3>
             <ul className="BlogDetailsCard-category-list">
-              <li>
-                <span>Adventure</span> <span>(5)</span>
-              </li>
-              <li>
-                <span>Education</span> <span>(3)</span>
-              </li>
-              <li className="BlogDetailsCard-category-active">
-                <span>Romance</span> <span>(6)</span>
-              </li>
-              <li>
-                <span>Modern Fiction</span> <span>(2)</span>
-              </li>
-              <li>
-                <span>Contemporary</span> <span>(4)</span>
-              </li>
-              <li>
-                <span>Art & Literature</span> <span>(7)</span>
-              </li>
+              {categories.length > 0 ? (
+                categories.map((cat, idx) => (
+                  <li
+                    key={idx}
+                    onClick={() => handleCategoryClick(cat.name)}
+                    style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    title={`Browse all blogs in ${cat.name}`}
+                  >
+                    <span>{cat.name}</span>
+                    <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600 }}>({cat.count})</span>
+                  </li>
+                ))
+              ) : (
+                <li style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+                  <span>No categories available</span>
+                </li>
+              )}
             </ul>
           </div>
 
-          {/* Recent Posts Widget */}
+          {/* Dynamic Recent Posts Widget */}
           <div className="BlogDetailsCard-widget">
-            <h3 className="BlogDetailsCard-widget-title">Recent Post</h3>
+            <h3 className="BlogDetailsCard-widget-title">Recent Posts</h3>
             <div className="BlogDetailsCard-recent-posts">
-              <div className="BlogDetailsCard-recent-item">
-                <div className="BlogDetailsCard-recent-img">
-                  <img src={recentPost1} alt="Recent 1" className="BlogDetailsCard-hover-img" />
-                </div>
-                <div className="BlogDetailsCard-recent-info">
-                  <span><FaCalendarAlt /> 18 Dec, 2024</span>
-                  <h5>Top 10 Tarot Decks For The Tarot World Summit</h5>
-                </div>
-              </div>
-
-              <div className="BlogDetailsCard-recent-item">
-                <div className="BlogDetailsCard-recent-img">
-                  <img src={recentPost2} alt="Recent 2" className="BlogDetailsCard-hover-img" />
-                </div>
-                <div className="BlogDetailsCard-recent-info">
-                  <span><FaCalendarAlt /> Mar 20, 2024</span>
-                  <h5>Eu Parturient Dictumst Fames Quam Tempor</h5>
-                </div>
-              </div>
-
-              <div className="BlogDetailsCard-recent-item">
-                <div className="BlogDetailsCard-recent-img">
-                  <img src={recentPost3} alt="Recent 3" className="BlogDetailsCard-hover-img" />
-                </div>
-                <div className="BlogDetailsCard-recent-info">
-                  <span><FaCalendarAlt /> Mar 10, 2024</span>
-                  <h5>Students Intelligence In Education In Building..</h5>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sidebar Tags Widget */}
-          <div className="BlogDetailsCard-widget">
-            <h3 className="BlogDetailsCard-widget-title">Tags</h3>
-            <div className="BlogDetailsCard-sidebar-tags">
-              <span>Romance</span>
-              <span>Books</span>
-              <span>Tips & Tricks</span>
-              <span>Adventure</span>
-              <span>Education</span>
-              <span>Store</span>
+              {recentBlogs.length > 0 ? (
+                recentBlogs.map((post, idx) => {
+                  const fallback = [recentPost1, recentPost2, recentPost3][idx % 3]
+                  const postUrl = `/blog/${post.slug || post._id}`
+                  return (
+                    <Link
+                      key={post._id || idx}
+                      to={postUrl}
+                      className="BlogDetailsCard-recent-item"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      <div className="BlogDetailsCard-recent-img">
+                        <img
+                          src={getImageUrl(post.image, fallback)}
+                          alt={post.title}
+                          className="BlogDetailsCard-hover-img"
+                          onError={(e) => {
+                            e.target.onerror = null
+                            e.target.src = fallback
+                          }}
+                        />
+                      </div>
+                      <div className="BlogDetailsCard-recent-info">
+                        <span>
+                          <FaCalendarAlt /> {formatDate(post.createdAt)}
+                        </span>
+                        <h5>{post.title}</h5>
+                      </div>
+                    </Link>
+                  )
+                })
+              ) : (
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: 0 }}>
+                  No other recent articles found.
+                </p>
+              )}
             </div>
           </div>
         </aside>

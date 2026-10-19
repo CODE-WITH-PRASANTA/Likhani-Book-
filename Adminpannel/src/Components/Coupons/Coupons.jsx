@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
   Plus,
@@ -29,6 +29,7 @@ import {
   Infinity as InfinityIcon,
 } from "lucide-react";
 
+import API from "../../api/axios";
 import "./Coupons.css";
 
 /* =========================================================
@@ -181,171 +182,14 @@ const createEmptyForm = (code = "") => ({
   status: "Active",
 });
 
-const initialCoupons = [
-  {
-    id: 1,
-    code: "WELCOME10",
-    title: "Welcome Discount",
-    description: "Get 10% off on your first order",
-    discountPercent: 10,
-    minimumPurchase: 499,
-    usageLimit: 1000,
-    used: 245,
-    startDate: "2026-09-01",
-    endDate: "2026-09-30",
-    status: "Active",
-  },
-  {
-    id: 2,
-    code: "BOOKLOVER",
-    title: "Book Lover Special",
-    description: "Get 20% off on orders above ₹999",
-    discountPercent: 20,
-    minimumPurchase: 999,
-    usageLimit: 500,
-    used: 132,
-    startDate: "2026-09-05",
-    endDate: "2026-10-05",
-    status: "Active",
-  },
-  {
-    id: 3,
-    code: "FESTIVE20",
-    title: "Festive Offer",
-    description: "Get 20% off on all books",
-    discountPercent: 20,
-    minimumPurchase: 799,
-    usageLimit: 2000,
-    used: 856,
-    startDate: "2026-10-01",
-    endDate: "2026-10-31",
-    status: "Scheduled",
-  },
-  {
-    id: 4,
-    code: "STUDENT15",
-    title: "Student Discount",
-    description: "Get 15% off (students only)",
-    discountPercent: 15,
-    minimumPurchase: 499,
-    usageLimit: 1000,
-    used: 410,
-    startDate: "2026-08-01",
-    endDate: "2026-08-31",
-    status: "Active",
-  },
-  {
-    id: 5,
-    code: "SAVE5",
-    title: "Small Saver",
-    description: "Get 5% off on every order",
-    discountPercent: 5,
-    minimumPurchase: 299,
-    usageLimit: 3000,
-    used: 923,
-    startDate: "2026-07-10",
-    endDate: "2026-08-10",
-    status: "Active",
-  },
-  {
-    id: 6,
-    code: "BIGSALE30",
-    title: "Big Sale",
-    description: "Get 30% off on large orders",
-    discountPercent: 30,
-    minimumPurchase: 1499,
-    usageLimit: "Unlimited",
-    used: 1240,
-    startDate: "2026-09-01",
-    endDate: "2026-12-31",
-    status: "Active",
-  },
-  {
-    id: 7,
-    code: "SUMMER25",
-    title: "Summer Sale",
-    description: "Get 25% off on all books",
-    discountPercent: 25,
-    minimumPurchase: 999,
-    usageLimit: 1500,
-    used: 1500,
-    startDate: "2026-06-01",
-    endDate: "2026-06-30",
-    status: "Expired",
-  },
-  {
-    id: 8,
-    code: "NEWUSER",
-    title: "New User Offer",
-    description: "Get 12% off on your first order",
-    discountPercent: 12,
-    minimumPurchase: 499,
-    usageLimit: 1000,
-    used: 1000,
-    startDate: "2026-05-01",
-    endDate: "2026-05-31",
-    status: "Expired",
-  },
-  {
-    id: 9,
-    code: "READMORE",
-    title: "Read More Offer",
-    description: "Get 15% off on selected books",
-    discountPercent: 15,
-    minimumPurchase: 599,
-    usageLimit: 1200,
-    used: 390,
-    startDate: "2026-10-05",
-    endDate: "2026-11-05",
-    status: "Scheduled",
-  },
-  {
-    id: 10,
-    code: "BOOK10",
-    title: "Book Savings",
-    description: "Get 10% off on orders above ₹699",
-    discountPercent: 10,
-    minimumPurchase: 699,
-    usageLimit: 800,
-    used: 325,
-    startDate: "2026-09-10",
-    endDate: "2026-10-20",
-    status: "Active",
-  },
-  {
-    id: 11,
-    code: "WEEKEND20",
-    title: "Weekend Special",
-    description: "20% discount on weekend orders",
-    discountPercent: 20,
-    minimumPurchase: 799,
-    usageLimit: 1000,
-    used: 210,
-    startDate: "2026-09-12",
-    endDate: "2026-10-12",
-    status: "Active",
-  },
-  {
-    id: 12,
-    code: "LOYAL18",
-    title: "Loyalty Reward",
-    description: "Get 18% off for returning customers",
-    discountPercent: 18,
-    minimumPurchase: 999,
-    usageLimit: "Unlimited",
-    used: 560,
-    startDate: "2026-09-15",
-    endDate: "2026-12-15",
-    status: "Active",
-  },
-];
-
 const Coupons = () => {
   /* =========================================================
      STATES
   ========================================================= */
 
-  const [coupons, setCoupons] = useState(initialCoupons);
+  const [coupons, setCoupons] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
@@ -392,6 +236,29 @@ const Coupons = () => {
       if (copyTimer.current) clearTimeout(copyTimer.current);
     };
   }, []);
+
+  /* =========================================================
+     FETCH COUPONS FROM API
+  ========================================================= */
+
+  const fetchCoupons = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/coupons", { params: { limit: 100 } });
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setCoupons(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to load coupons:", err);
+      showToast("Failed to load coupons from server", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCoupons();
+  }, [fetchCoupons]);
 
   /* =========================================================
      STATISTICS
@@ -704,7 +571,7 @@ const Coupons = () => {
       const duplicate = coupons.some(
         (coupon) =>
           coupon.code.toUpperCase() === code &&
-          (!selectedCoupon || coupon.id !== selectedCoupon.id)
+          (!selectedCoupon || (coupon.id !== selectedCoupon.id && coupon._id !== selectedCoupon._id))
       );
 
       if (duplicate) {
@@ -760,7 +627,7 @@ const Coupons = () => {
      ADD / UPDATE
   ========================================================= */
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!validateForm()) return;
@@ -774,72 +641,120 @@ const Coupons = () => {
       usageLimit: formData.unlimited
         ? "Unlimited"
         : Number(formData.usageLimit),
+      unlimited: formData.unlimited,
       startDate: formData.startDate,
       endDate: formData.endDate,
       status: formData.status,
     };
 
-    if (modalType === "add") {
-      setCoupons((previous) => [
-        { id: Date.now(), used: 0, ...payload },
-        ...previous,
-      ]);
+    try {
+      setIsSaving(true);
+      if (modalType === "add") {
+        await API.post("/coupons", payload);
+        showToast(`Coupon ${payload.code} created successfully`);
+        setCurrentPage(1);
+      } else if (selectedCoupon) {
+        const id = selectedCoupon.id || selectedCoupon._id;
+        await API.put(`/coupons/${id}`, payload);
+        showToast(`Coupon ${payload.code} updated successfully`);
+      }
 
-      setCurrentPage(1);
-      showToast(`Coupon ${payload.code} created`);
-    } else if (selectedCoupon) {
-      setCoupons((previous) =>
-        previous.map((coupon) =>
-          coupon.id === selectedCoupon.id
-            ? { ...coupon, ...payload }
-            : coupon
-        )
-      );
-
-      showToast(`Coupon ${payload.code} updated`);
+      await fetchCoupons();
+      closeModal();
+    } catch (err) {
+      console.error("Coupon save error:", err);
+      showToast(err.response?.data?.message || "Failed to save coupon", "error");
+    } finally {
+      setIsSaving(false);
     }
-
-    closeModal();
   };
 
   /* =========================================================
      DELETE
   ========================================================= */
 
-  const handleDeleteCoupon = () => {
+  const handleDeleteCoupon = async () => {
     if (!selectedCoupon) return;
 
-    const { id, code } = selectedCoupon;
+    const id = selectedCoupon.id || selectedCoupon._id;
+    const code = selectedCoupon.code;
 
-    setCoupons((previous) => previous.filter((coupon) => coupon.id !== id));
-    setSelectedCoupons((previous) =>
-      previous.filter((couponId) => couponId !== id)
-    );
+    try {
+      setIsSaving(true);
+      await API.delete(`/coupons/${id}`);
+      showToast(`Coupon ${code} deleted`);
+      setSelectedCoupons((previous) =>
+        previous.filter((couponId) => couponId !== id)
+      );
+      await fetchCoupons();
+      closeModal();
+    } catch (err) {
+      console.error("Delete coupon error:", err);
+      showToast(err.response?.data?.message || "Failed to delete coupon", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-    closeModal();
-    showToast(`Coupon ${code} deleted`);
+  /* =========================================================
+     BULK DELETE
+  ========================================================= */
+
+  const handleBulkDelete = async () => {
+    if (selectedCoupons.length === 0) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selectedCoupons.length} selected coupon(s)?`
+      )
+    )
+      return;
+
+    try {
+      setIsSaving(true);
+      await API.post("/coupons/bulk-delete", { ids: selectedCoupons });
+      showToast(`${selectedCoupons.length} coupon(s) deleted successfully`);
+      setSelectedCoupons([]);
+      await fetchCoupons();
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      showToast(err.response?.data?.message || "Failed to delete coupons", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   /* =========================================================
      STATUS
   ========================================================= */
 
-  const updateStatus = (coupon, newStatus) => {
-    setCoupons((previous) =>
-      previous.map((item) =>
-        item.id === coupon.id ? { ...item, status: newStatus } : item
-      )
-    );
+  const handleStatusClick = async (coupon) => {
+    const id = coupon.id || coupon._id;
+    let nextStatus = "Active";
+    if (coupon.status === "Active") nextStatus = "Expired";
+    else if (coupon.status === "Expired") nextStatus = "Scheduled";
+    else nextStatus = "Active";
 
-    if (selectedCoupon && selectedCoupon.id === coupon.id) {
-      setSelectedCoupon({ ...coupon, status: newStatus });
+    try {
+      await API.patch(`/coupons/${id}/status`, { status: nextStatus });
+      setCoupons((previous) =>
+        previous.map((item) =>
+          item.id === id || item._id === id
+            ? { ...item, status: nextStatus }
+            : item
+        )
+      );
+
+      if (
+        selectedCoupon &&
+        (selectedCoupon.id === id || selectedCoupon._id === id)
+      ) {
+        setSelectedCoupon({ ...coupon, status: nextStatus });
+      }
+      showToast(`Status changed to ${nextStatus}`);
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      showToast(err.response?.data?.message || "Failed to update status", "error");
     }
-  };
-
-  const handleStatusClick = (coupon) => {
-    if (coupon.status === "Active") updateStatus(coupon, "Expired");
-    else if (coupon.status === "Expired") updateStatus(coupon, "Scheduled");
-    else updateStatus(coupon, "Active");
   };
 
   /* =========================================================
@@ -1083,17 +998,34 @@ const Coupons = () => {
 
         <div className="Coupons__toolbarRight">
           {selectedCoupons.length > 0 && (
-            <div className="Coupons__selected">
-              <CheckCircle2 size={15} />
-              <span>{selectedCoupons.length} selected</span>
+            <>
+              <div className="Coupons__selected">
+                <CheckCircle2 size={15} />
+                <span>{selectedCoupons.length} selected</span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCoupons([])}
+                  aria-label="Clear selection"
+                >
+                  <X size={13} />
+                </button>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setSelectedCoupons([])}
-                aria-label="Clear selection"
+                className="Coupons__exportButton"
+                style={{
+                  backgroundColor: "#dc2626",
+                  color: "#ffffff",
+                  borderColor: "#dc2626",
+                  gap: "6px",
+                }}
+                onClick={handleBulkDelete}
               >
-                <X size={13} />
+                <Trash2 size={15} />
+                Delete Selected
               </button>
-            </div>
+            </>
           )}
 
           <button
@@ -1139,7 +1071,18 @@ const Coupons = () => {
             </thead>
 
             <tbody>
-              {currentCoupons.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="11" className="Coupons__empty">
+                    <div className="Coupons__emptyContent">
+                      <div className="Coupons__emptyIcon">
+                        <RefreshCw size={30} className="Coupons__spin" />
+                      </div>
+                      <h3>Loading coupons...</h3>
+                    </div>
+                  </td>
+                </tr>
+              ) : currentCoupons.length > 0 ? (
                 currentCoupons.map((coupon, index) => {
                   const percentage = getUsagePercentage(coupon);
 

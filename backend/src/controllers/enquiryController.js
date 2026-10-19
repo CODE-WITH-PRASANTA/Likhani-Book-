@@ -1,76 +1,51 @@
 const Enquiry = require("../models/Enquiry");
+const { escapeRegex, isValidObjectId, isValidEmail } = require("../utils/helpers");
 
 // =====================================================
 // CREATE ENQUIRY
 // =====================================================
-
 const createEnquiry = async (req, res) => {
   try {
     const {
       name,
       email,
       phone,
-      address,
-      type,
-      subject,
-      message,
-    } = req.body;
+      address = "",
+      type = "General Enquiry",
+      subject = "Website Enquiry",
+      message = "",
+    } = req.body || {};
 
-    // -----------------------------
-    // Validation
-    // -----------------------------
-
-    if (!name || !email || !phone || !address) {
+    if (!name?.trim() || !email?.trim() || !phone?.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, phone and address are required.",
+        message: "Name, email, and phone number are required.",
       });
     }
 
-    // -----------------------------
-    // Email validation
-    // -----------------------------
-
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailPattern.test(email)) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({
         success: false,
         message: "Please enter a valid email address.",
       });
     }
 
-    // -----------------------------
-    // Phone validation
-    // -----------------------------
-
     const phoneDigits = String(phone).replace(/\D/g, "");
-
     if (phoneDigits.length < 10) {
       return res.status(400).json({
         success: false,
-        message: "Please enter a valid phone number.",
+        message: "Please enter a valid 10-digit phone number.",
       });
     }
-
-    // -----------------------------
-    // Create enquiry
-    // -----------------------------
 
     const enquiry = await Enquiry.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
       phone: phone.trim(),
-      address: address.trim(),
-
+      address: address ? address.trim() : "",
       type: type?.trim() || "General Enquiry",
-
-      subject:
-        subject?.trim() || "Website Enquiry",
-
-      message:
-        message?.trim() || `Address: ${address.trim()}`,
-
+      subject: subject?.trim() || "Website Enquiry",
+      message: message?.trim() || (address ? `Address: ${address.trim()}` : "Website Enquiry"),
       status: "New",
     });
 
@@ -81,25 +56,23 @@ const createEnquiry = async (req, res) => {
     });
   } catch (error) {
     console.error("CREATE ENQUIRY ERROR:", error);
-
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
-      message: "Failed to create enquiry.",
-      error: error.message,
+      message: error.message || "Failed to create enquiry.",
     });
   }
 };
 
 // =====================================================
-// GET ALL ENQUIRIES
+// GET ALL ENQUIRIES (WITH PAGINATION, FILTERS & GLOBAL STATS)
 // =====================================================
-
 const getEnquiries = async (req, res) => {
   try {
     const {
       search = "",
       type = "All",
       status = "All",
+      date = "",
       page = 1,
       limit = 10,
     } = req.query;
@@ -109,15 +82,10 @@ const getEnquiries = async (req, res) => {
 
     const query = {};
 
-    // -----------------------------
-    // Search
-    // -----------------------------
-
-    if (search.trim()) {
-      const searchRegex = new RegExp(
-        search.trim(),
-        "i"
-      );
+    // 1. Safe Search (escaped regex)
+    if (search && search.trim()) {
+      const safeSearch = escapeRegex(search.trim());
+      const searchRegex = new RegExp(safeSearch, "i");
 
       query.$or = [
         { name: searchRegex },
@@ -129,56 +97,65 @@ const getEnquiries = async (req, res) => {
       ];
     }
 
-    // -----------------------------
-    // Type filter
-    // -----------------------------
-
-    if (type !== "All") {
+    // 2. Type Filter
+    if (type && type !== "All") {
       query.type = type;
     }
 
-    // -----------------------------
-    // Status filter
-    // -----------------------------
-
-    if (status !== "All") {
+    // 3. Status Filter
+    if (status && status !== "All") {
       query.status = status;
     }
 
-    // -----------------------------
-    // Total
-    // -----------------------------
+    // 4. Date Filter (YYYY-MM-DD)
+    if (date && date.trim()) {
+      const parsedDate = new Date(date.trim());
+      if (!isNaN(parsedDate.getTime())) {
+        const startOfDay = new Date(parsedDate);
+        startOfDay.setUTCHours(0, 0, 0, 0);
 
-    const total = await Enquiry.countDocuments(query);
+        const endOfDay = new Date(parsedDate);
+        endOfDay.setUTCHours(23, 59, 59, 999);
 
-    // -----------------------------
-    // Data
-    // -----------------------------
+        query.createdAt = { $gte: startOfDay, $lte: endOfDay };
+      }
+    }
 
-    const enquiries = await Enquiry.find(query)
-      .sort({ createdAt: -1 })
-      .skip((pageNumber - 1) * limitNumber)
-      .limit(limitNumber)
-      .lean();
+    // Execute queries concurrently
+    const [total, enquiries, statsTotal, statsNew, statsInProgress, statsClosed] =
+      await Promise.all([
+        Enquiry.countDocuments(query),
+        Enquiry.find(query)
+          .sort({ createdAt: -1 })
+          .skip((pageNumber - 1) * limitNumber)
+          .limit(limitNumber)
+          .lean(),
+        Enquiry.countDocuments(),
+        Enquiry.countDocuments({ status: "New" }),
+        Enquiry.countDocuments({ status: "In Progress" }),
+        Enquiry.countDocuments({ status: "Closed" }),
+      ]);
 
-    const totalPages =
-      Math.ceil(total / limitNumber) || 1;
+    const totalPages = Math.ceil(total / limitNumber) || 1;
 
     return res.status(200).json({
       success: true,
-
       data: enquiries,
-
       pagination: {
         page: pageNumber,
         limit: limitNumber,
         total,
         totalPages,
       },
+      stats: {
+        total: statsTotal,
+        newCount: statsNew,
+        inProgressCount: statsInProgress,
+        closedCount: statsClosed,
+      },
     });
   } catch (error) {
     console.error("GET ENQUIRIES ERROR:", error);
-
     return res.status(500).json({
       success: false,
       message: "Failed to fetch enquiries.",
@@ -190,12 +167,18 @@ const getEnquiries = async (req, res) => {
 // =====================================================
 // GET SINGLE ENQUIRY
 // =====================================================
-
 const getEnquiryById = async (req, res) => {
   try {
-    const enquiry = await Enquiry.findById(
-      req.params.id
-    );
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid enquiry ID format.",
+      });
+    }
+
+    const enquiry = await Enquiry.findById(id).lean();
 
     if (!enquiry) {
       return res.status(404).json({
@@ -210,7 +193,6 @@ const getEnquiryById = async (req, res) => {
     });
   } catch (error) {
     console.error("GET SINGLE ENQUIRY ERROR:", error);
-
     return res.status(500).json({
       success: false,
       message: "Failed to fetch enquiry.",
@@ -222,9 +204,26 @@ const getEnquiryById = async (req, res) => {
 // =====================================================
 // UPDATE ENQUIRY
 // =====================================================
-
 const updateEnquiry = async (req, res) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid enquiry ID format.",
+      });
+    }
+
+    const enquiry = await Enquiry.findById(id);
+
+    if (!enquiry) {
+      return res.status(404).json({
+        success: false,
+        message: "Enquiry not found.",
+      });
+    }
+
     const {
       name,
       email,
@@ -235,55 +234,21 @@ const updateEnquiry = async (req, res) => {
       message,
       status,
       adminReply,
-    } = req.body;
+    } = req.body || {};
 
-    const enquiry = await Enquiry.findById(
-      req.params.id
-    );
-
-    if (!enquiry) {
-      return res.status(404).json({
-        success: false,
-        message: "Enquiry not found.",
-      });
-    }
-
-    // -----------------------------
-    // Update fields
-    // -----------------------------
-
-    if (name !== undefined) {
-      enquiry.name = name.trim();
-    }
-
+    if (name !== undefined) enquiry.name = name.trim();
     if (email !== undefined) {
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ success: false, message: "Invalid email format." });
+      }
       enquiry.email = email.trim().toLowerCase();
     }
-
-    if (phone !== undefined) {
-      enquiry.phone = phone.trim();
-    }
-
-    if (address !== undefined) {
-      enquiry.address = address.trim();
-    }
-
-    if (type !== undefined) {
-      enquiry.type = type.trim();
-    }
-
-    if (subject !== undefined) {
-      enquiry.subject = subject.trim();
-    }
-
-    if (message !== undefined) {
-      enquiry.message = message.trim();
-    }
-
-    if (status !== undefined) {
-      enquiry.status = status;
-    }
-
+    if (phone !== undefined) enquiry.phone = phone.trim();
+    if (address !== undefined) enquiry.address = address.trim();
+    if (type !== undefined) enquiry.type = type.trim();
+    if (subject !== undefined) enquiry.subject = subject.trim();
+    if (message !== undefined) enquiry.message = message.trim();
+    if (status !== undefined) enquiry.status = status;
     if (adminReply !== undefined) {
       enquiry.adminReply = adminReply.trim();
       enquiry.repliedAt = new Date();
@@ -298,11 +263,9 @@ const updateEnquiry = async (req, res) => {
     });
   } catch (error) {
     console.error("UPDATE ENQUIRY ERROR:", error);
-
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
-      message: "Failed to update enquiry.",
-      error: error.message,
+      message: error.message || "Failed to update enquiry.",
     });
   }
 };
@@ -310,12 +273,18 @@ const updateEnquiry = async (req, res) => {
 // =====================================================
 // DELETE ENQUIRY
 // =====================================================
-
 const deleteEnquiry = async (req, res) => {
   try {
-    const enquiry = await Enquiry.findById(
-      req.params.id
-    );
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid enquiry ID format.",
+      });
+    }
+
+    const enquiry = await Enquiry.findById(id);
 
     if (!enquiry) {
       return res.status(404).json({
@@ -324,7 +293,7 @@ const deleteEnquiry = async (req, res) => {
       });
     }
 
-    await Enquiry.findByIdAndDelete(req.params.id);
+    await Enquiry.findByIdAndDelete(id);
 
     return res.status(200).json({
       success: true,
@@ -332,7 +301,6 @@ const deleteEnquiry = async (req, res) => {
     });
   } catch (error) {
     console.error("DELETE ENQUIRY ERROR:", error);
-
     return res.status(500).json({
       success: false,
       message: "Failed to delete enquiry.",
@@ -344,20 +312,27 @@ const deleteEnquiry = async (req, res) => {
 // =====================================================
 // BULK DELETE
 // =====================================================
-
 const deleteMultipleEnquiries = async (req, res) => {
   try {
-    const { ids } = req.body;
+    const { ids } = req.body || {};
 
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({
         success: false,
-        message: "Please provide enquiry IDs.",
+        message: "Please provide enquiry IDs as an array.",
+      });
+    }
+
+    const validIds = ids.filter((id) => isValidObjectId(id));
+    if (validIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid enquiry ObjectIds provided.",
       });
     }
 
     const result = await Enquiry.deleteMany({
-      _id: { $in: ids },
+      _id: { $in: validIds },
     });
 
     return res.status(200).json({
@@ -366,11 +341,7 @@ const deleteMultipleEnquiries = async (req, res) => {
       deletedCount: result.deletedCount,
     });
   } catch (error) {
-    console.error(
-      "DELETE MULTIPLE ENQUIRIES ERROR:",
-      error
-    );
-
+    console.error("DELETE MULTIPLE ENQUIRIES ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Failed to delete enquiries.",
@@ -378,8 +349,6 @@ const deleteMultipleEnquiries = async (req, res) => {
     });
   }
 };
-
-// =====================================================
 
 module.exports = {
   createEnquiry,

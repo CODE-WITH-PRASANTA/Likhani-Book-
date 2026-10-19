@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import {
   FaSearch,
@@ -13,113 +13,30 @@ import {
   FaChevronRight,
   FaTimes
 } from 'react-icons/fa';
+import API, { BASE_URL } from '../../api/axios';
 import './BlogManagement.css';
 
-const INITIAL_BLOGS = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=150&q=80',
-    title: 'Eu Parturient Dictumst Frames Quam Temper',
-    slug: 'eu-parturient-dictumst-frames-quam-temper',
-    category: 'Education',
-    date: 'Mar 30, 2024',
-    status: 'Published',
-    shortDescription: 'Comprehensive look at modern framing and learning methods.',
-    description: '<p>Eu Parturient Dictumst Frames Quam Temper content goes here...</p>',
-    tags: ['Learning', 'Study']
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=150&q=80',
-    title: 'The Importance of Early Learning for Kids',
-    slug: 'the-importance-of-early-learning-for-kids',
-    category: 'Education',
-    date: 'Mar 28, 2024',
-    status: 'Published',
-    shortDescription: 'Why early child development plays a critical role in lifelong learning.',
-    description: '<p>The Importance of Early Learning for Kids content goes here...</p>',
-    tags: ['Kids', 'Education']
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=150&q=80',
-    title: 'How Play Builds Stronger Minds',
-    slug: 'how-play-builds-stronger-minds',
-    category: 'Education',
-    date: 'Mar 25, 2024',
-    status: 'Draft',
-    shortDescription: 'Exploring the cognitive benefits of play-based activities.',
-    description: '<p>How Play Builds Stronger Minds content goes here...</p>',
-    tags: ['Mind', 'Play']
-  },
-  {
-    id: 4,
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=150&q=80',
-    title: 'Top 10 Adventure Destinations in 2024',
-    slug: 'top-10-adventure-destinations-in-2024',
-    category: 'Adventure',
-    date: 'Mar 20, 2024',
-    status: 'Published',
-    shortDescription: 'Unveiling the best spots for thrilling outdoor pursuits worldwide.',
-    description: '<p>Top 10 Adventure Destinations in 2024 content goes here...</p>',
-    tags: ['Travel', 'Adventure']
-  },
-  {
-    id: 5,
-    image: 'https://images.unsplash.com/photo-1518173946687-a4c8a383392e?auto=format&fit=crop&w=150&q=80',
-    title: 'Romantic Getaways for Couples',
-    slug: 'romantic-getaways-for-couples',
-    category: 'Romance',
-    date: 'Mar 18, 2024',
-    status: 'Published',
-    shortDescription: 'Escape to tranquil resorts and memorable intimate destinations.',
-    description: '<p>Romantic Getaways for Couples content goes here...</p>',
-    tags: ['Couples', 'Travel']
-  },
-  {
-    id: 6,
-    image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=150&q=80',
-    title: 'Best Modern Fiction Books to Read',
-    slug: 'best-modern-fiction-books-to-read',
-    category: 'Modern Fiction',
-    date: 'Mar 15, 2024',
-    status: 'Published',
-    shortDescription: 'A curated list of contemporary masterpieces that inspire.',
-    description: '<p>Best Modern Fiction Books to Read content goes here...</p>',
-    tags: ['Books', 'Fiction']
-  },
-  {
-    id: 7,
-    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=150&q=80',
-    title: 'Building a Reading Habit in Daily Life',
-    slug: 'building-a-reading-habit-in-daily-life',
-    category: 'Contemporary',
-    date: 'Mar 12, 2024',
-    status: 'Draft',
-    shortDescription: 'Simple strategies to integrate 30 minutes of reading daily.',
-    description: '<p>Building a Reading Habit in Daily Life content goes here...</p>',
-    tags: ['Reading', 'Habits']
-  },
-  {
-    id: 8,
-    image: 'https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=150&q=80',
-    title: 'Travel Tips for First Time Travelers',
-    slug: 'travel-tips-for-first-time-travelers',
-    category: 'Adventure',
-    date: 'Mar 10, 2024',
-    status: 'Published',
-    shortDescription: 'Essential packing, safety, and itinerary guidance for novices.',
-    description: '<p>Travel Tips for First Time Travelers content goes here...</p>',
-    tags: ['Travel', 'Tips']
-  }
-];
+const getImageUrl = (imagePath) => {
+  if (!imagePath)
+    return 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=500&q=80';
+  if (
+    imagePath.startsWith('http://') ||
+    imagePath.startsWith('https://') ||
+    imagePath.startsWith('blob:') ||
+    imagePath.startsWith('data:')
+  )
+    return imagePath;
+  return `${BASE_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+};
 
-const CATEGORY_OPTIONS = ['Education', 'Adventure', 'Romance', 'Modern Fiction', 'Contemporary'];
 const TAG_OPTIONS = ['Learning', 'Study', 'Kids', 'Mind', 'Play', 'Travel', 'Adventure', 'Books', 'Reading', 'Tips'];
 
 const BlogManagement = () => {
   // Data States
-  const [blogs, setBlogs] = useState(INITIAL_BLOGS);
+  const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
@@ -150,6 +67,61 @@ const BlogManagement = () => {
   // File Input Ref
   const fileInputRef = useRef(null);
 
+  /* =========================================================
+      FETCH CATEGORIES
+  ========================================================= */
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await API.get('/categories');
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setCategories(res.data.data.map((c) => c.name));
+      }
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  }, []);
+
+  /* =========================================================
+      FETCH BLOGS
+  ========================================================= */
+  const fetchBlogs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get('/blogs', { params: { limit: 100 } });
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        const mapped = res.data.data.map((b) => ({
+          id: b._id || b.id,
+          title: b.title,
+          slug: b.slug,
+          category: b.category,
+          date: b.createdAt
+            ? new Date(b.createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: '2-digit',
+                year: 'numeric'
+              })
+            : 'Recently',
+          status: b.status || 'Published',
+          shortDescription: b.shortDescription || '',
+          description: b.description || '',
+          tags: b.tags || [],
+          image: b.image || '',
+          author: b.author || 'Admin'
+        }));
+        setBlogs(mapped);
+      }
+    } catch (err) {
+      console.error('Failed to fetch blogs:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchBlogs();
+  }, [fetchCategories, fetchBlogs]);
+
   // Helper: Slug Generator
   const handleGenerateSlug = () => {
     if (title) {
@@ -175,10 +147,14 @@ const BlogManagement = () => {
     setSelectedTags(selectedTags.filter((t) => t !== tagToRemove));
   };
 
-  // Image Upload Handling
+  // Image Upload Handling (WebP converted on server)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size exceeds 5MB limit.');
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(file);
@@ -200,51 +176,81 @@ const BlogManagement = () => {
   };
 
   // Create or Update Blog
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return alert('Title is required');
+    if (!category.trim()) return alert('Category is required');
 
-    const blogData = {
-      id: editingId || Date.now(),
-      title,
-      slug: slug || title.toLowerCase().replace(/\s+/g, '-'),
-      category: category || 'Education',
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-      status,
-      shortDescription,
-      description,
-      tags: selectedTags,
-      image: imagePreview || 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=150&q=80'
-    };
+    try {
+      setSaving(true);
+      const blogData = {
+        title: title.trim(),
+        slug: slug.trim() || undefined,
+        category: category.trim(),
+        status,
+        shortDescription,
+        description,
+        tags: selectedTags,
+        image: imagePreview || ''
+      };
 
-    if (editingId) {
-      setBlogs(blogs.map((b) => (b.id === editingId ? blogData : b)));
-    } else {
-      setBlogs([blogData, ...blogs]);
+      if (editingId) {
+        await API.put(`/blogs/${editingId}`, blogData);
+      } else {
+        await API.post('/blogs', blogData);
+      }
+
+      await fetchBlogs();
+      handleResetForm();
+    } catch (err) {
+      console.error('Failed to save blog:', err);
+      alert(err.response?.data?.message || 'Failed to save blog post');
+    } finally {
+      setSaving(false);
     }
-
-    handleResetForm();
   };
 
   // Action: Edit
   const handleEdit = (blog) => {
     setEditingId(blog.id);
-    setTitle(blog.title);
-    setSlug(blog.slug);
+    setTitle(blog.title || '');
+    setSlug(blog.slug || '');
     setShortDescription(blog.shortDescription || '');
     setDescription(blog.description || '');
-    setCategory(blog.category);
+    setCategory(blog.category || '');
     setSelectedTags(blog.tags || []);
-    setStatus(blog.status);
-    setImagePreview(blog.image);
+    setStatus(blog.status || 'Published');
+    setImagePreview(blog.image || null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Action: Delete
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
-      setBlogs(blogs.filter((b) => b.id !== id));
-      setSelectedIds(selectedIds.filter((item) => item !== id));
+      try {
+        await API.delete(`/blogs/${id}`);
+        setSelectedIds((prev) => prev.filter((item) => item !== id));
+        if (editingId === id) handleResetForm();
+        await fetchBlogs();
+      } catch (err) {
+        console.error('Failed to delete blog:', err);
+        alert(err.response?.data?.message || 'Failed to delete blog');
+      }
+    }
+  };
+
+  // Bulk Delete
+  const handleBulkDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected blog(s)?`)) {
+      try {
+        await API.post('/blogs/bulk-delete', { ids: selectedIds });
+        if (selectedIds.includes(editingId)) handleResetForm();
+        setSelectedIds([]);
+        await fetchBlogs();
+      } catch (err) {
+        console.error('Failed to delete selected blogs:', err);
+        alert(err.response?.data?.message || 'Failed to delete selected blogs');
+      }
     }
   };
 
@@ -267,8 +273,9 @@ const BlogManagement = () => {
 
   // Filtering Data
   const filteredBlogs = blogs.filter((blog) => {
-    const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          blog.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      (blog.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (blog.category || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCat = filterCategory ? blog.category === filterCategory : true;
     const matchesStatus = filterStatus ? blog.status === filterStatus : true;
     return matchesSearch && matchesCat && matchesStatus;
@@ -314,7 +321,6 @@ const BlogManagement = () => {
                   placeholder="enter-blog-slug"
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  required
                 />
                 <button type="button" className="BlogManagement-generateBtn" onClick={handleGenerateSlug}>
                   Generate
@@ -341,8 +347,12 @@ const BlogManagement = () => {
                 init={{
                   height: 200,
                   menubar: false,
-                  plugins: ['advlist autolink lists link image charmap print preview anchor', 'searchreplace visualblocks code fullscreen'],
-                  toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image'
+                  plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen'
+                  ],
+                  toolbar:
+                    'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image'
                 }}
                 onEditorChange={(content) => setDescription(content)}
               />
@@ -362,14 +372,18 @@ const BlogManagement = () => {
                   onChange={handleImageChange}
                 />
                 {imagePreview ? (
-                  <img src={imagePreview} alt="Preview" className="BlogManagement-previewImage" />
+                  <img
+                    src={getImageUrl(imagePreview)}
+                    alt="Preview"
+                    className="BlogManagement-previewImage"
+                  />
                 ) : (
                   <>
                     <FaImage className="BlogManagement-uploadIcon" />
                     <p className="BlogManagement-uploadText">
                       <strong>Click to upload image</strong> or drag and drop
                     </p>
-                    <p className="BlogManagement-uploadHint">JPG, PNG, WebP (Max 2MB)</p>
+                    <p className="BlogManagement-uploadHint">JPG, PNG, WebP (Max 5MB)</p>
                   </>
                 )}
               </div>
@@ -380,9 +394,12 @@ const BlogManagement = () => {
                 <label>Category <span>*</span></label>
                 <select value={category} onChange={(e) => setCategory(e.target.value)} required>
                   <option value="">Select category</option>
-                  {CATEGORY_OPTIONS.map((cat) => (
+                  {categories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
+                  {category && !categories.includes(category) && (
+                    <option value={category}>{category}</option>
+                  )}
                 </select>
               </div>
 
@@ -432,11 +449,20 @@ const BlogManagement = () => {
             </div>
 
             <div className="BlogManagement-formActions">
-              <button type="button" className="BlogManagement-resetBtn" onClick={handleResetForm}>
+              <button
+                type="button"
+                className="BlogManagement-resetBtn"
+                onClick={handleResetForm}
+                disabled={saving}
+              >
                 Reset
               </button>
-              <button type="submit" className="BlogManagement-submitBtn">
-                Submit
+              <button
+                type="submit"
+                className="BlogManagement-submitBtn"
+                disabled={saving}
+              >
+                {saving ? 'Saving...' : editingId ? 'Update' : 'Submit'}
               </button>
             </div>
           </form>
@@ -445,9 +471,30 @@ const BlogManagement = () => {
         {/* Right Column: List / Grid Display */}
         <div className="BlogManagement-listCard">
           <div className="BlogManagement-listHeader">
-            <h2>All Blog Posts</h2>
+            <h2>All Blog Posts ({filteredBlogs.length})</h2>
 
             <div className="BlogManagement-controls">
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  style={{
+                    backgroundColor: '#dc2626',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                  onClick={handleBulkDelete}
+                >
+                  <FaTrashAlt /> Delete ({selectedIds.length})
+                </button>
+              )}
+
               <div className="BlogManagement-searchBox">
                 <FaSearch />
                 <input
@@ -475,7 +522,7 @@ const BlogManagement = () => {
                         onChange={(e) => setFilterCategory(e.target.value)}
                       >
                         <option value="">All Categories</option>
-                        {CATEGORY_OPTIONS.map((c) => (
+                        {categories.map((c) => (
                           <option key={c} value={c}>{c}</option>
                         ))}
                       </select>
@@ -525,7 +572,11 @@ const BlogManagement = () => {
           </div>
 
           {/* Table View */}
-          {viewMode === 'list' ? (
+          {loading ? (
+            <div style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>
+              Loading blog posts...
+            </div>
+          ) : viewMode === 'list' ? (
             <div className="BlogManagement-tableWrapper">
               <table className="BlogManagement-table">
                 <thead>
@@ -550,100 +601,129 @@ const BlogManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedBlogs.map((blog, idx) => (
-                    <tr key={blog.id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(blog.id)}
-                          onChange={() => handleSelectOne(blog.id)}
-                        />
-                      </td>
-                      <td>{startIndex + idx + 1}</td>
-                      <td>
-                        <img src={blog.image} alt={blog.title} className="BlogManagement-tableImg" />
-                      </td>
-                      <td className="BlogManagement-titleCell">{blog.title}</td>
-                      <td>
-                        <span className={`BlogManagement-catBadge ${blog.category.toLowerCase().replace(/\s+/g, '-')}`}>
-                          {blog.category}
-                        </span>
-                      </td>
-                      <td>{blog.date}</td>
-                      <td>
-                        <span className={`BlogManagement-statusBadge ${blog.status.toLowerCase()}`}>
-                          {blog.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="BlogManagement-actionGroup">
-                          <button
-                            className="BlogManagement-actionBtn view"
-                            onClick={() => setViewingBlog(blog)}
+                  {paginatedBlogs.length > 0 ? (
+                    paginatedBlogs.map((blog, idx) => (
+                      <tr key={blog.id}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(blog.id)}
+                            onChange={() => handleSelectOne(blog.id)}
+                          />
+                        </td>
+                        <td>{startIndex + idx + 1}</td>
+                        <td>
+                          <img
+                            src={getImageUrl(blog.image)}
+                            alt={blog.title}
+                            className="BlogManagement-tableImg"
+                          />
+                        </td>
+                        <td className="BlogManagement-titleCell">{blog.title}</td>
+                        <td>
+                          <span
+                            className={`BlogManagement-catBadge ${(blog.category || '')
+                              .toLowerCase()
+                              .replace(/\s+/g, '-')}`}
                           >
-                            <FaEye />
-                          </button>
-                          <button
-                            className="BlogManagement-actionBtn edit"
-                            onClick={() => handleEdit(blog)}
-                          >
-                            <FaPencilAlt />
-                          </button>
-                          <button
-                            className="BlogManagement-actionBtn delete"
-                            onClick={() => handleDelete(blog.id)}
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </div>
+                            {blog.category}
+                          </span>
+                        </td>
+                        <td>{blog.date}</td>
+                        <td>
+                          <span className={`BlogManagement-statusBadge ${(blog.status || '').toLowerCase()}`}>
+                            {blog.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="BlogManagement-actionGroup">
+                            <button
+                              className="BlogManagement-actionBtn view"
+                              onClick={() => setViewingBlog(blog)}
+                              title="View"
+                            >
+                              <FaEye />
+                            </button>
+                            <button
+                              className="BlogManagement-actionBtn edit"
+                              onClick={() => handleEdit(blog)}
+                              title="Edit"
+                            >
+                              <FaPencilAlt />
+                            </button>
+                            <button
+                              className="BlogManagement-actionBtn delete"
+                              onClick={() => handleDelete(blog.id)}
+                              title="Delete"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                        No blogs found.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
           ) : (
             /* Grid View */
             <div className="BlogManagement-gridWrapper">
-              {paginatedBlogs.map((blog) => (
-                <div key={blog.id} className="BlogManagement-gridCard">
-                  <div className="BlogManagement-gridCardImg">
-                    <img src={blog.image} alt={blog.title} />
-                    <span className={`BlogManagement-statusBadge ${blog.status.toLowerCase()}`}>
-                      {blog.status}
-                    </span>
-                  </div>
-                  <div className="BlogManagement-gridCardBody">
-                    <span className={`BlogManagement-catBadge ${blog.category.toLowerCase().replace(/\s+/g, '-')}`}>
-                      {blog.category}
-                    </span>
-                    <h3>{blog.title}</h3>
-                    <p className="BlogManagement-gridDate">{blog.date}</p>
-                    <p className="BlogManagement-gridDesc">{blog.shortDescription}</p>
+              {paginatedBlogs.length > 0 ? (
+                paginatedBlogs.map((blog) => (
+                  <div key={blog.id} className="BlogManagement-gridCard">
+                    <div className="BlogManagement-gridCardImg">
+                      <img src={getImageUrl(blog.image)} alt={blog.title} />
+                      <span className={`BlogManagement-statusBadge ${(blog.status || '').toLowerCase()}`}>
+                        {blog.status}
+                      </span>
+                    </div>
+                    <div className="BlogManagement-gridCardBody">
+                      <span
+                        className={`BlogManagement-catBadge ${(blog.category || '')
+                          .toLowerCase()
+                          .replace(/\s+/g, '-')}`}
+                      >
+                        {blog.category}
+                      </span>
+                      <h3>{blog.title}</h3>
+                      <p className="BlogManagement-gridDate">{blog.date}</p>
+                      <p className="BlogManagement-gridDesc">{blog.shortDescription}</p>
 
-                    <div className="BlogManagement-actionGroup">
-                      <button
-                        className="BlogManagement-actionBtn view"
-                        onClick={() => setViewingBlog(blog)}
-                      >
-                        <FaEye />
-                      </button>
-                      <button
-                        className="BlogManagement-actionBtn edit"
-                        onClick={() => handleEdit(blog)}
-                      >
-                        <FaPencilAlt />
-                      </button>
-                      <button
-                        className="BlogManagement-actionBtn delete"
-                        onClick={() => handleDelete(blog.id)}
-                      >
-                        <FaTrashAlt />
-                      </button>
+                      <div className="BlogManagement-actionGroup">
+                        <button
+                          className="BlogManagement-actionBtn view"
+                          onClick={() => setViewingBlog(blog)}
+                        >
+                          <FaEye />
+                        </button>
+                        <button
+                          className="BlogManagement-actionBtn edit"
+                          onClick={() => handleEdit(blog)}
+                        >
+                          <FaPencilAlt />
+                        </button>
+                        <button
+                          className="BlogManagement-actionBtn delete"
+                          onClick={() => handleDelete(blog.id)}
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div style={{ gridColumn: '1 / -1', padding: '30px', textAlign: 'center', color: '#64748b' }}>
+                  No blogs found.
                 </div>
-              ))}
+              )}
             </div>
           )}
 
@@ -694,14 +774,22 @@ const BlogManagement = () => {
               </button>
             </div>
             <div className="BlogManagement-modalBody">
-              <img src={viewingBlog.image} alt={viewingBlog.title} className="BlogManagement-modalImg" />
+              <img
+                src={getImageUrl(viewingBlog.image)}
+                alt={viewingBlog.title}
+                className="BlogManagement-modalImg"
+              />
               <h2>{viewingBlog.title}</h2>
               <div className="BlogManagement-modalMeta">
-                <span className={`BlogManagement-catBadge ${viewingBlog.category.toLowerCase().replace(/\s+/g, '-')}`}>
+                <span
+                  className={`BlogManagement-catBadge ${(viewingBlog.category || '')
+                    .toLowerCase()
+                    .replace(/\s+/g, '-')}`}
+                >
                   {viewingBlog.category}
                 </span>
                 <span>{viewingBlog.date}</span>
-                <span className={`BlogManagement-statusBadge ${viewingBlog.status.toLowerCase()}`}>
+                <span className={`BlogManagement-statusBadge ${(viewingBlog.status || '').toLowerCase()}`}>
                   {viewingBlog.status}
                 </span>
               </div>

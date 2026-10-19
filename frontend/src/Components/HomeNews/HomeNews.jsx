@@ -7,6 +7,7 @@ import {
   FaChevronRight,
   FaBookmark,
 } from 'react-icons/fa';
+import API, { IMG_URL } from '../../api/axios';
 import './HomeNews.css';
 
 const NEWS_ITEMS = [
@@ -84,6 +85,7 @@ const getItemsPerView = (width) => {
 };
 
 const HomeNews = ({ onSelectArticle }) => {
+  const [newsItems, setNewsItems] = useState(NEWS_ITEMS);
   const [itemsPerView, setItemsPerView] = useState(() =>
     typeof window !== 'undefined' ? getItemsPerView(window.innerWidth) : 4
   );
@@ -95,7 +97,38 @@ const HomeNews = ({ onSelectArticle }) => {
   const resumeTimeoutRef = useRef(null);
   const isSyncingScroll = useRef(false);
 
-  const totalPages = Math.max(1, Math.ceil(NEWS_ITEMS.length / itemsPerView));
+  useEffect(() => {
+    const fetchHomeBlogs = async () => {
+      try {
+        const res = await API.get('/blogs', { params: { limit: 8, status: 'Published' } });
+        if (res.data?.success && res.data.data?.length > 0) {
+          const mapped = res.data.data.map((b) => ({
+            id: b._id,
+            category: b.category || 'Activities',
+            date: new Date(b.createdAt).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            }),
+            author: b.author || 'Admin',
+            title: b.title,
+            image: b.image
+              ? b.image.startsWith('http') || b.image.startsWith('data:')
+                ? b.image
+                : `${IMG_URL}${b.image.startsWith('/') ? '' : '/'}${b.image}`
+              : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=85',
+            href: `/blog/${b.slug || b._id}`,
+          }));
+          setNewsItems(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to load home blogs:', err);
+      }
+    };
+    fetchHomeBlogs();
+  }, []);
+
+  const totalPages = Math.max(1, Math.ceil(newsItems.length / itemsPerView));
   const hasMultiplePages = totalPages > 1;
 
   /* ----------------------------------------------------------------
@@ -207,7 +240,7 @@ const HomeNews = ({ onSelectArticle }) => {
           </div>
           <div className="home-news__count" aria-hidden="true">
             <span className="home-news__count-number">
-              {String(NEWS_ITEMS.length).padStart(2, '0')}
+              {String(newsItems.length).padStart(2, '0')}
             </span>
             <span className="home-news__count-label">
               stories
@@ -266,13 +299,13 @@ const HomeNews = ({ onSelectArticle }) => {
             aria-label="Latest news"
           >
             <div className="home-news__track">
-              {NEWS_ITEMS.map((item, i) => (
+              {newsItems.map((item, i) => (
                 <article
                   className="home-news__card"
                   key={item.id}
                   role="group"
                   aria-roledescription="slide"
-                  aria-label={`${i + 1} of ${NEWS_ITEMS.length}`}
+                  aria-label={`${i + 1} of ${newsItems.length}`}
                 >
                   <div className="home-news__media">
                     <span className="home-news__category-badge">

@@ -23,10 +23,14 @@ import FloatingSupport from "./Components/FloatingSupport/FloatingSupport";
 import FloatingForm from "./Components/FloatingForm/FloatingForm";
 import Shop from "./Pages/Shop/Shop";
 import SignUp from "./Components/SignUp/SignUp";
+import Login from "./Components/Login/Login";
 import RefundPolicy from "./Components/RefundPolicy/RefundPolicy";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import TermAndCondition from "./Components/TermAndCondition/TermAndCondition";
 import BookDetails from "./Components/BookDetails/BookDetails";
+import Profile from "./Pages/Profile/Profile";
+
+import { AuthProvider } from "./context/AuthContext";
 
 const SimplePage = ({ title }) => {
   return (
@@ -46,52 +50,33 @@ const SimplePage = ({ title }) => {
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Topbar />
+    <AuthProvider>
+      <BrowserRouter>
+        <Topbar />
 
-      <Navbar />
+        <Navbar />
 
       <Routes>
-       <Route path="/blog" element={<Blog/>}/>
-        <Route path="/blogdetails" element={<BlogDetails/>}/>
-        <Route path="/contactus" element={<ContactUs/>}/>
-        <Route path="/faq" element={<Faq/>}/>
-        <Route path="/"element={<Home/>}/>
         {/* Home */}
-        <Route
-          path="/"
-          element={<SimplePage title="Home Page" />}
-        />
+        <Route path="/" element={<Home />} />
 
         {/* About */}
-        <Route
-          path="/about"
-          element={<Aboutus/>}
-        />
+        <Route path="/about" element={<Aboutus />} />
 
         {/* Shop */}
-        <Route
-          path="/shop"
-          element={<Shop />}
-        />
+        <Route path="/shop" element={<Shop />} />
 
         {/* Blog */}
-        <Route
-          path="/blog"
-          element={<Blog />}
-        />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogDetails />} />
+        <Route path="/blogdetails" element={<BlogDetails />} />
 
         {/* FAQ */}
-        <Route
-          path="/faq"
-          element={<Faq/>}
-        />
+        <Route path="/faq" element={<Faq />} />
 
         {/* Contact */}
-        <Route
-          path="/contact"
-          element={<ContactUs />}
-        />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/contactus" element={<ContactUs />} />
 
         {/* Wishlist */}
         <Route
@@ -116,10 +101,20 @@ const App = () => {
         />
 
     
-        {/* Signup */}
+        {/* Auth: Signup & Login */}
         <Route
           path="/signup"
           element={<SignUp/>}
+        />
+
+        <Route
+          path="/login"
+          element={<Login/>}
+        />
+
+        <Route
+          path="/profile"
+          element={<Profile/>}
         />
 
         <Route
@@ -158,6 +153,7 @@ const App = () => {
          <FloatingSupport/>
 
     </BrowserRouter>
+    </AuthProvider>
   );
 };
 

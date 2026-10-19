@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Search,
   Plus,
@@ -25,166 +25,36 @@ import {
   Check,
   UserRound,
   MapPin,
+  Loader2,
 } from "lucide-react";
+import API from "../../api/axios";
 import "./Users.css";
 
 const Users = () => {
   /* =========================================================
-     INITIAL DATA
+     STATES & API FETCH
   ========================================================= */
 
-  const initialUsers = [
-    {
-      id: 1,
-      name: "Rahul Sharma",
-      email: "rahul@example.com",
-      phone: "+91 98765 43210",
-      role: "Admin",
-      joinedDate: "Sep 9, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=12",
-      address: "Bhubaneswar, Odisha",
-      orders: 42,
-    },
-    {
-      id: 2,
-      name: "Priya Patel",
-      email: "priya@example.com",
-      phone: "+91 87654 32109",
-      role: "Editor",
-      joinedDate: "Sep 9, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=47",
-      address: "Mumbai, Maharashtra",
-      orders: 36,
-    },
-    {
-      id: 3,
-      name: "Amit Kumar",
-      email: "amit@example.com",
-      phone: "+91 76543 21098",
-      role: "Customer",
-      joinedDate: "Sep 8, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=11",
-      address: "Delhi, India",
-      orders: 28,
-    },
-    {
-      id: 4,
-      name: "Sneha Verma",
-      email: "sneha@example.com",
-      phone: "+91 65432 10987",
-      role: "Customer",
-      joinedDate: "Sep 8, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=44",
-      address: "Kolkata, West Bengal",
-      orders: 31,
-    },
-    {
-      id: 5,
-      name: "Vikram Singh",
-      email: "vikram@example.com",
-      phone: "+91 54321 09876",
-      role: "Editor",
-      joinedDate: "Sep 7, 2026",
-      status: "Inactive",
-      avatar: "https://i.pravatar.cc/150?img=13",
-      address: "Jaipur, Rajasthan",
-      orders: 19,
-    },
-    {
-      id: 6,
-      name: "Neha Gupta",
-      email: "neha@example.com",
-      phone: "+91 43210 98765",
-      role: "Customer",
-      joinedDate: "Sep 7, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=32",
-      address: "Pune, Maharashtra",
-      orders: 24,
-    },
-    {
-      id: 7,
-      name: "Rohan Mehta",
-      email: "rohan@example.com",
-      phone: "+91 32109 87654",
-      role: "Customer",
-      joinedDate: "Sep 6, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=68",
-      address: "Ahmedabad, Gujarat",
-      orders: 17,
-    },
-    {
-      id: 8,
-      name: "Ananya Singh",
-      email: "ananya@example.com",
-      phone: "+91 21098 76543",
-      role: "Customer",
-      joinedDate: "Sep 6, 2026",
-      status: "Inactive",
-      avatar: "https://i.pravatar.cc/150?img=49",
-      address: "Lucknow, Uttar Pradesh",
-      orders: 12,
-    },
-    {
-      id: 9,
-      name: "Arjun Das",
-      email: "arjun@example.com",
-      phone: "+91 99887 66554",
-      role: "Customer",
-      joinedDate: "Sep 5, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=15",
-      address: "Cuttack, Odisha",
-      orders: 22,
-    },
-    {
-      id: 10,
-      name: "Meera Joshi",
-      email: "meera@example.com",
-      phone: "+91 88776 55443",
-      role: "Editor",
-      joinedDate: "Sep 4, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=45",
-      address: "Bangalore, Karnataka",
-      orders: 38,
-    },
-    {
-      id: 11,
-      name: "Sourav Mishra",
-      email: "sourav@example.com",
-      phone: "+91 77665 44332",
-      role: "Customer",
-      joinedDate: "Sep 3, 2026",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=52",
-      address: "Ranchi, Jharkhand",
-      orders: 14,
-    },
-    {
-      id: 12,
-      name: "Kavya Nair",
-      email: "kavya@example.com",
-      phone: "+91 66554 33221",
-      role: "Customer",
-      joinedDate: "Sep 2, 2026",
-      status: "Inactive",
-      avatar: "https://i.pravatar.cc/150?img=48",
-      address: "Kochi, Kerala",
-      orders: 9,
-    },
-  ];
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  /* =========================================================
-     STATES
-  ========================================================= */
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/users?limit=500");
+      if (res.data && res.data.success) {
+        setUsers(res.data.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to load users:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const [users, setUsers] = useState(initialUsers);
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -529,124 +399,109 @@ const Users = () => {
      ADD
   ========================================================= */
 
-  const handleAddUser = (event) => {
+  /* =========================================================
+     ADD USER API
+  ========================================================= */
+
+  const handleAddUser = async (event) => {
     event.preventDefault();
 
     if (!validateForm()) return;
 
-    const newUser = {
-      id: Date.now(),
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        role: formData.role || "User",
+        status: formData.status || "Active",
+        address: formData.address.trim(),
+        avatar: formData.avatar,
+      };
 
-      name: formData.name.trim(),
-
-      email: formData.email.trim(),
-
-      phone: formData.phone.trim(),
-
-      role: formData.role,
-
-      status: formData.status,
-
-      avatar:
-        formData.avatar ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          formData.name
-        )}&background=eaf3ff&color=1474e8&bold=true`,
-
-      address: formData.address.trim(),
-
-      joinedDate: new Date().toLocaleDateString(
-        "en-US",
-        {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }
-      ),
-
-      orders: 0,
-    };
-
-    setUsers((previous) => [
-      newUser,
-      ...previous,
-    ]);
-
-    setCurrentPage(1);
-
-    closeModal();
+      const res = await API.post("/users", payload);
+      if (res.data?.success) {
+        await fetchUsers();
+        setCurrentPage(1);
+        closeModal();
+      }
+    } catch (err) {
+      console.error("Add user error:", err);
+      alert(err.response?.data?.message || "Failed to add user");
+    }
   };
 
   /* =========================================================
-     UPDATE
+     UPDATE USER API
   ========================================================= */
 
-  const handleUpdateUser = (event) => {
+  const handleUpdateUser = async (event) => {
     event.preventDefault();
 
     if (!validateForm()) return;
 
-    setUsers((previous) =>
-      previous.map((user) =>
-        user.id === selectedUser.id
-          ? {
-              ...user,
-              name: formData.name.trim(),
-              email: formData.email.trim(),
-              phone: formData.phone.trim(),
-              role: formData.role,
-              status: formData.status,
-              address: formData.address.trim(),
-              avatar:
-                formData.avatar || user.avatar,
-            }
-          : user
-      )
-    );
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        role: formData.role,
+        status: formData.status,
+        address: formData.address.trim(),
+        avatar: formData.avatar || selectedUser.avatar,
+      };
 
-    closeModal();
+      const res = await API.put(`/users/${selectedUser.id}`, payload);
+      if (res.data?.success) {
+        await fetchUsers();
+        closeModal();
+      }
+    } catch (err) {
+      console.error("Update user error:", err);
+      alert(err.response?.data?.message || "Failed to update user");
+    }
   };
 
   /* =========================================================
-     DELETE
+     DELETE USER API
   ========================================================= */
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     if (!selectedUser) return;
 
-    setUsers((previous) =>
-      previous.filter(
-        (user) => user.id !== selectedUser.id
-      )
-    );
-
-    setSelectedUsers((previous) =>
-      previous.filter(
-        (id) => id !== selectedUser.id
-      )
-    );
-
-    closeModal();
+    try {
+      const res = await API.delete(`/users/${selectedUser.id}`);
+      if (res.data?.success) {
+        setSelectedUsers((previous) =>
+          previous.filter((id) => id !== selectedUser.id)
+        );
+        await fetchUsers();
+        closeModal();
+      }
+    } catch (err) {
+      console.error("Delete user error:", err);
+      alert(err.response?.data?.message || "Failed to delete user");
+    }
   };
 
   /* =========================================================
-     STATUS
+     STATUS TOGGLE API
   ========================================================= */
 
-  const toggleUserStatus = (user) => {
-    setUsers((previous) =>
-      previous.map((item) =>
-        item.id === user.id
-          ? {
-              ...item,
-              status:
-                item.status === "Active"
-                  ? "Inactive"
-                  : "Active",
-            }
-          : item
-      )
-    );
+  const toggleUserStatus = async (user) => {
+    const newStatus = user.status === "Active" ? "Inactive" : "Active";
+    try {
+      const res = await API.put(`/users/${user.id}`, { status: newStatus });
+      if (res.data?.success) {
+        setUsers((previous) =>
+          previous.map((item) =>
+            item.id === user.id ? { ...item, status: newStatus } : item
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Toggle status error:", err);
+    }
   };
 
   /* =========================================================
@@ -902,6 +757,7 @@ const Users = () => {
               }}
             >
               <option>All Roles</option>
+              <option>User</option>
               <option>Admin</option>
               <option>Editor</option>
               <option>Customer</option>
@@ -1487,6 +1343,7 @@ const Users = () => {
                       value={formData.role}
                       onChange={handleInputChange}
                     >
+                      <option>User</option>
                       <option>Customer</option>
                       <option>Editor</option>
                       <option>Admin</option>

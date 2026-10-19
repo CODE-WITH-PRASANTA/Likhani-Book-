@@ -27,8 +27,7 @@ import {
   FaCloudUploadAlt,
 } from "react-icons/fa";
 
-const BASE_URL = "http://localhost:5000";
-const API_URL = `${BASE_URL}/api/testimonials`;
+import API, { BASE_URL } from "../../api/axios";
 
 const availableColors = [
   "#1e293b",
@@ -52,8 +51,8 @@ const emptyForm = {
 
 const getImageUrl = (path) => {
   if (!path) return "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150";
-  if (path.startsWith("blob:") || path.startsWith("http")) return path;
-  return `${BASE_URL}${path}`;
+  if (path.startsWith("blob:") || path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) return path;
+  return `${BASE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
 };
 
 const TestimonialManagement = () => {
@@ -85,10 +84,9 @@ const TestimonialManagement = () => {
   const fetchTestimonials = async () => {
     try {
       setLoading(true);
-      const res = await fetch(API_URL);
-      const result = await res.json();
-      if (result.success) {
-        setTestimonials(result.data);
+      const res = await API.get("/testimonials");
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setTestimonials(res.data.data);
       }
     } catch (err) {
       console.error("Failed to load testimonials:", err);
@@ -277,31 +275,31 @@ const TestimonialManagement = () => {
     if (profileFile) formPayload.append("profileImage", profileFile);
 
     try {
-      const url = editingId ? `${API_URL}/${editingId}` : API_URL;
-      const method = editingId ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        body: formPayload,
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to save testimonial");
-      }
-
+      let res;
       if (editingId) {
-        setTestimonials((prev) =>
-          prev.map((item) => (item._id === editingId ? data.data : item))
-        );
+        res = await API.put(`/testimonials/${editingId}`, formPayload, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       } else {
-        setTestimonials((prev) => [data.data, ...prev]);
-        setCurrentPage(1);
+        res = await API.post("/testimonials", formPayload, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       }
 
-      handleReset();
+      const data = res.data;
+      if (data?.success) {
+        if (editingId) {
+          setTestimonials((prev) =>
+            prev.map((item) => (item._id === editingId ? data.data : item))
+          );
+        } else {
+          setTestimonials((prev) => [data.data, ...prev]);
+          setCurrentPage(1);
+        }
+        handleReset();
+      }
     } catch (err) {
-      alert(err.message);
+      alert(err.response?.data?.message || err.message || "Failed to save testimonial");
     }
   };
 
@@ -310,11 +308,10 @@ const TestimonialManagement = () => {
   ---------------------------------------------------- */
   const toggleStatus = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/${id}/status`, { method: "PATCH" });
-      const data = await res.json();
-      if (data.success) {
+      const res = await API.patch(`/testimonials/${id}/status`);
+      if (res.data?.success) {
         setTestimonials((prev) =>
-          prev.map((item) => (item._id === id ? data.data : item))
+          prev.map((item) => (item._id === id ? res.data.data : item))
         );
       }
     } catch (err) {
@@ -332,15 +329,15 @@ const TestimonialManagement = () => {
     if (!window.confirm(`Delete testimonial from "${item.clientName}"?`)) return;
 
     try {
-      const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-      const data = await res.json();
-      if (data.success) {
+      const res = await API.delete(`/testimonials/${id}`);
+      if (res.data?.success) {
         setTestimonials((prev) => prev.filter((t) => t._id !== id));
         setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
         if (editingId === id) handleReset();
       }
     } catch (err) {
-      alert("Failed to delete testimonial");
+      console.error("Failed to delete testimonial:", err);
+      alert(err.response?.data?.message || "Failed to delete testimonial");
     }
   };
 
@@ -349,18 +346,15 @@ const TestimonialManagement = () => {
     if (!window.confirm(`Delete ${selectedIds.length} selected testimonials?`)) return;
 
     try {
-      const res = await fetch(`${API_URL}/bulk-delete`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedIds }),
-      });
-      const data = await res.json();
-      if (data.success) {
+      const res = await API.post("/testimonials/bulk-delete", { ids: selectedIds });
+      if (res.data?.success) {
         setTestimonials((prev) => prev.filter((t) => !selectedIds.includes(t._id)));
         setSelectedIds([]);
+        if (selectedIds.includes(editingId)) handleReset();
       }
     } catch (err) {
-      alert("Failed to perform bulk delete");
+      console.error("Failed to bulk delete testimonials:", err);
+      alert(err.response?.data?.message || "Failed to perform bulk delete");
     }
   };
 

@@ -720,6 +720,11 @@ input[type="checkbox"]:checked::after {
   background: #e4f1ff;
 }
 
+.Users__role--user {
+  color: #0d8a54;
+  background: #e7f8ee;
+}
+
 
 /* STATUS */
 

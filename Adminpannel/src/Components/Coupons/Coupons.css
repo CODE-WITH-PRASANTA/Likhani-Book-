@@ -2099,3 +2099,16 @@
     align-items: stretch;
   }
 }
+
+.Coupons__spin {
+  animation: couponsSpin 1s linear infinite;
+}
+
+@keyframes couponsSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

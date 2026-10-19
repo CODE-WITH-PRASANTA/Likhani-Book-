@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Search,
   Plus,
@@ -17,67 +17,15 @@ import {
   RotateCcw,
 } from "lucide-react";
 
+import API from "../../api/axios";
 import "./Categories.css";
 
 const Categories = () => {
   /* =========================================================
-     INITIAL DATA
-  ========================================================= */
-  const initialCategories = [
-    {
-      id: 1,
-      name: "Fiction",
-      description: "Fictional stories, novels, and narrative literature.",
-      color: "blue",
-    },
-    {
-      id: 2,
-      name: "Non-Fiction",
-      description: "Real stories, biographies, and educational books.",
-      color: "green",
-    },
-    {
-      id: 3,
-      name: "Academic",
-      description: "Study materials, textbooks, and research journals.",
-      color: "orange",
-    },
-    {
-      id: 4,
-      name: "Kids",
-      description: "Children's books, illustrations, and bedtime stories.",
-      color: "pink",
-    },
-    {
-      id: 5,
-      name: "Self Help",
-      description: "Personal growth, habits, and motivational books.",
-      color: "purple",
-    },
-    {
-      id: 6,
-      name: "Comics",
-      description: "Graphic novels, comics, and illustrated works.",
-      color: "yellow",
-    },
-    {
-      id: 7,
-      name: "Mystery",
-      description: "Mystery, thriller, suspense, and detective stories.",
-      color: "dark",
-    },
-    {
-      id: 8,
-      name: "Others",
-      description: "Miscellaneous publications and uncategorized books.",
-      color: "gray",
-    },
-  ];
-
-  /* =========================================================
      STATES
   ========================================================= */
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -99,14 +47,40 @@ const Categories = () => {
   const ITEMS_PER_PAGE = 7;
 
   /* =========================================================
+     API: FETCH ALL CATEGORIES
+  ========================================================= */
+  const fetchCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/categories");
+      if (res.data && res.data.success) {
+        setCategories(
+          (res.data.data || []).map((cat) => ({
+            ...cat,
+            id: cat._id || cat.id,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to load categories:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  /* =========================================================
      FILTER & PAGINATION
   ========================================================= */
   const filteredCategories = useMemo(() => {
     return categories.filter((category) => {
       const search = searchTerm.toLowerCase().trim();
       return (
-        category.name.toLowerCase().includes(search) ||
-        category.description.toLowerCase().includes(search)
+        category.name?.toLowerCase().includes(search) ||
+        category.description?.toLowerCase().includes(search)
       );
     });
   }, [categories, searchTerm]);
@@ -186,52 +160,52 @@ const Categories = () => {
     if (!formData.name.trim()) {
       newErrors.name = "Category name is required.";
     }
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required.";
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    if (formMode === "add") {
-      const colors = ["blue", "green", "purple", "orange", "yellow", "pink"];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    try {
+      if (formMode === "add") {
+        const colors = ["blue", "green", "purple", "orange", "yellow", "pink"];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
-      const newCategory = {
-        id: Date.now(),
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        color: randomColor,
-      };
+        const res = await API.post("/categories", {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+          color: randomColor,
+        });
 
-      setCategories((prev) => [newCategory, ...prev]);
-    } else {
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editingId
-            ? {
-                ...c,
-                name: formData.name.trim(),
-                description: formData.description.trim(),
-              }
-            : c
-        )
-      );
+        if (res.data && res.data.success) {
+          await fetchCategories();
+          resetForm();
+        }
+      } else {
+        const res = await API.put(`/categories/${editingId}`, {
+          name: formData.name.trim(),
+          description: formData.description.trim(),
+        });
+
+        if (res.data && res.data.success) {
+          await fetchCategories();
+          resetForm();
+        }
+      }
+    } catch (err) {
+      console.error("Category save error:", err);
+      alert(err.response?.data?.message || "Failed to save category");
     }
-
-    resetForm();
   };
 
   const handleStartEdit = (category) => {
     setFormMode("edit");
     setEditingId(category.id);
     setFormData({
-      name: category.name,
-      description: category.description,
+      name: category.name || "",
+      description: category.description || "",
     });
     setErrors({});
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -255,17 +229,38 @@ const Categories = () => {
     setSelectedCategory(null);
   };
 
-  const handleDeleteCategory = () => {
+  const handleDeleteCategory = async () => {
     if (!selectedCategory) return;
-    setCategories((prev) => prev.filter((c) => c.id !== selectedCategory.id));
-    setSelectedIds((prev) => prev.filter((id) => id !== selectedCategory.id));
-
-    if (editingId === selectedCategory.id) {
-      resetForm();
+    try {
+      const res = await API.delete(`/categories/${selectedCategory.id}`);
+      if (res.data && res.data.success) {
+        if (editingId === selectedCategory.id) {
+          resetForm();
+        }
+        await fetchCategories();
+        setSelectedIds((prev) => prev.filter((id) => id !== selectedCategory.id));
+        closeModal();
+      }
+    } catch (err) {
+      console.error("Category delete error:", err);
+      alert(err.response?.data?.message || "Failed to delete category");
     }
+  };
 
-    setCurrentPage(1);
-    closeModal();
+  const handleBulkDelete = async () => {
+    if (!selectedIds.length) return;
+    if (!window.confirm(`Delete ${selectedIds.length} selected categories?`)) return;
+
+    try {
+      const res = await API.post("/categories/bulk-delete", { ids: selectedIds });
+      if (res.data && res.data.success) {
+        setSelectedIds([]);
+        await fetchCategories();
+      }
+    } catch (err) {
+      console.error("Bulk delete categories error:", err);
+      alert(err.response?.data?.message || "Failed to delete selected categories");
+    }
   };
 
   /* =========================================================
@@ -281,7 +276,7 @@ const Categories = () => {
 
     const csvContent = [headers, ...rows]
       .map((row) =>
-        row.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(",")
+        row.map((val) => `"${String(val ?? "").replace(/"/g, '""')}"`).join(",")
       )
       .join("\n");
 
@@ -298,7 +293,6 @@ const Categories = () => {
 
   return (
     <div className="Categories">
-   
       {/* 50 / 50 MAIN WORKSPACE */}
       <div className="Categories__workspace">
         {/* =====================================================
@@ -346,23 +340,33 @@ const Categories = () => {
                 {errors.name && <small>{errors.name}</small>}
               </div>
 
+              <div className="Categories__field">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Provide context or notes about this category..."
+                  rows="4"
+                />
+              </div>
+
               <div className="Categories__formFooter">
                 {formMode === "edit" ? (
-                  <>
+                  <div className="Categories__buttonGroup">
                     <button
                       type="button"
-                      className="Categories__cancel"
+                      className="Categories__cancelButton"
                       onClick={resetForm}
                     >
-                      Cancel Edit
+                      Cancel
                     </button>
-                    <button type="submit" className="Categories__save">
-                      <CheckCircle2 size={16} />
+                    <button type="submit" className="Categories__submitButton">
                       Save Changes
                     </button>
-                  </>
+                  </div>
                 ) : (
-                  <button type="submit" className="Categories__save Categories__save--block">
+                  <button type="submit" className="Categories__submitButton">
                     <Plus size={16} />
                     Create Category
                   </button>
@@ -373,17 +377,17 @@ const Categories = () => {
         </aside>
 
         {/* =====================================================
-            RIGHT SIDE: TABLE & CONTROLS (50%)
+            RIGHT SIDE: DATA TABLE (50%)
         ====================================================== */}
-        <main className="Categories__panelRight">
+        <section className="Categories__panelRight">
           {/* TOOLBAR */}
           <div className="Categories__toolbar">
             <div className="Categories__toolbarLeft">
-              <div className="Categories__search">
-                <Search size={17} />
+              <div className="Categories__searchBox">
+                <Search size={16} />
                 <input
                   type="text"
-                  placeholder="Search categories..."
+                  placeholder="Filter categories..."
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -394,6 +398,7 @@ const Categories = () => {
                   <button
                     className="Categories__searchClear"
                     onClick={() => setSearchTerm("")}
+                    title="Clear filter"
                   >
                     <X size={14} />
                   </button>
@@ -406,6 +411,9 @@ const Categories = () => {
                 <div className="Categories__selectedCount">
                   <CheckCircle2 size={14} />
                   <span>{selectedIds.length}</span>
+                  <button onClick={handleBulkDelete} title="Delete selected" style={{ marginLeft: "6px", background: "none", border: "none", cursor: "pointer", color: "#dc2626" }}>
+                    <Trash2 size={13} />
+                  </button>
                   <button onClick={handleClearSelection} title="Clear selection">
                     <X size={12} />
                   </button>
@@ -443,7 +451,13 @@ const Categories = () => {
                 </thead>
 
                 <tbody>
-                  {currentCategories.length > 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>
+                        Loading categories...
+                      </td>
+                    </tr>
+                  ) : currentCategories.length > 0 ? (
                     currentCategories.map((category, index) => {
                       const isEditingThis = editingId === category.id;
                       const isSelected = selectedIds.includes(category.id);
@@ -498,17 +512,17 @@ const Categories = () => {
                               </button>
                               <button
                                 className={`Categories__action Categories__action--edit ${
-                                  isEditingThis ? "Categories__action--activeEdit" : ""
+                                  isEditingThis ? "Categories__action--active" : ""
                                 }`}
                                 onClick={() => handleStartEdit(category)}
-                                title="Edit inline"
+                                title="Edit Category"
                               >
                                 <Edit3 size={16} />
                               </button>
                               <button
                                 className="Categories__action Categories__action--delete"
                                 onClick={() => openDeleteModal(category)}
-                                title="Delete"
+                                title="Delete Category"
                               >
                                 <Trash2 size={16} />
                               </button>
@@ -519,11 +533,11 @@ const Categories = () => {
                     })
                   ) : (
                     <tr>
-                      <td colSpan="4" className="Categories__empty">
-                        <div className="Categories__emptyContent">
-                          <FolderOpen size={32} />
-                          <h3>No categories match</h3>
-                          <p>Try modifying your search query.</p>
+                      <td colSpan="4" className="Categories__emptyCell">
+                        <div className="Categories__empty">
+                          <BookOpen size={36} />
+                          <h3>No Categories Found</h3>
+                          <p>Try searching for a different term or create a new one on the left.</p>
                         </div>
                       </td>
                     </tr>
@@ -532,18 +546,19 @@ const Categories = () => {
               </table>
             </div>
 
-            {/* FOOTER & PAGINATION */}
+            {/* TABLE FOOTER / PAGINATION */}
             <div className="Categories__tableFooter">
-              <span>
+              <span className="Categories__counts">
                 Showing {filteredCategories.length === 0 ? 0 : startIndex + 1} to{" "}
                 {Math.min(startIndex + ITEMS_PER_PAGE, filteredCategories.length)} of{" "}
-                {filteredCategories.length} entries
+                {filteredCategories.length} categories
               </span>
 
               <div className="Categories__pagination">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={safeCurrentPage === 1}
+                  aria-label="Previous Page"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -561,13 +576,14 @@ const Categories = () => {
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={safeCurrentPage === totalPages}
+                  aria-label="Next Page"
                 >
                   <ChevronRight size={16} />
                 </button>
               </div>
             </div>
           </div>
-        </main>
+        </section>
       </div>
 
       {/* VIEW MODAL */}
@@ -576,22 +592,17 @@ const Categories = () => {
           className="Categories__overlay"
           onMouseDown={(e) => e.target === e.currentTarget && closeModal()}
         >
-          <div className="Categories__viewModal">
-            <div className="Categories__viewHeader">
-              <div>
-                <span className="Categories__viewEyebrow">CATEGORY PREVIEW</span>
-                <h2>Category Details</h2>
-                <p>Detailed registry metadata for this record.</p>
-              </div>
-
-              <button className="Categories__close" onClick={closeModal}>
+          <div className="Categories__modal">
+            <div className="Categories__modalHeader">
+              <h3>Category Details</h3>
+              <button onClick={closeModal} title="Close window">
                 <X size={18} />
               </button>
             </div>
-
-            <div className="Categories__viewBody">
-              <div className="Categories__viewTopCard">
-                <div className="Categories__viewTitle">
+            <div className="Categories__modalBody">
+              <div className="Categories__detailGroup">
+                <label>Category Name</label>
+                <div style={{ marginTop: "4px" }}>
                   <span
                     className={`Categories__badge Categories__badge--${
                       selectedCategory.color || "blue"
@@ -599,63 +610,49 @@ const Categories = () => {
                   >
                     {selectedCategory.name}
                   </span>
-                  <span className="Categories__viewIdTag">
-                    #{selectedCategory.id}
-                  </span>
                 </div>
-
-                <p className="Categories__viewDescription">
-                  {selectedCategory.description}
-                </p>
+              </div>
+              <div className="Categories__detailGroup">
+                <label>Description</label>
+                <p>{selectedCategory.description || "No description provided."}</p>
               </div>
             </div>
-
-            <div className="Categories__viewFooter">
-              <button className="Categories__cancel" onClick={closeModal}>
-                Dismiss
-              </button>
-              <button
-                className="Categories__save"
-                onClick={() => {
-                  closeModal();
-                  handleStartEdit(selectedCategory);
-                }}
-              >
-                <Edit3 size={16} />
-                Load In Form
+            <div className="Categories__modalFooter">
+              <button className="Categories__primaryButton" onClick={closeModal}>
+                Close
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* DELETE MODAL */}
+      {/* DELETE CONFIRMATION MODAL */}
       {modalType === "delete" && selectedCategory && (
         <div
           className="Categories__overlay"
           onMouseDown={(e) => e.target === e.currentTarget && closeModal()}
         >
-          <div className="Categories__deleteModal">
-            <div className="Categories__deleteIcon">
-              <AlertTriangle size={26} />
-            </div>
-
-            <h2>Delete Category?</h2>
-            <p>
-              Are you sure you want to remove <strong>{selectedCategory.name}</strong>? This action cannot be reversed.
-            </p>
-
-            <div className="Categories__deleteFooter">
-              <button className="Categories__cancel" onClick={closeModal}>
-                Cancel
-              </button>
-              <button
-                className="Categories__deleteButton"
-                onClick={handleDeleteCategory}
-              >
-                <Trash2 size={16} />
-                Delete Record
-              </button>
+          <div className="Categories__modal Categories__modal--warning">
+            <div className="Categories__warningContent">
+              <div className="Categories__warningIcon">
+                <AlertTriangle size={24} />
+              </div>
+              <h3>Delete Category?</h3>
+              <p>
+                Are you sure you want to remove{" "}
+                <strong>{selectedCategory.name}</strong>? This action cannot be undone.
+              </p>
+              <div className="Categories__modalActions">
+                <button className="Categories__cancelButton" onClick={closeModal}>
+                  Cancel
+                </button>
+                <button
+                  className="Categories__deleteButton"
+                  onClick={handleDeleteCategory}
+                >
+                  Delete Category
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -78,7 +78,20 @@ const Supports = () => {
       const matchesStatus =
         appliedStatus === "All Status" || item.status === appliedStatus;
 
-      const matchesDate = !appliedDate || item.date === appliedDate;
+      let matchesDate = true;
+      if (appliedDate) {
+        if (item.createdAt) {
+          const itemDateStr = new Date(item.createdAt).toISOString().split("T")[0];
+          matchesDate = itemDateStr === appliedDate;
+        } else if (item.date) {
+          const parsed = new Date(item.date);
+          if (!isNaN(parsed.getTime())) {
+            matchesDate = parsed.toISOString().split("T")[0] === appliedDate;
+          } else {
+            matchesDate = item.date === appliedDate;
+          }
+        }
+      }
 
       return matchesSearch && matchesStatus && matchesDate;
     });

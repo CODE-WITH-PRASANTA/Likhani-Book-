@@ -11,4 +11,13 @@ const API = axios.create({
   },
 });
 
+// Auto-attach JWT token if present in localStorage
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("lekhani_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default API;

@@ -1,10 +1,29 @@
 const Support = require("../models/Support");
+const { isValidObjectId, isValidEmail } = require("../utils/helpers");
 
-// @desc    Get all support messages
+// @desc    Get all support messages with optional search/status filters
 // @route   GET /api/supports
 exports.getSupports = async (req, res) => {
   try {
-    const supports = await Support.find().sort({ createdAt: -1 });
+    const { search = "", status = "All" } = req.query;
+    const query = {};
+
+    if (status && status !== "All" && status !== "All Status") {
+      query.status = status;
+    }
+
+    if (search && search.trim()) {
+      const sanitized = search.trim().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+      const regex = new RegExp(sanitized, "i");
+      query.$or = [
+        { name: regex },
+        { mobile: regex },
+        { email: regex },
+        { message: regex },
+      ];
+    }
+
+    const supports = await Support.find(query).sort({ createdAt: -1 }).lean();
     res.status(200).json({ success: true, count: supports.length, data: supports });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -15,20 +34,27 @@ exports.getSupports = async (req, res) => {
 // @route   POST /api/supports
 exports.createSupport = async (req, res) => {
   try {
-    const { name, mobile, email, message, status } = req.body;
+    const { name, mobile, email, message, status } = req.body || {};
 
-    if (!name || !mobile || !email || !message) {
+    if (!name?.trim() || !mobile?.trim() || !email?.trim() || !message?.trim()) {
       return res.status(400).json({
         success: false,
         message: "Please provide all required fields: name, mobile, email, message",
       });
     }
 
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid email address",
+      });
+    }
+
     const newSupport = await Support.create({
-      name,
-      mobile,
-      email,
-      message,
+      name: name.trim(),
+      mobile: mobile.trim(),
+      email: email.trim().toLowerCase(),
+      message: message.trim(),
       status: status || "New",
     });
 
@@ -43,6 +69,10 @@ exports.createSupport = async (req, res) => {
 exports.updateSupport = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: "Invalid support ID format" });
+    }
 
     let support = await Support.findById(id);
     if (!support) {
@@ -66,6 +96,10 @@ exports.deleteSupport = async (req, res) => {
   try {
     const { id } = req.params;
 
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: "Invalid support ID format" });
+    }
+
     const support = await Support.findById(id);
     if (!support) {
       return res.status(404).json({ success: false, message: "Support message not found" });
@@ -83,15 +117,24 @@ exports.deleteSupport = async (req, res) => {
 // @route   POST /api/supports/bulk-delete
 exports.bulkDeleteSupports = async (req, res) => {
   try {
-    const { ids } = req.body;
+    const { ids } = req.body || {};
 
-    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+    if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ success: false, message: "No IDs provided" });
     }
 
-    await Support.deleteMany({ _id: { $in: ids } });
+    const validIds = ids.filter((id) => isValidObjectId(id));
+    if (validIds.length === 0) {
+      return res.status(400).json({ success: false, message: "No valid ObjectIds provided" });
+    }
 
-    res.status(200).json({ success: true, message: "Selected messages deleted successfully" });
+    const result = await Support.deleteMany({ _id: { $in: validIds } });
+
+    res.status(200).json({
+      success: true,
+      message: `${result.deletedCount} messages deleted successfully`,
+      deletedCount: result.deletedCount,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 
 // Pointing to backend/uploads
-const uploadDir = path.join(__dirname, "../../uploads");
+const uploadDir = path.resolve(__dirname, "../../uploads");
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -44,4 +44,8 @@ const upload = multer({
 module.exports = upload.fields([
   { name: "logo", maxCount: 1 },
   { name: "profileImage", maxCount: 1 },
+  { name: "avatarFile", maxCount: 1 },
+  { name: "avatar", maxCount: 1 },
+  { name: "image", maxCount: 1 },
+  { name: "images", maxCount: 10 },
 ]);

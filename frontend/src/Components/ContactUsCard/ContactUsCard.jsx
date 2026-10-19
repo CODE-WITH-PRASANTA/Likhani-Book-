@@ -51,6 +51,7 @@ const ContactUsCard = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     message: '',
   })
   const [loading, setLoading] = useState(false)
@@ -68,9 +69,10 @@ const ContactUsCard = () => {
 
     const name = formData.name.trim()
     const email = formData.email.trim()
+    const phone = formData.phone.trim()
     const message = formData.message.trim()
 
-    if (!name || !email || !message) {
+    if (!name || !email || !phone || !message) {
       Swal.fire({
         icon: 'warning',
         title: 'Missing Fields',
@@ -79,18 +81,38 @@ const ContactUsCard = () => {
       return
     }
 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailPattern.test(email)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address.',
+      })
+      return
+    }
+
+    const digitsOnly = phone.replace(/\D/g, '')
+    if (digitsOnly.length < 10) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Invalid Phone Number',
+        text: 'Please enter a valid 10-digit phone number.',
+      })
+      return
+    }
+
     try {
       setLoading(true)
 
-      // Post enquiry directly to the backend endpoint
+      // Post enquiry with customer's actual contact information
       await API.post('/enquiries', {
         name,
         email,
+        phone,
         message,
         type: 'General Enquiry',
         subject: 'Website Contact Us Form',
-        phone: PHONE_DISPLAY,
-        address: ADDRESS,
+        address: '',
       })
 
       Swal.fire({
@@ -102,7 +124,7 @@ const ContactUsCard = () => {
       })
 
       // Reset form on success
-      setFormData({ name: '', email: '', message: '' })
+      setFormData({ name: '', email: '', phone: '', message: '' })
     } catch (error) {
       console.error('SUBMIT ENQUIRY ERROR:', error)
       Swal.fire({
@@ -190,6 +212,21 @@ const ContactUsCard = () => {
                     disabled={loading}
                   />
                 </div>
+              </div>
+
+              <div className="ContactUsCard-field-group">
+                <label htmlFor="phone">Your phone number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter 10-digit phone number"
+                  autoComplete="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  disabled={loading}
+                />
               </div>
 
               <div className="ContactUsCard-field-group">

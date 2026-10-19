@@ -93,6 +93,14 @@ const Enquiries = () => {
       totalPages: 1,
     });
 
+  const [serverStats, setServerStats] =
+    useState({
+      total: 0,
+      newCount: 0,
+      inProgressCount: 0,
+      closedCount: 0,
+    });
+
   // =====================================================
   // MODALS
   // =====================================================
@@ -131,6 +139,7 @@ const Enquiries = () => {
               search: searchQuery,
               type: typeFilter,
               status: statusFilter,
+              date: dateRangeFilter,
               page: currentPage,
               limit: ITEMS_PER_PAGE,
             },
@@ -152,6 +161,10 @@ const Enquiries = () => {
             totalPages: 1,
           }
         );
+
+        if (result?.stats) {
+          setServerStats(result.stats);
+        }
 
         // Keep current page valid
         if (
@@ -185,6 +198,7 @@ const Enquiries = () => {
       searchQuery,
       typeFilter,
       statusFilter,
+      dateRangeFilter,
       currentPage,
     ]
   );
@@ -202,34 +216,8 @@ const Enquiries = () => {
   // =====================================================
 
   const stats = useMemo(() => {
-    const total =
-      pagination.total || 0;
-
-    const newCount =
-      enquiries.filter(
-        (item) =>
-          item.status === "New"
-      ).length;
-
-    const inProgressCount =
-      enquiries.filter(
-        (item) =>
-          item.status === "In Progress"
-      ).length;
-
-    const closedCount =
-      enquiries.filter(
-        (item) =>
-          item.status === "Closed"
-      ).length;
-
-    return {
-      total,
-      newCount,
-      inProgressCount,
-      closedCount,
-    };
-  }, [enquiries, pagination.total]);
+    return serverStats;
+  }, [serverStats]);
 
   // =====================================================
   // DATE FORMAT

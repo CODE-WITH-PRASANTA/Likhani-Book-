@@ -1,7 +1,13 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { NavLink, Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import API, { BASE_URL } from "../../api/axios";
+import defaultBookImg from "../../assets/05.webp";
 import logo from "../../assets/booklogo.webp";
 import "./Navbar.css";
+
+const formatPrice = (value) =>
+  value != null ? `₹${Number(value).toLocaleString("en-IN")}` : "";
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -14,93 +20,14 @@ const navItems = [
 
 /* =========================================
    BOOK CATEGORIES
-   - Items with `subs` open a side flyout.
-   - Items with `to` and no subs are direct links.
-   Sub links go to: /shop?category=<slug>&sub=<sub-slug>
+   - Dynamically fetched from backend database only
 ========================================= */
 const slugify = (text) =>
-  text
+  String(text || "")
     .toLowerCase()
     .replace(/&/g, "and")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
-
-const categories = [
-  {
-    slug: "fiction",
-    label: "Fiction",
-    subs: [
-      "Literary Fiction",
-      "Mystery & Thriller",
-      "Romance",
-      "Sci-Fi & Fantasy",
-      "Historical Fiction",
-      "Horror",
-    ],
-  },
-  {
-    slug: "non-fiction",
-    label: "Non-Fiction",
-    subs: [
-      "Biography & Memoir",
-      "History & Politics",
-      "Self-Help",
-      "Business & Finance",
-      "Science & Nature",
-      "Philosophy",
-    ],
-  },
-  {
-    slug: "childrens-books",
-    label: "Children's Books",
-    subs: [
-      "Picture Books",
-      "Early Readers",
-      "Story & Fairy Tales",
-      "Activity Books",
-      "Teen & Young Adult",
-    ],
-  },
-  {
-    slug: "academic",
-    label: "Academic & Exams",
-    subs: [
-      "School Textbooks",
-      "Engineering",
-      "Medical",
-      "Competitive Exams",
-      "Reference & Dictionaries",
-    ],
-  },
-  {
-    slug: "comics",
-    label: "Comics & Manga",
-    subs: ["Manga", "Graphic Novels", "Superhero Comics", "Indian Comics"],
-  },
-  {
-    slug: "bestsellers",
-    label: "Bestsellers",
-    tag: "Hot",
-    subs: [
-      "New Releases",
-      "Top Rated",
-      "Award Winners",
-      "Staff Picks",
-      "Box Sets",
-    ],
-  },
-  {
-    slug: "stationery",
-    label: "Stationery & Gifts",
-    subs: ["Notebooks & Journals", "Bookmarks", "Pens & Pencils", "Gift Cards"],
-  },
-  {
-    slug: "blogs",
-    label: "Blogs",
-    to: "/blog",
-    subs: [],
-  },
-];
 
 /* Inline icons (stroke based, inherit currentColor) */
 const iconPaths = {
@@ -164,7 +91,12 @@ const CategoryIcon = ({ name, size = 19 }) => (
     strokeLinejoin="round"
     aria-hidden="true"
   >
-    {iconPaths[name]}
+    {iconPaths[name] || (
+      <>
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+        <path d="M6 6h10M6 10h10" />
+      </>
+    )}
   </svg>
 );
 
@@ -219,15 +151,155 @@ const GridIcon = ({ size = 18 }) => (
 );
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Category dropdown state
   const [isCatOpen, setIsCatOpen] = useState(false);
-  const [activeCat, setActiveCat] = useState(categories[0].slug);
+  const [categories, setCategories] = useState([]);
+  const [allBooks, setAllBooks] = useState([]);
+  const [activeCat, setActiveCat] = useState("");
   const [mobileCatOpen, setMobileCatOpen] = useState(false);
   const [mobileSubOpen, setMobileSubOpen] = useState(null);
+
+  // Fetch dynamic categories and books from backend
+  useEffect(() => {
+    let isMounted = true;
+    const fetchNavData = async () => {
+      try {
+        const [catRes, bookRes, postingRes] = await Promise.allSettled([
+          API.get("/categories"),
+          API.get("/books", { params: { limit: 100, status: "Published" } }),
+          API.get("/book-posting", { params: { limit: 100 } }),
+        ]);
+
+        let dbCats = [];
+        if (catRes.status === "fulfilled" && catRes.value?.data?.data) {
+          dbCats = catRes.value.data.data;
+        }
+
+        const rawBooks = [];
+        if (bookRes.status === "fulfilled" && Array.isArray(bookRes.value?.data?.data)) {
+          rawBooks.push(...bookRes.value.data.data);
+        }
+        if (postingRes.status === "fulfilled" && Array.isArray(postingRes.value?.data?.data)) {
+          rawBooks.push(...postingRes.value.data.data);
+        }
+
+        // Deduplicate books by ID
+        const bookMap = new Map();
+        rawBooks.forEach((b) => {
+          if (b && (b.status === "Published" || !b.status)) {
+            const id = String(b._id || b.id);
+            if (!bookMap.has(id)) {
+              bookMap.set(id, {
+                id,
+                title: b.title,
+                author: b.author || "Likhani Author",
+                price: b.offerPrice || b.price,
+                oldPrice: b.offerPrice && b.price > b.offerPrice ? b.price : null,
+                category: b.category || "General",
+                image: b.image
+                  ? (b.image.startsWith("http") || b.image.startsWith("data:")
+                      ? b.image
+                      : `${BASE_URL}${b.image.startsWith("/") ? "" : "/"}${b.image}`)
+                  : defaultBookImg,
+              });
+            }
+          }
+        });
+
+        const dbBooks = Array.from(bookMap.values());
+
+        // Dynamic categories map purely from real backend data
+        const catMap = new Map();
+
+        // 1. Backend database categories
+        dbCats.forEach((c) => {
+          const name = c.name?.trim();
+          if (name) {
+            const slug = slugify(name);
+            catMap.set(slug, {
+              slug,
+              label: name,
+              tag: c.color ? "New" : null,
+              isDb: true,
+            });
+          }
+        });
+
+        // 2. Any categories from backend books
+        dbBooks.forEach((b) => {
+          if (b.category && b.category.trim()) {
+            const slug = slugify(b.category);
+            if (!catMap.has(slug)) {
+              catMap.set(slug, {
+                slug,
+                label: b.category.trim(),
+                isDb: true,
+              });
+            }
+          }
+        });
+
+        // ONLY include categories that actually have at least 1 book
+        const finalCategories = Array.from(catMap.values()).filter((cat) => {
+          const catNorm = cat.label
+            .toLowerCase()
+            .trim()
+            .replace(/&/g, "and")
+            .replace(/[^a-z0-9]/g, "");
+
+          return dbBooks.some((book) => {
+            if (!book.category) return false;
+            const bNorm = book.category
+              .toLowerCase()
+              .trim()
+              .replace(/&/g, "and")
+              .replace(/[^a-z0-9]/g, "");
+            return (
+              bNorm === catNorm ||
+              bNorm.includes(catNorm) ||
+              catNorm.includes(bNorm)
+            );
+          });
+        });
+
+        if (isMounted) {
+          setCategories(finalCategories);
+          setAllBooks(dbBooks);
+          if (finalCategories.length > 0) {
+            setActiveCat(finalCategories[0].slug);
+          } else {
+            setActiveCat("");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load navbar categories or books:", err);
+      }
+    };
+
+    fetchNavData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const catWrapRef = useRef(null);
   const catTriggerRef = useRef(null);
@@ -235,7 +307,6 @@ const Navbar = () => {
   const openedByHover = useRef(false);
 
   const location = useLocation();
-  const navigate = useNavigate();
 
   // Optimized sticky scroll listener with requestAnimationFrame
   useEffect(() => {
@@ -271,7 +342,7 @@ const Navbar = () => {
 
   // Always start on the first category when the dropdown opens
   useEffect(() => {
-    if (isCatOpen) setActiveCat(categories[0].slug);
+    if (isCatOpen && categories.length > 0) setActiveCat(categories[0].slug);
   }, [isCatOpen]);
 
   // Lock background scroll when mobile drawer is opened
@@ -383,17 +454,42 @@ const Navbar = () => {
     }
   };
 
-  const catLink = (cat, sub) => {
-    if (cat.to && !sub) return cat.to;
-    return sub
-      ? `/shop?category=${cat.slug}&sub=${slugify(sub)}`
-      : `/shop?category=${cat.slug}`;
+  const catLink = (cat) => {
+    if (cat.to) return cat.to;
+    return `/shop?category=${encodeURIComponent(cat.label)}`;
   };
 
   const catTarget = (cat) => (cat.to ? cat.to : "/shop");
 
-  const active = categories.find((c) => c.slug === activeCat) || categories[0];
-  const hasFlyout = active.subs.length > 0;
+  const active =
+    categories.find((c) => c.slug === activeCat) || categories[0] || {
+      slug: "all",
+      label: "All Books",
+    };
+
+  const activeCategoryBooks = useMemo(() => {
+    if (!active || !active.label) return [];
+    const activeLabelNorm = active.label
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]/g, "");
+
+    return allBooks.filter((book) => {
+      if (!book.category) return false;
+      const bookCatNorm = book.category
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]/g, "");
+
+      return (
+        bookCatNorm === activeLabelNorm ||
+        bookCatNorm.includes(activeLabelNorm) ||
+        activeLabelNorm.includes(bookCatNorm)
+      );
+    });
+  }, [active, allBooks]);
 
   /* ---------- Desktop category dropdown ---------- */
   const categoryPanel = (
@@ -419,60 +515,67 @@ const Navbar = () => {
         <Caret />
       </button>
 
-      <ul className="cat-list" aria-label="Book categories">
-        {categories.map((cat, i) => (
-          <li
-            key={cat.slug}
-            style={{ "--i": i }}
-            onMouseEnter={() => setActiveCat(cat.slug)}
-          >
-            <Link
-              to={catLink(cat)}
-              className={`cat-list-item ${
-                active.slug === cat.slug ? "is-active" : ""
-              }`}
-              onFocus={() => setActiveCat(cat.slug)}
-              onClick={() => handleNavClick(catTarget(cat))}
-            >
-              <span className="cat-ico">
-                <CategoryIcon name={cat.slug} />
-              </span>
-              <span className="cat-label">{cat.label}</span>
-              {cat.tag && <em className="cat-tag">{cat.tag}</em>}
-              {cat.subs.length > 0 && <Chevron className="cat-chevron" />}
-            </Link>
-          </li>
-        ))}
-      </ul>
-
-      {/* Side flyout */}
-      {hasFlyout && (
-        <div className="cat-flyout" key={active.slug}>
-          <div className="cat-flyout-title">{active.label}</div>
-
-          <ul className="cat-sub-list">
-            {active.subs.map((sub, i) => (
-              <li key={sub} style={{ "--i": i }}>
+      {categories.length === 0 ? (
+        <div className="cat-book-empty" style={{ padding: "30px 16px" }}>
+          <p>No categories found in database</p>
+        </div>
+      ) : (
+        <>
+          <ul className="cat-list" aria-label="Book categories">
+            {categories.map((cat, i) => (
+              <li
+                key={cat.slug}
+                style={{ "--i": i }}
+                onMouseEnter={() => setActiveCat(cat.slug)}
+              >
                 <Link
-                  to={catLink(active, sub)}
-                  className="cat-sub-link"
-                  onClick={() => handleNavClick("/shop")}
+                  to={catLink(cat)}
+                  className={`cat-list-item ${
+                    active.slug === cat.slug ? "is-active" : ""
+                  }`}
+                  onFocus={() => setActiveCat(cat.slug)}
+                  onClick={() => handleNavClick(catTarget(cat))}
                 >
-                  {sub}
+                  <span className="cat-ico">
+                    <CategoryIcon name={cat.slug} />
+                  </span>
+                  <span className="cat-label">{cat.label}</span>
+                  {cat.tag && <em className="cat-tag">{cat.tag}</em>}
+                  <Chevron className="cat-chevron" />
                 </Link>
               </li>
             ))}
           </ul>
 
-          <Link
-            to={catLink(active)}
-            className="cat-view-all"
-            onClick={() => handleNavClick("/shop")}
-          >
-            <span>View all {active.label}</span>
-            <Chevron size={14} />
-          </Link>
-        </div>
+          {/* Side flyout showing books under active category */}
+          {active && active.label && (
+            <div className="cat-flyout" key={active.slug}>
+              <div className="cat-flyout-title">
+                <span>{active.label}</span>
+              </div>
+
+              {activeCategoryBooks.length > 0 ? (
+                <ul className="cat-sub-list">
+                  {activeCategoryBooks.map((book, i) => (
+                    <li key={book.id} style={{ "--i": i }}>
+                      <Link
+                        to={`/shop?category=${encodeURIComponent(book.category || active.label)}&search=${encodeURIComponent(book.title)}`}
+                        className="cat-sub-link"
+                        onClick={() => handleNavClick("/shop")}
+                      >
+                        {book.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="cat-book-empty">
+                  <p>No books currently added in {active.label}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -672,15 +775,101 @@ const Navbar = () => {
               </svg>
             </Link>
 
-            {/* Signup Button (Hidden when sticky) */}
+            {/* Signup Button or User Menu (Hidden when sticky) */}
             {!isScrolled && (
-              <Link
-                to="/signup"
-                className="nav-btn-signup"
-                onClick={() => handleNavClick("/signup")}
-              >
-                Sign Up
-              </Link>
+              currentUser ? (
+                <div className="nav-user-menu" ref={userMenuRef}>
+                  <div
+                    className="nav-user-trigger"
+                    onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                    role="button"
+                    tabIndex={0}
+                    title={`Logged in as ${currentUser.name || currentUser.email}`}
+                  >
+                    <div className="nav-user-avatar">
+                      {(currentUser.name || currentUser.firstName || "U")[0]}
+                    </div>
+                    <span className="nav-user-name">
+                      {currentUser.firstName || currentUser.name?.split(" ")[0] || "User"}
+                    </span>
+                    <span
+                      className={`nav-user-caret ${
+                        isUserMenuOpen ? "nav-user-caret--open" : ""
+                      }`}
+                      style={{ fontSize: "10px" }}
+                    >
+                      ▼
+                    </span>
+                  </div>
+
+                  {isUserMenuOpen && (
+                    <div className="nav-user-dropdown">
+                      <div className="nav-user-header">
+                        <strong style={{ fontSize: "14px", color: "#102a43", fontWeight: 700 }}>
+                          {currentUser.name || "Reader"}
+                        </strong>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="nav-user-item"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <span>Profile</span>
+                      </Link>
+                      <Link
+                        to="/wishlist"
+                        className="nav-user-item"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                        </svg>
+                        <span>Wishlist</span>
+                      </Link>
+                      <Link
+                        to="/cart"
+                        className="nav-user-item"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="8" cy="21" r="1" />
+                          <circle cx="19" cy="21" r="1" />
+                          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                        </svg>
+                        <span>Shopping Cart</span>
+                      </Link>
+                      <button
+                        type="button"
+                        className="nav-user-item nav-user-item--logout"
+                        onClick={() => {
+                          setIsUserMenuOpen(false);
+                          logout();
+                          navigate("/login");
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                          <polyline points="16 17 21 12 16 7" />
+                          <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  to="/signup"
+                  className="nav-btn-signup"
+                  onClick={() => handleNavClick("/signup")}
+                >
+                  Sign Up
+                </Link>
+              )
             )}
 
             {/* Mobile Hamburger Toggle */}
@@ -746,74 +935,99 @@ const Navbar = () => {
 
               <div className="drawer-cat-body">
                 <div className="drawer-cat-inner">
-                  {categories.map((cat) => {
-                    // Direct link item (no sub menu)
-                    if (cat.subs.length === 0) {
+                  {categories.length === 0 ? (
+                    <div style={{ padding: "14px 18px", color: "#94a3b8", fontSize: "13px" }}>
+                      No categories found
+                    </div>
+                  ) : (
+                    categories.map((cat) => {
+                      if (cat.to) {
+                        return (
+                          <Link
+                            key={cat.slug}
+                            to={cat.to}
+                            className="drawer-cat-row"
+                            onClick={() => handleNavClick(cat.to)}
+                          >
+                            <span className="drawer-cat-row-label">
+                              <CategoryIcon name={cat.slug} size={17} />
+                              {cat.label}
+                            </span>
+                          </Link>
+                        );
+                      }
+
+                      const isSubOpen = mobileSubOpen === cat.slug;
+                      const catLabelNorm = cat.label
+                        .toLowerCase()
+                        .trim()
+                        .replace(/&/g, "and")
+                        .replace(/[^a-z0-9]/g, "");
+
+                      const catBooks = allBooks.filter((book) => {
+                        if (!book.category) return false;
+                        const bCat = book.category
+                          .toLowerCase()
+                          .trim()
+                          .replace(/&/g, "and")
+                          .replace(/[^a-z0-9]/g, "");
+                        return (
+                          bCat === catLabelNorm ||
+                          bCat.includes(catLabelNorm) ||
+                          catLabelNorm.includes(bCat)
+                        );
+                      });
+
                       return (
-                        <Link
+                        <div
                           key={cat.slug}
-                          to={catLink(cat)}
-                          className="drawer-cat-row"
-                          onClick={() => handleNavClick(catTarget(cat))}
+                          className={`drawer-cat-item ${
+                            isSubOpen ? "is-open" : ""
+                          }`}
                         >
-                          <span className="drawer-cat-row-label">
-                            <CategoryIcon name={cat.slug} size={17} />
-                            {cat.label}
-                          </span>
-                        </Link>
-                      );
-                    }
+                          <button
+                            type="button"
+                            className="drawer-cat-row"
+                            aria-expanded={isSubOpen}
+                            onClick={() =>
+                              setMobileSubOpen(isSubOpen ? null : cat.slug)
+                            }
+                          >
+                            <span className="drawer-cat-row-label">
+                              <CategoryIcon name={cat.slug} size={17} />
+                              {cat.label}
+                            </span>
+                            <Chevron size={14} className="drawer-cat-caret" />
+                          </button>
 
-                    const isSubOpen = mobileSubOpen === cat.slug;
-                    return (
-                      <div
-                        key={cat.slug}
-                        className={`drawer-cat-item ${
-                          isSubOpen ? "is-open" : ""
-                        }`}
-                      >
-                        <button
-                          type="button"
-                          className="drawer-cat-row"
-                          aria-expanded={isSubOpen}
-                          onClick={() =>
-                            setMobileSubOpen(isSubOpen ? null : cat.slug)
-                          }
-                        >
-                          <span className="drawer-cat-row-label">
-                            <CategoryIcon name={cat.slug} size={17} />
-                            {cat.label}
-                          </span>
-                          <Chevron size={14} className="drawer-cat-caret" />
-                        </button>
-
-                        <div className="drawer-sub-body">
-                          <ul className="drawer-sub-inner">
-                            <li>
-                              <Link
-                                to={catLink(cat)}
-                                className="drawer-sub-link drawer-sub-link--all"
-                                onClick={() => handleNavClick("/shop")}
-                              >
-                                All {cat.label}
-                              </Link>
-                            </li>
-                            {cat.subs.map((sub) => (
-                              <li key={sub}>
+                          <div className="drawer-sub-body">
+                            <ul className="drawer-sub-inner">
+                              <li>
                                 <Link
-                                  to={catLink(cat, sub)}
-                                  className="drawer-sub-link"
+                                  to={`/shop?category=${encodeURIComponent(cat.label)}`}
+                                  className="drawer-sub-link drawer-sub-link--all"
                                   onClick={() => handleNavClick("/shop")}
                                 >
-                                  {sub}
+                                  All in {cat.label} ({catBooks.length})
                                 </Link>
                               </li>
-                            ))}
-                          </ul>
+                              {catBooks.slice(0, 4).map((b) => (
+                                <li key={b.id}>
+                                  <Link
+                                    to={`/shop?category=${encodeURIComponent(cat.label)}&search=${encodeURIComponent(b.title)}`}
+                                    className="drawer-sub-link"
+                                    onClick={() => handleNavClick("/shop")}
+                                  >
+                                    {b.title}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </div>
@@ -852,13 +1066,85 @@ const Navbar = () => {
                 <span className="drawer-arrow">&rarr;</span>
               </Link>
 
-              <Link
-                to="/signup"
-                className="nav-drawer-signup"
-                onClick={() => handleNavClick("/signup")}
-              >
-                Sign Up
-              </Link>
+              {currentUser ? (
+                <div
+                  style={{
+                    padding: "14px 16px",
+                    background: "#f0f7fb",
+                    borderRadius: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                    marginTop: "10px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        background: "#17547b",
+                        color: "#fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 700,
+                        fontSize: "14px",
+                      }}
+                    >
+                      {(currentUser.name || currentUser.firstName || "U")[0]}
+                    </div>
+                    <div>
+                      <strong style={{ fontSize: "14px", color: "#102a43", display: "block" }}>
+                        {currentUser.name}
+                      </strong>
+                    </div>
+                  </div>
+                  <Link
+                    to="/profile"
+                    className="nav-drawer-link"
+                    style={{ padding: "8px 0", color: "#17547b", fontWeight: 600 }}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleNavClick("/profile");
+                    }}
+                  >
+                    <span>Profile</span>
+                    <span className="drawer-arrow">&rarr;</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logout();
+                      setIsMobileMenuOpen(false);
+                      navigate("/login");
+                    }}
+                    style={{
+                      background: "#c81e1e",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "6px",
+                      padding: "8px 12px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      width: "100%",
+                      textAlign: "center",
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/signup"
+                  className="nav-drawer-signup"
+                  onClick={() => handleNavClick("/signup")}
+                >
+                  Sign Up
+                </Link>
+              )}
             </nav>
           </div>
         </aside>

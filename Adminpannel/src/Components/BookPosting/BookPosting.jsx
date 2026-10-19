@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import {
   FaPlus,
@@ -28,7 +28,21 @@ import {
   FaEnvelope,
   FaTag,
 } from "react-icons/fa";
+import API, { BASE_URL } from "../../api/axios";
 import "./BookPosting.css";
+
+const getImageUrl = (imagePath) => {
+  if (!imagePath)
+    return "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=80";
+  if (
+    imagePath.startsWith("http://") ||
+    imagePath.startsWith("https://") ||
+    imagePath.startsWith("blob:") ||
+    imagePath.startsWith("data:")
+  )
+    return imagePath;
+  return `${BASE_URL}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+};
 
 const BookPosting = () => {
   /* =========================================================
@@ -49,185 +63,13 @@ const BookPosting = () => {
     description: "",
   };
 
-  const defaultBooks = [
-    {
-      id: 1,
-      title: "Simple Things You Say",
-      author: "Rupi Kaur",
-      category: "Arts & Photography",
-      price: 499,
-      offerPrice: "",
-      stock: 25,
-      status: true,
-      featured: true,
-      description:
-        "A beautiful collection of thoughts, poetry and meaningful reflections.",
-      images: [
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 2,
-      title: "How Deal With Very Big Problems",
-      author: "Steve Blank",
-      category: "Biographies & Memoirs",
-      price: 649,
-      offerPrice: "",
-      stock: 24,
-      status: true,
-      featured: false,
-      description:
-        "A practical guide to understanding complex problems and creating meaningful solutions.",
-      images: [
-        "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 3,
-      title: "The Hidden Mystery Book",
-      author: "John Doe",
-      category: "Arts & Photography",
-      price: 699,
-      offerPrice: 520,
-      stock: 35,
-      status: true,
-      featured: true,
-      description:
-        "Explore hidden mysteries through an engaging and beautifully written story.",
-      images: [
-        "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 4,
-      title: "Qple GPad With Retina Display",
-      author: "Sam Wilson",
-      category: "Christian Books & Bibles",
-      price: 4200,
-      offerPrice: 3499,
-      stock: 25,
-      status: true,
-      featured: false,
-      description:
-        "A modern technology guide covering productivity, creativity and digital learning.",
-      images: [
-        "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 5,
-      title: "Castle In The Sky",
-      author: "Emily Stone",
-      category: "Sports & Outdoors",
-      price: 299,
-      offerPrice: "",
-      stock: 4,
-      status: true,
-      featured: false,
-      description:
-        "A fascinating adventure filled with imagination, courage and discovery.",
-      images: [
-        "https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 6,
-      title: "The Art of Creative Thinking",
-      author: "David Miller",
-      category: "Arts & Photography",
-      price: 1400,
-      offerPrice: 1150,
-      stock: 18,
-      status: true,
-      featured: true,
-      description:
-        "Learn practical techniques for improving creativity and developing innovative ideas.",
-      images: [
-        "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 7,
-      title: "Modern Publishing Guide",
-      author: "Michael Green",
-      category: "Research & Publishing Guides",
-      price: 380,
-      offerPrice: "",
-      stock: 15,
-      status: true,
-      featured: false,
-      description:
-        "A complete introduction to modern publishing methods and digital publishing.",
-      images: [
-        "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 8,
-      title: "Creative Photography",
-      author: "James Anderson",
-      category: "Arts & Photography",
-      price: 850,
-      offerPrice: "",
-      stock: 12,
-      status: true,
-      featured: false,
-      description:
-        "Learn photography composition, lighting and storytelling techniques.",
-      images: [
-        "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 9,
-      title: "Chha Mana Atha Guntha",
-      author: "Fakir Mohan Senapati",
-      category: "Odia Literature",
-      price: 350,
-      offerPrice: 280,
-      stock: 30,
-      status: true,
-      featured: true,
-      description:
-        "A classic of Odia literature that explores land, power and the lives of ordinary people.",
-      images: [
-        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-    {
-      id: 10,
-      title: "Godaan",
-      author: "Premchand",
-      category: "Hindi Literature",
-      price: 275,
-      offerPrice: "",
-      stock: 40,
-      status: true,
-      featured: false,
-      description:
-        "A timeless Hindi novel on rural life, hardship and dignity.",
-      images: [
-        "https://images.unsplash.com/photo-1589998059171-988d887df646?auto=format&fit=crop&w=500&q=80",
-      ],
-    },
-  ];
-
-  const categories = [
-    "Arts & Photography",
-    "Biographies & Memoirs",
-    "Christian Books & Bibles",
-    "Research & Publishing Guides",
-    "Sports & Outdoors",
-    "Food & Drink",
-    "Odia Literature",
-    "Hindi Literature",
-  ];
-
   /* =========================================================
       STATES
   ========================================================= */
 
-  const [books, setBooks] = useState(defaultBooks);
+  const [books, setBooks] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState(emptyForm);
   const [selectedImages, setSelectedImages] = useState([]);
 
@@ -238,6 +80,47 @@ const BookPosting = () => {
 
   const [modal, setModal] = useState({ open: false, type: "", book: null });
   const [editingId, setEditingId] = useState(null);
+
+  /* =========================================================
+      API FETCH CATEGORIES & BOOKS
+  ========================================================= */
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await API.get("/categories");
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setCategories(res.data.data.map((c) => c.name));
+      }
+    } catch (err) {
+      console.error("Failed to load categories:", err);
+    }
+  }, []);
+
+  const fetchBooks = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/book-posting", { params: { limit: 50 } });
+      if (res.data?.success) {
+        const fetched = (res.data.data || []).map((b) => ({
+          ...b,
+          id: b._id || b.id,
+          status: b.status === "Published",
+          images: b.images && b.images.length > 0 ? b.images : b.image ? [b.image] : [],
+        }));
+        setBooks(fetched);
+      }
+    } catch (err) {
+      console.error("Failed to fetch books:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchBooks();
+  }, [fetchCategories, fetchBooks]);
+
 
   const [toast, setToast] = useState({
     show: false,
@@ -405,7 +288,7 @@ const BookPosting = () => {
       ADD / UPDATE BOOK
   ========================================================= */
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
@@ -436,32 +319,36 @@ const BookPosting = () => {
       return;
     }
 
-    const bookData = {
-      ...formData,
-      title: formData.title.trim(),
-      author: formData.author.trim(),
-      price: Number(formData.price),
-      offerPrice: formData.offerPrice ? Number(formData.offerPrice) : "",
-      stock: Number(formData.stock),
-      images: selectedImages.map((item) => item.preview),
-    };
+    try {
+      const payload = {
+        title: formData.title.trim(),
+        author: formData.author.trim(),
+        category: formData.category,
+        price: Number(formData.price),
+        offerPrice: formData.offerPrice ? Number(formData.offerPrice) : null,
+        stock: Number(formData.stock),
+        status: formData.status ? "Published" : "Draft",
+        featured: formData.featured,
+        description: formData.description,
+        image: selectedImages[0]?.preview || "",
+        images: selectedImages.map((item) => item.preview),
+      };
 
-    if (editingId) {
-      setBooks((prev) =>
-        prev.map((book) =>
-          book.id === editingId ? { ...book, ...bookData } : book
-        )
-      );
+      if (editingId) {
+        await API.put(`/book-posting/${editingId}`, payload);
+        showToast("Book updated successfully");
+      } else {
+        await API.post("/book-posting", payload);
+        showToast("Book added successfully");
+      }
 
-      showToast("Book updated successfully");
-    } else {
-      setBooks((prev) => [{ id: Date.now(), ...bookData }, ...prev]);
-
-      showToast("Book added successfully");
+      await fetchBooks();
+      resetForm();
+      setCurrentPage(1);
+    } catch (err) {
+      console.error("Book save error:", err);
+      showToast(err.response?.data?.message || "Failed to save book", "error");
     }
-
-    resetForm();
-    setCurrentPage(1);
   };
 
   /* =========================================================
@@ -472,26 +359,32 @@ const BookPosting = () => {
     setEditingId(book.id);
 
     setFormData({
-      title: book.title,
-      author: book.author,
-      category: book.category,
-      price: book.price,
-      offerPrice: book.offerPrice,
-      stock: book.stock,
-      status: book.status,
-      featured: book.featured,
-      description: book.description,
+      title: book.title || "",
+      author: book.author || "",
+      category: book.category || "",
+      price: book.price !== undefined ? book.price : "",
+      offerPrice: book.offerPrice !== undefined ? book.offerPrice : "",
+      stock: book.stock !== undefined ? book.stock : "",
+      status: book.status === true || book.status === "Published",
+      featured: book.featured || false,
+      description: book.description || "",
     });
 
+    const bookImages =
+      book.images && book.images.length > 0
+        ? book.images
+        : book.image
+          ? [book.image]
+          : [];
+
     setSelectedImages(
-      (book.images || []).map((src, index) => ({
+      bookImages.map((src, index) => ({
         id: `existing-${book.id}-${index}`,
         preview: src,
       }))
     );
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-
     showToast("Book loaded for editing");
   };
 
@@ -499,38 +392,57 @@ const BookPosting = () => {
       DELETE
   ========================================================= */
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!modal.book) return;
+    const deletedId = modal.book.id || modal.book._id;
 
-    const deletedId = modal.book.id;
-
-    setBooks((prev) => prev.filter((book) => book.id !== deletedId));
-    setSelectedBooks((prev) => prev.filter((id) => id !== deletedId));
-
-    if (editingId === deletedId) resetForm();
-
-    closeModal();
-    showToast("Book deleted successfully");
+    try {
+      await API.delete(`/book-posting/${deletedId}`);
+      setSelectedBooks((prev) => prev.filter((id) => id !== deletedId));
+      if (editingId === deletedId) resetForm();
+      closeModal();
+      await fetchBooks();
+      showToast("Book deleted successfully");
+    } catch (err) {
+      console.error("Delete book error:", err);
+      showToast("Failed to delete book", "error");
+    }
   };
 
   /* =========================================================
       TOGGLES
   ========================================================= */
 
-  const toggleStatus = (id) => {
-    setBooks((prev) =>
-      prev.map((book) =>
-        book.id === id ? { ...book, status: !book.status } : book
-      )
-    );
+  const toggleStatus = async (id) => {
+    try {
+      await API.patch(`/book-posting/${id}/status`);
+      await fetchBooks();
+    } catch (err) {
+      console.error("Status toggle error:", err);
+    }
   };
 
-  const toggleFeatured = (id) => {
-    setBooks((prev) =>
-      prev.map((book) =>
-        book.id === id ? { ...book, featured: !book.featured } : book
-      )
-    );
+  const toggleFeatured = async (id) => {
+    try {
+      await API.patch(`/book-posting/${id}/featured`);
+      await fetchBooks();
+    } catch (err) {
+      console.error("Featured toggle error:", err);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selectedBooks.length) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedBooks.length} book posting(s)?`)) return;
+    try {
+      await API.post("/book-posting/bulk-delete", { ids: selectedBooks });
+      setSelectedBooks([]);
+      await fetchBooks();
+      showToast("Selected books deleted successfully");
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      showToast("Failed to delete selected books", "error");
+    }
   };
 
   /* =========================================================
@@ -836,18 +748,6 @@ const BookPosting = () => {
             <FaChevronRight />
             Books / Products
           </div>
-
-          <button
-            type="button"
-            className="BookPosting-shareButton"
-            onClick={handleShareClick}
-            aria-label="Share this book collection"
-          >
-            <span className="BookPosting-shareIcon">
-              <FaShareAlt />
-            </span>
-            Share
-          </button>
         </div>
       </div>
 
@@ -1105,7 +1005,7 @@ const BookPosting = () => {
 
                 {selectedImages.map((image) => (
                   <div className="BookPosting-imagePreview" key={image.id}>
-                    <img src={image.preview} alt="Book preview" />
+                    <img src={getImageUrl(image.preview)} alt="Book preview" />
 
                     <button
                       type="button"
@@ -1216,6 +1116,23 @@ const BookPosting = () => {
             <button type="button" onClick={() => setSelectedBooks([])}>
               Clear selection
             </button>
+            <button
+              type="button"
+              style={{
+                marginLeft: "10px",
+                color: "#ef4444",
+                border: "1px solid #fee2e2",
+                background: "#fef2f2",
+                borderRadius: "6px",
+                padding: "4px 10px",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: "12px",
+              }}
+              onClick={handleBulkDelete}
+            >
+              Delete selected
+            </button>
           </div>
         )}
 
@@ -1272,7 +1189,7 @@ const BookPosting = () => {
                     <td>
                       <div className="BookPosting-tableImage">
                         {book.images?.[0] ? (
-                          <img src={book.images[0]} alt={book.title} />
+                          <img src={getImageUrl(book.images[0])} alt={book.title} />
                         ) : (
                           <FaImage />
                         )}
@@ -1483,7 +1400,7 @@ const BookPosting = () => {
                 {modal.book.images?.length > 0 ? (
                   modal.book.images.map((image, index) => (
                     <img
-                      src={image}
+                      src={getImageUrl(image)}
                       alt={`${modal.book.title}-${index}`}
                       key={index}
                     />
@@ -1653,7 +1570,7 @@ const BookPosting = () => {
                     shareThumbs.map((book, index) => (
                       <img
                         key={book.id}
-                        src={book.images[0]}
+                        src={getImageUrl(book.images[0])}
                         alt={book.title}
                         style={{ zIndex: shareThumbs.length - index }}
                       />

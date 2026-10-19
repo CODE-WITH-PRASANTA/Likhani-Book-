@@ -1,8 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Replace with regular <a> tags if not using react-router-dom
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Topbar.css';
 
 const Topbar = () => {
+  const { currentUser } = useAuth();
+
   return (
     <aside className="topbar" aria-label="Announcement & Quick Contacts">
       <div className="topbar__container">
@@ -76,6 +79,29 @@ const Topbar = () => {
 
         {/* Right Section: Live Chat & Login */}
         <div className="topbar__right">
+          {!currentUser && (
+            <Link
+              to="/login"
+              className="topbar__item topbar__link"
+              aria-label="User Login"
+            >
+              <svg
+                className="topbar__icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span>Login</span>
+            </Link>
+          )}
+
           <a
             href="#live-chat"
             className="topbar__item topbar__link"

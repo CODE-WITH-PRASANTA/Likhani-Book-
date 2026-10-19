@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FiUser,
   FiMail,
@@ -14,9 +15,13 @@ import {
   FiCheck,
   FiBookOpen,
 } from "react-icons/fi";
+import API from "../../api/axios";
+import GoogleModal from "../GoogleModal/GoogleModal";
+import { useAuth } from "../../context/AuthContext";
 import "./SignUp.css";
 
 const SignUp = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -31,6 +36,9 @@ const SignUp = () => {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -94,45 +102,54 @@ const SignUp = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
       return;
     }
 
-    setIsSubmitting(true);
+    try {
+      setIsSubmitting(true);
+      setServerError("");
 
-    // Frontend demo submit
-    setTimeout(() => {
-      alert(
-        `Account created successfully!\n\nWelcome ${formData.firstName} ${formData.lastName}`
-      );
-
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirmPassword: "",
+      const res = await API.post("/auth/register", {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        password: formData.password,
       });
 
-      setAgreeTerms(false);
+      if (res.data?.success) {
+        login(res.data.user, res.data.token);
+
+        setSignupSuccess(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 1200);
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      setServerError(
+        err.response?.data?.message || "Failed to create account. Please try again."
+      );
+    } finally {
       setIsSubmitting(false);
-    }, 900);
+    }
   };
 
   const handleGoogleSignup = () => {
-    alert("Google signup will be connected here.");
+    setIsGoogleModalOpen(true);
   };
 
-  const handleFacebookSignup = () => {
-    alert("Facebook signup will be connected here.");
-  };
+  // Safe fallback to prevent reference errors during browser caching / HMR
+  const handleFacebookSignup = () => {};
 
   const handleLogin = () => {
-    alert("Login page will open here.");
+    navigate("/login");
   };
 
   return (
@@ -513,6 +530,40 @@ const SignUp = () => {
                 )}
               </div>
 
+              {serverError && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    marginBottom: "14px",
+                    borderRadius: "8px",
+                    background: "#fde8e8",
+                    color: "#c81e1e",
+                    fontSize: "12px",
+                    fontWeight: "500",
+                    border: "1px solid #f8b4b4",
+                  }}
+                >
+                  {serverError}
+                </div>
+              )}
+
+              {signupSuccess && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    marginBottom: "14px",
+                    borderRadius: "8px",
+                    background: "#def7ec",
+                    color: "#03543f",
+                    fontSize: "12px",
+                    fontWeight: "500",
+                    border: "1px solid #bcf0da",
+                  }}
+                >
+                  Account created successfully! Redirecting to Lekhani Book...
+                </div>
+              )}
+
               {/* Create Account */}
               <button
                 type="submit"
@@ -546,39 +597,54 @@ const SignUp = () => {
                   className="SignUp__socialButton"
                   onClick={handleGoogleSignup}
                 >
-                  <span className="SignUp__googleIcon">
-                    G
-                  </span>
-                  <span>Sign up with Google</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="SignUp__socialButton"
-                  onClick={handleFacebookSignup}
-                >
-                  <span className="SignUp__facebookIcon">
-                    f
-                  </span>
-                  <span>Sign up with Facebook</span>
+                  <svg
+                    className="SignUp__googleSvg"
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                    />
+                  </svg>
+                  <span>Continue with Google</span>
                 </button>
               </div>
 
               {/* Login */}
               <div className="SignUp__login">
                 <span>Already have an account?</span>
-
-                <button
-                  type="button"
-                  onClick={handleLogin}
-                >
+                <Link to="/login" className="SignUp__loginLink">
                   Login
-                </button>
+                </Link>
               </div>
             </form>
           </div>
         </div>
       </section>
+
+      {/* Google Sign In Modal */}
+      <GoogleModal
+        isOpen={isGoogleModalOpen}
+        onClose={() => setIsGoogleModalOpen(false)}
+        onSuccess={() => {
+          navigate("/");
+        }}
+      />
     </main>
   );
 };

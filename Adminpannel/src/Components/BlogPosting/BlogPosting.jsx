@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 import {
   FiSearch,
@@ -14,129 +14,31 @@ import {
   FiRotateCcw,
   FiCheckCircle
 } from 'react-icons/fi';
+import API, { BASE_URL } from '../../api/axios';
 import './BlogPosting.css';
 
-const INITIAL_BLOGS = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500',
-    title: 'Eu Parturient Dictumst Frames Quam Temper',
-    category: 'Education',
-    date: 'Mar 30, 2024',
-    status: 'Published',
-    slug: 'eu-parturient-dictumst',
-    author: 'Admin',
-    comments: 2,
-    shortDescription: 'Suspendisse luctus feugiat dictum. Curabitur ipsum velit, viverra in...',
-    description: '<p>Suspendisse luctus feugiat dictum. Curabitur ipsum velit, viverra in, gravida et arcu. Donec vulputate congue urna, nec scelerisque leo pretium vel.</p>',
-    tags: ['Education', 'Learning']
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500',
-    title: 'The Importance of Early Learning for Kids',
-    category: 'Education',
-    date: 'Mar 28, 2024',
-    status: 'Published',
-    slug: 'importance-of-early-learning',
-    author: 'Admin',
-    comments: 0,
-    shortDescription: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do...',
-    description: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
-    tags: ['Education', 'Kids']
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=500',
-    title: 'How Play Builds Stronger Minds',
-    category: 'Education',
-    date: 'Mar 25, 2024',
-    status: 'Draft',
-    slug: 'how-play-builds-stronger-minds',
-    author: 'Admin',
-    comments: 1,
-    shortDescription: 'Dolor sit amet, consectetur adipiscing elit, sed do eiusmod...',
-    description: '<p>Dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
-    tags: ['Mind', 'Kids']
-  },
-  {
-    id: 4,
-    image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=500',
-    title: 'Top 10 Adventure Destinations in 2024',
-    category: 'Adventure',
-    date: 'Mar 20, 2024',
-    status: 'Published',
-    slug: 'top-10-adventure-destinations-2024',
-    author: 'Admin',
-    comments: 3,
-    shortDescription: 'Explore the most breathtaking places around the world...',
-    description: '<p>Explore the most breathtaking places around the world featuring amazing mountain peaks and hiking trails.</p>',
-    tags: ['Travel', 'Adventure']
-  },
-  {
-    id: 5,
-    image: 'https://images.unsplash.com/photo-1518173946687-a4c8a383392e?w=500',
-    title: 'Romantic Getaways for Couples',
-    category: 'Romance',
-    date: 'Mar 18, 2024',
-    status: 'Published',
-    slug: 'romantic-getaways-for-couples',
-    author: 'Admin',
-    comments: 4,
-    shortDescription: 'Plan your dream vacation with your favorite person...',
-    description: '<p>Plan your dream vacation with luxury resorts and private beaches carefully selected for couples.</p>',
-    tags: ['Romance', 'Travel']
-  },
-  {
-    id: 6,
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500',
-    title: 'Best Modern Fiction Books to Read',
-    category: 'Modern Fiction',
-    date: 'Mar 15, 2024',
-    status: 'Published',
-    slug: 'best-modern-fiction-books',
-    author: 'Admin',
-    comments: 2,
-    shortDescription: 'A curated list of modern fiction books that captivate your mind...',
-    description: '<p>A curated list of modern fiction novels written by bestseller authors in modern contemporary literature.</p>',
-    tags: ['Books', 'Fiction']
-  },
-  {
-    id: 7,
-    image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=500',
-    title: 'Building a Reading Habit in Daily Life',
-    category: 'Contemporary',
-    date: 'Mar 12, 2024',
-    status: 'Draft',
-    slug: 'building-a-reading-habit',
-    author: 'Admin',
-    comments: 0,
-    shortDescription: 'Simple tips to make reading a effortless daily ritual...',
-    description: '<p>Simple tips to make reading a natural part of your routine without feeling overwhelmed by pages.</p>',
-    tags: ['Habits', 'Books']
-  },
-  {
-    id: 8,
-    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500',
-    title: 'Travel Tips for First Time Travelers',
-    category: 'Adventure',
-    date: 'Mar 10, 2024',
-    status: 'Published',
-    slug: 'travel-tips-first-time-travelers',
-    author: 'Admin',
-    comments: 5,
-    shortDescription: 'Everything you need to know before stepping on that plane...',
-    description: '<p>Everything you need to know before embarking on your first international flight with ease and confidence.</p>',
-    tags: ['Travel', 'Tips']
-  }
-];
+const getImageUrl = (imagePath) => {
+  if (!imagePath)
+    return 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=500';
+  if (
+    imagePath.startsWith('http://') ||
+    imagePath.startsWith('https://') ||
+    imagePath.startsWith('blob:') ||
+    imagePath.startsWith('data:')
+  )
+    return imagePath;
+  return `${BASE_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+};
 
-const CATEGORIES = ['Education', 'Adventure', 'Romance', 'Modern Fiction', 'Contemporary', 'Lifestyle', 'Technology'];
 const AUTHORS = ['Admin', 'John Doe', 'Sarah Smith', 'Editor Team'];
 const ALL_TAGS = ['Education', 'Learning', 'Kids', 'Mind', 'Travel', 'Adventure', 'Romance', 'Books', 'Fiction', 'Habits', 'Tips', 'Tech'];
 
 const BlogPosting = () => {
-  const [blogs, setBlogs] = useState(INITIAL_BLOGS);
+  const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+
   const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
@@ -161,6 +63,62 @@ const BlogPosting = () => {
   const fileInputRef = useRef(null);
   const itemsPerPage = 6;
 
+  /* =========================================================
+      FETCH CATEGORIES
+  ========================================================= */
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await API.get('/categories');
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setCategories(res.data.data.map((c) => c.name));
+      }
+    } catch (err) {
+      console.error('Failed to load categories:', err);
+    }
+  }, []);
+
+  /* =========================================================
+      FETCH BLOGS
+  ========================================================= */
+  const fetchBlogs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get('/blogs', { params: { limit: 100 } });
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        const fetched = res.data.data.map((b) => ({
+          id: b._id || b.id,
+          title: b.title,
+          slug: b.slug,
+          category: b.category,
+          author: b.author || 'Admin',
+          date: b.createdAt
+            ? new Date(b.createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })
+            : 'Recently',
+          status: b.status || 'Published',
+          comments: b.comments || 0,
+          shortDescription: b.shortDescription || '',
+          description: b.description || '',
+          tags: b.tags || [],
+          image: b.image || ''
+        }));
+        setBlogs(fetched);
+      }
+    } catch (err) {
+      console.error('Failed to fetch blogs:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+    fetchBlogs();
+  }, [fetchCategories, fetchBlogs]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -184,16 +142,19 @@ const BlogPosting = () => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert('File size exceeds 2MB limit.');
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size exceeds 5MB limit.');
         return;
       }
-      const previewUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({
-        ...prev,
-        featuredImage: file,
-        imagePreview: previewUrl
-      }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({
+          ...prev,
+          featuredImage: file,
+          imagePreview: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -224,92 +185,94 @@ const BlogPosting = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.category) {
-      alert('Please fill out all required fields.');
+    if (!formData.title.trim() || !formData.category.trim()) {
+      alert('Please fill out all required fields (Title and Category).');
       return;
     }
 
-    if (editingId) {
-      setBlogs((prev) =>
-        prev.map((item) =>
-          item.id === editingId
-            ? {
-                ...item,
-                title: formData.title,
-                slug: formData.slug || item.slug,
-                shortDescription: formData.shortDescription,
-                description: formData.description,
-                category: formData.category,
-                author: formData.author,
-                tags: formData.tags,
-                status: formData.status,
-                image: formData.imagePreview || item.image
-              }
-            : item
-        )
-      );
-    } else {
-      const newPost = {
-        id: Date.now(),
-        image: formData.imagePreview || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=500',
-        title: formData.title,
-        category: formData.category,
-        author: formData.author,
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        status: formData.status,
-        slug: formData.slug || 'untitled-slug',
-        comments: 0,
+    try {
+      setSaving(true);
+      const payload = {
+        title: formData.title.trim(),
+        slug: formData.slug.trim() || undefined,
         shortDescription: formData.shortDescription,
         description: formData.description,
-        tags: formData.tags
+        category: formData.category,
+        author: formData.author || 'Admin',
+        tags: formData.tags,
+        status: formData.status,
+        image: formData.imagePreview || ''
       };
-      setBlogs((prev) => [newPost, ...prev]);
-    }
 
-    handleReset();
+      if (editingId) {
+        await API.put(`/blogs/${editingId}`, payload);
+      } else {
+        await API.post('/blogs', payload);
+      }
+
+      await fetchBlogs();
+      handleReset();
+    } catch (err) {
+      console.error('Failed to save blog:', err);
+      alert(err.response?.data?.message || 'Failed to save blog post');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEdit = (blog) => {
     setEditingId(blog.id);
     setFormData({
-      title: blog.title,
+      title: blog.title || '',
       slug: blog.slug || '',
       shortDescription: blog.shortDescription || '',
       description: blog.description || '',
       featuredImage: null,
-      imagePreview: blog.image,
-      category: blog.category,
+      imagePreview: blog.image || '',
+      category: blog.category || '',
       author: blog.author || 'Admin',
       tags: blog.tags || [],
-      status: blog.status
+      status: blog.status || 'Published'
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
-      setBlogs((prev) => prev.filter((item) => item.id !== id));
-      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
-      if (editingId === id) handleReset();
+      try {
+        await API.delete(`/blogs/${id}`);
+        setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+        if (editingId === id) handleReset();
+        await fetchBlogs();
+      } catch (err) {
+        console.error('Failed to delete blog:', err);
+        alert(err.response?.data?.message || 'Failed to delete blog');
+      }
     }
   };
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = async () => {
     if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected blog post(s)?`)) {
-      setBlogs((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
-      if (selectedIds.includes(editingId)) handleReset();
-      setSelectedIds([]);
+      try {
+        await API.post('/blogs/bulk-delete', { ids: selectedIds });
+        if (selectedIds.includes(editingId)) handleReset();
+        setSelectedIds([]);
+        await fetchBlogs();
+      } catch (err) {
+        console.error('Failed to delete selected blogs:', err);
+        alert(err.response?.data?.message || 'Failed to delete selected blogs');
+      }
     }
   };
 
   const filteredBlogs = useMemo(() => {
     return blogs.filter((blog) => {
-      const matchesSearch =
-        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        blog.category.toLowerCase().includes(searchQuery.toLowerCase());
-      
+      const titleMatch = (blog.title || '').toLowerCase().includes(searchQuery.toLowerCase());
+      const catMatch = (blog.category || '').toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = titleMatch || catMatch;
+
       const matchesCategory =
         selectedCategory === 'All Categories' || blog.category === selectedCategory;
 
@@ -415,7 +378,6 @@ const BlogPosting = () => {
                   value={formData.slug}
                   onChange={handleInputChange}
                   placeholder="enter-blog-slug"
-                  required
                 />
                 <button
                   type="button"
@@ -449,8 +411,13 @@ const BlogPosting = () => {
                   init={{
                     height: 200,
                     menubar: false,
-                    plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'searchreplace', 'visualblocks', 'code', 'fullscreen', 'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'],
-                    toolbar: 'undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat',
+                    plugins: [
+                      'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
+                      'preview', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                      'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                    ],
+                    toolbar:
+                      'undo redo | blocks | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat',
                     content_style: 'body { font-family:Inter,sans-serif; font-size:13px }'
                   }}
                 />
@@ -473,7 +440,7 @@ const BlogPosting = () => {
                 {formData.imagePreview ? (
                   <div className="BlogPosting-imagePreviewContainer">
                     <img
-                      src={formData.imagePreview}
+                      src={getImageUrl(formData.imagePreview)}
                       alt="Preview"
                       className="BlogPosting-imagePreview"
                     />
@@ -485,7 +452,7 @@ const BlogPosting = () => {
                     <p className="BlogPosting-uploadText">
                       <strong>Click to upload image</strong> or drag and drop
                     </p>
-                    <p className="BlogPosting-uploadSubtext">JPG, PNG, WebP (Max 2MB)</p>
+                    <p className="BlogPosting-uploadSubtext">JPG, PNG, WebP (Max 5MB)</p>
                   </>
                 )}
               </div>
@@ -501,9 +468,13 @@ const BlogPosting = () => {
                   required
                 >
                   <option value="" disabled>Select category</option>
-                  {CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
+                  {/* Fallback option if user types or custom category */}
+                  {formData.category && !categories.includes(formData.category) && (
+                    <option value={formData.category}>{formData.category}</option>
+                  )}
                 </select>
               </div>
 
@@ -573,11 +544,16 @@ const BlogPosting = () => {
                 type="button"
                 className="BlogPosting-btnReset"
                 onClick={handleReset}
+                disabled={saving}
               >
                 <FiRotateCcw /> Reset
               </button>
-              <button type="submit" className="BlogPosting-btnSubmit">
-                <FiCheckCircle /> Submit
+              <button
+                type="submit"
+                className="BlogPosting-btnSubmit"
+                disabled={saving}
+              >
+                <FiCheckCircle /> {saving ? 'Saving...' : editingId ? 'Update Post' : 'Submit Post'}
               </button>
             </div>
           </form>
@@ -646,7 +622,7 @@ const BlogPosting = () => {
                 }}
               >
                 <option value="All Categories">All Categories</option>
-                {CATEGORIES.map((cat) => (
+                {categories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
@@ -671,13 +647,15 @@ const BlogPosting = () => {
           </div>
 
           {/* Grid View */}
-          {viewMode === 'grid' ? (
+          {loading ? (
+            <div className="BlogPosting-emptyState">Loading blogs...</div>
+          ) : viewMode === 'grid' ? (
             <div className="BlogPosting-grid">
               {paginatedBlogs.length > 0 ? (
                 paginatedBlogs.map((blog) => (
                   <div key={blog.id} className="BlogPosting-card">
                     <div className="BlogPosting-cardImageWrapper">
-                      <img src={blog.image} alt={blog.title} />
+                      <img src={getImageUrl(blog.image)} alt={blog.title} />
                       <span className="BlogPosting-cardDate">{blog.date}</span>
                       <span className={`BlogPosting-badge ${getCategoryClass(blog.category)}`}>
                         {blog.category}
@@ -758,7 +736,7 @@ const BlogPosting = () => {
                         <td>{(currentPage - 1) * itemsPerPage + idx + 1}</td>
                         <td>
                           <img
-                            src={blog.image}
+                            src={getImageUrl(blog.image)}
                             alt={blog.title}
                             className="BlogPosting-tableThumb"
                           />

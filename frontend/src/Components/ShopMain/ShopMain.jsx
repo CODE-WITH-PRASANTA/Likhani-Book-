@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import API, { BASE_URL } from "../../api/axios";
 import "./ShopMain.css";
 
 import {
@@ -21,8 +22,6 @@ import {
 
 import {
   SHOP_PATH,
-  categoriesList,
-  products,
   formatPrice,
 } from "./shopData";
 import { useShopStore, useToast, toggleWishlist, addToCart } from "./useShopStore";
@@ -49,15 +48,126 @@ const handleImageError = (event) => {
 ========================================================= */
 
 const ShopMain = () => {
+  const [searchParams] = useSearchParams();
+  const urlCategory = searchParams.get("category");
+  const urlSearch = searchParams.get("search");
+
   /* ---------- filters ---------- */
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [searchTerm, setSearchTerm] = useState(urlSearch || "");
+  const [selectedCategory, setSelectedCategory] = useState(urlCategory || "All Categories");
   const [inStockOnly, setInStockOnly] = useState(false);
   const [onSaleOnly, setOnSaleOnly] = useState(false);
   const [wishlistOnly, setWishlistOnly] = useState(false);
   const [priceMin, setPriceMin] = useState(PRICE_MIN);
   const [priceMax, setPriceMax] = useState(PRICE_MAX);
   const [selectedSort, setSelectedSort] = useState(sortOptions[0]);
+
+  /* ---------- backend books & categories ---------- */
+  const [backendBooks, setBackendBooks] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchBackendData = async () => {
+      try {
+        const [booksRes, postingRes, catsRes] = await Promise.allSettled([
+          API.get("/books", { params: { limit: 100, status: "Published" } }),
+          API.get("/book-posting", { params: { limit: 100 } }),
+          API.get("/categories"),
+        ]);
+
+        const rawList = [];
+        if (booksRes.status === "fulfilled" && Array.isArray(booksRes.value?.data?.data)) {
+          rawList.push(...booksRes.value.data.data);
+        }
+        if (postingRes.status === "fulfilled" && Array.isArray(postingRes.value?.data?.data)) {
+          rawList.push(...postingRes.value.data.data);
+        }
+
+        const map = new Map();
+        rawList.forEach((b) => {
+          if (b && (b.status === "Published" || !b.status)) {
+            const id = String(b._id || b.id);
+            if (!map.has(id)) {
+              map.set(id, {
+                id,
+                sku: b.isbn ? `ISBN-${b.isbn}` : `LKH-${id.slice(-4)}`,
+                title: b.title,
+                author: b.author || "Likhani Author",
+                price: b.offerPrice || b.price,
+                oldPrice: b.offerPrice && b.price > b.offerPrice ? b.price : null,
+                category: b.category,
+                hot: b.featured || false,
+                image: b.image
+                  ? (b.image.startsWith("http") || b.image.startsWith("data:")
+                      ? b.image
+                      : `${BASE_URL}${b.image.startsWith("/") ? "" : "/"}${b.image}`)
+                  : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80",
+                imageLarge: b.image
+                  ? (b.image.startsWith("http") || b.image.startsWith("data:")
+                      ? b.image
+                      : `${BASE_URL}${b.image.startsWith("/") ? "" : "/"}${b.image}`)
+                  : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=1000&auto=format&fit=crop&q=80",
+                inStock: b.stock > 0,
+                onSale: Boolean(b.offerPrice && b.price > b.offerPrice),
+                popularity: 90,
+                latestDate: b.createdAt || new Date().toISOString(),
+                description: b.description || "",
+                discount:
+                  b.offerPrice && b.price > b.offerPrice
+                    ? Math.round(((b.price - b.offerPrice) / b.price) * 100)
+                    : 0,
+              });
+            }
+          }
+        });
+
+        if (isMounted) {
+          setBackendBooks(Array.from(map.values()));
+        }
+
+        if (catsRes.status === "fulfilled" && catsRes.value?.data?.data && isMounted) {
+          setDbCategories(catsRes.value.data.data.map((c) => c.name).filter(Boolean));
+        }
+      } catch (err) {
+        console.error("Failed to fetch backend shop data:", err);
+      }
+    };
+    fetchBackendData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Sync state if URL search params change
+  useEffect(() => {
+    if (urlCategory) {
+      setSelectedCategory(urlCategory);
+    }
+    if (urlSearch !== null && urlSearch !== undefined) {
+      setSearchTerm(urlSearch);
+    }
+  }, [urlCategory, urlSearch]);
+
+  const allProducts = useMemo(() => {
+    return backendBooks;
+  }, [backendBooks]);
+
+  const displayCategories = useMemo(() => {
+    const list = ["All Categories"];
+    const seen = new Set(["all categories"]);
+    backendBooks.forEach((b) => {
+      if (b.category && b.category.trim()) {
+        const trimmed = b.category.trim();
+        const lower = trimmed.toLowerCase();
+        if (!seen.has(lower)) {
+          seen.add(lower);
+          list.push(trimmed);
+        }
+      }
+    });
+    return list;
+  }, [backendBooks]);
 
   /* ---------- ui ---------- */
   const [viewMode, setViewMode] = useState("grid");
@@ -70,14 +180,27 @@ const ShopMain = () => {
   const [toast, showToast] = useToast();
   const topRef = useRef(null);
 
-  /* ---------- category counts ---------- */
-  const categoryCounts = useMemo(() => {
-    const counts = { "All Categories": products.length };
-    products.forEach((p) => {
-      counts[p.category] = (counts[p.category] || 0) + 1;
-    });
-    return counts;
-  }, []);
+  /* ---------- category count helper ---------- */
+  const getCategoryCount = useCallback(
+    (catName) => {
+      if (catName === "All Categories") return allProducts.length;
+      const target = catName
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]/g, "");
+      return allProducts.filter((p) => {
+        if (!p.category) return false;
+        const pCat = p.category
+          .toLowerCase()
+          .trim()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]/g, "");
+        return pCat === target || pCat.includes(target) || target.includes(pCat);
+      }).length;
+    },
+    [allProducts]
+  );
 
   /* ---------- wishlist & cart ---------- */
 
@@ -121,19 +244,32 @@ const ShopMain = () => {
   /* ---------- filtering & sorting ---------- */
 
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = [...allProducts];
 
     const search = searchTerm.trim().toLowerCase();
     if (search) {
       result = result.filter(
         (p) =>
-          p.title.toLowerCase().includes(search) ||
-          p.category.toLowerCase().includes(search)
+          p.title?.toLowerCase().includes(search) ||
+          p.category?.toLowerCase().includes(search)
       );
     }
 
-    if (selectedCategory !== "All Categories") {
-      result = result.filter((p) => p.category === selectedCategory);
+    if (selectedCategory && selectedCategory !== "All Categories") {
+      const targetCat = selectedCategory
+        .toLowerCase()
+        .trim()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]/g, "");
+      result = result.filter((p) => {
+        if (!p.category) return false;
+        const pCat = p.category
+          .toLowerCase()
+          .trim()
+          .replace(/&/g, "and")
+          .replace(/[^a-z0-9]/g, "");
+        return pCat === targetCat || pCat.includes(targetCat) || targetCat.includes(pCat);
+      });
     }
 
     if (inStockOnly) result = result.filter((p) => p.inStock);
@@ -308,8 +444,10 @@ const ShopMain = () => {
             <div className="ShopMain__block">
               <h3 className="ShopMain__blockTitle">Categories</h3>
               <ul className="ShopMain__categoryList">
-                {categoriesList.map((category) => {
-                  const active = selectedCategory === category;
+                {displayCategories.map((category) => {
+                  const active =
+                    selectedCategory?.toLowerCase().trim() ===
+                    category.toLowerCase().trim();
                   return (
                     <li key={category}>
                       <button
@@ -320,7 +458,7 @@ const ShopMain = () => {
                       >
                         <span className="ShopMain__categoryName">{category}</span>
                         <span className="ShopMain__categoryCount">
-                          {categoryCounts[category] || 0}
+                          {getCategoryCount(category)}
                         </span>
                       </button>
                     </li>

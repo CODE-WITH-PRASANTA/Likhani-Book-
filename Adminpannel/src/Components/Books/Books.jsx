@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Search,
   Plus,
@@ -27,231 +27,64 @@ import {
   Layers,
 } from "lucide-react";
 
+import API, { BASE_URL } from "../../api/axios";
 import "./Books.css";
 
+const getImageUrl = (imagePath) => {
+  if (!imagePath)
+    return "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&q=85";
+  if (
+    imagePath.startsWith("http://") ||
+    imagePath.startsWith("https://") ||
+    imagePath.startsWith("blob:") ||
+    imagePath.startsWith("data:")
+  )
+    return imagePath;
+  return `${BASE_URL}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+};
+
 const Books = () => {
-  /* =========================================================
-     INITIAL BOOK DATA
-  ========================================================= */
-
-  const initialBooks = [
-    {
-      id: 1,
-      title: "Castle The Sky",
-      isbn: "978014039433",
-      author: "Hayao Miyazaki",
-      category: "Kids",
-      price: 1299,
-      stock: 18,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&q=85",
-      description:
-        "A beautifully illustrated fantasy story filled with adventure, friendship and imagination.",
-      publisher: "Likhani Books",
-      pages: 330,
-      language: "English",
-      year: 2021,
-    },
-    {
-      id: 2,
-      title: "Atomic Habits",
-      isbn: "9780735211292",
-      author: "James Clear",
-      category: "Self Help",
-      price: 899,
-      stock: 0,
-      status: "Out of Stock",
-      image:
-        "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=300&q=85",
-      description:
-        "A practical guide to building good habits and breaking bad ones.",
-      publisher: "Penguin",
-      pages: 320,
-      language: "English",
-      year: 2018,
-    },
-    {
-      id: 3,
-      title: "Thinking, Fast and Slow",
-      isbn: "9780141033570",
-      author: "Daniel Kahneman",
-      category: "Academic",
-      price: 1099,
-      stock: 12,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=300&q=85",
-      description:
-        "An exploration of the two systems that drive the way we think.",
-      publisher: "Farrar",
-      pages: 512,
-      language: "English",
-      year: 2012,
-    },
-    {
-      id: 4,
-      title: "The Psychology of Money",
-      isbn: "9780857197689",
-      author: "Morgan Housel",
-      category: "Non-Fiction",
-      price: 799,
-      stock: 25,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=300&q=85",
-      description:
-        "Timeless lessons on wealth, greed and happiness.",
-      publisher: "Harriman House",
-      pages: 256,
-      language: "English",
-      year: 2020,
-    },
-    {
-      id: 5,
-      title: "Comic Adventures",
-      isbn: "9781401234567",
-      author: "Stan Lee",
-      category: "Comics",
-      price: 499,
-      stock: 5,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?auto=format&fit=crop&w=300&q=85",
-      description:
-        "A colorful collection of exciting comic book adventures.",
-      publisher: "Marvel",
-      pages: 180,
-      language: "English",
-      year: 2019,
-    },
-    {
-      id: 6,
-      title: "Sherlock Holmes",
-      isbn: "9781435164707",
-      author: "Arthur Conan Doyle",
-      category: "Mystery",
-      price: 699,
-      stock: 30,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=300&q=85",
-      description:
-        "The legendary detective solves some of his most fascinating mysteries.",
-      publisher: "Wordsworth",
-      pages: 420,
-      language: "English",
-      year: 2017,
-    },
-    {
-      id: 7,
-      title: "The Great Gatsby",
-      isbn: "9780743273565",
-      author: "F. Scott Fitzgerald",
-      category: "Fiction",
-      price: 599,
-      stock: 8,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=300&q=85",
-      description:
-        "A classic American novel about wealth, love and the American dream.",
-      publisher: "Scribner",
-      pages: 180,
-      language: "English",
-      year: 1925,
-    },
-    {
-      id: 8,
-      title: "Rich Dad Poor Dad",
-      isbn: "9781612680194",
-      author: "Robert T. Kiyosaki",
-      category: "Self Help",
-      price: 950,
-      stock: 0,
-      status: "Out of Stock",
-      image:
-        "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=300&q=85",
-      description:
-        "A personal finance classic about money, investing and financial independence.",
-      publisher: "Plata Publishing",
-      pages: 336,
-      language: "English",
-      year: 1997,
-    },
-    {
-      id: 9,
-      title: "The Alchemist",
-      isbn: "9780062315007",
-      author: "Paulo Coelho",
-      category: "Fiction",
-      price: 549,
-      stock: 14,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=300&q=85",
-      description:
-        "A philosophical novel about following your dreams.",
-      publisher: "HarperCollins",
-      pages: 208,
-      language: "English",
-      year: 1988,
-    },
-    {
-      id: 10,
-      title: "Wings of Fire",
-      isbn: "9788173711466",
-      author: "A. P. J. Abdul Kalam",
-      category: "Non-Fiction",
-      price: 450,
-      stock: 22,
-      status: "Published",
-      image:
-        "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=300&q=85",
-      description:
-        "The inspiring autobiography of India's former President.",
-      publisher: "Universities Press",
-      pages: 180,
-      language: "English",
-      year: 1999,
-    },
-  ];
-
   /* =========================================================
      STATES
   ========================================================= */
 
-  const [books, setBooks] = useState(initialBooks);
+  const [books, setBooks] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
-
-  const [categoryFilter, setCategoryFilter] =
-    useState("All Categories");
-
-  const [statusFilter, setStatusFilter] =
-    useState("All Status");
-
-  const [stockFilter, setStockFilter] =
-    useState("All Stock");
-
-  const [sortFilter, setSortFilter] =
-    useState("Sort By: Latest");
-
+  const [categoryFilter, setCategoryFilter] = useState("All Categories");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [stockFilter, setStockFilter] = useState("All Stock");
+  const [sortFilter, setSortFilter] = useState("Sort By: Latest");
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 8,
+    total: 0,
+    totalPages: 1,
+  });
+
+  const [serverStats, setServerStats] = useState({
+    total: 0,
+    published: 0,
+    draft: 0,
+    outOfStock: 0,
+  });
+
   const [selectedIds, setSelectedIds] = useState([]);
-
   const [modalType, setModalType] = useState(null);
-
   const [selectedBook, setSelectedBook] = useState(null);
 
   const [imagePreview, setImagePreview] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
   const [formData, setFormData] = useState({
     title: "",
     isbn: "",
     author: "",
-    category: "Fiction",
+    category: "",
     price: "",
     stock: "",
     status: "Published",
@@ -264,162 +97,106 @@ const Books = () => {
   });
 
   const [errors, setErrors] = useState({});
-
   const ITEMS_PER_PAGE = 8;
 
   /* =========================================================
-     CATEGORIES
+     API: FETCH DYNAMIC CATEGORIES
   ========================================================= */
 
-  const categories = [
-    "Fiction",
-    "Non-Fiction",
-    "Academic",
-    "Kids",
-    "Self Help",
-    "Comics",
-    "Mystery",
-    "Others",
-  ];
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await API.get("/categories");
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setCategories(res.data.data.map((c) => c.name));
+      }
+    } catch (err) {
+      console.error("Failed to load dynamic categories:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   /* =========================================================
-     FILTER + SORT
+     API: FETCH BOOKS WITH SEARCH, FILTER, SORT, PAGINATION
   ========================================================= */
 
-  const filteredBooks = useMemo(() => {
-    let result = [...books];
+  const fetchBooks = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/books", {
+        params: {
+          search: searchTerm,
+          category: categoryFilter,
+          status: statusFilter,
+          stock: stockFilter,
+          sort: sortFilter,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+        },
+      });
 
-    const search = searchTerm.toLowerCase().trim();
-
-    if (search) {
-      result = result.filter(
-        (book) =>
-          book.title.toLowerCase().includes(search) ||
-          book.author.toLowerCase().includes(search) ||
-          book.isbn.toLowerCase().includes(search)
-      );
-    }
-
-    if (categoryFilter !== "All Categories") {
-      result = result.filter(
-        (book) => book.category === categoryFilter
-      );
-    }
-
-    if (statusFilter !== "All Status") {
-      result = result.filter(
-        (book) => book.status === statusFilter
-      );
-    }
-
-    if (stockFilter !== "All Stock") {
-      if (stockFilter === "In Stock") {
-        result = result.filter(
-          (book) => book.stock > 0
-        );
+      if (res.data?.success) {
+        const fetched = (res.data.data || []).map((b) => ({
+          ...b,
+          id: b._id || b.id,
+        }));
+        setBooks(fetched);
+        if (res.data.pagination) {
+          setPagination(res.data.pagination);
+        }
+        if (res.data.stats) {
+          setServerStats(res.data.stats);
+        }
       }
-
-      if (stockFilter === "Out of Stock") {
-        result = result.filter(
-          (book) => book.stock === 0
-        );
-      }
-
-      if (stockFilter === "Low Stock") {
-        result = result.filter(
-          (book) =>
-            book.stock > 0 &&
-            book.stock <= 10
-        );
-      }
+    } catch (err) {
+      console.error("Failed to fetch books:", err);
+    } finally {
+      setLoading(false);
     }
-
-    if (sortFilter === "Sort By: A-Z") {
-      result.sort((a, b) =>
-        a.title.localeCompare(b.title)
-      );
-    }
-
-    if (sortFilter === "Sort By: Price Low") {
-      result.sort((a, b) => a.price - b.price);
-    }
-
-    if (sortFilter === "Sort By: Price High") {
-      result.sort((a, b) => b.price - a.price);
-    }
-
-    if (sortFilter === "Sort By: Stock") {
-      result.sort((a, b) => b.stock - a.stock);
-    }
-
-    return result;
   }, [
-    books,
     searchTerm,
     categoryFilter,
     statusFilter,
     stockFilter,
     sortFilter,
+    currentPage,
   ]);
 
-  /* =========================================================
-     PAGINATION
-  ========================================================= */
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(
-      filteredBooks.length / ITEMS_PER_PAGE
-    )
-  );
-
-  const safeCurrentPage = Math.min(
-    currentPage,
-    totalPages
-  );
-
-  const startIndex =
-    (safeCurrentPage - 1) *
-    ITEMS_PER_PAGE;
-
-  const currentBooks = filteredBooks.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchBooks();
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [fetchBooks]);
 
   /* =========================================================
-     SELECT ALL
+     PAGINATION & SELECTION
   ========================================================= */
 
-  const currentBookIds = currentBooks.map(
-    (book) => book.id
-  );
+  const totalPages = pagination.totalPages || 1;
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const currentBooks = books;
+
+  const currentBookIds = currentBooks.map((book) => book.id);
 
   const isAllSelected =
     currentBookIds.length > 0 &&
-    currentBookIds.every((id) =>
-      selectedIds.includes(id)
-    );
+    currentBookIds.every((id) => selectedIds.includes(id));
 
   const isSomeSelected =
-    currentBookIds.some((id) =>
-      selectedIds.includes(id)
-    ) && !isAllSelected;
+    currentBookIds.some((id) => selectedIds.includes(id)) && !isAllSelected;
 
   const handleSelectAll = () => {
     if (isAllSelected) {
       setSelectedIds((previous) =>
-        previous.filter(
-          (id) =>
-            !currentBookIds.includes(id)
-        )
+        previous.filter((id) => !currentBookIds.includes(id))
       );
     } else {
       setSelectedIds((previous) => [
-        ...new Set([
-          ...previous,
-          ...currentBookIds,
-        ]),
+        ...new Set([...previous, ...currentBookIds]),
       ]);
     }
   };
@@ -427,10 +204,7 @@ const Books = () => {
   const handleSelectOne = (id) => {
     setSelectedIds((previous) =>
       previous.includes(id)
-        ? previous.filter(
-            (selectedId) =>
-              selectedId !== id
-          )
+        ? previous.filter((selectedId) => selectedId !== id)
         : [...previous, id]
     );
   };
@@ -443,19 +217,10 @@ const Books = () => {
      STATISTICS
   ========================================================= */
 
-  const totalBooks = books.length;
-
-  const publishedBooks = books.filter(
-    (book) => book.status === "Published"
-  ).length;
-
-  const draftBooks = books.filter(
-    (book) => book.status === "Draft"
-  ).length;
-
-  const outOfStockBooks = books.filter(
-    (book) => book.stock === 0
-  ).length;
+  const totalBooks = serverStats.total || 0;
+  const publishedBooks = serverStats.published || 0;
+  const draftBooks = serverStats.draft || 0;
+  const outOfStockBooks = serverStats.outOfStock || 0;
 
   /* =========================================================
      FORM HANDLERS
@@ -489,7 +254,6 @@ const Books = () => {
         ...previous,
         image: "Please select a valid image.",
       }));
-
       return;
     }
 
@@ -498,22 +262,12 @@ const Books = () => {
         ...previous,
         image: "Image must be less than 5MB.",
       }));
-
       return;
     }
 
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-
-      setFormData((previous) => ({
-        ...previous,
-        image: reader.result,
-      }));
-    };
-
-    reader.readAsDataURL(file);
+    setImageFile(file);
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
 
     setErrors((previous) => ({
       ...previous,
@@ -530,7 +284,7 @@ const Books = () => {
       title: "",
       isbn: "",
       author: "",
-      category: "Fiction",
+      category: categories.length > 0 ? categories[0] : "",
       price: "",
       stock: "",
       status: "Published",
@@ -538,289 +292,253 @@ const Books = () => {
       publisher: "",
       pages: "",
       language: "English",
-      year: "",
+      year: new Date().getFullYear(),
       image: "",
     });
 
+    setImageFile(null);
     setImagePreview("");
-
     setErrors({});
   };
 
   /* =========================================================
-     OPEN ADD
+     OPEN MODALS
   ========================================================= */
 
   const openAddModal = () => {
     resetForm();
-
     setSelectedBook(null);
-
     setModalType("add");
   };
 
-  /* =========================================================
-     OPEN VIEW
-  ========================================================= */
-
   const openViewModal = (book) => {
     setSelectedBook(book);
-
     setModalType("view");
   };
-
-  /* =========================================================
-     OPEN EDIT
-  ========================================================= */
 
   const openEditModal = (book) => {
     setSelectedBook(book);
 
     setFormData({
-      title: book.title,
-      isbn: book.isbn,
-      author: book.author,
-      category: book.category,
-      price: book.price,
-      stock: book.stock,
-      status: book.status,
-      description: book.description,
-      publisher: book.publisher,
-      pages: book.pages,
-      language: book.language,
-      year: book.year,
-      image: book.image,
+      title: book.title || "",
+      isbn: book.isbn || "",
+      author: book.author || "",
+      category: book.category || (categories[0] || ""),
+      price: book.price !== undefined ? book.price : "",
+      stock: book.stock !== undefined ? book.stock : "",
+      status: book.status || "Published",
+      description: book.description || "",
+      publisher: book.publisher || "",
+      pages: book.pages || "",
+      language: book.language || "English",
+      year: book.year || new Date().getFullYear(),
+      image: book.image || "",
     });
 
-    setImagePreview(book.image);
-
+    setImageFile(null);
+    setImagePreview(book.image ? getImageUrl(book.image) : "");
     setErrors({});
-
     setModalType("edit");
   };
 
-  /* =========================================================
-     OPEN DELETE
-  ========================================================= */
-
   const openDeleteModal = (book) => {
     setSelectedBook(book);
-
     setModalType("delete");
   };
 
-  /* =========================================================
-     CLOSE MODAL
-  ========================================================= */
-
   const closeModal = () => {
     setModalType(null);
-
     setSelectedBook(null);
-
     resetForm();
   };
 
   /* =========================================================
-     VALIDATE
+     VALIDATE FORM
   ========================================================= */
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.title.trim()) {
-      newErrors.title =
-        "Book title is required.";
+    if (!formData.title?.trim()) {
+      newErrors.title = "Book title is required.";
     }
 
-    if (!formData.author.trim()) {
-      newErrors.author =
-        "Author is required.";
+    if (!formData.author?.trim()) {
+      newErrors.author = "Author is required.";
     }
 
-    if (!formData.isbn.trim()) {
-      newErrors.isbn =
-        "ISBN is required.";
+    if (!formData.category?.trim() && categories.length > 0) {
+      newErrors.category = "Please select a category.";
     }
 
     if (
-      !formData.price ||
+      formData.price === "" ||
+      isNaN(Number(formData.price)) ||
       Number(formData.price) < 0
     ) {
-      newErrors.price =
-        "Enter a valid price.";
+      newErrors.price = "Enter a valid positive price.";
     }
 
     if (
       formData.stock === "" ||
+      isNaN(Number(formData.stock)) ||
       Number(formData.stock) < 0
     ) {
-      newErrors.stock =
-        "Enter a valid stock.";
+      newErrors.stock = "Enter a valid stock number.";
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
   /* =========================================================
-     ADD BOOK
+     API: ADD BOOK
   ========================================================= */
 
-  const handleAddBook = (event) => {
+  const handleAddBook = async (event) => {
     event.preventDefault();
-
     if (!validateForm()) return;
 
-    const stock = Number(formData.stock);
+    try {
+      const payload = new FormData();
+      payload.append("title", formData.title.trim());
+      payload.append("isbn", formData.isbn.trim());
+      payload.append("author", formData.author.trim());
+      payload.append("category", formData.category || categories[0] || "General");
+      payload.append("price", Number(formData.price));
+      payload.append("stock", Number(formData.stock));
+      payload.append("status", formData.status);
+      payload.append("description", formData.description.trim());
+      payload.append("publisher", formData.publisher.trim());
+      payload.append("pages", Number(formData.pages) || 0);
+      payload.append("language", formData.language.trim() || "English");
+      payload.append("year", Number(formData.year) || new Date().getFullYear());
 
-    const newBook = {
-      id: Date.now(),
-      title: formData.title.trim(),
-      isbn: formData.isbn.trim(),
-      author: formData.author.trim(),
-      category: formData.category,
-      price: Number(formData.price),
-      stock,
-      status:
-        stock === 0
-          ? "Out of Stock"
-          : formData.status,
-      image:
-        formData.image ||
-        "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&q=85",
-      description: formData.description,
-      publisher: formData.publisher,
-      pages: Number(formData.pages || 0),
-      language: formData.language,
-      year: Number(
-        formData.year ||
-          new Date().getFullYear()
-      ),
-    };
+      if (imageFile) {
+        payload.append("image", imageFile);
+      } else if (formData.image) {
+        payload.append("image", formData.image);
+      }
 
-    setBooks((previous) => [
-      newBook,
-      ...previous,
-    ]);
+      const res = await API.post("/books", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    setCurrentPage(1);
-
-    closeModal();
+      if (res.data?.success) {
+        closeModal();
+        setCurrentPage(1);
+        await fetchBooks();
+      }
+    } catch (err) {
+      console.error("Create book error:", err);
+      alert(err.response?.data?.message || "Failed to create book");
+    }
   };
 
   /* =========================================================
-     UPDATE BOOK
+     API: UPDATE BOOK
   ========================================================= */
 
-  const handleUpdateBook = (event) => {
+  const handleUpdateBook = async (event) => {
     event.preventDefault();
+    if (!validateForm() || !selectedBook) return;
 
-    if (!validateForm()) return;
+    try {
+      const payload = new FormData();
+      payload.append("title", formData.title.trim());
+      payload.append("isbn", formData.isbn.trim());
+      payload.append("author", formData.author.trim());
+      payload.append("category", formData.category || categories[0] || "General");
+      payload.append("price", Number(formData.price));
+      payload.append("stock", Number(formData.stock));
+      payload.append("status", formData.status);
+      payload.append("description", formData.description.trim());
+      payload.append("publisher", formData.publisher.trim());
+      payload.append("pages", Number(formData.pages) || 0);
+      payload.append("language", formData.language.trim() || "English");
+      payload.append("year", Number(formData.year) || new Date().getFullYear());
 
-    const stock = Number(formData.stock);
+      if (imageFile) {
+        payload.append("image", imageFile);
+      } else if (formData.image) {
+        payload.append("image", formData.image);
+      }
 
-    setBooks((previous) =>
-      previous.map((book) =>
-        book.id === selectedBook.id
-          ? {
-              ...book,
-              title: formData.title.trim(),
-              isbn: formData.isbn.trim(),
-              author: formData.author.trim(),
-              category: formData.category,
-              price: Number(formData.price),
-              stock,
-              status:
-                stock === 0
-                  ? "Out of Stock"
-                  : formData.status,
-              image:
-                formData.image ||
-                book.image,
-              description:
-                formData.description,
-              publisher:
-                formData.publisher,
-              pages: Number(
-                formData.pages || 0
-              ),
-              language:
-                formData.language,
-              year: Number(
-                formData.year ||
-                  new Date().getFullYear()
-              ),
-            }
-          : book
-      )
-    );
+      const bookId = selectedBook.id || selectedBook._id;
+      const res = await API.put(`/books/${bookId}`, payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-    closeModal();
+      if (res.data?.success) {
+        closeModal();
+        await fetchBooks();
+      }
+    } catch (err) {
+      console.error("Update book error:", err);
+      alert(err.response?.data?.message || "Failed to update book");
+    }
   };
 
   /* =========================================================
-     DELETE BOOK
+     API: DELETE BOOK
   ========================================================= */
 
-  const handleDeleteBook = () => {
+  const handleDeleteBook = async () => {
     if (!selectedBook) return;
 
-    setBooks((previous) =>
-      previous.filter(
-        (book) =>
-          book.id !== selectedBook.id
-      )
-    );
+    try {
+      const bookId = selectedBook.id || selectedBook._id;
+      const res = await API.delete(`/books/${bookId}`);
 
-    setSelectedIds((previous) =>
-      previous.filter(
-        (id) =>
-          id !== selectedBook.id
-      )
-    );
-
-    setCurrentPage(1);
-
-    closeModal();
+      if (res.data?.success) {
+        setSelectedIds((previous) => previous.filter((id) => id !== bookId));
+        closeModal();
+        await fetchBooks();
+      }
+    } catch (err) {
+      console.error("Delete book error:", err);
+      alert(err.response?.data?.message || "Failed to delete book");
+    }
   };
 
   /* =========================================================
-     STATUS TOGGLE
+     API: BULK DELETE
   ========================================================= */
 
-  const toggleBookStatus = (book) => {
-    setBooks((previous) =>
-      previous.map((item) => {
-        if (item.id !== book.id) {
-          return item;
-        }
+  const handleBulkDelete = async () => {
+    if (!selectedIds.length) return;
+    if (!window.confirm(`Permanently delete ${selectedIds.length} selected books?`)) return;
 
-        if (item.status === "Published") {
-          return {
-            ...item,
-            status: "Draft",
-          };
-        }
-
-        if (item.stock === 0) {
-          return {
-            ...item,
-            status: "Out of Stock",
-          };
-        }
-
-        return {
-          ...item,
-          status: "Published",
-        };
-      })
-    );
+    try {
+      const res = await API.post("/books/bulk-delete", { ids: selectedIds });
+      if (res.data?.success) {
+        setSelectedIds([]);
+        await fetchBooks();
+      }
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      alert(err.response?.data?.message || "Failed to delete selected books");
+    }
   };
 
   /* =========================================================
-     EXPORT
+     API: STATUS TOGGLE
+  ========================================================= */
+
+  const toggleBookStatus = async (book) => {
+    try {
+      const bookId = book.id || book._id;
+      const res = await API.patch(`/books/${bookId}/status`);
+      if (res.data?.success) {
+        await fetchBooks();
+      }
+    } catch (err) {
+      console.error("Toggle status error:", err);
+    }
+  };
+
+  /* =========================================================
+     EXPORT CSV
   ========================================================= */
 
   const handleExport = () => {
@@ -849,13 +567,7 @@ const Books = () => {
     const csv = [headers, ...rows]
       .map((row) =>
         row
-          .map(
-            (value) =>
-              `"${String(value).replace(
-                /"/g,
-                '""'
-              )}"`
-          )
+          .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
           .join(",")
       )
       .join("\n");
@@ -865,19 +577,12 @@ const Books = () => {
     });
 
     const url = URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
-
+    const link = document.createElement("a");
     link.href = url;
     link.download = "books.csv";
-
     document.body.appendChild(link);
-
     link.click();
-
     document.body.removeChild(link);
-
     URL.revokeObjectURL(url);
   };
 
@@ -894,384 +599,239 @@ const Books = () => {
     setCurrentPage(1);
   };
 
-  /* =========================================================
-     PAGINATION
-  ========================================================= */
-
   const previousPage = () => {
-    setCurrentPage((page) =>
-      Math.max(1, page - 1)
-    );
+    setCurrentPage((page) => Math.max(1, page - 1));
   };
 
   const nextPage = () => {
-    setCurrentPage((page) =>
-      Math.min(totalPages, page + 1)
-    );
+    setCurrentPage((page) => Math.min(totalPages, page + 1));
   };
-
-  /* =========================================================
-     CURRENCY
-  ========================================================= */
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       maximumFractionDigits: 0,
-    }).format(price);
+    }).format(price || 0);
   };
-
-  /* =========================================================
-     JSX
-  ========================================================= */
 
   return (
     <div className="Books">
-
       {/* HEADER */}
-
       <section className="Books__header">
-
         <div className="Books__headerLeft">
-
-          <h1 className="Books__title">
-            Books
-          </h1>
-
+          <h1 className="Books__title">Books</h1>
           <p className="Books__subtitle">
-            Manage your books. Add, edit or
-            remove books from your store.
+            Manage your books. Add, edit or remove books from your store.
           </p>
-
         </div>
 
         <div className="Books__headerRight">
-
           <div className="Books__breadcrumb">
             <span>Dashboard</span>
             <span>›</span>
             <strong>Books</strong>
           </div>
 
-          <button
-            className="Books__addButton"
-            onClick={openAddModal}
-          >
+          <button className="Books__addButton" onClick={openAddModal}>
             <Plus size={18} />
             Add Book
           </button>
-
         </div>
-
       </section>
 
       {/* STATISTICS */}
-
       <section className="Books__stats">
-
         <div className="Books__statCard Books__statCard--blue">
-
           <div className="Books__statIcon">
             <BookOpen size={23} />
           </div>
-
           <div className="Books__statInfo">
             <span>Total Books</span>
             <strong>{totalBooks}</strong>
           </div>
-
           <BookOpen className="Books__statWatermark" />
-
         </div>
 
         <div className="Books__statCard Books__statCard--green">
-
           <div className="Books__statIcon">
             <CheckCircle2 size={23} />
           </div>
-
           <div className="Books__statInfo">
             <span>Published</span>
             <strong>{publishedBooks}</strong>
           </div>
-
           <BookOpen className="Books__statWatermark" />
-
         </div>
 
         <div className="Books__statCard Books__statCard--orange">
-
           <div className="Books__statIcon">
             <Clock3 size={23} />
           </div>
-
           <div className="Books__statInfo">
             <span>Draft</span>
             <strong>{draftBooks}</strong>
           </div>
-
           <BookOpen className="Books__statWatermark" />
-
         </div>
 
         <div className="Books__statCard Books__statCard--red">
-
           <div className="Books__statIcon">
             <AlertCircle size={23} />
           </div>
-
           <div className="Books__statInfo">
             <span>Out of Stock</span>
             <strong>{outOfStockBooks}</strong>
           </div>
-
           <BookOpen className="Books__statWatermark" />
-
         </div>
-
       </section>
 
       {/* TOOLBAR */}
-
       <section className="Books__toolbar">
-
         <div className="Books__filters">
-
           <div className="Books__search">
-
             <Search size={18} />
-
             <input
               type="text"
               value={searchTerm}
               onChange={(event) => {
-                setSearchTerm(
-                  event.target.value
-                );
+                setSearchTerm(event.target.value);
                 setCurrentPage(1);
               }}
               placeholder="Search books by title, author, ISBN..."
             />
-
             {searchTerm && (
               <button
                 className="Books__searchClear"
-                onClick={() =>
-                  setSearchTerm("")
-                }
+                onClick={() => {
+                  setSearchTerm("");
+                  setCurrentPage(1);
+                }}
               >
                 <X size={14} />
               </button>
             )}
-
           </div>
 
           <div className="Books__filterSelect">
-
             <select
               value={categoryFilter}
               onChange={(event) => {
-                setCategoryFilter(
-                  event.target.value
-                );
+                setCategoryFilter(event.target.value);
                 setCurrentPage(1);
               }}
             >
-
-              <option>
-                All Categories
-              </option>
-
-              {categories.map(
-                (category) => (
-                  <option
-                    key={category}
-                  >
-                    {category}
-                  </option>
-                )
-              )}
-
+              <option>All Categories</option>
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
-
             <ChevronDown size={15} />
-
           </div>
 
           <div className="Books__filterSelect">
-
             <select
               value={statusFilter}
               onChange={(event) => {
-                setStatusFilter(
-                  event.target.value
-                );
+                setStatusFilter(event.target.value);
                 setCurrentPage(1);
               }}
             >
-
-              <option>
-                All Status
-              </option>
-
-              <option>
-                Published
-              </option>
-
-              <option>
-                Draft
-              </option>
-
-              <option>
-                Out of Stock
-              </option>
-
+              <option>All Status</option>
+              <option>Published</option>
+              <option>Draft</option>
+              <option>Out of Stock</option>
             </select>
-
             <ChevronDown size={15} />
-
           </div>
 
           <div className="Books__filterSelect">
-
             <select
               value={stockFilter}
               onChange={(event) => {
-                setStockFilter(
-                  event.target.value
-                );
+                setStockFilter(event.target.value);
                 setCurrentPage(1);
               }}
             >
-
-              <option>
-                All Stock
-              </option>
-
-              <option>
-                In Stock
-              </option>
-
-              <option>
-                Low Stock
-              </option>
-
-              <option>
-                Out of Stock
-              </option>
-
+              <option>All Stock</option>
+              <option>In Stock</option>
+              <option>Low Stock</option>
+              <option>Out of Stock</option>
             </select>
-
             <ChevronDown size={15} />
-
           </div>
 
           <div className="Books__filterSelect Books__filterSelect--sort">
-
             <select
               value={sortFilter}
               onChange={(event) => {
-                setSortFilter(
-                  event.target.value
-                );
+                setSortFilter(event.target.value);
                 setCurrentPage(1);
               }}
             >
-
-              <option>
-                Sort By: Latest
-              </option>
-
-              <option>
-                Sort By: A-Z
-              </option>
-
-              <option>
-                Sort By: Price Low
-              </option>
-
-              <option>
-                Sort By: Price High
-              </option>
-
-              <option>
-                Sort By: Stock
-              </option>
-
+              <option>Sort By: Latest</option>
+              <option>Sort By: A-Z</option>
+              <option>Sort By: Price Low</option>
+              <option>Sort By: Price High</option>
+              <option>Sort By: Stock</option>
             </select>
-
             <ChevronDown size={15} />
-
           </div>
-
         </div>
 
         <div className="Books__toolbarActions">
-
           {selectedIds.length > 0 && (
             <div className="Books__selectedCount">
-
               <CheckCircle2 size={15} />
-
-              <span>
-                {selectedIds.length} selected
-              </span>
-
+              <span>{selectedIds.length} selected</span>
               <button
-                onClick={clearSelection}
+                onClick={handleBulkDelete}
+                title="Delete selected"
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#dc2626",
+                  marginLeft: "4px",
+                }}
               >
+                <Trash2 size={13} />
+              </button>
+              <button onClick={clearSelection} title="Clear selection">
                 <X size={13} />
               </button>
-
             </div>
           )}
 
-          <button
-            className="Books__exportButton"
-            onClick={handleExport}
-          >
+          <button className="Books__exportButton" onClick={handleExport}>
             <Download size={16} />
             Export Excel
           </button>
-
         </div>
-
       </section>
 
       {/* TABLE */}
-
       <section className="Books__tableCard">
-
         <div className="Books__tableScroll">
-
           <table className="Books__table">
-
             <thead>
-
               <tr>
-
                 <th className="Books__checkboxCell">
-
                   <input
                     type="checkbox"
-                    checked={
-                      isAllSelected
-                    }
+                    checked={isAllSelected}
                     ref={(input) => {
                       if (input) {
-                        input.indeterminate =
-                          isSomeSelected;
+                        input.indeterminate = isSomeSelected;
                       }
                     }}
-                    onChange={
-                      handleSelectAll
-                    }
+                    onChange={handleSelectAll}
                     aria-label="Select all books"
                   />
-
                 </th>
-
                 <th>#</th>
                 <th>Image</th>
                 <th>Book Title</th>
@@ -1281,780 +841,440 @@ const Books = () => {
                 <th>Stock</th>
                 <th>Status</th>
                 <th>Actions</th>
-
               </tr>
-
             </thead>
 
             <tbody>
-
-              {currentBooks.length > 0 ? (
-
-                currentBooks.map(
-                  (book, index) => (
-
-                    <tr
-                      key={book.id}
-                      className={
-                        selectedIds.includes(
-                          book.id
-                        )
-                          ? "Books__rowSelected"
-                          : ""
-                      }
-                    >
-
-                      <td>
-
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(
-                            book.id
-                          )}
-                          onChange={() =>
-                            handleSelectOne(
-                              book.id
-                            )
-                          }
-                        />
-
-                      </td>
-
-                      <td>
-                        <span className="Books__number">
-                          {startIndex +
-                            index +
-                            1}
-                        </span>
-                      </td>
-
-                      <td>
-
-                        <div className="Books__bookImage">
-
-                          <img
-                            src={book.image}
-                            alt={book.title}
-                          />
-
-                        </div>
-
-                      </td>
-
-                      <td>
-
-                        <div className="Books__bookTitle">
-
-                          <strong>
-                            {book.title}
-                          </strong>
-
-                          <span>
-                            ISBN: {book.isbn}
-                          </span>
-
-                        </div>
-
-                      </td>
-
-                      <td>
-
-                        <span className="Books__author">
-                          {book.author}
-                        </span>
-
-                      </td>
-
-                      <td>
-
-                        <span
-                          className={`Books__category Books__category--${book.category
-                            .toLowerCase()
-                            .replace(
-                              /[^a-z]/g,
-                              "-"
-                            )}`}
-                        >
-                          {book.category}
-                        </span>
-
-                      </td>
-
-                      <td>
-
-                        <strong className="Books__price">
-                          {formatPrice(
-                            book.price
-                          )}
-                        </strong>
-
-                      </td>
-
-                      <td>
-
-                        <span
-                          className={`Books__stock ${
-                            book.stock === 0
-                              ? "Books__stock--out"
-                              : book.stock <= 10
-                              ? "Books__stock--low"
-                              : "Books__stock--good"
-                          }`}
-                        >
-                          {book.stock}
-                        </span>
-
-                      </td>
-
-                      <td>
-
-                        <div className="Books__statusWrapper">
-
-                          <span
-                            className={`Books__status Books__status--${book.status
-                              .toLowerCase()
-                              .replace(
-                                /\s/g,
-                                "-"
-                              )}`}
-                          >
-                            {book.status}
-                          </span>
-
-                          <button
-                            className={`Books__toggle ${
-                              book.status ===
-                              "Published"
-                                ? "Books__toggle--active"
-                                : "Books__toggle--inactive"
-                            }`}
-                            onClick={() =>
-                              toggleBookStatus(
-                                book
-                              )
-                            }
-                          >
-                            <span />
-                          </button>
-
-                        </div>
-
-                      </td>
-
-                      <td>
-
-                        <div className="Books__actions">
-
-                          <button
-                            className="Books__action Books__action--view"
-                            onClick={() =>
-                              openViewModal(
-                                book
-                              )
-                            }
-                            title="View Book"
-                          >
-                            <Eye size={16} />
-                          </button>
-
-                          <button
-                            className="Books__action Books__action--edit"
-                            onClick={() =>
-                              openEditModal(
-                                book
-                              )
-                            }
-                            title="Edit Book"
-                          >
-                            <Edit3 size={16} />
-                          </button>
-
-                          <button
-                            className="Books__action Books__action--delete"
-                            onClick={() =>
-                              openDeleteModal(
-                                book
-                              )
-                            }
-                            title="Delete Book"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  )
-                )
-
-              ) : (
-
+              {loading ? (
                 <tr>
-
-                  <td
-                    colSpan="10"
-                    className="Books__empty"
-                  >
-
-                    <div className="Books__emptyContent">
-
-                      <BookOpen size={40} />
-
-                      <h3>
-                        No books found
-                      </h3>
-
-                      <p>
-                        Try changing your
-                        filters or search
-                        keyword.
-                      </p>
-
-                      <button
-                        onClick={
-                          resetFilters
-                        }
-                      >
-                        Clear Filters
-                      </button>
-
-                    </div>
-
+                  <td colSpan="10" style={{ textAlign: "center", padding: "40px" }}>
+                    Loading books...
                   </td>
-
                 </tr>
+              ) : currentBooks.length > 0 ? (
+                currentBooks.map((book, index) => (
+                  <tr
+                    key={book.id}
+                    className={
+                      selectedIds.includes(book.id)
+                        ? "Books__rowSelected"
+                        : ""
+                    }
+                  >
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(book.id)}
+                        onChange={() => handleSelectOne(book.id)}
+                      />
+                    </td>
 
+                    <td>
+                      <span className="Books__number">
+                        {startIndex + index + 1}
+                      </span>
+                    </td>
+
+                    <td>
+                      <div className="Books__bookImage">
+                        <img
+                          src={getImageUrl(book.image)}
+                          alt={book.title}
+                          onError={(e) => {
+                            e.target.src =
+                              "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&q=85";
+                          }}
+                        />
+                      </div>
+                    </td>
+
+                    <td>
+                      <div className="Books__bookTitle">
+                        <strong>{book.title}</strong>
+                        <span>ISBN: {book.isbn || "N/A"}</span>
+                      </div>
+                    </td>
+
+                    <td>
+                      <span className="Books__author">{book.author}</span>
+                    </td>
+
+                    <td>
+                      <span
+                        className={`Books__category Books__category--${(book.category || "general")
+                          .toLowerCase()
+                          .replace(/[^a-z]/g, "-")}`}
+                      >
+                        {book.category}
+                      </span>
+                    </td>
+
+                    <td>
+                      <strong className="Books__price">
+                        {formatPrice(book.price)}
+                      </strong>
+                    </td>
+
+                    <td>
+                      <span
+                        className={`Books__stock ${
+                          book.stock === 0
+                            ? "Books__stock--out"
+                            : book.stock <= 10
+                            ? "Books__stock--low"
+                            : "Books__stock--good"
+                        }`}
+                      >
+                        {book.stock}
+                      </span>
+                    </td>
+
+                    <td>
+                      <div className="Books__statusWrapper">
+                        <span
+                          className={`Books__status Books__status--${(book.status || "published")
+                            .toLowerCase()
+                            .replace(/\s/g, "-")}`}
+                        >
+                          {book.status}
+                        </span>
+
+                        <button
+                          className={`Books__toggle ${
+                            book.status === "Published"
+                              ? "Books__toggle--active"
+                              : "Books__toggle--inactive"
+                          }`}
+                          onClick={() => toggleBookStatus(book)}
+                          title="Click to toggle status"
+                        >
+                          <span />
+                        </button>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div className="Books__actions">
+                        <button
+                          className="Books__action Books__action--view"
+                          onClick={() => openViewModal(book)}
+                          title="View Book"
+                        >
+                          <Eye size={16} />
+                        </button>
+
+                        <button
+                          className="Books__action Books__action--edit"
+                          onClick={() => openEditModal(book)}
+                          title="Edit Book"
+                        >
+                          <Edit3 size={16} />
+                        </button>
+
+                        <button
+                          className="Books__action Books__action--delete"
+                          onClick={() => openDeleteModal(book)}
+                          title="Delete Book"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="10" className="Books__empty">
+                    <div className="Books__emptyContent">
+                      <BookOpen size={40} />
+                      <h3>No books found</h3>
+                      <p>
+                        Try changing your filters or add a new book to your store.
+                      </p>
+                      <button onClick={resetFilters}>Clear Filters</button>
+                    </div>
+                  </td>
+                </tr>
               )}
-
             </tbody>
-
           </table>
-
         </div>
 
         {/* TABLE FOOTER */}
-
         <div className="Books__tableFooter">
-
           <span>
-
-            Showing{" "}
-
-            {filteredBooks.length === 0
-              ? 0
-              : startIndex + 1}
-
-            {" "}to{" "}
-
-            {Math.min(
-              startIndex +
-                ITEMS_PER_PAGE,
-              filteredBooks.length
-            )}
-
-            {" "}of{" "}
-
-            {filteredBooks.length}
-
-            {" "}books
-
+            Showing {pagination.total === 0 ? 0 : startIndex + 1} to{" "}
+            {Math.min(startIndex + ITEMS_PER_PAGE, pagination.total)} of{" "}
+            {pagination.total} books
           </span>
 
           <div className="Books__pagination">
-
             <button
               onClick={previousPage}
-              disabled={
-                safeCurrentPage === 1
-              }
+              disabled={safeCurrentPage === 1}
+              aria-label="Previous Page"
             >
               <ChevronLeft size={16} />
             </button>
 
-            {Array.from(
-              {
-                length: totalPages,
-              },
-              (_, index) =>
-                index + 1
-            ).map((page) => (
-
-              <button
-                key={page}
-                className={
-                  safeCurrentPage ===
-                  page
-                    ? "Books__pageActive"
-                    : ""
-                }
-                onClick={() =>
-                  setCurrentPage(page)
-                }
-              >
-                {page}
-              </button>
-
-            ))}
+            {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+              (page) => (
+                <button
+                  key={page}
+                  className={safeCurrentPage === page ? "Books__pageActive" : ""}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              )
+            )}
 
             <button
               onClick={nextPage}
-              disabled={
-                safeCurrentPage ===
-                totalPages
-              }
+              disabled={safeCurrentPage === totalPages}
+              aria-label="Next Page"
             >
               <ChevronRight size={16} />
             </button>
-
           </div>
-
         </div>
-
       </section>
 
       {/* ADD / EDIT MODAL */}
-
-      {(modalType === "add" ||
-        modalType === "edit") && (
-
+      {(modalType === "add" || modalType === "edit") && (
         <div
           className="Books__overlay"
           onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
+            if (event.target === event.currentTarget) {
               closeModal();
             }
           }}
         >
-
           <div className="Books__formModal">
-
             <div className="Books__modalHeader">
-
               <div>
-
-                <span className="Books__modalEyebrow">
-                  BOOK MANAGEMENT
-                </span>
-
-                <h2>
-                  {modalType === "add"
-                    ? "Add New Book"
-                    : "Edit Book"}
-                </h2>
-
+                <span className="Books__modalEyebrow">BOOK MANAGEMENT</span>
+                <h2>{modalType === "add" ? "Add New Book" : "Edit Book"}</h2>
                 <p>
                   {modalType === "add"
                     ? "Add a new book to your bookstore."
                     : "Update the book information below."}
                 </p>
-
               </div>
 
-              <button
-                className="Books__closeButton"
-                onClick={closeModal}
-              >
+              <button className="Books__closeButton" onClick={closeModal}>
                 <X size={19} />
               </button>
-
             </div>
 
             <form
               className="Books__form"
               onSubmit={
-                modalType === "add"
-                  ? handleAddBook
-                  : handleUpdateBook
+                modalType === "add" ? handleAddBook : handleUpdateBook
               }
             >
-
               {/* IMAGE */}
-
               <div className="Books__formImageArea">
-
                 <div className="Books__imagePreview">
-
                   {imagePreview ? (
-
-                    <img
-                      src={imagePreview}
-                      alt="Book Preview"
-                    />
-
+                    <img src={imagePreview} alt="Book Preview" />
                   ) : (
-
                     <>
                       <ImageIcon size={27} />
-                      <span>
-                        Book Cover
-                      </span>
+                      <span>Book Cover</span>
                     </>
-
                   )}
-
                 </div>
 
                 <div className="Books__uploadInfo">
-
                   <label className="Books__uploadButton">
-
                     <Upload size={15} />
-
-                    {imagePreview
-                      ? "Change Cover"
-                      : "Upload Cover"}
-
+                    {imagePreview ? "Change Cover" : "Upload Cover"}
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={
-                        handleImageChange
-                      }
+                      onChange={handleImageChange}
                     />
-
                   </label>
-
-                  <span>
-                    JPG, PNG, WEBP • Max 5MB
-                  </span>
-
-                  {errors.image && (
-                    <small>
-                      {errors.image}
-                    </small>
-                  )}
-
+                  <span>JPG, PNG, WEBP • Max 5MB</span>
+                  {errors.image && <small>{errors.image}</small>}
                 </div>
-
               </div>
 
               {/* TITLE + ISBN */}
-
               <div className="Books__formGrid Books__formGrid--two">
-
                 <div className="Books__field">
-
                   <label>
                     Book Title <b>*</b>
                   </label>
-
                   <input
                     name="title"
-                    value={
-                      formData.title
-                    }
-                    onChange={
-                      handleInputChange
-                    }
+                    value={formData.title}
+                    onChange={handleInputChange}
                     placeholder="Enter book title"
                   />
-
-                  {errors.title && (
-                    <small>
-                      {errors.title}
-                    </small>
-                  )}
-
+                  {errors.title && <small>{errors.title}</small>}
                 </div>
 
                 <div className="Books__field">
-
-                  <label>
-                    ISBN <b>*</b>
-                  </label>
-
+                  <label>ISBN</label>
                   <input
                     name="isbn"
-                    value={
-                      formData.isbn
-                    }
-                    onChange={
-                      handleInputChange
-                    }
+                    value={formData.isbn}
+                    onChange={handleInputChange}
                     placeholder="978XXXXXXXXXX"
                   />
-
-                  {errors.isbn && (
-                    <small>
-                      {errors.isbn}
-                    </small>
-                  )}
-
+                  {errors.isbn && <small>{errors.isbn}</small>}
                 </div>
-
               </div>
 
               {/* AUTHOR + CATEGORY */}
-
               <div className="Books__formGrid Books__formGrid--two">
-
                 <div className="Books__field">
-
                   <label>
                     Author <b>*</b>
                   </label>
-
                   <input
                     name="author"
-                    value={
-                      formData.author
-                    }
-                    onChange={
-                      handleInputChange
-                    }
+                    value={formData.author}
+                    onChange={handleInputChange}
                     placeholder="Author name"
                   />
-
-                  {errors.author && (
-                    <small>
-                      {errors.author}
-                    </small>
-                  )}
-
+                  {errors.author && <small>{errors.author}</small>}
                 </div>
 
                 <div className="Books__field">
-
                   <label>
-                    Category
+                    Category <b>*</b>
                   </label>
-
                   <div className="Books__inputSelect">
-
                     <select
                       name="category"
-                      value={
-                        formData.category
-                      }
-                      onChange={
-                        handleInputChange
-                      }
+                      value={formData.category}
+                      onChange={handleInputChange}
                     >
-
-                      {categories.map(
-                        (category) => (
-                          <option
-                            key={category}
-                          >
-                            {category}
-                          </option>
-                        )
-                      )}
-
+                      <option value="">Select Category</option>
+                      {categories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
                     </select>
-
                     <ChevronDown size={15} />
-
                   </div>
-
+                  {errors.category && <small>{errors.category}</small>}
                 </div>
-
               </div>
 
               {/* PRICE + STOCK + STATUS */}
-
               <div className="Books__formGrid Books__formGrid--three">
-
                 <div className="Books__field">
-
                   <label>
-                    Price <b>*</b>
+                    Price (₹) <b>*</b>
                   </label>
-
-                  <div className="Books__inputIcon">
-
-                    <IndianRupee size={15} />
-
-                    <input
-                      type="number"
-                      min="0"
-                      name="price"
-                      value={
-                        formData.price
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="1299"
-                    />
-
-                  </div>
-
-                  {errors.price && (
-                    <small>
-                      {errors.price}
-                    </small>
-                  )}
-
+                  <input
+                    name="price"
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    placeholder="0"
+                  />
+                  {errors.price && <small>{errors.price}</small>}
                 </div>
 
                 <div className="Books__field">
-
                   <label>
                     Stock <b>*</b>
                   </label>
-
-                  <div className="Books__inputIcon">
-
-                    <Package size={15} />
-
-                    <input
-                      type="number"
-                      min="0"
-                      name="stock"
-                      value={
-                        formData.stock
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                      placeholder="20"
-                    />
-
-                  </div>
-
-                  {errors.stock && (
-                    <small>
-                      {errors.stock}
-                    </small>
-                  )}
-
-                </div>
-
-                <div className="Books__field">
-
-                  <label>
-                    Status
-                  </label>
-
-                  <div className="Books__inputSelect">
-
-                    <select
-                      name="status"
-                      value={
-                        formData.status
-                      }
-                      onChange={
-                        handleInputChange
-                      }
-                    >
-
-                      <option>
-                        Published
-                      </option>
-
-                      <option>
-                        Draft
-                      </option>
-
-                    </select>
-
-                    <ChevronDown size={15} />
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* PUBLISHER + PAGES + YEAR */}
-
-              <div className="Books__formGrid Books__formGrid--three">
-
-                <div className="Books__field">
-
-                  <label>
-                    Publisher
-                  </label>
-
                   <input
-                    name="publisher"
-                    value={
-                      formData.publisher
-                    }
-                    onChange={
-                      handleInputChange
-                    }
-                    placeholder="Publisher"
-                  />
-
-                </div>
-
-                <div className="Books__field">
-
-                  <label>
-                    Pages
-                  </label>
-
-                  <input
+                    name="stock"
                     type="number"
                     min="0"
-                    name="pages"
-                    value={
-                      formData.pages
-                    }
-                    onChange={
-                      handleInputChange
-                    }
-                    placeholder="300"
+                    value={formData.stock}
+                    onChange={handleInputChange}
+                    placeholder="0"
                   />
-
+                  {errors.stock && <small>{errors.stock}</small>}
                 </div>
 
                 <div className="Books__field">
+                  <label>Status</label>
+                  <div className="Books__inputSelect">
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                    >
+                      <option>Published</option>
+                      <option>Draft</option>
+                      <option>Out of Stock</option>
+                    </select>
+                    <ChevronDown size={15} />
+                  </div>
+                </div>
+              </div>
 
-                  <label>
-                    Publish Year
-                  </label>
-
+              {/* PUBLISHER + PAGES + LANGUAGE + YEAR */}
+              <div className="Books__formGrid Books__formGrid--four">
+                <div className="Books__field">
+                  <label>Publisher</label>
                   <input
-                    type="number"
-                    name="year"
-                    value={
-                      formData.year
-                    }
-                    onChange={
-                      handleInputChange
-                    }
-                    placeholder="2026"
+                    name="publisher"
+                    value={formData.publisher}
+                    onChange={handleInputChange}
+                    placeholder="Publisher"
                   />
-
                 </div>
 
+                <div className="Books__field">
+                  <label>Pages</label>
+                  <input
+                    name="pages"
+                    type="number"
+                    min="0"
+                    value={formData.pages}
+                    onChange={handleInputChange}
+                    placeholder="0"
+                  />
+                </div>
+
+                <div className="Books__field">
+                  <label>Language</label>
+                  <input
+                    name="language"
+                    value={formData.language}
+                    onChange={handleInputChange}
+                    placeholder="English"
+                  />
+                </div>
+
+                <div className="Books__field">
+                  <label>Year</label>
+                  <input
+                    name="year"
+                    type="number"
+                    value={formData.year}
+                    onChange={handleInputChange}
+                    placeholder="2024"
+                  />
+                </div>
               </div>
 
               {/* DESCRIPTION */}
-
               <div className="Books__field">
-
-                <label>
-                  Description
-                </label>
-
+                <label>Description</label>
                 <textarea
                   name="description"
-                  value={
-                    formData.description
-                  }
-                  onChange={
-                    handleInputChange
-                  }
-                  rows="3"
-                  placeholder="Enter a short description about this book..."
+                  rows="4"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Provide a detailed description of the book..."
                 />
-
               </div>
 
-              {/* FOOTER */}
-
-              <div className="Books__formFooter">
-
+              <div className="Books__modalFooter">
                 <button
                   type="button"
                   className="Books__cancelButton"
@@ -2062,386 +1282,157 @@ const Books = () => {
                 >
                   Cancel
                 </button>
-
-                <button
-                  type="submit"
-                  className="Books__saveButton"
-                >
-
-                  <CheckCircle2 size={16} />
-
-                  {modalType === "add"
-                    ? "Add Book"
-                    : "Save Changes"}
-
+                <button type="submit" className="Books__saveButton">
+                  {modalType === "add" ? "Save Book" : "Update Book"}
                 </button>
-
               </div>
-
             </form>
-
           </div>
-
         </div>
       )}
 
       {/* VIEW MODAL */}
-
-      {modalType === "view" &&
-        selectedBook && (
-
-          <div
-            className="Books__overlay"
-            onMouseDown={(event) => {
-              if (
-                event.target ===
-                event.currentTarget
-              ) {
-                closeModal();
-              }
-            }}
-          >
-
-            <div className="Books__viewModal">
-
-              <div className="Books__viewHeader">
-
-                <div>
-
-                  <span className="Books__modalEyebrow">
-                    BOOK DETAILS
-                  </span>
-
-                  <h2>
-                    Book Details
-                  </h2>
-
-                  <p>
-                    Complete information
-                    about this book.
-                  </p>
-
-                </div>
-
-                <button
-                  className="Books__closeButton"
-                  onClick={closeModal}
-                >
-                  <X size={19} />
-                </button>
-
-              </div>
-
-              <div className="Books__viewBody">
-
-                <div className="Books__viewCover">
-
-                  <img
-                    src={
-                      selectedBook.image
-                    }
-                    alt={
-                      selectedBook.title
-                    }
-                  />
-
-                  <div className="Books__viewCoverBadge">
-
-                    <BookOpen size={15} />
-
-                    {selectedBook.stock >
-                    0
-                      ? `${selectedBook.stock} in stock`
-                      : "Out of stock"}
-
-                  </div>
-
-                </div>
-
-                <div className="Books__viewInfo">
-
-                  <div className="Books__viewTitleRow">
-
-                    <div>
-
-                      <h3>
-                        {
-                          selectedBook.title
-                        }
-                      </h3>
-
-                      <span>
-                        ISBN:{" "}
-                        {
-                          selectedBook.isbn
-                        }
-                      </span>
-
-                    </div>
-
-                    <span
-                      className={`Books__viewStatus ${
-                        selectedBook.status ===
-                        "Published"
-                          ? "Books__viewStatus--green"
-                          : selectedBook.status ===
-                            "Out of Stock"
-                          ? "Books__viewStatus--red"
-                          : "Books__viewStatus--orange"
-                      }`}
-                    >
-
-                      {selectedBook.status ===
-                      "Published" ? (
-                        <CircleCheck
-                          size={14}
-                        />
-                      ) : (
-                        <CircleX size={14} />
-                      )}
-
-                      {selectedBook.status}
-
-                    </span>
-
-                  </div>
-
-                  <p className="Books__viewDescription">
-                    {selectedBook.description}
-                  </p>
-
-                  <div className="Books__viewDetails">
-
-                    <div className="Books__viewDetail">
-
-                      <div className="Books__viewDetailIcon">
-                        <User size={17} />
-                      </div>
-
-                      <div>
-                        <span>Author</span>
-                        <strong>
-                          {
-                            selectedBook.author
-                          }
-                        </strong>
-                      </div>
-
-                    </div>
-
-                    <div className="Books__viewDetail">
-
-                      <div className="Books__viewDetailIcon">
-                        <Layers size={17} />
-                      </div>
-
-                      <div>
-                        <span>Category</span>
-                        <strong>
-                          {
-                            selectedBook.category
-                          }
-                        </strong>
-                      </div>
-
-                    </div>
-
-                    <div className="Books__viewDetail">
-
-                      <div className="Books__viewDetailIcon">
-                        <IndianRupee
-                          size={17}
-                        />
-                      </div>
-
-                      <div>
-                        <span>Price</span>
-                        <strong>
-                          {formatPrice(
-                            selectedBook.price
-                          )}
-                        </strong>
-                      </div>
-
-                    </div>
-
-                    <div className="Books__viewDetail">
-
-                      <div className="Books__viewDetailIcon">
-                        <Package size={17} />
-                      </div>
-
-                      <div>
-                        <span>Stock</span>
-                        <strong>
-                          {
-                            selectedBook.stock
-                          }
-                        </strong>
-                      </div>
-
-                    </div>
-
-                    <div className="Books__viewDetail">
-
-                      <div className="Books__viewDetailIcon">
-                        <Hash size={17} />
-                      </div>
-
-                      <div>
-                        <span>Pages</span>
-                        <strong>
-                          {
-                            selectedBook.pages
-                          }
-                        </strong>
-                      </div>
-
-                    </div>
-
-                    <div className="Books__viewDetail">
-
-                      <div className="Books__viewDetailIcon">
-                        <BookOpen size={17} />
-                      </div>
-
-                      <div>
-                        <span>Published</span>
-                        <strong>
-                          {
-                            selectedBook.year
-                          }
-                        </strong>
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                  <div className="Books__viewNotice">
-
-                    <Info size={17} />
-
-                    <div>
-
-                      <strong>
-                        Book visibility
-                      </strong>
-
-                      <span>
-                        {selectedBook.status ===
-                        "Published"
-                          ? "This book is currently published and visible in your store."
-                          : selectedBook.status ===
-                            "Draft"
-                          ? "This book is saved as a draft and is not currently published."
-                          : "This book is currently unavailable because there is no stock."}
-                      </span>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              <div className="Books__viewFooter">
-
-                <button
-                  className="Books__cancelButton"
-                  onClick={closeModal}
-                >
-                  Close
-                </button>
-
-                <button
-                  className="Books__saveButton"
-                  onClick={() =>
-                    openEditModal(
-                      selectedBook
-                    )
-                  }
-                >
-
-                  <Edit3 size={16} />
-
-                  Edit Book
-
-                </button>
-
-              </div>
-
+      {modalType === "view" && selectedBook && (
+        <div
+          className="Books__overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
+          <div className="Books__viewModal">
+            <div className="Books__viewModalHeader">
+              <h3>Book Details</h3>
+              <button className="Books__closeButton" onClick={closeModal}>
+                <X size={18} />
+              </button>
             </div>
 
+            <div className="Books__viewModalBody">
+              <div className="Books__viewImage">
+                <img
+                  src={getImageUrl(selectedBook.image)}
+                  alt={selectedBook.title}
+                  onError={(e) => {
+                    e.target.src =
+                      "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&q=85";
+                  }}
+                />
+              </div>
+
+              <div className="Books__viewInfo">
+                <div className="Books__viewBadges">
+                  <span
+                    className={`Books__category Books__category--${(selectedBook.category || "general")
+                      .toLowerCase()
+                      .replace(/[^a-z]/g, "-")}`}
+                  >
+                    {selectedBook.category}
+                  </span>
+                  <span
+                    className={`Books__status Books__status--${(selectedBook.status || "published")
+                      .toLowerCase()
+                      .replace(/\s/g, "-")}`}
+                  >
+                    {selectedBook.status}
+                  </span>
+                </div>
+
+                <h2>{selectedBook.title}</h2>
+                <p className="Books__viewAuthor">By {selectedBook.author}</p>
+
+                <div className="Books__viewPriceRow">
+                  <strong>{formatPrice(selectedBook.price)}</strong>
+                  <span>•</span>
+                  <span>{selectedBook.stock} in stock</span>
+                </div>
+
+                <div className="Books__viewGrid">
+                  <div>
+                    <label>ISBN</label>
+                    <span>{selectedBook.isbn || "N/A"}</span>
+                  </div>
+                  <div>
+                    <label>Publisher</label>
+                    <span>{selectedBook.publisher || "N/A"}</span>
+                  </div>
+                  <div>
+                    <label>Pages</label>
+                    <span>{selectedBook.pages || "N/A"}</span>
+                  </div>
+                  <div>
+                    <label>Language</label>
+                    <span>{selectedBook.language || "English"}</span>
+                  </div>
+                  <div>
+                    <label>Year</label>
+                    <span>{selectedBook.year || "N/A"}</span>
+                  </div>
+                </div>
+
+                {selectedBook.description && (
+                  <div className="Books__viewDescription">
+                    <label>Description</label>
+                    <p>{selectedBook.description}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="Books__modalFooter">
+              <button className="Books__cancelButton" onClick={closeModal}>
+                Close
+              </button>
+              <button
+                className="Books__saveButton"
+                onClick={() => openEditModal(selectedBook)}
+              >
+                Edit Book
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+      )}
 
       {/* DELETE MODAL */}
-
-      {modalType === "delete" &&
-        selectedBook && (
-
-          <div
-            className="Books__overlay"
-            onMouseDown={(event) => {
-              if (
-                event.target ===
-                event.currentTarget
-              ) {
-                closeModal();
-              }
-            }}
-          >
-
-            <div className="Books__deleteModal">
-
-              <div className="Books__deleteIcon">
-                <AlertTriangle size={27} />
-              </div>
-
-              <h2>
-                Delete Book?
-              </h2>
-
-              <p>
-                You are about to permanently
-                delete{" "}
-                <strong>
-                  {selectedBook.title}
-                </strong>
-                . This action cannot be undone.
-              </p>
-
-              <div className="Books__deleteActions">
-
-                <button
-                  className="Books__cancelButton"
-                  onClick={closeModal}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  className="Books__deleteButton"
-                  onClick={
-                    handleDeleteBook
-                  }
-                >
-
-                  <Trash2 size={16} />
-
-                  Delete Book
-
-                </button>
-
-              </div>
-
+      {modalType === "delete" && selectedBook && (
+        <div
+          className="Books__overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
+          <div className="Books__deleteModal">
+            <div className="Books__deleteIcon">
+              <AlertTriangle size={27} />
             </div>
 
-          </div>
-        )}
+            <h2>Delete Book?</h2>
 
+            <p>
+              You are about to permanently delete{" "}
+              <strong>{selectedBook.title}</strong>. This action cannot be undone.
+            </p>
+
+            <div className="Books__deleteActions">
+              <button className="Books__cancelButton" onClick={closeModal}>
+                Cancel
+              </button>
+
+              <button
+                className="Books__deleteButton"
+                onClick={handleDeleteBook}
+              >
+                <Trash2 size={16} />
+                Delete Book
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

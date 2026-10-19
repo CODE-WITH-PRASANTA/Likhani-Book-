@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Search,
@@ -26,189 +26,30 @@ import {
   CircleX,
 } from "lucide-react";
 
+import API, { BASE_URL } from "../../api/axios";
 import "./Reviews.css";
 
+const getImageUrl = (imagePath) => {
+  if (!imagePath)
+    return "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=100&q=80";
+  if (
+    imagePath.startsWith("http://") ||
+    imagePath.startsWith("https://") ||
+    imagePath.startsWith("blob:") ||
+    imagePath.startsWith("data:")
+  )
+    return imagePath;
+  return `${BASE_URL}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+};
+
 const Reviews = () => {
-  /* ============================================================
-     INITIAL REVIEWS
-  ============================================================ */
-
-  const initialReviews = [
-    {
-      id: 1,
-      user: "Rahul Sharma",
-      email: "rahul@example.com",
-      userImage: "https://i.pravatar.cc/100?img=12",
-      book: "Atomic Habits",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780735211292-M.jpg",
-      rating: 5,
-      comment:
-        "Amazing book! Really changed my perspective on habits and productivity.",
-      date: "Sep 9, 2026",
-      status: "Approved",
-    },
-    {
-      id: 2,
-      user: "Priya Patel",
-      email: "priya@example.com",
-      userImage: "https://i.pravatar.cc/100?img=47",
-      book: "The Psychology of Money",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780857197689-M.jpg",
-      rating: 4,
-      comment:
-        "Very insightful and easy to read. Highly recommended!",
-      date: "Sep 8, 2026",
-      status: "Approved",
-    },
-    {
-      id: 3,
-      user: "Amit Kumar",
-      email: "amit@example.com",
-      userImage: "https://i.pravatar.cc/100?img=11",
-      book: "Thinking, Fast and Slow",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780374533557-M.jpg",
-      rating: 5,
-      comment:
-        "A must-read for anyone interested in human behavior. Brilliant!",
-      date: "Sep 8, 2026",
-      status: "Approved",
-    },
-    {
-      id: 4,
-      user: "Sneha Verma",
-      email: "sneha@example.com",
-      userImage: "https://i.pravatar.cc/100?img=44",
-      book: "The Great Gatsby",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780743273565-M.jpg",
-      rating: 4,
-      comment:
-        "Beautifully written classic. Loved the storyline and characters.",
-      date: "Sep 7, 2026",
-      status: "Pending",
-    },
-    {
-      id: 5,
-      user: "Vikram Singh",
-      email: "vikram@example.com",
-      userImage: "https://i.pravatar.cc/100?img=13",
-      book: "Sherlock Holmes",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780140439079-M.jpg",
-      rating: 5,
-      comment:
-        "Timeless stories with great mystery and suspense.",
-      date: "Sep 6, 2026",
-      status: "Approved",
-    },
-    {
-      id: 6,
-      user: "Neha Gupta",
-      email: "neha@example.com",
-      userImage: "https://i.pravatar.cc/100?img=32",
-      book: "Comic Adventures",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780545227708-M.jpg",
-      rating: 3,
-      comment:
-        "Good collection of comics, kids will love it.",
-      date: "Sep 6, 2026",
-      status: "Pending",
-    },
-    {
-      id: 7,
-      user: "Rohan Mehta",
-      email: "rohan@example.com",
-      userImage: "https://i.pravatar.cc/100?img=68",
-      book: "Rich Dad Poor Dad",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9781612681139-M.jpg",
-      rating: 5,
-      comment:
-        "Inspiring and practical advice for financial freedom.",
-      date: "Sep 5, 2026",
-      status: "Rejected",
-    },
-    {
-      id: 8,
-      user: "Ananya Singh",
-      email: "ananya@example.com",
-      userImage: "https://i.pravatar.cc/100?img=49",
-      book: "Castle The Sky",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9781590170814-M.jpg",
-      rating: 4,
-      comment:
-        "Beautiful illustrations and heartwarming story.",
-      date: "Sep 5, 2026",
-      status: "Approved",
-    },
-    {
-      id: 9,
-      user: "Arjun Das",
-      email: "arjun@example.com",
-      userImage: "https://i.pravatar.cc/100?img=15",
-      book: "Deep Work",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9781455586691-M.jpg",
-      rating: 5,
-      comment:
-        "Excellent practical ideas for improving focus.",
-      date: "Sep 4, 2026",
-      status: "Approved",
-    },
-    {
-      id: 10,
-      user: "Meera Joshi",
-      email: "meera@example.com",
-      userImage: "https://i.pravatar.cc/100?img=45",
-      book: "Ikigai",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780143130727-M.jpg",
-      rating: 4,
-      comment:
-        "A beautiful and thoughtful book about finding purpose.",
-      date: "Sep 4, 2026",
-      status: "Pending",
-    },
-    {
-      id: 11,
-      user: "Sourav Mishra",
-      email: "sourav@example.com",
-      userImage: "https://i.pravatar.cc/100?img=52",
-      book: "The Alchemist",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780061122415-M.jpg",
-      rating: 5,
-      comment:
-        "Simple, inspiring and full of meaningful lessons.",
-      date: "Sep 3, 2026",
-      status: "Approved",
-    },
-    {
-      id: 12,
-      user: "Kavya Nair",
-      email: "kavya@example.com",
-      userImage: "https://i.pravatar.cc/100?img=48",
-      book: "Atomic Habits",
-      bookImage:
-        "https://covers.openlibrary.org/b/isbn/9780735211292-M.jpg",
-      rating: 3,
-      comment:
-        "Useful concepts but some sections felt repetitive.",
-      date: "Sep 2, 2026",
-      status: "Rejected",
-    },
-  ];
-
   /* ============================================================
      STATES
   ============================================================ */
 
-  const [reviews, setReviews] = useState(initialReviews);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -246,6 +87,28 @@ const Reviews = () => {
   const [formErrors, setFormErrors] = useState({});
 
   const ITEMS_PER_PAGE = 8;
+
+  /* ============================================================
+     FETCH REVIEWS FROM API
+  ============================================================ */
+
+  const fetchReviews = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await API.get("/reviews", { params: { limit: 100 } });
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        setReviews(res.data.data);
+      }
+    } catch (err) {
+      console.error("Failed to load reviews:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   /* ============================================================
      STATISTICS
@@ -513,139 +376,155 @@ const Reviews = () => {
      ADD
   ============================================================ */
 
-  const handleAddReview = (event) => {
+  const handleAddReview = async (event) => {
     event.preventDefault();
 
     if (!validateForm()) return;
 
-    const newReview = {
-      id: Date.now(),
-
+    const payload = {
       user: formData.user.trim(),
-
       email: formData.email.trim(),
-
-      userImage:
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          formData.user
-        )}&background=eaf3ff&color=1674e8&bold=true`,
-
       book: formData.book.trim(),
-
-      bookImage:
-        "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=100&q=80",
-
       rating: formData.rating,
-
       comment: formData.comment.trim(),
-
-      date: new Date().toLocaleDateString(
-        "en-US",
-        {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }
-      ),
-
       status: formData.status,
     };
 
-    setReviews((previous) => [
-      newReview,
-      ...previous,
-    ]);
-
-    setCurrentPage(1);
-
-    closeModal();
+    try {
+      setIsSaving(true);
+      await API.post("/reviews", payload);
+      await fetchReviews();
+      setCurrentPage(1);
+      closeModal();
+    } catch (err) {
+      console.error("Add review error:", err);
+      alert(err.response?.data?.message || "Failed to add review");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   /* ============================================================
      UPDATE
   ============================================================ */
 
-  const handleUpdateReview = (event) => {
+  const handleUpdateReview = async (event) => {
     event.preventDefault();
 
     if (!validateForm()) return;
+    if (!selectedReview) return;
 
-    setReviews((previous) =>
-      previous.map((review) =>
-        review.id === selectedReview.id
-          ? {
-              ...review,
-              user: formData.user.trim(),
-              email: formData.email.trim(),
-              book: formData.book.trim(),
-              rating: formData.rating,
-              comment: formData.comment.trim(),
-              status: formData.status,
-            }
-          : review
-      )
-    );
+    const id = selectedReview.id || selectedReview._id;
+    const payload = {
+      user: formData.user.trim(),
+      email: formData.email.trim(),
+      book: formData.book.trim(),
+      rating: formData.rating,
+      comment: formData.comment.trim(),
+      status: formData.status,
+    };
 
-    closeModal();
+    try {
+      setIsSaving(true);
+      await API.put(`/reviews/${id}`, payload);
+      await fetchReviews();
+      closeModal();
+    } catch (err) {
+      console.error("Update review error:", err);
+      alert(err.response?.data?.message || "Failed to update review");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   /* ============================================================
      DELETE
   ============================================================ */
 
-  const handleDeleteReview = () => {
+  const handleDeleteReview = async () => {
     if (!selectedReview) return;
 
-    setReviews((previous) =>
-      previous.filter(
-        (review) =>
-          review.id !== selectedReview.id
-      )
-    );
+    const id = selectedReview.id || selectedReview._id;
 
-    setSelectedReviews((previous) =>
-      previous.filter(
-        (id) => id !== selectedReview.id
-      )
-    );
+    try {
+      setIsSaving(true);
+      await API.delete(`/reviews/${id}`);
+      setSelectedReviews((previous) =>
+        previous.filter((reviewId) => reviewId !== id)
+      );
+      await fetchReviews();
+      closeModal();
+    } catch (err) {
+      console.error("Delete review error:", err);
+      alert(err.response?.data?.message || "Failed to delete review");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-    closeModal();
+  /* ============================================================
+     BULK DELETE
+  ============================================================ */
+
+  const handleBulkDelete = async () => {
+    if (selectedReviews.length === 0) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selectedReviews.length} selected review(s)?`
+      )
+    )
+      return;
+
+    try {
+      setIsSaving(true);
+      await API.post("/reviews/bulk-delete", { ids: selectedReviews });
+      setSelectedReviews([]);
+      await fetchReviews();
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      alert(err.response?.data?.message || "Failed to delete selected reviews");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   /* ============================================================
      STATUS
   ============================================================ */
 
-  const updateStatus = (review, newStatus) => {
-    setReviews((previous) =>
-      previous.map((item) =>
-        item.id === review.id
-          ? {
-              ...item,
-              status: newStatus,
-            }
-          : item
-      )
-    );
-
-    if (
-      selectedReview &&
-      selectedReview.id === review.id
-    ) {
-      setSelectedReview({
-        ...review,
-        status: newStatus,
-      });
-    }
-  };
-
-  const handleStatusClick = (review) => {
+  const handleStatusClick = async (review) => {
+    const id = review.id || review._id;
+    let nextStatus = "Approved";
     if (review.status === "Pending") {
-      updateStatus(review, "Approved");
+      nextStatus = "Approved";
     } else if (review.status === "Approved") {
-      updateStatus(review, "Rejected");
+      nextStatus = "Rejected";
     } else {
-      updateStatus(review, "Pending");
+      nextStatus = "Pending";
+    }
+
+    try {
+      await API.patch(`/reviews/${id}/status`, { status: nextStatus });
+      setReviews((previous) =>
+        previous.map((item) =>
+          item.id === id || item._id === id
+            ? { ...item, status: nextStatus }
+            : item
+        )
+      );
+
+      if (
+        selectedReview &&
+        (selectedReview.id === id || selectedReview._id === id)
+      ) {
+        setSelectedReview({
+          ...review,
+          status: nextStatus,
+        });
+      }
+    } catch (err) {
+      console.error("Status update error:", err);
+      alert(err.response?.data?.message || "Failed to update review status");
     }
   };
 
@@ -1010,21 +889,35 @@ const Reviews = () => {
         <div className="Reviews__toolbarRight">
 
           {selectedReviews.length > 0 && (
-            <div className="Reviews__selected">
-
-              <Check size={15} />
-
-              <span>
-                {selectedReviews.length} selected
-              </span>
+            <>
+              <div className="Reviews__selected">
+                <Check size={15} />
+                <span>
+                  {selectedReviews.length} selected
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedReviews([])}
+                >
+                  <X size={13} />
+                </button>
+              </div>
 
               <button
-                onClick={() => setSelectedReviews([])}
+                type="button"
+                className="Reviews__exportButton"
+                style={{
+                  backgroundColor: "#dc2626",
+                  color: "#ffffff",
+                  borderColor: "#dc2626",
+                  gap: "6px",
+                }}
+                onClick={handleBulkDelete}
               >
-                <X size={13} />
+                <Trash2 size={15} />
+                Delete Selected
               </button>
-
-            </div>
+            </>
           )}
 
           <button
@@ -1078,9 +971,20 @@ const Reviews = () => {
 
 
             <tbody>
-
-              {currentReviews.length > 0 ? (
-
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan="8"
+                    style={{
+                      textAlign: "center",
+                      padding: "40px",
+                      color: "#64748b",
+                    }}
+                  >
+                    Loading reviews...
+                  </td>
+                </tr>
+              ) : currentReviews.length > 0 ? (
                 currentReviews.map(
                   (review, index) => (
 
@@ -1123,7 +1027,7 @@ const Reviews = () => {
                           <div className="Reviews__userImage">
 
                             <img
-                              src={review.userImage}
+                              src={getImageUrl(review.userImage)}
                               alt={review.user}
                             />
 
@@ -1151,7 +1055,7 @@ const Reviews = () => {
                           <div className="Reviews__bookImage">
 
                             <img
-                              src={review.bookImage}
+                              src={getImageUrl(review.bookImage)}
                               alt={review.book}
                               onError={(event) => {
                                 event.currentTarget.src =
@@ -1734,7 +1638,7 @@ const Reviews = () => {
                 <div className="Reviews__viewBookImage">
 
                   <img
-                    src={selectedReview.bookImage}
+                    src={getImageUrl(selectedReview.bookImage)}
                     alt={selectedReview.book}
                   />
 
