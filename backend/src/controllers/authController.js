@@ -469,3 +469,195 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ success: false, message: error.message || "Failed to update profile." });
   }
 };
+
+const {
+  sendPasswordResetOtpEmail,
+  sendPasswordResetSuccessEmail,
+} = require("../utils/emailService");
+
+// =========================================================
+// FORGOT PASSWORD - Send 6-Digit OTP to Gmail
+// =========================================================
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Email address is required.",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address.",
+      });
+    }
+
+    // Check if account exists with this email
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No account exists with this email address. Please check your email or sign up.",
+      });
+    }
+
+    // Generate random 6-digit numeric OTP code
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetPasswordOtp = otp;
+    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+    await user.save();
+
+    // Send branded email with logo and 6-digit OTP
+    const emailResult = await sendPasswordResetOtpEmail({
+      to: user.email,
+      name: user.name || user.firstName || "Reader",
+      otp: otp,
+    });
+
+    if (!emailResult.success) {
+      console.warn(
+        `[AuthController] OTP email warning for ${user.email}:`,
+        emailResult.error || emailResult.reason
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "A 6-digit OTP verification code has been sent to your email address.",
+      email: user.email,
+    });
+  } catch (error) {
+    console.error("FORGOT PASSWORD ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to process password reset request.",
+    });
+  }
+};
+
+// =========================================================
+// VERIFY OTP CODE
+// =========================================================
+exports.verifyResetOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body || {};
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, message: "Email is required." });
+    }
+    if (!otp || !otp.toString().trim()) {
+      return res.status(400).json({ success: false, message: "6-digit OTP is required." });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const cleanOtp = otp.toString().trim();
+
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User account not found." });
+    }
+
+    if (!user.resetPasswordOtp || user.resetPasswordOtp !== cleanOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or incorrect OTP code. Please check and try again.",
+      });
+    }
+
+    if (!user.resetPasswordExpires || new Date() > new Date(user.resetPasswordExpires)) {
+      return res.status(400).json({
+        success: false,
+        message: "This OTP code has expired. Please request a new verification code.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully. You may now enter your new password.",
+      email: user.email,
+    });
+  } catch (error) {
+    console.error("VERIFY OTP ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to verify OTP code.",
+    });
+  }
+};
+
+// =========================================================
+// RESET PASSWORD - Apply New Password
+// =========================================================
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword, confirmPassword } = req.body || {};
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, message: "Email address is required." });
+    }
+    if (!otp || !otp.toString().trim()) {
+      return res.status(400).json({ success: false, message: "OTP code is required." });
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long.",
+      });
+    }
+    if (confirmPassword !== undefined && newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password and Confirm password do not match.",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const cleanOtp = otp.toString().trim();
+
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User account not found." });
+    }
+
+    if (!user.resetPasswordOtp || user.resetPasswordOtp !== cleanOtp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or incorrect OTP code. Please check and try again.",
+      });
+    }
+
+    if (!user.resetPasswordExpires || new Date() > new Date(user.resetPasswordExpires)) {
+      return res.status(400).json({
+        success: false,
+        message: "This OTP code has expired. Please request a new verification code.",
+      });
+    }
+
+    // Set new password (pre-save hook will hash it with bcrypt)
+    user.password = newPassword;
+    user.resetPasswordOtp = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    // Send confirmation email in background
+    sendPasswordResetSuccessEmail({
+      to: user.email,
+      name: user.name || user.firstName || "Reader",
+    }).catch((e) => console.warn("Notice: reset success email error:", e.message));
+
+    return res.status(200).json({
+      success: true,
+      message: "Your password has been reset successfully! You can now sign in with your new password.",
+    });
+  } catch (error) {
+    console.error("RESET PASSWORD ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to reset password.",
+    });
+  }
+};

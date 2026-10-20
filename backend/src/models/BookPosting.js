@@ -47,6 +47,16 @@ const bookPostingSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    isTopSelling: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isBestSeller: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     publisher: {
       type: String,
       trim: true,
@@ -80,6 +90,12 @@ const bookPostingSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    salesCount: {
+      type: Number,
+      default: 0,
+      min: [0, "Sales count cannot be negative"],
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -92,5 +108,6 @@ bookPostingSchema.index(
   { language_override: "none", default_language: "none" }
 );
 bookPostingSchema.index({ createdAt: -1 });
+bookPostingSchema.index({ salesCount: -1 });
 
 module.exports = mongoose.model("BookPosting", bookPostingSchema);

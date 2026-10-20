@@ -84,6 +84,22 @@ const bookSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isTopSelling: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    isBestSeller: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    salesCount: {
+      type: Number,
+      default: 0,
+      min: [0, "Sales count cannot be negative"],
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -95,5 +111,6 @@ bookSchema.index({ createdAt: -1 });
 bookSchema.index({ category: 1, createdAt: -1 });
 bookSchema.index({ status: 1, createdAt: -1 });
 bookSchema.index({ price: 1 });
+bookSchema.index({ salesCount: -1 });
 
 module.exports = mongoose.model("Book", bookSchema);

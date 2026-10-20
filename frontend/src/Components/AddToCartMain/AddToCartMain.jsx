@@ -197,6 +197,7 @@ const AddToCartMain = () => {
   const [userAddresses, setUserAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isAddressPickerOpen, setIsAddressPickerOpen] = useState(false);
+  const [addressPickerInitialAdd, setAddressPickerInitialAdd] = useState(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   const [unselectedIds, setUnselectedIds] = useState(new Set());
@@ -619,92 +620,6 @@ const AddToCartMain = () => {
             {/* ===================== CART ===================== */}
 
             <div className="AddToCartMain__cartBox">
-              {/* Flipkart-Style Delivery Address Bar */}
-              <div className="AddToCartMain__deliveryBar">
-                <div className="AddToCartMain__deliveryBarLeft">
-                  <div className="AddToCartMain__deliveryPinIcon">
-                    <MapPinIcon size={22} />
-                  </div>
-                  <div className="AddToCartMain__deliveryInfo">
-                    {currentUser ? (
-                      selectedAddress ? (
-                        <>
-                          <div className="AddToCartMain__deliveryTitleRow">
-                            <span className="AddToCartMain__deliveryTo">Deliver to:</span>
-                            <strong className="AddToCartMain__deliveryName">
-                              {selectedAddress.name}, {selectedAddress.pincode}
-                            </strong>
-                            <span
-                              className={`AddToCartMain__deliveryBadge AddToCartMain__deliveryBadge--${
-                                selectedAddress.addressType?.toLowerCase() || "home"
-                              }`}
-                            >
-                              {selectedAddress.addressType?.toUpperCase() || "HOME"}
-                            </span>
-                            {selectedAddress.isDefault && (
-                              <span className="AddToCartMain__deliveryBadgeDefault">
-                                DEFAULT
-                              </span>
-                            )}
-                          </div>
-                          <p className="AddToCartMain__deliveryFullAddress">
-                            {selectedAddress.street}
-                            {selectedAddress.locality ? `, ${selectedAddress.locality}` : ""}, {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}
-                          </p>
-                        </>
-                      ) : (
-                        <div className="AddToCartMain__deliveryTitleRow">
-                          <span className="AddToCartMain__deliveryTo">
-                            No delivery address added yet. Add an address to proceed.
-                          </span>
-                        </div>
-                      )
-                    ) : (
-                      <div className="AddToCartMain__deliveryTitleRow">
-                        <span className="AddToCartMain__deliveryTo">
-                          Log in to select a delivery address and enjoy seamless checkout.
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="AddToCartMain__deliveryBarRight">
-                  {currentUser ? (
-                    <div className="AddToCartMain__deliveryActions">
-                      <Link
-                        to="/orders"
-                        className="AddToCartMain__ordersHeaderLink"
-                        title="View your previous orders"
-                      >
-                        <PackageIcon size={16} />
-                        <span>My Orders</span>
-                      </Link>
-                      <button
-                        type="button"
-                        className="AddToCartMain__changeAddressBtn"
-                        onClick={() => {
-                          if (userAddresses.length === 0) {
-                            navigate("/addresses");
-                          } else {
-                            setIsAddressPickerOpen(true);
-                          }
-                        }}
-                      >
-                        {selectedAddress ? "Change" : "Add Address"}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      className="AddToCartMain__changeAddressBtn"
-                      onClick={() => navigate("/login", { state: { from: "/cart" } })}
-                    >
-                      Login
-                    </button>
-                  )}
-                </div>
-              </div>
 
               <div className="AddToCartMain__cartToolbar">
                 <label className="AddToCartMain__selectAll">
@@ -862,79 +777,79 @@ const AddToCartMain = () => {
               </div>
             </div>
 
-            {/* ================= ORDER SUMMARY ================= */}
+            {/* ================= FLIPKART-STYLE PRICE DETAILS ================= */}
 
             <aside className="AddToCartMain__summary">
               <div className="AddToCartMain__summaryHeader">
-                <div className="AddToCartMain__summaryIcon">₹</div>
-                <h2>Order summary</h2>
+                <h2>PRICE DETAILS</h2>
               </div>
 
               <div className="AddToCartMain__summaryRows">
-                <div className="AddToCartMain__summaryItemsContainer">
-                  {selectedItems.map((item) => (
-                    <div key={item.id} className="AddToCartMain__summaryItemRow">
-                      <span className="AddToCartMain__summaryItemName" title={item.title}>
-                        {item.title}
-                        {item.quantity > 1 ? ` (×${item.quantity})` : ""}
-                      </span>
-                      <strong>
-                        {formatPrice((item.oldPrice || item.price) * item.quantity)}
-                      </strong>
-                    </div>
-                  ))}
+                <div className="AddToCartMain__summaryRow">
+                  <span>Price ({itemCount} {itemCount === 1 ? "item" : "items"})</span>
+                  <strong>{formatPrice(originalTotal)}</strong>
                 </div>
 
-                <div>
-                  <span>Product discount</span>
-                  <strong className="AddToCartMain__discount">
-                    − {formatPrice(productDiscount)}
-                  </strong>
-                </div>
+                {productDiscount > 0 && (
+                  <div className="AddToCartMain__summaryRow AddToCartMain__summaryRow--green">
+                    <span>Discount</span>
+                    <strong className="AddToCartMain__discount">
+                      − {formatPrice(productDiscount)}
+                    </strong>
+                  </div>
+                )}
 
                 {appliedCoupon && couponDiscount > 0 && (
-                  <div>
-                    <span>Coupon ({appliedCoupon.code})</span>
+                  <div className="AddToCartMain__summaryRow AddToCartMain__summaryRow--green">
+                    <span>Coupons for you ({appliedCoupon.code})</span>
                     <strong className="AddToCartMain__discount">
                       − {formatPrice(couponDiscount)}
                     </strong>
                   </div>
                 )}
+
+                <div className="AddToCartMain__summaryRow">
+                  <span>Delivery Charges</span>
+                  <div className="AddToCartMain__deliveryChargeWrap">
+                    <del className="AddToCartMain__deliveryChargeDel">₹40</del>
+                    <strong className="AddToCartMain__free">FREE</strong>
+                  </div>
+                </div>
               </div>
 
               <div className="AddToCartMain__total">
-                <div>
-                  <span>
-                    Total <small>(incl. GST)</small>
-                  </span>
+                <div className="AddToCartMain__totalRow">
+                  <span>Total Amount</span>
                   <strong>{formatPrice(grandTotal)}</strong>
                 </div>
-
-                {totalSavings > 0 && (
-                  <p className="AddToCartMain__savings">
-                    You are saving {formatPrice(totalSavings)} on this order
-                  </p>
-                )}
               </div>
 
-              <button
-                type="button"
-                className="AddToCartMain__checkout"
-                onClick={handleCheckout}
-                disabled={!selectedItems.length}
-              >
-                <LockIcon size={20} />
-                Proceed to checkout
-              </button>
+              {totalSavings > 0 && (
+                <div className="AddToCartMain__savingsBanner">
+                  <span>You will save {formatPrice(totalSavings)} on this order</span>
+                </div>
+              )}
 
-              <button
-                type="button"
-                className="AddToCartMain__continue"
-                onClick={continueShopping}
-              >
-                <ArrowLeftIcon size={20} />
-                Continue shopping
-              </button>
+              <div className="AddToCartMain__summaryActions">
+                <button
+                  type="button"
+                  className="AddToCartMain__checkout"
+                  onClick={handleCheckout}
+                  disabled={!selectedItems.length}
+                >
+                  <LockIcon size={18} />
+                  <span>Proceed to pay</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="AddToCartMain__continue"
+                  onClick={continueShopping}
+                >
+                  <ArrowLeftIcon size={18} />
+                  <span>Continue shopping</span>
+                </button>
+              </div>
 
               {/* COUPON */}
               <div className="AddToCartMain__coupon">
@@ -1024,8 +939,8 @@ const AddToCartMain = () => {
               </div>
 
               <div className="AddToCartMain__secure">
-                <ShieldIcon size={19} />
-                <span>Secure payments and easy returns</span>
+                <ShieldIcon size={26} />
+                <span>Safe and Secure Payments. 100% Authentic Products. Easy Returns.</span>
               </div>
             </aside>
           </div>
@@ -1104,9 +1019,10 @@ const AddToCartMain = () => {
                           type="button"
                           className="AddToCartMain__moveToCart"
                           onClick={() => moveSavedToCart(item.id)}
+                          title="Move to cart"
                         >
-                          <CartIcon size={18} />
-                          Move to cart
+                          <CartIcon size={16} />
+                          <span>Move to cart</span>
                         </button>
 
                         <button
@@ -1114,8 +1030,9 @@ const AddToCartMain = () => {
                           className="AddToCartMain__savedDelete"
                           aria-label={`Delete ${item.title}`}
                           onClick={() => deleteSaved(item.id)}
+                          title="Remove from saved"
                         >
-                          <TrashIcon size={19} />
+                          <TrashIcon size={17} />
                         </button>
                       </div>
                     </div>
@@ -1271,10 +1188,17 @@ const AddToCartMain = () => {
       {/* Flipkart-Style Address Picker Modal */}
       <AddressPickerModal
         isOpen={isAddressPickerOpen}
-        onClose={() => setIsAddressPickerOpen(false)}
+        onClose={() => {
+          setIsAddressPickerOpen(false);
+          setAddressPickerInitialAdd(false);
+        }}
+        initialAddNew={addressPickerInitialAdd}
         addresses={userAddresses}
         selectedAddressId={selectedAddress?._id}
-        onSelectAddress={(addr) => setSelectedAddress(addr)}
+        onSelectAddress={(addr) => {
+          setSelectedAddress(addr);
+          setAddressPickerInitialAdd(false);
+        }}
         onAddressListUpdated={(updated) => {
           setUserAddresses(updated);
           const current = updated.find((a) => a.isDefault) || updated[0];
@@ -1293,6 +1217,12 @@ const AddToCartMain = () => {
         grandTotal={grandTotal}
         currentUser={currentUser}
         selectedAddress={selectedAddress}
+        userAddresses={userAddresses}
+        onSelectAddress={(addr) => setSelectedAddress(addr)}
+        onOpenAddressPicker={(isAddNew = false) => {
+          setAddressPickerInitialAdd(Boolean(isAddNew));
+          setIsAddressPickerOpen(true);
+        }}
         onOrderSuccess={handleOrderSuccess}
       />
     </section>

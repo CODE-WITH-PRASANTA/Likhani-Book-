@@ -1,91 +1,258 @@
-/* Dashboard Component Main Container */
-.Dashboard {
-  padding: 24px;
-  background-color: #F8FAFC;
+/* ==========================================================================
+   ADMIN EXECUTIVE DASHBOARD — MODERN SAAS INTELLIGENCE STYLING
+   ========================================================================== */
+
+:root {
+  --dash-bg: #f8fafc;
+  --dash-card-bg: #ffffff;
+  --dash-border: #e2e8f0;
+  --dash-border-subtle: #f1f5f9;
+  --dash-text-main: #0f172a;
+  --dash-text-muted: #64748b;
+  --dash-text-light: #94a3b8;
+
+  --dash-primary: #4f46e5;
+  --dash-primary-light: #eef2ff;
+  --dash-cyan: #06b6d4;
+  --dash-cyan-light: #ecfeff;
+  --dash-emerald: #10b981;
+  --dash-emerald-light: #ecfdf5;
+  --dash-amber: #f59e0b;
+  --dash-amber-light: #fffbeb;
+  --dash-purple: #9333ea;
+  --dash-purple-light: #faf5ff;
+  --dash-rose: #f43f5e;
+  --dash-rose-light: #fff1f2;
+
+  --dash-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --dash-shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+  --dash-shadow-lg: 0 10px 25px -4px rgba(15, 23, 42, 0.08);
+  --dash-radius: 12px;
+}
+
+.DashPage {
+  padding: 24px 28px;
+  background-color: var(--dash-bg);
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  color: #1E293B;
   box-sizing: border-box;
-}
-
-.Dashboard * {
-  box-sizing: border-box;
-}
-
-/* Header Section */
-.Dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.Dashboard-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0 0 4px 0;
-}
-
-.Dashboard-subtitle {
-  font-size: 14px;
-  color: #64748B;
-  margin: 0;
-}
-
-.Dashboard-dateBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #FFFFFF;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: 1px solid #E2E8F0;
-  font-size: 13px;
-  color: #475569;
-  font-weight: 500;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-}
-
-.Dashboard-dateIcon {
-  color: #64748B;
-  font-size: 15px;
-}
-
-/* Stat Cards Grid */
-.Dashboard-statsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-.Dashboard-statCard {
-  background-color: #FFFFFF;
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid #E2E8F0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Plus Jakarta Sans", sans-serif;
+  color: var(--dash-text-main);
   display: flex;
   flex-direction: column;
+  gap: 22px;
+}
+
+.DashPage * {
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   TOP HEADER SECTION
+   ========================================================================== */
+
+.DashHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding-bottom: 4px;
+}
+
+.DashHeader__left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.DashHeader__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--dash-primary);
+  text-transform: uppercase;
+}
+
+.DashHeader__pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--dash-emerald);
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  animation: dashPulse 2s infinite;
+}
+
+@keyframes dashPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.DashHeader__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--dash-text-main);
+  letter-spacing: -0.5px;
+}
+
+.DashHeader__subtitle {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--dash-text-muted);
+}
+
+.DashHeader__right {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex-wrap: wrap;
 }
 
-.Dashboard-statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+.DashHeader__metaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid var(--dash-border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dash-text-muted);
+  box-shadow: var(--dash-shadow-sm);
 }
 
-.Dashboard-statHeader {
+.DashHeader__metaIcon {
+  color: var(--dash-primary);
+}
+
+.DashHeader__refreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #ffffff;
+  border: 1px solid var(--dash-border);
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dash-text-main);
+  cursor: pointer;
+  box-shadow: var(--dash-shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.DashHeader__refreshBtn:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.DashHeader__refreshBtn--spinning svg {
+  animation: dashSpin 1s linear infinite;
+}
+
+@keyframes dashSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.DashHeader__ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.28);
+  transition: all 0.2s ease;
+}
+
+.DashHeader__ctaBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.38);
+}
+
+/* ==========================================================================
+   TIER 1: KPI STATS GRID
+   ========================================================================== */
+
+.DashKpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.DashKpiCard {
+  background: var(--dash-card-bg);
+  border: 1px solid var(--dash-border);
+  border-radius: var(--dash-radius);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--dash-shadow-sm);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.DashKpiCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0.9;
+}
+
+.DashKpiCard--indigo::before {
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+}
+
+.DashKpiCard--cyan::before {
+  background: linear-gradient(90deg, #06b6d4, #0ea5e9);
+}
+
+.DashKpiCard--emerald::before {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.DashKpiCard--purple::before {
+  background: linear-gradient(90deg, #9333ea, #a855f7);
+}
+
+.DashKpiCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--dash-shadow-md);
+  border-color: #cbd5e1;
+}
+
+.DashKpiCard__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.Dashboard-statIcon {
+.DashKpiCard__iconWrap {
   width: 44px;
   height: 44px;
   border-radius: 10px;
@@ -95,663 +262,1048 @@
   font-size: 20px;
 }
 
-.Dashboard-statIcon--blue {
-  background-color: #EFF6FF;
-  color: #3B82F6;
+.DashKpiCard__iconWrap--indigo {
+  background: #eef2ff;
+  color: #4f46e5;
 }
 
-.Dashboard-statIcon--green {
-  background-color: #ECFDF5;
-  color: #10B981;
+.DashKpiCard__iconWrap--cyan {
+  background: #ecfeff;
+  color: #0891b2;
 }
 
-.Dashboard-statIcon--purple {
-  background-color: #F5F3FF;
-  color: #8B5CF6;
+.DashKpiCard__iconWrap--emerald {
+  background: #ecfdf5;
+  color: #059669;
 }
 
-.Dashboard-statIcon--orange {
-  background-color: #FFF7ED;
-  color: #F97316;
+.DashKpiCard__iconWrap--purple {
+  background: #faf5ff;
+  color: #7e22ce;
 }
 
-.Dashboard-statTitle {
-  font-size: 13px;
-  color: #64748B;
-  font-weight: 500;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.Dashboard-statCount {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0 0 6px 0;
-}
-
-.Dashboard-statChange {
-  font-size: 12px;
-  font-weight: 600;
-  color: #10B981;
+.DashKpiCard__trend {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
 }
 
-.Dashboard-trendIcon {
-  font-size: 14px;
+.DashKpiCard__trend--up {
+  background: #ecfdf5;
+  color: #059669;
 }
 
-.Dashboard-statSub {
-  color: #94A3B8;
-  font-weight: 400;
-  margin-left: 2px;
+.DashKpiCard__trend--neutral {
+  background: #f1f5f9;
+  color: #475569;
 }
 
-/* Main Layout Grid */
-.Dashboard-mainGrid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-}
-
-.Dashboard-leftCol,
-.Dashboard-rightCol {
+.DashKpiCard__body {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 6px;
 }
 
-/* General Card Design */
-.Dashboard-card {
-  background-color: #FFFFFF;
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+.DashKpiCard__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dash-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
-.Dashboard-cardHeader {
+.DashKpiCard__value {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--dash-text-main);
+  letter-spacing: -0.5px;
+}
+
+.DashKpiCard__footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 4px;
+  gap: 12px;
+}
+
+.DashKpiCard__subtext {
+  font-size: 11.5px;
+  color: var(--dash-text-muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.DashKpiCard__sparkline {
+  width: 90px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   TIER 2: ADVANCED REVENUE VELOCITY MULTI-WAVE AREA CHART
+   ========================================================================== */
+
+.DashSectionCard {
+  background: var(--dash-card-bg);
+  border: 1px solid var(--dash-border);
+  border-radius: var(--dash-radius);
+  padding: 24px;
+  box-shadow: var(--dash-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.DashSectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.DashSectionHeader__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.DashSectionHeader__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--dash-primary);
+  text-transform: uppercase;
+}
+
+.DashSectionHeader__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--dash-text-main);
+  letter-spacing: -0.3px;
+}
+
+.DashSectionHeader__desc {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--dash-text-muted);
+}
+
+.DashSectionHeader__controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.Dashboard-cardTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: #0F172A;
-  margin: 0;
+.DashMetricPills,
+.DashTimeframePills {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
 }
 
-.Dashboard-cardSubtitle {
-  font-size: 12px;
-  color: #94A3B8;
-  margin: 2px 0 0 0;
-}
-
-.Dashboard-viewAllBtn {
+.DashMetricPill,
+.DashTimeframePill {
   background: transparent;
   border: none;
-  color: #3B82F6;
-  font-size: 13px;
+  padding: 6px 12px;
+  font-size: 11.5px;
   font-weight: 600;
+  color: var(--dash-text-muted);
+  border-radius: 6px;
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: all 0.15s ease;
 }
 
-.Dashboard-viewAllBtn:hover {
-  color: #1D4ED8;
-  text-decoration: underline;
+.DashMetricPill:hover,
+.DashTimeframePill:hover {
+  color: var(--dash-text-main);
 }
 
-/* Charts Row Layout */
-.Dashboard-chartsRow {
+.DashMetricPill--active,
+.DashTimeframePill--active {
+  background: #ffffff;
+  color: var(--dash-primary);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.DashChartStatsBar {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 12px 18px;
+  background: #f8fafc;
+  border: 1px solid var(--dash-border-subtle);
+  border-radius: 8px;
 }
 
-/* SVG Line Chart */
-.Dashboard-chartContainer {
+.DashChartStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.DashChartStat__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--dash-text-muted);
+  text-transform: uppercase;
+}
+
+.DashChartStat__val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--dash-text-main);
+}
+
+.DashAreaChartWrap {
+  position: relative;
   width: 100%;
-  height: 200px;
+  height: 240px;
+  margin-top: 4px;
 }
 
-.Dashboard-svgChart {
+.DashAreaChartSvg {
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-.Dashboard-chartAxisText {
-  font-size: 11px;
-  fill: #94A3B8;
-  font-weight: 500;
-}
-
-.Dashboard-chartDot {
+.DashAreaChartPoint {
   cursor: pointer;
-  transition: r 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.Dashboard-chartDot:hover {
-  r: 6;
+.DashAreaChartRipple {
+  pointer-events: none;
+  animation: pulseDot 1.5s infinite;
 }
 
-/* Category Donut Layout */
-.Dashboard-categoryBody {
+@keyframes pulseDot {
+  0% {
+    r: 6;
+    opacity: 0.8;
+  }
+  100% {
+    r: 16;
+    opacity: 0;
+  }
+}
+
+.DashChartAxisText {
+  font-size: 10px;
+  fill: #94a3b8;
+  font-weight: 600;
+}
+
+.DashChartFloatingTooltip {
+  position: absolute;
+  transform: translate(-50%, -120%);
+  background: #0f172a;
+  color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.DashTooltipHeader {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-top: 4px;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10.5px;
+  color: #94a3b8;
 }
 
-.Dashboard-donutWrapper {
+.DashTooltipTag {
+  background: rgba(79, 70, 229, 0.4);
+  color: #a5b4fc;
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.DashTooltipValue {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.DashTooltipSub {
+  font-size: 10px;
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   TIER 3 & 4: TWO-COLUMN GRIDS
+   ========================================================================== */
+
+.DashTwoColGrid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 20px;
+}
+
+.DashCard {
+  background: var(--dash-card-bg);
+  border: 1px solid var(--dash-border);
+  border-radius: var(--dash-radius);
+  padding: 22px;
+  box-shadow: var(--dash-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.DashCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.DashCardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--dash-text-main);
+  letter-spacing: -0.3px;
+}
+
+.DashCardSubtitle {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--dash-text-muted);
+}
+
+.DashCardActionLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dash-primary);
+  text-decoration: none;
+  transition: gap 0.2s;
+}
+
+.DashCardActionLink:hover {
+  gap: 6px;
+  text-decoration: underline;
+}
+
+/* Pipeline / Funnel */
+.DashPipelineBar {
+  display: flex;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f1f5f9;
+  gap: 2px;
+}
+
+.DashPipelineSegment {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.DashPipelineSegment--placed {
+  background: #3b82f6;
+}
+
+.DashPipelineSegment--processing {
+  background: #f59e0b;
+}
+
+.DashPipelineSegment--shipped {
+  background: #06b6d4;
+}
+
+.DashPipelineSegment--outForDelivery {
+  background: #a855f7;
+}
+
+.DashPipelineSegment--delivered {
+  background: #10b981;
+}
+
+.DashPipelineStagesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.DashPipelineStageCard {
+  background: #f8fafc;
+  border: 1px solid var(--dash-border-subtle);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.DashPipelineStageCard:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: var(--dash-shadow-sm);
+}
+
+.DashPipelineStageCard--highlight {
+  background: #faf5ff;
+  border-color: #e9d5ff;
+}
+
+.DashPipelineStageCard__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.DashPipelineStageCard__icon {
+  font-size: 16px;
+}
+
+.DashPipelineStageCard--blue .DashPipelineStageCard__icon {
+  color: #2563eb;
+}
+
+.DashPipelineStageCard--amber .DashPipelineStageCard__icon {
+  color: #d97706;
+}
+
+.DashPipelineStageCard--cyan .DashPipelineStageCard__icon {
+  color: #0891b2;
+}
+
+.DashPipelineStageCard--purple .DashPipelineStageCard__icon {
+  color: #7e22ce;
+}
+
+.DashPipelineStageCard--green .DashPipelineStageCard__icon {
+  color: #059669;
+}
+
+.DashPipelineStageCard--rose .DashPipelineStageCard__icon {
+  color: #e11d48;
+}
+
+.DashPipelineStageCard__count {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--dash-text-main);
+}
+
+.DashPipelineStageCard__label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--dash-text-main);
+}
+
+.DashPipelineStageCard__pct {
+  font-size: 10px;
+  color: var(--dash-text-muted);
+}
+
+/* Donut Chart Layout */
+.DashDonutLayout {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.DashDonutWrapper {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   flex-shrink: 0;
 }
 
-.Dashboard-donutSvg {
+.DashDonutSvg {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
 }
 
-.Dashboard-donutCenter {
+.DashDonutSlice {
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.DashDonutSlice:hover,
+.DashDonutSlice--selected {
+  stroke-width: 14;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+}
+
+.DashDonutCenter {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  pointer-events: none;
 }
 
-.Dashboard-donutCount {
-  display: block;
-  font-size: 18px;
-  font-weight: 700;
-  color: #0F172A;
+.DashDonutCount {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--dash-text-main);
   line-height: 1;
 }
 
-.Dashboard-donutLabel {
-  display: block;
-  font-size: 10px;
-  color: #64748B;
-  margin-top: 2px;
+.DashDonutLabel {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--dash-text-muted);
+  text-transform: uppercase;
+  margin-top: 3px;
+  max-width: 80px;
 }
 
-.Dashboard-categoryLegend {
+.DashCategoryLegend {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  width: 100%;
+  flex: 1;
 }
 
-.Dashboard-legendItem {
+.DashCategoryLegendItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.Dashboard-legendLeft {
+.DashCategoryLegendItem:hover,
+.DashCategoryLegendItem--selected {
+  background: #f1f5f9;
+}
+
+.DashCategoryLegendLeft {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.Dashboard-legendDot {
+.DashCategoryDot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  display: inline-block;
-}
-
-.Dashboard-legendName {
-  color: #475569;
-}
-
-.Dashboard-legendVal {
-  font-weight: 600;
-  color: #0F172A;
-}
-
-/* Quick Actions Grid */
-.Dashboard-actionGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-
-.Dashboard-quickBtn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px 12px;
-  border-radius: 10px;
-  border: none;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.Dashboard-quickBtn:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
-}
-
-.Dashboard-quickBtn:active {
-  transform: translateY(0);
-}
-
-.Dashboard-quickIcon {
-  font-size: 20px;
-}
-
-.Dashboard-quickBtn--blue {
-  background-color: #EFF6FF;
-  color: #2563EB;
-}
-
-.Dashboard-quickBtn--green {
-  background-color: #ECFDF5;
-  color: #059669;
-}
-
-.Dashboard-quickBtn--purple {
-  background-color: #F5F3FF;
-  color: #7C3AED;
-}
-
-.Dashboard-quickBtn--orange {
-  background-color: #FFF7ED;
-  color: #EA580C;
-}
-
-/* Tables styling */
-.Dashboard-tableResponsive {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.Dashboard-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 13px;
-}
-
-.Dashboard-table th {
-  padding: 10px 12px;
-  color: #64748B;
-  font-weight: 600;
-  border-bottom: 1px solid #F1F5F9;
-  font-size: 12px;
-}
-
-.Dashboard-table td {
-  padding: 12px;
-  border-bottom: 1px solid #F8FAFC;
-  color: #334155;
-  vertical-align: middle;
-}
-
-.Dashboard-table tr:last-child td {
-  border-bottom: none;
-}
-
-.Dashboard-tableCompact th,
-.Dashboard-tableCompact td {
-  padding: 8px 10px;
-}
-
-.Dashboard-bookTitleCell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.Dashboard-bookCover {
-  width: 30px;
-  height: 42px;
-  object-fit: cover;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-.Dashboard-bookTitle {
-  font-weight: 600;
-  color: #0F172A;
-}
-
-.Dashboard-fontMedium {
-  font-weight: 600;
-}
-
-.Dashboard-textMuted {
-  color: #64748B;
-}
-
-.Dashboard-alignRight {
-  text-align: right;
-}
-
-/* Status Badges */
-.Dashboard-statusBadge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.Dashboard-statusPublished {
-  background-color: #ECFDF5;
-  color: #059669;
-}
-
-.Dashboard-orderStatus {
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.Dashboard-orderStatus--pending {
-  background-color: #FEF3C7;
-  color: #D97706;
-}
-
-.Dashboard-orderStatus--processing {
-  background-color: #EFF6FF;
-  color: #2563EB;
-}
-
-.Dashboard-orderStatus--shipped {
-  background-color: #F3E8FF;
-  color: #9333EA;
-}
-
-.Dashboard-orderStatus--delivered {
-  background-color: #D1FAE5;
-  color: #059669;
-}
-
-/* Action Buttons */
-.Dashboard-actionBtns {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.Dashboard-actionBtn {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 15px;
-  padding: 4px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s ease;
-}
-
-.Dashboard-editBtn {
-  color: #2563EB;
-}
-
-.Dashboard-editBtn:hover {
-  background-color: #EFF6FF;
-}
-
-.Dashboard-deleteBtn {
-  color: #EF4444;
-}
-
-.Dashboard-deleteBtn:hover {
-  background-color: #FEF2F2;
-}
-
-/* Activity Feed */
-.Dashboard-activityList {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.Dashboard-activityItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.Dashboard-actIcon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
   flex-shrink: 0;
 }
 
-.Dashboard-actIcon--blue {
-  background-color: #EFF6FF;
-  color: #2563EB;
+.DashCategoryName {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dash-text-main);
 }
 
-.Dashboard-actIcon--green {
-  background-color: #ECFDF5;
-  color: #059669;
-}
-
-.Dashboard-actIcon--purple {
-  background-color: #F5F3FF;
-  color: #7C3AED;
-}
-
-.Dashboard-actText {
-  font-size: 13px;
-  color: #334155;
-  margin: 0 0 2px 0;
-  line-height: 1.4;
-}
-
-.Dashboard-actTime {
-  font-size: 11px;
-  color: #94A3B8;
-  display: inline-flex;
+.DashCategoryLegendRight {
+  display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.DashCategoryCount {
+  font-size: 11px;
+  color: var(--dash-text-muted);
+}
+
+.DashCategoryPct {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dash-text-main);
+  min-width: 28px;
+  text-align: right;
+}
+
+.DashResetCategoryBtn {
+  background: transparent;
+  border: 1px solid var(--dash-border);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dash-primary);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   TOP PERFORMING BOOKS LEADERBOARD
+   ========================================================================== */
+
+.DashLeaderboardList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.DashBookRow {
+  display: grid;
+  grid-template-columns: 32px 42px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--dash-border-subtle);
+  transition: all 0.2s ease;
+}
+
+.DashBookRow:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: var(--dash-shadow-sm);
+  transform: translateX(2px);
+}
+
+.DashRankBadge {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.DashRankBadge--1 {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.DashRankBadge--2 {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.DashRankBadge--3 {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.DashRankBadge--4,
+.DashRankBadge--5 {
+  background: #f8fafc;
+  color: #94a3b8;
+}
+
+.DashBookThumb {
+  width: 38px;
+  height: 52px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.DashBookThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.DashBookThumbFallback {
+  color: #94a3b8;
+  font-size: 18px;
+}
+
+.DashBookDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.DashBookTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dash-text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.DashBookAuthor {
+  font-size: 11px;
+  color: var(--dash-text-muted);
+}
+
+.DashBookMetaTags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.DashBookTag {
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.DashBookPrice {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dash-text-main);
+}
+
+.DashBookStats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 4px;
 }
 
-.Dashboard-clockIcon {
-  font-size: 11px;
+.DashBookSales {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
-/* Responsive Media Queries */
+.DashBookSales strong {
+  font-size: 12.5px;
+  color: var(--dash-text-main);
+}
+
+.DashBookSales span {
+  font-size: 10px;
+  color: var(--dash-text-muted);
+}
+
+.DashStockPill {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.DashStockPill--inStock {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.DashStockPill--low {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   RECENT ORDERS STREAM TABLE
+   ========================================================================== */
+
+.DashOrdersTableWrap {
+  overflow-x: auto;
+}
+
+.DashOrdersTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.DashOrdersTable th {
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dash-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid var(--dash-border);
+}
+
+.DashOrdersTable td {
+  padding: 12px;
+  border-bottom: 1px solid var(--dash-border-subtle);
+  vertical-align: middle;
+}
+
+.DashOrderRow {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.DashOrderRow:hover {
+  background: #f8fafc;
+}
+
+.DashOrderId {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dash-text-main);
+  font-family: monospace;
+  display: block;
+}
+
+.DashOrderTime {
+  font-size: 10px;
+  color: var(--dash-text-muted);
+}
+
+.DashOrderCustomer {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--dash-text-main);
+  display: block;
+}
+
+.DashOrderItems {
+  font-size: 10.5px;
+  color: var(--dash-text-muted);
+}
+
+.DashOrderAmount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dash-text-main);
+}
+
+.DashPayBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.DashPayBadge--paid {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.DashPayBadge--pending {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.DashPayBadge--failed {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Status Badges */
+.DashStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.DashStatusDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.DashStatusBadge--placed {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.DashStatusBadge--processing {
+  background: #fefce8;
+  color: #ca8a04;
+}
+
+.DashStatusBadge--shipped {
+  background: #ecfeff;
+  color: #0891b2;
+}
+
+.DashStatusBadge--outForDelivery {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.DashStatusBadge--delivered {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.DashStatusBadge--cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   TIER 5: QUICK SHORTCUTS HUB
+   ========================================================================== */
+
+.DashShortcutsHub {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.DashShortcutCard {
+  background: var(--dash-card-bg);
+  border: 1px solid var(--dash-border);
+  border-radius: var(--dash-radius);
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  box-shadow: var(--dash-shadow-sm);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.DashShortcutCard:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: var(--dash-shadow-md);
+}
+
+.DashShortcutIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.DashShortcutIcon--blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.DashShortcutIcon--purple {
+  background: #faf5ff;
+  color: #7e22ce;
+}
+
+.DashShortcutIcon--amber {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.DashShortcutIcon--emerald {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.DashShortcutText {
+  flex: 1;
+  min-width: 0;
+}
+
+.DashShortcutText h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dash-text-main);
+}
+
+.DashShortcutText p {
+  margin: 3px 0 0;
+  font-size: 11px;
+  color: var(--dash-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.DashShortcutArrow {
+  color: var(--dash-text-light);
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+
+.DashShortcutCard:hover .DashShortcutArrow {
+  color: var(--dash-primary);
+  transform: translate(2px, -2px);
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN BREAKPOINTS
+   ========================================================================== */
+
 @media (max-width: 1200px) {
-  .Dashboard-statsGrid {
+  .DashKpiGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .Dashboard-mainGrid {
+  .DashTwoColGrid {
     grid-template-columns: 1fr;
+  }
+  .DashShortcutsHub {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .Dashboard-chartsRow {
-    grid-template-columns: 1fr;
+  .DashPage {
+    padding: 16px;
+    gap: 16px;
   }
-
-  .Dashboard-categoryBody {
+  .DashHeader {
     flex-direction: column;
     align-items: flex-start;
   }
-
-  .Dashboard-donutWrapper {
-    align-self: center;
-  }
-}
-
-@media (max-width: 576px) {
-  .Dashboard {
-    padding: 16px;
-  }
-
-  .Dashboard-statsGrid {
+  .DashKpiGrid {
     grid-template-columns: 1fr;
   }
-
-  .Dashboard-actionGrid {
+  .DashSectionHeader {
+    flex-direction: column;
+  }
+  .DashChartStatsBar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .DashDonutLayout {
+    flex-direction: column;
+  }
+  .DashShortcutsHub {
     grid-template-columns: 1fr;
   }
-}/* Dashboard.css */
-.dashboard-wrapper {
-  width: 100%;
-  min-height: 100%;
-  padding: 1.5rem;
-  box-sizing: border-box;
-}
-
-.dashboard-inner {
-  /* Set a minimum width that forces horizontal scrollbar when screen is smaller */
-  min-width: 1100px; 
-}/* Date Picker Popover Styles */
-.Dashboard-datePickerWrapper {
-  position: relative;
-}
-
-.Dashboard-dateBadge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 0.85rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  color: #334155;
-  transition: all 0.2s ease;
-}
-
-.Dashboard-dateBadge:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.Dashboard-dateChevron {
-  font-size: 0.85rem;
-  color: #64748b;
-}
-
-.Dashboard-dateDropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  padding: 0.75rem;
-  border-radius: 8px;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.Dashboard-dateDropdown label {
-  font-size: 0.75rem;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.Dashboard-dateDropdown input {
-  padding: 0.35rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.85rem;
-}
-
-/* Timeframe Buttons */
-.Dashboard-timeframeSelector {
-  display: flex;
-  background-color: #f1f5f9;
-  padding: 2px;
-  border-radius: 6px;
-  gap: 2px;
-}
-
-.Dashboard-timeframeBtn {
-  border: none;
-  background: transparent;
-  padding: 0.25rem 0.6rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #64748b;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.Dashboard-timeframeBtn.active {
-  background-color: #ffffff;
-  color: #2563eb;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* Chart Dots */
-.Dashboard-chartDot {
-  cursor: pointer;
-  transition: r 0.2s ease;
-}
-
-/* Donut & Legend Interactivity */
-.Dashboard-donutSegment {
-  cursor: pointer;
-  transition: stroke-width 0.2s ease;
-}
-
-.Dashboard-donutSegment:hover,
-.Dashboard-donutSegment.active {
-  stroke-width: 16px;
-}
-
-.Dashboard-legendItem {
-  cursor: pointer;
-  padding: 0.25rem 0.4rem;
-  border-radius: 6px;
-  transition: background-color 0.15s ease;
-}
-
-.Dashboard-legendItem:hover,
-.Dashboard-legendItem.active {
-  background-color: #f1f5f9;
-}
-
-.Dashboard-resetFilterBtn {
-  background: none;
-  border: none;
-  color: #2563eb;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.Dashboard-resetFilterBtn:hover {
-  text-decoration: underline;
+  .DashPipelineStagesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

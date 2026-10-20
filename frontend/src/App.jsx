@@ -24,6 +24,7 @@ import FloatingForm from "./Components/FloatingForm/FloatingForm";
 import Shop from "./Pages/Shop/Shop";
 import SignUp from "./Components/SignUp/SignUp";
 import Login from "./Components/Login/Login";
+import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
 import RefundPolicy from "./Components/RefundPolicy/RefundPolicy";
 import PrivacyPolicy from "./Components/PrivacyPolicy/PrivacyPolicy";
 import TermAndCondition from "./Components/TermAndCondition/TermAndCondition";
@@ -113,6 +114,15 @@ const App = () => {
         <Route
           path="/login"
           element={<Login/>}
+        />
+
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword/>}
+        />
+        <Route
+          path="/reset-password"
+          element={<ForgotPassword/>}
         />
 
         <Route

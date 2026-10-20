@@ -639,19 +639,30 @@ body {
   color: #7c3aed;
 }
 
-.OrderStatusDelivered {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.OrderStatusShipped {
+.OrderStatusPlaced {
   background: #eff6ff;
-  color: #2563eb;
+  color: #1d4ed8;
 }
 
 .OrderStatusProcessing {
   background: #fefce8;
   color: #ca8a04;
+}
+
+.OrderStatusShipped {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.OrderStatusOutforDelivery {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.OrderStatusDelivered {
+  background: #ecfdf5;
+  color: #059669;
 }
 
 .OrderStatusPending {
@@ -1273,7 +1284,7 @@ body {
 
 .OrderStatusOptions {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
   gap: 6px;
 }
 

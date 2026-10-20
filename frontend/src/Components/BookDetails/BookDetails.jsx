@@ -59,6 +59,16 @@ const formatBook = (raw) => {
     images = [images[0], images[1], images[0]];
   }
 
+  const cleanHtmlText = (text = "") => {
+    if (!text || typeof text !== "string") return "";
+    return text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  };
+
+  const rawDesc = raw.description || "";
+  const cleanedDesc =
+    cleanHtmlText(rawDesc) ||
+    "Explore the profound insights and narrative of this exceptional book. A wonderful addition to your personal library and a timeless choice for passionate readers.";
+
   return {
     id,
     title: raw.title || "Untitled Book",
@@ -69,19 +79,21 @@ const formatBook = (raw) => {
     discount: discount,
     stock: raw.stock === undefined || raw.stock === null ? true : Number(raw.stock) > 0,
     stockCount: Math.max(Number(raw.stock) || 0, 0),
-    description:
-      raw.description ||
-      "Explore the profound insights and narrative of this exceptional book. A wonderful addition to your personal library and a timeless choice for passionate readers.",
+    description: cleanedDesc,
+    rawDescription: rawDesc,
     images: images,
     image: images[0],
-    sku: raw.isbn ? `ISBN-${raw.isbn}` : `LKH-${id.slice(-6).toUpperCase()}`,
-    isbn: raw.isbn || `978-${Math.abs(Array.from(raw.title || "book").reduce((sum, ch) => sum + ch.charCodeAt(0), 1048291048))}`,
+    sku: raw.sku || null,
+    isbn: raw.isbn || null,
     publisher: raw.publisher || "Lekhani Publications",
     pages: Number(raw.pages) || 284,
     language: raw.language || "English",
     year: Number(raw.year) || 2024,
     format: raw.format || "Paperback",
     featured: Boolean(raw.featured),
+    totalSold: Number(raw.totalSold || raw.salesCount || 0),
+    isHighestSelling: Boolean(raw.isHighestSelling),
+    isTopSeller: Boolean(raw.isTopSeller || raw.isHighestSelling || Number(raw.totalSold || raw.salesCount || 0) > 0),
   };
 };
 
@@ -317,20 +329,65 @@ const BookDetails = () => {
             const formatted = formatBook(found);
             setBook(formatted);
 
-            // Related books: same category or others
-            const others = allRaw
-              .filter((item) => String(item._id || item.id) !== formatted.id)
-              .map(formatBook)
-              .filter(Boolean);
+            // Related books: deduplicated, filtered from junk, same category prioritized
+            const currentTitleNorm = (formatted.title || "").trim().toLowerCase();
+            const currentId = String(formatted.id);
+            const seenTitles = new Set([currentTitleNorm]);
 
-            const sameCategory = others.filter((o) => o.category === formatted.category);
-            const otherCategories = others.filter((o) => o.category !== formatted.category);
+            const isJunkBook = (b) => {
+              const t = (b.title || "").trim().toLowerCase();
+              if (!t || t.length < 2) return true;
+              if (/^(.)\1{2,}$/i.test(t)) return true; // e.g. "sssss", "aaa"
+              const a = (b.author || "").trim().toLowerCase();
+              if (/^(.)\1{2,}$/i.test(a)) return true;
+              return false;
+            };
+
+            const candidates = [];
+            for (const item of allRaw) {
+              if (!item) continue;
+              const itemId = String(item._id || item.id || "");
+              if (itemId && itemId === currentId) continue;
+
+              const fb = formatBook(item);
+              if (!fb) continue;
+
+              const itemTitleNorm = (fb.title || "").trim().toLowerCase();
+              if (itemTitleNorm === currentTitleNorm) continue;
+              if (seenTitles.has(itemTitleNorm)) continue;
+              if (isJunkBook(fb)) continue;
+
+              seenTitles.add(itemTitleNorm);
+              candidates.push(fb);
+            }
+
+            const isDemoCat = (cat) => !cat || /demo/i.test(cat);
+            const currentCat = (formatted.category || "").toLowerCase().trim();
+
+            const sameCategory = isDemoCat(currentCat)
+              ? []
+              : candidates.filter(
+                  (o) => (o.category || "").toLowerCase().trim() === currentCat
+                );
+            const otherCategories = candidates.filter((o) => !sameCategory.includes(o));
             const combined = [...sameCategory, ...otherCategories].slice(0, 4);
             setRelatedBooks(combined);
           } else if (allRaw.length > 0) {
             const first = formatBook(allRaw[0]);
             setBook(first);
-            setRelatedBooks(allRaw.slice(1, 5).map(formatBook).filter(Boolean));
+            const seen = new Set([(first.title || "").trim().toLowerCase()]);
+            const filtered = [];
+            for (const item of allRaw.slice(1)) {
+              const b = formatBook(item);
+              if (!b) continue;
+              const t = (b.title || "").trim().toLowerCase();
+              if (!seen.has(t) && !/^(.)\1{2,}$/i.test(t)) {
+                seen.add(t);
+                filtered.push(b);
+              }
+              if (filtered.length >= 4) break;
+            }
+            setRelatedBooks(filtered);
           }
           setLoading(false);
         }
@@ -520,9 +577,45 @@ const BookDetails = () => {
 
             {/* ---------- Information ---------- */}
             <div className="BookDetails-information">
-              <div className="BookDetails-category-label">
-                <span />
-                {book.category}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "8px" }}>
+                <div className="BookDetails-category-label" style={{ marginBottom: 0 }}>
+                  <span />
+                  {book.category}
+                </div>
+                {book.isHighestSelling && (
+                  <span
+                    style={{
+                      background: "linear-gradient(135deg, #f59e0b, #ea580c, #dc2626)",
+                      color: "#fff",
+                      fontSize: "0.76rem",
+                      fontWeight: 800,
+                      padding: "4px 12px",
+                      borderRadius: "999px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      boxShadow: "0 4px 12px rgba(234, 88, 12, 0.35)",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    🔥 Top Selling Book
+                  </span>
+                )}
+                {book.totalSold > 0 && (
+                  <span
+                    style={{
+                      background: "#ffedd5",
+                      color: "#c2410c",
+                      fontSize: "0.76rem",
+                      fontWeight: 700,
+                      padding: "4px 10px",
+                      borderRadius: "999px",
+                      border: "1px solid #fed7aa",
+                    }}
+                  >
+                    {book.totalSold} copies sold
+                  </span>
+                )}
               </div>
 
               <h1 className="BookDetails-title">{book.title}</h1>
@@ -561,7 +654,7 @@ const BookDetails = () => {
                   )}
                 </div>
                 <span className="BookDetails-tax">
-                  Inclusive of all applicable taxes &bull; SKU: {book.sku}
+                  Inclusive of all applicable taxes{book.sku ? ` • SKU: ${book.sku}` : ""}
                 </span>
               </div>
 
@@ -792,14 +885,18 @@ const BookDetails = () => {
                     <span className="BookDetails-spec-key">Publication Year</span>
                     <strong className="BookDetails-spec-value">{book.year}</strong>
                   </div>
-                  <div className="BookDetails-spec-card">
-                    <span className="BookDetails-spec-key">ISBN Identifier</span>
-                    <strong className="BookDetails-spec-value">{book.isbn}</strong>
-                  </div>
-                  <div className="BookDetails-spec-card">
-                    <span className="BookDetails-spec-key">Catalog SKU</span>
-                    <strong className="BookDetails-spec-value">{book.sku}</strong>
-                  </div>
+                  {book.isbn && (
+                    <div className="BookDetails-spec-card">
+                      <span className="BookDetails-spec-key">ISBN Identifier</span>
+                      <strong className="BookDetails-spec-value">{book.isbn}</strong>
+                    </div>
+                  )}
+                  {book.sku && (
+                    <div className="BookDetails-spec-card">
+                      <span className="BookDetails-spec-key">Catalog SKU</span>
+                      <strong className="BookDetails-spec-value">{book.sku}</strong>
+                    </div>
+                  )}
                   <div className="BookDetails-spec-card">
                     <span className="BookDetails-spec-key">Stock Availability</span>
                     <strong className="BookDetails-spec-value">
@@ -830,7 +927,14 @@ const BookDetails = () => {
                 </div>
 
                 <div className="BookDetails-description-full">
-                  <p>{book.description}</p>
+                  {book.rawDescription && /<[a-z][\s\S]*>/i.test(book.rawDescription) ? (
+                    <div
+                      className="BookDetails-rich-description"
+                      dangerouslySetInnerHTML={{ __html: book.rawDescription }}
+                    />
+                  ) : (
+                    <p>{book.description}</p>
+                  )}
                 </div>
 
                 <div className="BookDetails-feature-highlights">
@@ -902,7 +1006,11 @@ const BookDetails = () => {
                 <h2 className="BookDetails-related-title">
                   You Might Also <em>Like</em>
                 </h2>
-                <p>Curated recommendations from our {book.category} collection.</p>
+                <p>
+                  {book.category && !/demo/i.test(book.category) && relatedBooks.some((r) => r.category === book.category)
+                    ? `Curated recommendations from our ${book.category} collection.`
+                    : "Curated recommendations handpicked for your bookshelf."}
+                </p>
               </div>
 
               <Link className="BookDetails-view-all" to="/shop">
@@ -932,9 +1040,6 @@ const BookDetails = () => {
                           />
                         }
                       />
-                    </span>
-                    <span className="BookDetails-related-overlay">
-                      View Book <span>&nearr;</span>
                     </span>
                   </button>
 

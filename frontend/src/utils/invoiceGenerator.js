@@ -161,7 +161,7 @@ export const downloadInvoice = async (order) => {
   const paymentMethod =
     order.paymentInfo?.method ||
     order.paymentMethod ||
-    "Razorpay (Online Payment)";
+    "Online Payment";
 
   const paymentStatus =
     order.paymentInfo?.status ||

@@ -8,11 +8,17 @@
   padding: 24px 16px 60px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: #212121;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .ProfilePage__container {
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Breadcrumb Navigation */
@@ -79,9 +85,11 @@
 /* Layout (Sidebar + Content) */
 .ProfilePage__layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* =========================================================
@@ -606,29 +614,148 @@
    RESPONSIVE DESIGN
 ========================================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 992px) {
   .ProfilePage__layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: 240px 1fr;
+    gap: 14px;
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 860px) {
+  .ProfilePage {
+    padding: 16px 12px 50px;
+  }
+
+  .ProfilePage__layout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .ProfilePage__sidebar {
+    display: none !important;
+  }
+
   .ProfilePage__content {
-    padding: 20px 16px;
+    padding: 20px 18px 24px;
+    border-radius: 12px;
+  }
+
+  .ProfilePage__row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
 
   .ProfilePage__inputGroup,
   .ProfilePage__inputGroup--wide {
     width: 100%;
   }
+}
 
-  .ProfilePage__row {
-    flex-direction: column;
-    align-items: stretch;
+@media (max-width: 540px) {
+  .ProfilePage {
+    padding: 10px 8px 40px;
+  }
+
+  .ProfilePage__container {
+    width: 100%;
+    padding: 0;
+  }
+
+  .ProfilePage__breadcrumb {
+    font-size: 11.5px;
+    margin-bottom: 10px;
+    gap: 5px;
+  }
+
+  .ProfilePage__content {
+    padding: 14px 12px 20px;
+    border-radius: 10px;
+  }
+
+  .ProfilePage__section {
+    margin-bottom: 22px;
+  }
+
+  .ProfilePage__sectionHeader {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .ProfilePage__sectionTitle {
+    font-size: 16px;
+  }
+
+  .ProfilePage__editAction,
+  .ProfilePage__cancelAction {
+    font-size: 13px;
+  }
+
+  .ProfilePage__input {
+    padding: 10px 12px;
+    font-size: 13.5px;
   }
 
   .ProfilePage__saveBtn {
     width: 100%;
     text-align: center;
+    padding: 11px 16px;
+    font-size: 13.5px;
+  }
+
+  .ProfilePage__genderOptions {
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .ProfilePage__radioLabel {
+    font-size: 13px;
+  }
+
+  .ProfilePage__faqs {
+    padding-top: 18px;
+    margin-top: 8px;
+    gap: 12px;
+  }
+
+  .ProfilePage__faqsTitle {
+    font-size: 14px;
+  }
+
+  .ProfilePage__faqItem h4 {
+    font-size: 13px;
+  }
+
+  .ProfilePage__faqItem p {
+    font-size: 12px;
+  }
+
+  .ProfilePage__deactivateWrap {
+    margin-top: 18px;
+    padding-top: 14px;
+  }
+
+  .ProfilePage__modal {
+    padding: 16px;
+    border-radius: 10px;
+  }
+
+  .ProfilePage__modalHeader h3 {
+    font-size: 16px;
+  }
+
+  .ProfilePage__modalActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .ProfilePage__modalConfirmBtn,
+  .ProfilePage__modalCancelBtn {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
   }
 }
+
+

@@ -72,6 +72,15 @@
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
 }
 
+.author-card:hover .author-name {
+  color: #c99738;
+}
+
+.author-card:hover .author-info-box {
+  border-color: #c99738;
+  background-color: #fffdfa;
+}
+
 /* रीथ और इमेज कंटेनर */
 .author-avatar-wrapper {
   position: relative;

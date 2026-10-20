@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaShoppingBasket,
   FaArrowRight,
@@ -9,8 +9,10 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import "./BookleBook.css";
+import { fetchTopSellingBooks, fetchAllCatalogBooks } from "../../api/booksService";
+import { addToCart as addShopToCart, useShopStore } from "../ShopMain/useShopStore";
 
-const PRODUCTS = [
+const FALLBACK_PRODUCTS = [
   {
     id: "p1",
     category: "Design Low Book",
@@ -58,11 +60,74 @@ const PRODUCTS = [
 ];
 
 const BookleBook = () => {
+  const navigate = useNavigate();
+  useShopStore(); // subscribe to shop store updates
+
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [addedItems, setAddedItems] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [toastMessage, setToastMessage] = useState("");
   const toastTimerRef = useRef(null);
   const addedTimersRef = useRef({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadRealBooks = async () => {
+      try {
+        setLoading(true);
+        // 1. Fetch top selling books first
+        const topResult = await fetchTopSellingBooks(10);
+        let list = Array.isArray(topResult?.books) ? [...topResult.books] : [];
+
+        // Deduplicate books by title so visitors always see distinct books
+        const uniqueList = [];
+        const seenTitles = new Set();
+        for (const item of list) {
+          const key = (item.title || "").trim().toLowerCase();
+          if (key && !seenTitles.has(key)) {
+            seenTitles.add(key);
+            uniqueList.push(item);
+          }
+        }
+        list = uniqueList;
+
+        // 2. If fewer than 4 books, supplement with catalog books from database
+        if (list.length < 4) {
+          const catalog = await fetchAllCatalogBooks();
+          if (Array.isArray(catalog) && catalog.length > 0) {
+            catalog.forEach((item) => {
+              const key = (item.title || "").trim().toLowerCase();
+              if (key && !seenTitles.has(key)) {
+                seenTitles.add(key);
+                list.push(item);
+              }
+            });
+          }
+        }
+
+        if (isMounted) {
+          if (list.length > 0) {
+            // Keep the top 4 real books to maintain the clean 4-card shelf layout
+            setBooks(list.slice(0, 4));
+          } else {
+            setBooks(FALLBACK_PRODUCTS);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load real books for BookleBook:", err);
+        if (isMounted) setBooks(FALLBACK_PRODUCTS);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadRealBooks();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -76,6 +141,13 @@ const BookleBook = () => {
     };
   }, []);
 
+  // Ensure currentIndex stays within bounds if books change
+  useEffect(() => {
+    if (books.length > 0 && currentIndex >= books.length) {
+      setCurrentIndex(0);
+    }
+  }, [books.length, currentIndex]);
+
   const showToast = (message) => {
     setToastMessage(message);
 
@@ -88,49 +160,55 @@ const BookleBook = () => {
     }, 2500);
   };
 
-  const handleAddToCart = (id) => {
-    if (addedItems[id]) return;
+  const handleAddToCart = (product, e) => {
+    if (e) e.stopPropagation();
+    if (!product || !product.id) return;
+
+    addShopToCart(product.id, 1);
 
     setAddedItems((prev) => ({
       ...prev,
-      [id]: true,
+      [product.id]: true,
     }));
 
-    showToast("Book added to your cart!");
+    showToast(`"${product.title}" added to your cart!`);
 
-    if (addedTimersRef.current[id]) {
-      window.clearTimeout(addedTimersRef.current[id]);
+    if (addedTimersRef.current[product.id]) {
+      window.clearTimeout(addedTimersRef.current[product.id]);
     }
 
-    addedTimersRef.current[id] = window.setTimeout(() => {
+    addedTimersRef.current[product.id] = window.setTimeout(() => {
       setAddedItems((prev) => ({
         ...prev,
-        [id]: false,
+        [product.id]: false,
       }));
 
-      delete addedTimersRef.current[id];
+      delete addedTimersRef.current[product.id];
     }, 2000);
   };
 
   const nextSlide = () => {
+    if (!books.length) return;
     setCurrentIndex((prev) =>
-      prev === PRODUCTS.length - 1 ? 0 : prev + 1
+      prev >= books.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevSlide = () => {
+    if (!books.length) return;
     setCurrentIndex((prev) =>
-      prev === 0 ? PRODUCTS.length - 1 : prev - 1
+      prev <= 0 ? books.length - 1 : prev - 1
     );
   };
 
-  const scrollToCollection = () => {
-    document
-      .getElementById("bookle-book-products")
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+  const handleExplore = () => {
+    navigate("/shop");
+  };
+
+  const handleOpenBook = (id) => {
+    if (id) {
+      navigate(`/book/${id}`);
+    }
   };
 
   return (
@@ -166,7 +244,7 @@ const BookleBook = () => {
           <button
             type="button"
             className="bookle-book__explore-btn"
-            onClick={scrollToCollection}
+            onClick={handleExplore}
           >
             Explore more
             <FaArrowRight className="bookle-book__explore-icon" />
@@ -180,9 +258,32 @@ const BookleBook = () => {
             id="bookle-book-products"
           >
             <div className="bookle-book__products-grid">
-              {PRODUCTS.map((product, index) => {
+              {books.map((product, index) => {
                 const isAdded = Boolean(addedItems[product.id]);
                 const isActiveMobile = index === currentIndex;
+
+                const displayBadge =
+                  product.topSellingBadge ||
+                  (product.isHighestSelling
+                    ? "Top Selling"
+                    : product.discount > 0
+                    ? `-${product.discount}%`
+                    : product.badge || null);
+
+                const isHot =
+                  displayBadge === "Hot" ||
+                  displayBadge === "Top Selling" ||
+                  displayBadge === "Best Seller";
+
+                const formattedPrice = Number(product.price || 0).toFixed(2);
+                const formattedOriginalPrice =
+                  product.originalPrice && product.originalPrice > product.price
+                    ? Number(product.originalPrice).toFixed(2)
+                    : null;
+
+                const authorName = product.author || "Lekhani Author";
+                const authorInitial =
+                  authorName.trim().charAt(0).toUpperCase() || "L";
 
                 return (
                   <article
@@ -191,68 +292,82 @@ const BookleBook = () => {
                         ? "bookle-book__card--active-mobile"
                         : ""
                     }`}
-                    key={product.id}
+                    key={product.id || index}
                   >
-                    <div className="bookle-book__media">
-                      {product.badge && (
+                    <div
+                      className="bookle-book__media"
+                      onClick={() => handleOpenBook(product.id)}
+                      style={{ cursor: "pointer" }}
+                      title="View book details"
+                    >
+                      {displayBadge && (
                         <span
                           className={`bookle-book__badge ${
-                            product.badge === "Hot"
+                            isHot
                               ? "bookle-book__badge--hot"
                               : "bookle-book__badge--discount"
                           }`}
                         >
-                          {product.badge === "Hot" && (
+                          {isHot && (
                             <FaFire className="bookle-book__badge-icon" />
                           )}
-
-                          {product.badge}
+                          {displayBadge}
                         </span>
                       )}
 
                       <div className="bookle-book__image-frame">
                         <img
-                          src={product.image}
+                          src={
+                            product.image ||
+                            "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80"
+                          }
                           alt={product.title}
                           className="bookle-book__img"
                           loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src =
+                              "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&auto=format&fit=crop&q=80";
+                          }}
                         />
                       </div>
                     </div>
 
                     <div className="bookle-book__body">
                       <span className="bookle-book__category">
-                        {product.category}
+                        {product.category || product.genre || "Book"}
                       </span>
 
                       <h3
                         className="bookle-book__title"
                         title={product.title}
+                        onClick={() => handleOpenBook(product.id)}
+                        style={{ cursor: "pointer" }}
                       >
                         {product.title}
                       </h3>
 
                       <div className="bookle-book__price-row">
                         <span className="bookle-book__current-price">
-                          ₹{product.price.toFixed(2)}
+                          ₹{formattedPrice}
                         </span>
 
-                        {product.originalPrice && (
+                        {formattedOriginalPrice && (
                           <span className="bookle-book__original-price">
-                            ₹{product.originalPrice.toFixed(2)}
+                            ₹{formattedOriginalPrice}
                           </span>
                         )}
                       </div>
 
-                      {/* AUTHOR DETAILS — RATING REMOVED */}
+                      {/* AUTHOR DETAILS */}
                       <div className="bookle-book__meta-row">
                         <div className="bookle-book__author-info">
                           <span className="bookle-book__avatar">
-                            {product.author.charAt(0)}
+                            {authorInitial}
                           </span>
 
                           <span className="bookle-book__author-text">
-                            {product.author}
+                            {authorName}
                           </span>
                         </div>
                       </div>
@@ -264,7 +379,7 @@ const BookleBook = () => {
                             ? "bookle-book__cart-btn--added"
                             : ""
                         }`}
-                        onClick={() => handleAddToCart(product.id)}
+                        onClick={(e) => handleAddToCart(product, e)}
                         disabled={isAdded}
                       >
                         {isAdded ? (
@@ -286,47 +401,49 @@ const BookleBook = () => {
             </div>
 
             {/* MOBILE PAGINATION */}
-            <div
-              className="bookle-book__mobile-nav"
-              aria-label="Book navigation"
-            >
-              <button
-                type="button"
-                className="bookle-book__nav-arrow"
-                onClick={prevSlide}
-                aria-label="Previous book"
+            {books.length > 1 && (
+              <div
+                className="bookle-book__mobile-nav"
+                aria-label="Book navigation"
               >
-                <FaChevronLeft />
-              </button>
+                <button
+                  type="button"
+                  className="bookle-book__nav-arrow"
+                  onClick={prevSlide}
+                  aria-label="Previous book"
+                >
+                  <FaChevronLeft />
+                </button>
 
-              <div className="bookle-book__dots">
-                {PRODUCTS.map((product, index) => (
-                  <button
-                    key={product.id}
-                    type="button"
-                    className={`bookle-book__dot ${
-                      currentIndex === index
-                        ? "bookle-book__dot--active"
-                        : ""
-                    }`}
-                    onClick={() => setCurrentIndex(index)}
-                    aria-label={`Go to slide ${index + 1}`}
-                    aria-current={
-                      currentIndex === index ? "true" : undefined
-                    }
-                  />
-                ))}
+                <div className="bookle-book__dots">
+                  {books.map((product, index) => (
+                    <button
+                      key={product.id || index}
+                      type="button"
+                      className={`bookle-book__dot ${
+                        currentIndex === index
+                          ? "bookle-book__dot--active"
+                          : ""
+                      }`}
+                      onClick={() => setCurrentIndex(index)}
+                      aria-label={`Go to slide ${index + 1}`}
+                      aria-current={
+                        currentIndex === index ? "true" : undefined
+                      }
+                    />
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  className="bookle-book__nav-arrow"
+                  onClick={nextSlide}
+                  aria-label="Next book"
+                >
+                  <FaChevronRight />
+                </button>
               </div>
-
-              <button
-                type="button"
-                className="bookle-book__nav-arrow"
-                onClick={nextSlide}
-                aria-label="Next book"
-              >
-                <FaChevronRight />
-              </button>
-            </div>
+            )}
           </div>
 
           {/* RIGHT SIDEBAR PROMO */}
@@ -347,7 +464,7 @@ const BookleBook = () => {
               <button
                 type="button"
                 className="bookle-book__btn-brass"
-                onClick={scrollToCollection}
+                onClick={handleExplore}
               >
                 <span>Shop now</span>
                 <FaArrowRight className="bookle-book__btn-brass-icon" />
@@ -395,7 +512,7 @@ const BookleBook = () => {
             <button
               type="button"
               className="bookle-book__btn-brass bookle-book__btn-brass--dark"
-              onClick={scrollToCollection}
+              onClick={handleExplore}
             >
               <span>Shop now</span>
               <FaArrowRight className="bookle-book__btn-brass-icon" />

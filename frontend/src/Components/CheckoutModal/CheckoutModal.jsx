@@ -33,6 +33,9 @@ const CheckoutModal = ({
   grandTotal = 0,
   currentUser = null,
   selectedAddress = null,
+  userAddresses = [],
+  onSelectAddress = () => {},
+  onOpenAddressPicker = null,
   onOrderSuccess = () => {},
 }) => {
   const navigate = useNavigate();
@@ -54,6 +57,7 @@ const CheckoutModal = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [completedOrder, setCompletedOrder] = useState(null);
   const [paymentFailed, setPaymentFailed] = useState(null);
+  const [showAddressPicker, setShowAddressPicker] = useState(false);
 
   // Sync selected address or user info when modal opens
   useEffect(() => {
@@ -85,6 +89,7 @@ const CheckoutModal = ({
       setErrorMessage("");
       setCompletedOrder(null);
       setPaymentFailed(null);
+      setShowAddressPicker(false);
     }
   }, [isOpen, selectedAddress, currentUser]);
 
@@ -120,7 +125,11 @@ const CheckoutModal = ({
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      setErrorMessage("Please ensure a valid delivery address with contact phone is selected.");
+      return false;
+    }
+    return true;
   };
 
   const handlePayNow = async (e) => {
@@ -132,11 +141,11 @@ const CheckoutModal = ({
     setPaymentFailed(null);
 
     try {
-      const isScriptLoaded = await loadRazorpayScript();
-      if (!isScriptLoaded) {
-        throw new Error(
-          "Could not load Razorpay SDK. Please check your internet connection."
-        );
+      let isScriptLoaded = false;
+      try {
+        isScriptLoaded = await loadRazorpayScript();
+      } catch (scriptErr) {
+        console.warn("Razorpay SDK script load error:", scriptErr);
       }
 
       const payload = {
@@ -177,19 +186,42 @@ const CheckoutModal = ({
 
       const { key, order, customer } = res.data;
 
+      // Ensure Razorpay SDK script is loaded in browser window
+      if (!window.Razorpay) {
+        try {
+          await loadRazorpayScript();
+        } catch (scriptErr) {
+          console.warn("Could not load Razorpay SDK:", scriptErr);
+        }
+      }
+
+      if (!window.Razorpay) {
+        throw new Error(
+          "Unable to load payment gateway. Please check your internet connection or ad-blocker."
+        );
+      }
+
+      const rzpOrderId =
+        order.razorpayOrderId &&
+        !order.razorpayOrderId.startsWith("order_sim_") &&
+        !order.razorpayOrderId.startsWith("order_test_")
+          ? order.razorpayOrderId
+          : undefined;
+
       const options = {
         key: key || import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_TppGgVggUkbJv4",
         amount: order.amount,
         currency: order.currency || "INR",
         name: "Lekhani Books",
-        description: `Order of ${items.length} ${
+        description: `Order #${order.orderId || "LKH"} (${items.length} ${
           items.length === 1 ? "book" : "books"
-        }`,
-        order_id: order.razorpayOrderId,
+        })`,
+        image: "https://cdn.razorpay.com/static/assets/logo/rzp.png",
+        order_id: rzpOrderId,
         prefill: {
-          name: customer.name || formData.fullName,
-          email: customer.email || formData.email,
-          contact: customer.phone || formData.phone,
+          name: customer?.name || formData.fullName,
+          email: customer?.email || formData.email,
+          contact: customer?.phone || formData.phone,
         },
         theme: {
           color: "#12598f",
@@ -276,6 +308,7 @@ const CheckoutModal = ({
         setLoading(false);
       });
 
+      setLoading(false);
       rzpInstance.open();
     } catch (err) {
       console.error("Checkout error:", err);
@@ -307,7 +340,7 @@ const CheckoutModal = ({
             <FiLock className="CheckoutModal__lockIcon" />
             <div>
               <h3>Secure Checkout</h3>
-              <p>Powered by Razorpay Official Payment Gateway</p>
+              <p>100% Safe & Encrypted Payment</p>
             </div>
           </div>
           <button
@@ -459,126 +492,126 @@ const CheckoutModal = ({
             )}
 
             <div className="CheckoutModal__layout">
-              {/* Left Column: Delivery Details */}
+              {/* Left Column: Delivery Location */}
               <div className="CheckoutModal__shippingSection">
-                <h4 className="CheckoutModal__sectionTitle">
-                  <FiMapPin /> 1. Delivery Details
-                </h4>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", gap: "10px", flexWrap: "wrap" }}>
+                  <h4 className="CheckoutModal__sectionTitle" style={{ margin: 0 }}>
+                    <FiMapPin /> 1. Delivery Location
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onOpenAddressPicker) {
+                        onOpenAddressPicker(false);
+                      } else {
+                        setShowAddressPicker(!showAddressPicker);
+                      }
+                    }}
+                    style={{
+                      background: "#f8fafc",
+                      border: "1px solid #cbd5e1",
+                      borderRadius: "6px",
+                      padding: "6px 14px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: "#12598f",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                    }}
+                  >
+                    Change Address
+                  </button>
+                </div>
 
-                <div className="CheckoutModal__field">
-                  <label>Full Name *</label>
-                  <div className="CheckoutModal__inputGroup">
-                    <FiUser />
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      placeholder="Receiver's Full Name"
-                    />
-                  </div>
-                  {errors.fullName && (
-                    <span className="CheckoutModal__error">
-                      {errors.fullName}
+                {/* Delivery Location Card */}
+                <div
+                  style={{
+                    background: "#f8fafc",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "14px",
+                    padding: "18px 20px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "12px", color: "#64748b", fontWeight: 600 }}>Deliver to:</span>
+                    <strong style={{ fontSize: "15px", color: "#0f172a" }}>
+                      {formData.fullName || selectedAddress?.name || currentUser?.name || "Customer"}, {formData.pincode || selectedAddress?.pincode}
+                    </strong>
+                    <span
+                      style={{
+                        fontSize: "10px",
+                        fontWeight: 800,
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                        background: "#0f172a",
+                        color: "#fff",
+                      }}
+                    >
+                      {(formData.addressType || selectedAddress?.addressType || "HOME").toUpperCase()}
                     </span>
-                  )}
-                </div>
-
-                <div className="CheckoutModal__fieldRow">
-                  <div className="CheckoutModal__field">
-                    <label>Phone Number *</label>
-                    <div className="CheckoutModal__inputGroup">
-                      <FiPhone />
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        placeholder="10-digit mobile number"
-                        maxLength="10"
-                      />
-                    </div>
-                    {errors.phone && (
-                      <span className="CheckoutModal__error">
-                        {errors.phone}
-                      </span>
-                    )}
                   </div>
 
-                  <div className="CheckoutModal__field">
-                    <label>Email Address</label>
-                    <div className="CheckoutModal__inputGroup">
-                      <FiMail />
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="For order tracking updates"
-                      />
-                    </div>
-                  </div>
+                  <p style={{ margin: "0 0 8px", fontSize: "13.5px", color: "#334155", lineHeight: 1.5 }}>
+                    {formData.street || selectedAddress?.street}
+                    {(formData.locality || selectedAddress?.locality) ? `, ${formData.locality || selectedAddress?.locality}` : ""}
+                    {formData.city || selectedAddress?.city ? `, ${formData.city || selectedAddress?.city}` : ""}
+                    {formData.state || selectedAddress?.state ? `, ${formData.state || selectedAddress?.state}` : ""}
+                    {formData.pincode || selectedAddress?.pincode ? ` - ${formData.pincode || selectedAddress?.pincode}` : ""}
+                  </p>
+
+                  <p style={{ margin: 0, fontSize: "12.5px", color: "#64748b" }}>
+                    <strong>Phone:</strong> {formData.phone || selectedAddress?.phone || currentUser?.phone || "Not provided"}
+                  </p>
                 </div>
 
-                <div className="CheckoutModal__field">
-                  <label>Street Address / Flat / Landmark *</label>
-                  <textarea
-                    name="street"
-                    rows="2"
-                    value={formData.street}
-                    onChange={handleChange}
-                    placeholder="House/Plot No., Street, Area, Landmark"
-                  ></textarea>
-                  {errors.street && (
-                    <span className="CheckoutModal__error">
-                      {errors.street}
+                {/* Address Picker Options */}
+                {showAddressPicker && userAddresses && userAddresses.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "16px" }}>
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                      Choose another delivery address:
                     </span>
-                  )}
-                </div>
-
-                <div className="CheckoutModal__fieldRow">
-                  <div className="CheckoutModal__field">
-                    <label>City *</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="e.g. Bhubaneswar"
-                    />
-                    {errors.city && (
-                      <span className="CheckoutModal__error">{errors.city}</span>
-                    )}
+                    {userAddresses.map((addr) => {
+                      const isCurrent = formData.pincode === addr.pincode && formData.street === addr.street;
+                      return (
+                        <div
+                          key={addr._id || addr.id}
+                          onClick={() => {
+                            setFormData({
+                              fullName: addr.name || "",
+                              phone: addr.phone || "",
+                              email: currentUser?.email || formData.email || "",
+                              street: addr.street || "",
+                              locality: addr.locality || "",
+                              city: addr.city || "",
+                              state: addr.state || "Odisha",
+                              pincode: addr.pincode || "",
+                              landmark: addr.landmark || "",
+                              addressType: addr.addressType || "Home",
+                            });
+                            if (onSelectAddress) onSelectAddress(addr);
+                            setShowAddressPicker(false);
+                          }}
+                          style={{
+                            padding: "12px 14px",
+                            borderRadius: "10px",
+                            border: isCurrent ? "2px solid #0f172a" : "1px solid #e2e8f0",
+                            background: isCurrent ? "#f1f5f9" : "#ffffff",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                            <strong style={{ fontSize: "13px", color: "#0f172a" }}>{addr.name}</strong>
+                            <span style={{ fontSize: "10px", fontWeight: 700, color: "#64748b" }}>{addr.addressType}</span>
+                          </div>
+                          <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                            {addr.street}, {addr.city} - {addr.pincode}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
-
-                  <div className="CheckoutModal__field">
-                    <label>State</label>
-                    <input
-                      type="text"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleChange}
-                      placeholder="State"
-                    />
-                  </div>
-
-                  <div className="CheckoutModal__field">
-                    <label>Pincode *</label>
-                    <input
-                      type="text"
-                      name="pincode"
-                      value={formData.pincode}
-                      onChange={handleChange}
-                      placeholder="6-digit PIN"
-                      maxLength="6"
-                    />
-                    {errors.pincode && (
-                      <span className="CheckoutModal__error">
-                        {errors.pincode}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Right Column: Order Summary & Payment Button */}
@@ -627,14 +660,6 @@ const CheckoutModal = ({
                   </div>
                 </div>
 
-                <div className="CheckoutModal__securityBadge">
-                  <FiShield />
-                  <span>
-                    256-bit Encrypted Transaction. Cards, UPI, Netbanking &
-                    Wallets accepted.
-                  </span>
-                </div>
-
                 <button
                   type="submit"
                   className="CheckoutModal__submitBtn"
@@ -643,11 +668,11 @@ const CheckoutModal = ({
                   {loading ? (
                     <span className="CheckoutModal__spinnerWrap">
                       <span className="CheckoutModal__spinner"></span>
-                      Connecting to Razorpay...
+                      Connecting to Secure Gateway...
                     </span>
                   ) : (
                     <>
-                      <span>Pay ₹{grandTotal.toLocaleString("en-IN")} with Razorpay</span>
+                      <span>Pay ₹{grandTotal.toLocaleString("en-IN")}</span>
                       <FiArrowRight />
                     </>
                   )}

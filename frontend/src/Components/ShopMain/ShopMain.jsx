@@ -30,6 +30,7 @@ import { useShopStore, useToast, toggleWishlist, addToCart, decrementCart } from
 
 const sortOptions = [
   "Default Sorting",
+  "Top Selling",
   "Sort By Popularity",
   "Sort By Latest",
   "Price: Low To High",
@@ -61,6 +62,11 @@ const ShopMain = () => {
   const [searchParams] = useSearchParams();
   const urlCategory = searchParams.get("category");
   const urlSearch = searchParams.get("search");
+  const urlSort = searchParams.get("sort");
+  const initialSort =
+    urlSort === "best-selling" || urlSort === "top-selling"
+      ? "Top Selling"
+      : sortOptions[0];
 
   /* ---------- filters ---------- */
   const [searchTerm, setSearchTerm] = useState(urlSearch || "");
@@ -70,7 +76,7 @@ const ShopMain = () => {
   const [wishlistOnly, setWishlistOnly] = useState(false);
   const [priceMin, setPriceMin] = useState(PRICE_MIN);
   const [priceMax, setPriceMax] = useState(PRICE_MAX);
-  const [selectedSort, setSelectedSort] = useState(sortOptions[0]);
+  const [selectedSort, setSelectedSort] = useState(initialSort);
 
   /* ---------- backend books & categories ---------- */
   const [backendBooks, setBackendBooks] = useState([]);
@@ -115,7 +121,7 @@ const ShopMain = () => {
 
               map.set(id, {
                 id,
-                sku: b.isbn ? `ISBN-${b.isbn}` : `LKH-${id.slice(-4)}`,
+                sku: b.sku || (b.isbn ? `ISBN-${b.isbn}` : null),
                 title: b.title || "Untitled Book",
                 author: b.author || "Likhani Author",
                 price: finalPrice,
@@ -138,6 +144,11 @@ const ShopMain = () => {
                 latestDate: b.createdAt || new Date().toISOString(),
                 description: b.description || "",
                 discount: discount,
+                isTopSelling: Boolean(b.isTopSelling),
+                isBestSeller: Boolean(b.isBestSeller),
+                isHighestSelling: Boolean(b.isTopSelling),
+                isTopSeller: Boolean(b.isTopSelling || b.isBestSeller),
+                badge: b.isTopSelling ? "Top Selling" : b.isBestSeller ? "Best Seller" : b.featured ? "Featured" : onSale ? "Sale" : "",
               });
             }
           }
@@ -316,6 +327,11 @@ const ShopMain = () => {
     }
 
     switch (selectedSort) {
+      case "Top Selling":
+      case "Sort By: Top Selling":
+      case "Best Selling":
+        result.sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0));
+        break;
       case "Sort By Popularity":
         result.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
         break;
@@ -703,9 +719,29 @@ const ShopMain = () => {
                     {/* Cover */}
                     <div className="ShopMain__media">
                       <div className="ShopMain__badges">
-                        {product.hot && (
-                          <span className="ShopMain__badge ShopMain__badge--hot">Bestseller</span>
-                        )}
+                        {product.isTopSelling || product.badge === "Top Selling" ? (
+                          <span
+                            className="ShopMain__badge ShopMain__badge--hot"
+                            style={{
+                              background: "linear-gradient(135deg, #f59e0b, #ea580c, #dc2626)",
+                              fontWeight: 800,
+                              boxShadow: "0 4px 12px rgba(234, 88, 12, 0.4)",
+                            }}
+                          >
+                            Top Selling
+                          </span>
+                        ) : product.isBestSeller || product.badge === "Best Seller" ? (
+                          <span
+                            className="ShopMain__badge ShopMain__badge--hot"
+                            style={{
+                              background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                              fontWeight: 800,
+                              boxShadow: "0 4px 12px rgba(220, 38, 38, 0.35)",
+                            }}
+                          >
+                            Best Seller
+                          </span>
+                        ) : null}
                         {product.discount > 0 && (
                           <span className="ShopMain__badge ShopMain__badge--sale">
                             -{product.discount}%

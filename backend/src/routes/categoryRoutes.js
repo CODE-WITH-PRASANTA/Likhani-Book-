@@ -7,8 +7,10 @@ const {
   updateCategory,
   deleteCategory,
   bulkDeleteCategories,
+  getTopSellingCategories,
 } = require("../controllers/categoryController");
 
+router.get("/top-selling", getTopSellingCategories);
 router.route("/").get(getCategories).post(createCategory);
 router.post("/bulk-delete", bulkDeleteCategories);
 router.route("/:id").get(getCategoryById).put(updateCategory).delete(deleteCategory);

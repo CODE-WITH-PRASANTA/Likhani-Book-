@@ -60,6 +60,8 @@ const BookPosting = () => {
     stock: "",
     status: true,
     featured: false,
+    isTopSelling: false,
+    isBestSeller: false,
     publisher: "",
     pages: "",
     language: "English",
@@ -109,6 +111,8 @@ const BookPosting = () => {
           ...b,
           id: b._id || b.id,
           status: b.status === "Published",
+          isTopSelling: Boolean(b.isTopSelling),
+          isBestSeller: Boolean(b.isBestSeller),
           images: b.images && b.images.length > 0 ? b.images : b.image ? [b.image] : [],
         }));
         setBooks(fetched);
@@ -333,6 +337,8 @@ const BookPosting = () => {
         stock: Number(formData.stock),
         status: formData.status ? "Published" : "Draft",
         featured: formData.featured,
+        isTopSelling: formData.isTopSelling,
+        isBestSeller: formData.isBestSeller,
         publisher: formData.publisher ? formData.publisher.trim() : "",
         pages: formData.pages !== "" ? Number(formData.pages) : 0,
         language: formData.language ? formData.language.trim() : "English",
@@ -375,6 +381,8 @@ const BookPosting = () => {
       stock: book.stock !== undefined ? book.stock : "",
       status: book.status === true || book.status === "Published",
       featured: book.featured || false,
+      isTopSelling: Boolean(book.isTopSelling),
+      isBestSeller: Boolean(book.isBestSeller),
       publisher: book.publisher || "",
       pages: book.pages !== undefined && book.pages !== null ? book.pages : "",
       language: book.language || "English",
@@ -429,8 +437,10 @@ const BookPosting = () => {
     try {
       await API.patch(`/book-posting/${id}/status`);
       await fetchBooks();
+      showToast("Status updated");
     } catch (err) {
       console.error("Status toggle error:", err);
+      showToast("Failed to update status", "error");
     }
   };
 
@@ -438,8 +448,32 @@ const BookPosting = () => {
     try {
       await API.patch(`/book-posting/${id}/featured`);
       await fetchBooks();
+      showToast("Featured status updated");
     } catch (err) {
       console.error("Featured toggle error:", err);
+      showToast("Failed to update featured status", "error");
+    }
+  };
+
+  const toggleTopSelling = async (id) => {
+    try {
+      await API.patch(`/book-posting/${id}/top-selling`);
+      await fetchBooks();
+      showToast("Top Selling status updated");
+    } catch (err) {
+      console.error("Top Selling toggle error:", err);
+      showToast("Failed to update Top Selling status", "error");
+    }
+  };
+
+  const toggleBestSeller = async (id) => {
+    try {
+      await API.patch(`/book-posting/${id}/best-seller`);
+      await fetchBooks();
+      showToast("Best Seller status updated");
+    } catch (err) {
+      console.error("Best Seller toggle error:", err);
+      showToast("Failed to update Best Seller status", "error");
     }
   };
 
@@ -950,6 +984,46 @@ const BookPosting = () => {
                 </select>
               </div>
             </div>
+
+            <div className="BookPosting-field">
+              <label>Top Selling Book</label>
+
+              <div className="BookPosting-selectWrapper">
+                <select
+                  name="isTopSelling"
+                  value={formData.isTopSelling ? "yes" : "no"}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      isTopSelling: e.target.value === "yes",
+                    }))
+                  }
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Yes (Show Top Seller badge)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="BookPosting-field">
+              <label>Best Seller Book</label>
+
+              <div className="BookPosting-selectWrapper">
+                <select
+                  name="isBestSeller"
+                  value={formData.isBestSeller ? "yes" : "no"}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      isBestSeller: e.target.value === "yes",
+                    }))
+                  }
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Yes (Show Best Seller badge)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* ROW 3 - PUBLISHER, PAGES, LANGUAGE, YEAR */}
@@ -1228,6 +1302,8 @@ const BookPosting = () => {
                 <th>Stock Available</th>
                 <th>Status</th>
                 <th>Featured</th>
+                <th>Top Selling</th>
+                <th>Best Seller</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -1338,6 +1414,32 @@ const BookPosting = () => {
                           }`}
                         onClick={() => toggleFeatured(book.id)}
                         aria-label="Toggle featured"
+                      >
+                        <span />
+                      </button>
+                    </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        className={`BookPosting-toggle ${book.isTopSelling ? "BookPosting-toggleTopSelling" : ""
+                          }`}
+                        onClick={() => toggleTopSelling(book.id)}
+                        title={book.isTopSelling ? "Top Selling (Active) - Click to deactivate" : "Inactive - Click to activate Top Selling"}
+                        aria-label="Toggle top selling"
+                      >
+                        <span />
+                      </button>
+                    </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        className={`BookPosting-toggle ${book.isBestSeller ? "BookPosting-toggleBestSeller" : ""
+                          }`}
+                        onClick={() => toggleBestSeller(book.id)}
+                        title={book.isBestSeller ? "Best Seller (Active) - Click to deactivate" : "Inactive - Click to activate Best Seller"}
+                        aria-label="Toggle best seller"
                       >
                         <span />
                       </button>

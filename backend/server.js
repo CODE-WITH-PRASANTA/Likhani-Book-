@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-const morgan = require("morgan");
 const path = require("path");
 const multer = require("multer");
 
@@ -63,7 +62,6 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
-app.use(morgan("dev"));
 
 /* ==============================
    STATIC UPLOADS

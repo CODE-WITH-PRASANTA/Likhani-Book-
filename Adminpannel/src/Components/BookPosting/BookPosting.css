@@ -1045,6 +1045,18 @@
   justify-content: flex-end;
 }
 
+.BookPosting-toggleTopSelling {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  justify-content: flex-end;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+}
+
+.BookPosting-toggleBestSeller {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  justify-content: flex-end;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+}
+
 /* =========================================================
    ACTIONS
 ========================================================= */

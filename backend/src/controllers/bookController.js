@@ -1,4 +1,5 @@
 const Book = require("../models/Book");
+const Order = require("../models/Order");
 const { escapeRegex, isValidObjectId, safeDeleteUploadFile } = require("../utils/helpers");
 
 // =========================================================
@@ -52,6 +53,13 @@ exports.getBooks = async (req, res) => {
       } else if (stock === "Low Stock") {
         query.stock = { $gt: 0, $lte: 10 };
       }
+    }
+
+    // 5. Featured Filter
+    if (req.query.featured === "true" || req.query.featured === true) {
+      query.featured = true;
+    } else if (req.query.featured === "false" || req.query.featured === false) {
+      query.featured = false;
     }
 
     // 5. Sort Configuration
@@ -419,5 +427,94 @@ exports.toggleFeatured = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// =========================================================
+// GET TOP SELLING BOOKS
+// =========================================================
+exports.getTopSellingBooks = async (req, res) => {
+  try {
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const category = req.query.category;
+
+    const query = { status: "Published" };
+    if (category && category !== "All Categories" && category !== "All") {
+      query.category = category.trim();
+    }
+
+    const [books, paidOrders] = await Promise.all([
+      Book.find(query).lean(),
+      Order.find({
+        $or: [
+          { "paymentInfo.status": "Paid" },
+          { orderStatus: { $in: ["Placed", "Processing", "Shipped", "Out for Delivery", "Delivered"] } },
+        ],
+      })
+        .select("items")
+        .lean(),
+    ]);
+
+    const salesById = {};
+    const salesByTitle = {};
+    paidOrders.forEach((ord) => {
+      (ord.items || []).forEach((item) => {
+        const qty = Number(item.quantity) || 1;
+        const bId = String(item.bookId || "").trim();
+        const title = (item.title || "").trim().toLowerCase();
+        if (bId) salesById[bId] = (salesById[bId] || 0) + qty;
+        if (title) salesByTitle[title] = (salesByTitle[title] || 0) + qty;
+      });
+    });
+
+    let maxSold = 0;
+    const enrichedBooks = (books || []).map((b) => {
+      const byId = salesById[String(b._id)] || 0;
+      const byTitle = salesByTitle[(b.title || "").trim().toLowerCase()] || 0;
+      const dbSales = Number(b.salesCount) || 0;
+      const totalSold = Math.max(byId, byTitle, dbSales);
+      if (totalSold > maxSold) maxSold = totalSold;
+
+      return {
+        ...b,
+        totalSold,
+        salesCount: totalSold,
+      };
+    });
+
+    enrichedBooks.sort((a, b) => {
+      if (b.totalSold !== a.totalSold) return b.totalSold - a.totalSold;
+      if (b.featured !== a.featured) return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    enrichedBooks.forEach((book, index) => {
+      book.rank = index + 1;
+      book.isHighestSelling = maxSold > 0 ? book.totalSold === maxSold : index === 0;
+      book.isTopSeller = book.totalSold > 0 || index < 4;
+      book.topSellingBadge = book.isHighestSelling
+        ? "Top Selling"
+        : book.totalSold > 0
+        ? "Best Seller"
+        : book.featured
+        ? "Featured"
+        : null;
+    });
+
+    const highestSellingBook =
+      enrichedBooks.find((b) => b.isHighestSelling) || enrichedBooks[0] || null;
+
+    const limitedBooks = enrichedBooks.slice(0, limit);
+
+    return res.status(200).json({
+      success: true,
+      count: limitedBooks.length,
+      maxSold,
+      highestSellingBook,
+      data: limitedBooks,
+    });
+  } catch (error) {
+    console.error("GET TOP SELLING BOOKS ERROR:", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

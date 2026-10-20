@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaShieldAlt,
   FaHeadset,
@@ -18,6 +19,12 @@ import {
   FaBookOpen,
 } from "react-icons/fa";
 import "./HomeBook.css";
+import { fetchFeaturedBooks } from "../../api/booksService";
+import {
+  useShopStore,
+  toggleWishlist as toggleShopWishlist,
+  addToCart as addShopToCart,
+} from "../ShopMain/useShopStore";
 
 const PERKS = [
   {
@@ -46,7 +53,7 @@ const PERKS = [
   },
 ];
 
-const BOOKS = [
+const FALLBACK_BOOKS = [
   {
     id: "b1",
     genre: "Design Journal",
@@ -178,7 +185,11 @@ const BOOKS = [
 ];
 
 const HomeBook = () => {
-  const [wishlist, setWishlist] = useState({});
+  const navigate = useNavigate();
+  const { wishlist: shopWishlist } = useShopStore();
+
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [addedMap, setAddedMap] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -207,6 +218,34 @@ const HomeBook = () => {
     };
   }, []);
 
+  // Fetch dynamic featured books toggled from Admin Panel
+  useEffect(() => {
+    let isMounted = true;
+    const loadFeatured = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchFeaturedBooks();
+        if (isMounted) {
+          if (Array.isArray(data) && data.length > 0) {
+            setBooks(data);
+          } else {
+            setBooks(FALLBACK_BOOKS);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load featured books:", err);
+        if (isMounted) setBooks(FALLBACK_BOOKS);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadFeatured();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   useEffect(() => {
     if (!modalBook) return;
 
@@ -227,13 +266,7 @@ const HomeBook = () => {
   }, [modalBook]);
 
   const toggleWishlist = (id) => {
-    const willBeAdded = !wishlist[id];
-
-    setWishlist((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-
+    const willBeAdded = toggleShopWishlist(id);
     showToast(
       willBeAdded
         ? "Book added to your wishlist."
@@ -244,6 +277,7 @@ const HomeBook = () => {
   const handleAddToCart = (id) => {
     if (addedMap[id]) return;
 
+    addShopToCart(id, 1);
     setAddedMap((prev) => ({
       ...prev,
       [id]: true,
@@ -262,7 +296,7 @@ const HomeBook = () => {
   const handleShare = async (book) => {
     const shareData = {
       title: book.title,
-      text: `Check out "${book.title}" by ${book.author} on Reading Shelf!`,
+      text: `Check out "${book.title}" by ${book.author} on Lekhani Books!`,
       url: window.location.href,
     };
 
@@ -274,7 +308,6 @@ const HomeBook = () => {
           showToast("Unable to share this book.");
         }
       }
-
       return;
     }
 
@@ -287,14 +320,16 @@ const HomeBook = () => {
   };
 
   const handlePrevious = () => {
+    if (!books.length) return;
     setCurrentPage((prev) =>
-      prev === 0 ? BOOKS.length - 1 : prev - 1
+      prev === 0 ? books.length - 1 : prev - 1
     );
   };
 
   const handleNext = () => {
+    if (!books.length) return;
     setCurrentPage((prev) =>
-      prev >= BOOKS.length - 1 ? 0 : prev + 1
+      prev >= books.length - 1 ? 0 : prev + 1
     );
   };
 
@@ -317,16 +352,16 @@ const HomeBook = () => {
   }, [currentPage]);
 
   useEffect(() => {
-    if (isPaused || modalBook) return;
+    if (isPaused || modalBook || !books.length) return;
 
     const interval = window.setInterval(() => {
       setCurrentPage((prev) =>
-        prev >= BOOKS.length - 1 ? 0 : prev + 1
+        prev >= books.length - 1 ? 0 : prev + 1
       );
     }, 4500);
 
     return () => window.clearInterval(interval);
-  }, [isPaused, modalBook]);
+  }, [isPaused, modalBook, books.length]);
 
   return (
     <section className="home-book">
@@ -383,14 +418,7 @@ const HomeBook = () => {
             <button
               type="button"
               className="home-book__explore-btn"
-              onClick={() => {
-                document
-                  .getElementById("home-book-collection")
-                  ?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  });
-              }}
+              onClick={() => navigate("/shop")}
             >
               Explore More
               <FaArrowRight className="home-book__explore-icon" />
@@ -411,136 +439,181 @@ const HomeBook = () => {
           }}
         >
           <div className="home-book__grid" ref={carouselRef}>
-            {BOOKS.map((book) => {
-              const isWished = Boolean(wishlist[book.id]);
-              const isAdded = Boolean(addedMap[book.id]);
-
-              return (
-                <article className="home-book__card" key={book.id}>
-                  <div className="home-book__card-media">
-                    <div className="home-book__badges">
-                      {book.hot && (
-                        <span className="home-book__badge home-book__badge--hot">
-                          Bestseller
-                        </span>
-                      )}
-
-                      {book.discount && (
-                        <span className="home-book__badge home-book__badge--sale">
-                          -{book.discount}%
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="home-book__cover-wrapper">
-                      <img
-                        src={book.image}
-                        alt={`Cover of ${book.title}`}
-                        className="home-book__cover-img"
-                        loading="lazy"
-                      />
-                      <div
-                        className="home-book__cover-sheen"
-                        aria-hidden="true"
-                      />
-                    </div>
-
-                    <div className="home-book__quick-actions">
-                      <button
-                        type="button"
-                        className={`home-book__quick-btn ${
-                          isWished
-                            ? "home-book__quick-btn--active"
-                            : ""
-                        }`}
-                        onClick={() => toggleWishlist(book.id)}
-                        aria-pressed={isWished}
-                        aria-label={
-                          isWished
-                            ? "Remove from wishlist"
-                            : "Add to wishlist"
-                        }
-                      >
-                        {isWished ? <FaHeart /> : <FaRegHeart />}
-                      </button>
-
-                      <button
-                        type="button"
-                        className="home-book__quick-btn"
-                        aria-label={`Share ${book.title}`}
-                        onClick={() => handleShare(book)}
-                      >
-                        <FaShareAlt />
-                      </button>
-
-                      <button
-                        type="button"
-                        className="home-book__quick-btn"
-                        aria-label={`Quick view ${book.title}`}
-                        onClick={() => setModalBook(book)}
-                      >
-                        <FaEye />
-                      </button>
-                    </div>
-                  </div>
-
+            {loading ? (
+              // Loading skeleton state
+              Array.from({ length: 4 }).map((_, idx) => (
+                <article className="home-book__card home-book__card--skeleton" key={`skel-${idx}`}>
+                  <div className="home-book__card-media" style={{ background: "#e2e8f0", minHeight: "260px" }} />
                   <div className="home-book__card-body">
-                    <p className="home-book__genre">{book.genre}</p>
-                    <h3 className="home-book__title">{book.title}</h3>
-
-                    <p className="home-book__price">
-                      <span className="home-book__price-current">
-                        ₹{book.price.toFixed(2)}
-                      </span>
-
-                      {book.originalPrice && (
-                        <span className="home-book__price-original">
-                          ₹{book.originalPrice.toFixed(2)}
-                        </span>
-                      )}
-                    </p>
-
-                    <div className="home-book__meta">
-                      <span className="home-book__author">
-                        <span className="home-book__avatar">
-                          {book.author.charAt(0)}
-                        </span>
-                        {book.author}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      className={`home-book__add-btn ${
-                        isAdded ? "home-book__add-btn--added" : ""
-                      }`}
-                      onClick={() => handleAddToCart(book.id)}
-                      disabled={isAdded}
-                    >
-                      {isAdded ? (
-                        <>
-                          <FaCheck className="home-book__add-icon" />
-                          Added
-                        </>
-                      ) : (
-                        <>
-                          <FaShoppingBasket className="home-book__add-icon" />
-                          Add To Cart
-                        </>
-                      )}
-                    </button>
+                    <div style={{ height: "14px", width: "40%", background: "#e2e8f0", borderRadius: "4px", marginBottom: "8px" }} />
+                    <div style={{ height: "18px", width: "80%", background: "#e2e8f0", borderRadius: "4px", marginBottom: "12px" }} />
+                    <div style={{ height: "16px", width: "30%", background: "#e2e8f0", borderRadius: "4px" }} />
                   </div>
                 </article>
-              );
-            })}
+              ))
+            ) : books.length === 0 ? (
+              <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", color: "#64748b" }}>
+                <p>No featured books available at the moment. Please check back soon!</p>
+              </div>
+            ) : (
+              books.map((book) => {
+                const isWished =
+                  Array.isArray(shopWishlist) &&
+                  (shopWishlist.includes(book.id) || shopWishlist.includes(String(book.id)));
+                const isAdded = Boolean(addedMap[book.id]);
+                const displayPrice = Number(book.price || 0);
+                const displayOldPrice = book.originalPrice || book.oldPrice ? Number(book.originalPrice || book.oldPrice) : null;
+
+                return (
+                  <article className="home-book__card" key={book.id}>
+                    <div className="home-book__card-media">
+                      <div className="home-book__badges">
+                        {book.isHighestSelling || book.badge === "Top Selling" ? (
+                          <span
+                            className="home-book__badge home-book__badge--hot"
+                            style={{
+                              background: "linear-gradient(135deg, #f59e0b, #ea580c, #dc2626)",
+                              fontWeight: 800,
+                              boxShadow: "0 4px 14px rgba(234, 88, 12, 0.4)",
+                            }}
+                          >
+                            🔥 Top Selling
+                          </span>
+                        ) : book.hot ? (
+                          <span className="home-book__badge home-book__badge--hot">
+                            Bestseller
+                          </span>
+                        ) : null}
+
+                        {book.discount ? (
+                          <span className="home-book__badge home-book__badge--sale">
+                            -{book.discount}%
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <div className="home-book__cover-wrapper" onClick={() => setModalBook(book)} style={{ cursor: "pointer" }}>
+                        <img
+                          src={book.image}
+                          alt={`Cover of ${book.title}`}
+                          className="home-book__cover-img"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src =
+                              "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=85";
+                          }}
+                        />
+                        <div
+                          className="home-book__cover-sheen"
+                          aria-hidden="true"
+                        />
+                      </div>
+
+                      <div className="home-book__quick-actions">
+                        <button
+                          type="button"
+                          className={`home-book__quick-btn ${
+                            isWished
+                              ? "home-book__quick-btn--active"
+                              : ""
+                          }`}
+                          onClick={() => toggleWishlist(book.id)}
+                          aria-pressed={isWished}
+                          aria-label={
+                            isWished
+                              ? "Remove from wishlist"
+                              : "Add to wishlist"
+                          }
+                        >
+                          {isWished ? <FaHeart style={{ color: "#dc2626" }} /> : <FaRegHeart />}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="home-book__quick-btn"
+                          aria-label={`Share ${book.title}`}
+                          onClick={() => handleShare(book)}
+                        >
+                          <FaShareAlt />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="home-book__quick-btn"
+                          aria-label={`Quick view ${book.title}`}
+                          onClick={() => setModalBook(book)}
+                        >
+                          <FaEye />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="home-book__card-body">
+                      <p className="home-book__genre">{book.genre || book.category || "Literature"}</p>
+                      <h3
+                        className="home-book__title"
+                        onClick={() => setModalBook(book)}
+                        style={{ cursor: "pointer" }}
+                        title={book.title}
+                      >
+                        {book.title}
+                      </h3>
+
+                      <p className="home-book__price">
+                        <span className="home-book__price-current">
+                          ₹{displayPrice.toFixed(2)}
+                        </span>
+
+                        {displayOldPrice && displayOldPrice > displayPrice && (
+                          <span className="home-book__price-original">
+                            ₹{displayOldPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </p>
+
+                      <div className="home-book__meta">
+                        <span className="home-book__author">
+                          <span className="home-book__avatar">
+                            {(book.author || "A").charAt(0).toUpperCase()}
+                          </span>
+                          {book.author || "Author"}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className={`home-book__add-btn ${
+                          isAdded ? "home-book__add-btn--added" : ""
+                        }`}
+                        onClick={() => handleAddToCart(book.id)}
+                        disabled={isAdded}
+                      >
+                        {isAdded ? (
+                          <>
+                            <FaCheck className="home-book__add-icon" />
+                            Added
+                          </>
+                        ) : (
+                          <>
+                            <FaShoppingBasket className="home-book__add-icon" />
+                            Add To Cart
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })
+            )}
           </div>
         </div>
 
         <div className="home-book__pagination" aria-label="Book carousel pages">
-          {BOOKS.map((book, index) => (
+          {books.map((book, index) => (
             <button
               type="button"
-              key={book.id}
+              key={book.id || `dot-${index}`}
               aria-label={`Go to slide ${index + 1}`}
               aria-current={currentPage === index ? "true" : undefined}
               className={`home-book__pagination-dot ${
@@ -581,6 +654,11 @@ const HomeBook = () => {
                   src={modalBook.image}
                   alt={`Cover of ${modalBook.title}`}
                   className="hb-modal__img"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src =
+                      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=85";
+                  }}
                 />
                 <div className="hb-modal__sheen" />
               </div>
@@ -588,14 +666,14 @@ const HomeBook = () => {
               <div className="hb-modal__content">
                 <div className="hb-modal__badge-row">
                   <span className="hb-modal__genre-tag">
-                    {modalBook.genre}
+                    {modalBook.genre || modalBook.category}
                   </span>
 
-                  {modalBook.hot && (
+                  {modalBook.hot ? (
                     <span className="hb-modal__hot-pill">
                       Bestseller
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
                 <h2 className="hb-modal__title" id="hb-modal-title">
@@ -610,20 +688,20 @@ const HomeBook = () => {
 
                 <div className="hb-modal__price-box">
                   <span className="hb-modal__current-price">
-                    ₹{modalBook.price.toFixed(2)}
+                    ₹{Number(modalBook.price || 0).toFixed(2)}
                   </span>
 
-                  {modalBook.originalPrice && (
+                  {(modalBook.originalPrice || modalBook.oldPrice) && (
                     <span className="hb-modal__orig-price">
-                      ₹{modalBook.originalPrice.toFixed(2)}
+                      ₹{Number(modalBook.originalPrice || modalBook.oldPrice).toFixed(2)}
                     </span>
                   )}
 
-                  {modalBook.discount && (
+                  {modalBook.discount ? (
                     <span className="hb-modal__save-badge">
                       Save {modalBook.discount}%
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
                 <p className="hb-modal__desc">
@@ -638,7 +716,7 @@ const HomeBook = () => {
                         Length
                       </span>
                       <span className="hb-modal__spec-val">
-                        {modalBook.pages} Pages
+                        {modalBook.pages || 240} Pages
                       </span>
                     </div>
                   </div>
@@ -650,7 +728,7 @@ const HomeBook = () => {
                         Publisher
                       </span>
                       <span className="hb-modal__spec-val">
-                        {modalBook.publisher}
+                        {modalBook.publisher || "Lekhani Publications"}
                       </span>
                     </div>
                   </div>
@@ -666,20 +744,20 @@ const HomeBook = () => {
                     }}
                   >
                     <FaShoppingBasket />
-                    Add To Cart — ₹{modalBook.price.toFixed(2)}
+                    Add To Cart — ₹{Number(modalBook.price || 0).toFixed(2)}
                   </button>
 
                   <button
                     type="button"
                     className={`hb-modal__wish-btn ${
-                      wishlist[modalBook.id] ? "active" : ""
+                      Array.isArray(shopWishlist) && shopWishlist.includes(modalBook.id) ? "active" : ""
                     }`}
                     onClick={() => toggleWishlist(modalBook.id)}
                     aria-label="Toggle wishlist"
-                    aria-pressed={Boolean(wishlist[modalBook.id])}
+                    aria-pressed={Boolean(Array.isArray(shopWishlist) && shopWishlist.includes(modalBook.id))}
                   >
-                    {wishlist[modalBook.id] ? (
-                      <FaHeart />
+                    {Array.isArray(shopWishlist) && shopWishlist.includes(modalBook.id) ? (
+                      <FaHeart style={{ color: "#dc2626" }} />
                     ) : (
                       <FaRegHeart />
                     )}
@@ -695,3 +773,4 @@ const HomeBook = () => {
 };
 
 export default HomeBook;
+

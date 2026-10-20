@@ -339,6 +339,12 @@
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.bookle-book__title:hover {
+  color: var(--bk-brass-deep);
 }
 
 .bookle-book__price-row {

@@ -1,4 +1,5 @@
 const BookPosting = require("../models/BookPosting");
+const Order = require("../models/Order");
 const {
   isValidObjectId,
   escapeRegex,
@@ -6,6 +7,41 @@ const {
   saveBase64Image,
   convertFileToWebp,
 } = require("../utils/helpers");
+
+const computeBookSales = async () => {
+  try {
+    const paidOrders = await Order.find({
+      $or: [
+        { "paymentInfo.status": "Paid" },
+        { orderStatus: { $in: ["Placed", "Processing", "Shipped", "Out for Delivery", "Delivered"] } },
+      ],
+    })
+      .select("items")
+      .lean();
+
+    const salesById = {};
+    const salesByTitle = {};
+
+    paidOrders.forEach((ord) => {
+      (ord.items || []).forEach((item) => {
+        const qty = Number(item.quantity) || 1;
+        const bId = String(item.bookId || "").trim();
+        const title = (item.title || "").trim().toLowerCase();
+        if (bId) {
+          salesById[bId] = (salesById[bId] || 0) + qty;
+        }
+        if (title) {
+          salesByTitle[title] = (salesByTitle[title] || 0) + qty;
+        }
+      });
+    });
+
+    return { salesById, salesByTitle };
+  } catch (err) {
+    console.error("Error computing book sales from orders:", err);
+    return { salesById: {}, salesByTitle: {} };
+  }
+};
 
 // =========================================================
 // GET ALL BOOK POSTINGS (Search, Category, Status, Pagination)
@@ -56,23 +92,59 @@ exports.getBookPostings = async (req, res) => {
     else if (sort === "price-high") sortOptions = { price: -1 };
     else if (sort === "title-asc") sortOptions = { title: 1 };
     else if (sort === "title-desc") sortOptions = { title: -1 };
+    else if (sort === "best-selling" || sort === "top-selling") sortOptions = { salesCount: -1, createdAt: -1 };
 
     const pageNum = Math.max(parseInt(page, 10) || 1, 1);
     const limitNum = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const [total, items, globalTotal, publishedCount, draftCount] = await Promise.all([
-      BookPosting.countDocuments(query),
-      BookPosting.find(query).sort(sortOptions).skip(skip).limit(limitNum).lean(),
-      BookPosting.countDocuments({}),
-      BookPosting.countDocuments({ status: "Published" }),
-      BookPosting.countDocuments({ status: "Draft" }),
-    ]);
+    const [{ salesById, salesByTitle }, total, items, globalTotal, publishedCount, draftCount] =
+      await Promise.all([
+        computeBookSales(),
+        BookPosting.countDocuments(query),
+        BookPosting.find(query).sort(sortOptions).skip(skip).limit(limitNum).lean(),
+        BookPosting.countDocuments({}),
+        BookPosting.countDocuments({ status: "Published" }),
+        BookPosting.countDocuments({ status: "Draft" }),
+      ]);
+
+    // Compute sales and determine max sales across all retrieved items
+    let maxSold = 0;
+    const enrichedItems = items.map((b) => {
+      const byId = salesById[String(b._id)] || 0;
+      const byTitle = salesByTitle[(b.title || "").trim().toLowerCase()] || 0;
+      const dbSales = Number(b.salesCount) || 0;
+      const totalSold = Math.max(byId, byTitle, dbSales);
+      if (totalSold > maxSold) maxSold = totalSold;
+      return {
+        ...b,
+        totalSold,
+        salesCount: totalSold,
+      };
+    });
+
+    enrichedItems.forEach((book) => {
+      book.isTopSelling = Boolean(book.isTopSelling);
+      book.isBestSeller = Boolean(book.isBestSeller);
+      book.isHighestSelling = book.isTopSelling;
+      book.isTopSeller = book.isTopSelling || book.isBestSeller;
+      book.topSellingBadge = book.isTopSelling
+        ? "Top Selling"
+        : book.isBestSeller
+        ? "Best Seller"
+        : book.featured
+        ? "Featured"
+        : null;
+    });
+
+    if (sort === "best-selling" || sort === "top-selling") {
+      enrichedItems.sort((a, b) => b.totalSold - a.totalSold);
+    }
 
     res.status(200).json({
       success: true,
-      count: items.length,
-      data: items,
+      count: enrichedItems.length,
+      data: enrichedItems,
       pagination: {
         page: pageNum,
         limit: limitNum,
@@ -88,6 +160,188 @@ exports.getBookPostings = async (req, res) => {
   } catch (error) {
     console.error("GET BOOK POSTINGS ERROR:", error);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// =========================================================
+// GET TOP SELLING BOOK POSTINGS
+// =========================================================
+exports.getTopSellingBookPostings = async (req, res) => {
+  try {
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+    const category = req.query.category;
+
+    const query = { status: "Published" };
+    if (category && category !== "All Categories" && category !== "All") {
+      query.category = category.trim();
+    }
+
+    const [books, { salesById, salesByTitle }] = await Promise.all([
+      BookPosting.find(query).lean(),
+      computeBookSales(),
+    ]);
+
+    if (!books || books.length === 0) {
+      return res.status(200).json({
+        success: true,
+        count: 0,
+        maxSold: 0,
+        highestSellingBook: null,
+        data: [],
+      });
+    }
+
+    let maxSold = 0;
+    const enrichedBooks = books.map((b) => {
+      const byId = salesById[String(b._id)] || 0;
+      const byTitle = salesByTitle[(b.title || "").trim().toLowerCase()] || 0;
+      const dbSales = Number(b.salesCount) || 0;
+      const totalSold = Math.max(byId, byTitle, dbSales);
+      if (totalSold > maxSold) maxSold = totalSold;
+
+      return {
+        ...b,
+        totalSold,
+        salesCount: totalSold,
+      };
+    });
+
+    // Sort by: isTopSelling first, then isBestSeller, then sales, then featured, then newest
+    enrichedBooks.sort((a, b) => {
+      const aTop = a.isTopSelling ? 1 : 0;
+      const bTop = b.isTopSelling ? 1 : 0;
+      if (bTop !== aTop) return bTop - aTop;
+
+      const aBest = a.isBestSeller ? 1 : 0;
+      const bBest = b.isBestSeller ? 1 : 0;
+      if (bBest !== aBest) return bBest - aBest;
+
+      if (b.totalSold !== a.totalSold) {
+        return b.totalSold - a.totalSold;
+      }
+      if (b.featured !== a.featured) {
+        return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+      }
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    enrichedBooks.forEach((book, index) => {
+      book.rank = index + 1;
+      book.isTopSelling = Boolean(book.isTopSelling);
+      book.isBestSeller = Boolean(book.isBestSeller);
+      book.isHighestSelling = book.isTopSelling;
+      book.isTopSeller = book.isTopSelling || book.isBestSeller;
+      book.topSellingBadge = book.isTopSelling
+        ? "Top Selling"
+        : book.isBestSeller
+        ? "Best Seller"
+        : book.featured
+        ? "Featured"
+        : null;
+    });
+
+    // If any books are explicitly marked as isTopSelling or isBestSeller, serve those
+    const activeMarked = enrichedBooks.filter((b) => b.isTopSelling || b.isBestSeller);
+    const booksToServe = activeMarked.length > 0 ? activeMarked : enrichedBooks;
+
+    const highestSellingBook =
+      booksToServe.find((b) => b.isTopSelling) ||
+      booksToServe.find((b) => b.isBestSeller) ||
+      booksToServe[0] ||
+      null;
+
+    const limitedBooks = booksToServe.slice(0, limit);
+
+    return res.status(200).json({
+      success: true,
+      count: limitedBooks.length,
+      maxSold,
+      highestSellingBook,
+      data: limitedBooks,
+    });
+  } catch (error) {
+    console.error("GET TOP SELLING BOOKS ERROR:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// =========================================================
+// GET FEATURED AUTHORS (FOR ABOUT PAGE & FEATURED AUTHOR SECTION)
+// =========================================================
+exports.getFeaturedAuthors = async (req, res) => {
+  try {
+    const Book = require("../models/Book");
+    const [postingBooks, standardBooks] = await Promise.all([
+      BookPosting.find({ status: "Published" }).lean(),
+      Book.find({ status: "Published" }).lean(),
+    ]);
+
+    const allBooks = [...postingBooks, ...standardBooks];
+
+    const authorAvatars = [
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=300&auto=format&fit=crop&q=80",
+    ];
+
+    const authorsMap = new Map();
+
+    allBooks.forEach((book) => {
+      const authorName = (book.author || "").trim();
+      if (
+        !authorName ||
+        authorName.length < 2 ||
+        authorName.toLowerCase().includes("test author") ||
+        authorName.toLowerCase().startsWith("ssss")
+      ) {
+        return;
+      }
+
+      const key = authorName.toLowerCase();
+      if (!authorsMap.has(key)) {
+        authorsMap.set(key, {
+          id: String(book._id || authorName),
+          name: authorName,
+          booksCount: 1,
+          categories: new Set(book.category ? [book.category] : []),
+        });
+      } else {
+        const item = authorsMap.get(key);
+        item.booksCount += 1;
+        if (book.category) item.categories.add(book.category);
+      }
+    });
+
+    const authorsList = Array.from(authorsMap.values())
+      .sort((a, b) => b.booksCount - a.booksCount)
+      .map((author, index) => ({
+        id: author.id || `author-${index + 1}`,
+        name: author.name,
+        count: author.booksCount,
+        books: `${String(author.booksCount).padStart(2, "0")} Published Book${
+          author.booksCount > 1 ? "s" : ""
+        }`,
+        image: authorAvatars[index % authorAvatars.length],
+        categories: Array.from(author.categories),
+      }));
+
+    return res.status(200).json({
+      success: true,
+      count: authorsList.length,
+      data: authorsList,
+    });
+  } catch (error) {
+    console.error("GET FEATURED AUTHORS ERROR:", error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -131,6 +385,8 @@ exports.createBookPosting = async (req, res) => {
       stock = 0,
       status = "Published",
       featured = false,
+      isTopSelling = false,
+      isBestSeller = false,
       publisher = "",
       pages = 0,
       language = "English",
@@ -195,6 +451,8 @@ exports.createBookPosting = async (req, res) => {
       stock: numericStock,
       status: calculatedStatus,
       featured: featured === true || featured === "true",
+      isTopSelling: isTopSelling === true || isTopSelling === "true",
+      isBestSeller: isBestSeller === true || isBestSeller === "true",
       publisher: typeof publisher === "string" ? publisher.trim() : "",
       pages: pages !== "" && !isNaN(pages) ? Math.max(Number(pages) || 0, 0) : 0,
       language: typeof language === "string" && language.trim() ? language.trim() : "English",
@@ -276,6 +534,14 @@ exports.updateBookPosting = async (req, res) => {
 
     if (updateData.featured !== undefined) {
       updateData.featured = updateData.featured === true || updateData.featured === "true";
+    }
+
+    if (updateData.isTopSelling !== undefined) {
+      updateData.isTopSelling = updateData.isTopSelling === true || updateData.isTopSelling === "true";
+    }
+
+    if (updateData.isBestSeller !== undefined) {
+      updateData.isBestSeller = updateData.isBestSeller === true || updateData.isBestSeller === "true";
     }
 
     // New uploaded cover image
@@ -466,3 +732,64 @@ exports.toggleBookPostingFeatured = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// =========================================================
+// TOGGLE TOP SELLING
+// =========================================================
+exports.toggleBookPostingTopSelling = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: "Invalid book posting ID format" });
+    }
+
+    const item = await BookPosting.findById(id);
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Book posting not found" });
+    }
+
+    item.isTopSelling = !item.isTopSelling;
+    await item.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Top Selling status updated to ${item.isTopSelling}`,
+      data: item,
+    });
+  } catch (error) {
+    console.error("TOGGLE TOP SELLING ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// =========================================================
+// TOGGLE BEST SELLER
+// =========================================================
+exports.toggleBookPostingBestSeller = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ success: false, message: "Invalid book posting ID format" });
+    }
+
+    const item = await BookPosting.findById(id);
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Book posting not found" });
+    }
+
+    item.isBestSeller = !item.isBestSeller;
+    await item.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Best Seller status updated to ${item.isBestSeller}`,
+      data: item,
+    });
+  } catch (error) {
+    console.error("TOGGLE BEST SELLER ERROR:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

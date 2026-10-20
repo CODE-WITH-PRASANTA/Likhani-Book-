@@ -6,6 +6,9 @@ const {
   googleAuth,
   getMe,
   updateProfile,
+  forgotPassword,
+  verifyResetOtp,
+  resetPassword,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
 
@@ -14,6 +17,11 @@ router.post("/register", register);
 router.post("/signup", register); // Alias for convenience
 router.post("/login", login);
 router.post("/google", googleAuth);
+
+// Password recovery / OTP routes
+router.post("/forgot-password", forgotPassword);
+router.post("/verify-otp", verifyResetOtp);
+router.post("/reset-password", resetPassword);
 
 // Protected routes
 router.get("/me", protect, getMe);

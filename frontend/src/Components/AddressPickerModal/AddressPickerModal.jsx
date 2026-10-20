@@ -34,11 +34,21 @@ const AddressPickerModal = ({
   selectedAddressId = null,
   onSelectAddress = () => {},
   onAddressListUpdated = () => {},
+  initialAddNew = false,
 }) => {
   const [currentSelectedId, setCurrentSelectedId] = useState(
     selectedAddressId || addresses.find((a) => a.isDefault)?._id || addresses[0]?._id
   );
-  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [isAddingNew, setIsAddingNew] = useState(initialAddNew);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setIsAddingNew(Boolean(initialAddNew));
+      if (selectedAddressId) {
+        setCurrentSelectedId(selectedAddressId);
+      }
+    }
+  }, [isOpen, initialAddNew, selectedAddressId]);
   const [formData, setFormData] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);

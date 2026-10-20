@@ -143,9 +143,27 @@ const BookDetails = () => {
           <div className="BookDetails__stageWrap">
             <div className="BookDetails__stage">
               <div className="BookDetails__badges">
-                {product.hot && (
-                  <span className="BookDetails__badge BookDetails__badge--hot">Bestseller</span>
-                )}
+                {product.isTopSelling ? (
+                  <span
+                    className="BookDetails__badge BookDetails__badge--hot"
+                    style={{
+                      background: "linear-gradient(135deg, #f59e0b, #ea580c, #dc2626)",
+                      fontWeight: 800,
+                    }}
+                  >
+                    Top Selling
+                  </span>
+                ) : product.isBestSeller ? (
+                  <span
+                    className="BookDetails__badge BookDetails__badge--hot"
+                    style={{
+                      background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                      fontWeight: 800,
+                    }}
+                  >
+                    Best Seller
+                  </span>
+                ) : null}
                 {product.discount > 0 && (
                   <span className="BookDetails__badge BookDetails__badge--sale">
                     -{product.discount}%

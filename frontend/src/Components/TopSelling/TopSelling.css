@@ -309,12 +309,70 @@
   background: linear-gradient(135deg, #ea6b34, #c94518);
 }
 
+.top-selling__badge--top-seller {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #dc2626 100%);
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  box-shadow: 0 8px 18px rgba(234, 88, 12, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  animation: ts-badge-glow 2.5s infinite ease-in-out;
+}
+
+@keyframes ts-badge-glow {
+  0%, 100% {
+    box-shadow: 0 6px 14px rgba(234, 88, 12, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.65);
+  }
+}
+
 .top-selling__badge--discount {
   background: linear-gradient(
     135deg,
     var(--ts-accent),
     var(--ts-accent-dark)
   );
+}
+
+.top-selling__card--highest {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 16px 36px rgba(245, 158, 11, 0.15);
+}
+
+.top-selling__card--highest::before {
+  transform: scaleX(1);
+  background: linear-gradient(90deg, #f59e0b, #ef4444, #f59e0b);
+}
+
+.top-selling__sold-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #c2410c;
+  background: #ffedd5;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid #fed7aa;
+}
+
+.top-selling__card-clickable {
+  cursor: pointer;
+}
+
+.top-selling__skeleton-pulse {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: ts-shimmer 1.5s infinite linear;
+  border-radius: 6px;
+}
+
+@keyframes ts-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .top-selling__image-frame {

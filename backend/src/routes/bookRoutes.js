@@ -3,6 +3,7 @@ const router = express.Router();
 const upload = require("../middleware/multer");
 const {
   getBooks,
+  getTopSellingBooks,
   getBookById,
   createBook,
   updateBook,
@@ -14,6 +15,9 @@ const {
 
 // List & Create
 router.route("/").get(getBooks).post(upload, createBook);
+
+// Top Selling Books (before dynamic :id)
+router.get("/top-selling", getTopSellingBooks);
 
 // Bulk Delete (before dynamic :id)
 router.post("/bulk-delete", bulkDeleteBooks);

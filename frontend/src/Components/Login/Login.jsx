@@ -144,7 +144,7 @@ const Login = () => {
   };
 
   const handleForgotPassword = () => {
-    alert("Password reset instructions will be sent to your registered email.");
+    navigate("/forgot-password");
   };
 
   return (
@@ -398,13 +398,12 @@ const Login = () => {
                   <span className="Login__rememberMeText">Remember me</span>
                 </label>
 
-                <button
-                  type="button"
+                <Link
+                  to="/forgot-password"
                   className="Login__forgotLink"
-                  onClick={handleForgotPassword}
                 >
                   Forgot password?
-                </button>
+                </Link>
               </div>
 
               {/* Submit Button */}

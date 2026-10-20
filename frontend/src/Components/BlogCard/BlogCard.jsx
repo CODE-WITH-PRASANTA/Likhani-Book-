@@ -18,27 +18,11 @@ const BlogCard = () => {
   const categoryQuery = searchParams.get('category') || ''
 
   const [blogs, setBlogs] = useState([])
-  const [categories, setCategories] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
-
-  // Fetch categories from backend
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const res = await API.get('/blogs/categories')
-        if (res.data?.success) {
-          setCategories(res.data.data || [])
-        }
-      } catch (err) {
-        console.error('Failed to load categories in BlogCard:', err)
-      }
-    }
-    loadCategories()
-  }, [])
 
   // Fetch blogs dynamically from the backend with query params
   const fetchBlogs = async (page = 1) => {
@@ -120,82 +104,6 @@ const BlogCard = () => {
   return (
     <section className="BlogCard-wrapper">
       <div className="BlogCard-container">
-        {/* Dynamic Category Filter Pills */}
-        {categories.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '10px',
-              marginBottom: '24px',
-              alignItems: 'center',
-            }}
-          >
-            <button
-              type="button"
-              onClick={() => {
-                const newParams = {}
-                if (searchQuery) newParams.search = searchQuery
-                setSearchParams(newParams)
-                setCurrentPage(1)
-              }}
-              style={{
-                padding: '7px 18px',
-                borderRadius: '20px',
-                border: '1px solid',
-                borderColor: !categoryQuery ? '#0b556a' : '#e2e8f0',
-                background: !categoryQuery ? '#0b556a' : '#ffffff',
-                color: !categoryQuery ? '#ffffff' : '#475569',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              All Articles
-            </button>
-            {categories.map((cat, idx) => {
-              const isActive = categoryQuery.toLowerCase() === cat.name.toLowerCase()
-              return (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => {
-                    const newParams = { category: cat.name }
-                    if (searchQuery) newParams.search = searchQuery
-                    setSearchParams(newParams)
-                    setCurrentPage(1)
-                  }}
-                  style={{
-                    padding: '7px 18px',
-                    borderRadius: '20px',
-                    border: '1px solid',
-                    borderColor: isActive ? '#0b556a' : '#e2e8f0',
-                    background: isActive ? '#0b556a' : '#ffffff',
-                    color: isActive ? '#ffffff' : '#475569',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 0.2s ease',
-                  }}
-                >
-                  <span>{cat.name}</span>
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      opacity: isActive ? 0.9 : 0.6,
-                    }}
-                  >
-                    ({cat.count})
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        )}
 
         {/* Active Filter Indicator */}
         {(searchQuery || categoryQuery) && (

@@ -7,11 +7,17 @@
   background-color: #f1f3f6;
   padding: 24px 16px 60px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .OrdersPage__container {
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Breadcrumb */
@@ -41,9 +47,11 @@
 /* Layout */
 .OrdersPage__layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Sidebar */
@@ -463,6 +471,16 @@
   background: #1565c0;
 }
 
+.OrdersPage__status--outfordelivery {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.OrdersPage__status--outfordelivery .OrdersPage__statusDot {
+  background: #7e22ce;
+}
+
 .OrdersPage__status--delivered {
   background: #e8f5e9;
   color: #2e7d32;
@@ -856,6 +874,46 @@
   color: #64748b;
 }
 
+.OrdersPage__compactDeliveryAlert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 3px 8px;
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  color: #7e22ce;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.OrdersPage__compactDeliveryAlert svg {
+  color: #9333ea;
+  font-size: 12px;
+}
+
+.OrdersPage__compactLocationAlert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 3px 8px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  color: #0369a1;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.OrdersPage__compactLocationAlert svg {
+  color: #0284c7;
+  font-size: 12px;
+}
+
 .OrdersPage__compactCenter {
   display: flex;
   align-items: center;
@@ -1168,6 +1226,182 @@
 
 .OrderDetail__stepLine--completed {
   background: #15803d;
+}
+
+/* Live Logistics & Shipment Card */
+.OrderDetail__trackingLiveCard {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 20px 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.OrderDetail__trackingLiveCard--shipped {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #7dd3fc;
+}
+
+.OrderDetail__trackingLiveCard--outForDelivery {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-color: #c084fc;
+}
+
+.OrderDetail__trackingLiveCard--delivered {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #86efac;
+}
+
+.OrderDetail__trackingLiveHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.OrderDetail__trackingLiveIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.OrderDetail__trackingLiveCard--shipped .OrderDetail__trackingLiveIcon {
+  color: #0284c7;
+}
+
+.OrderDetail__trackingLiveCard--outForDelivery .OrderDetail__trackingLiveIcon {
+  color: #7e22ce;
+}
+
+.OrderDetail__trackingLiveCard--delivered .OrderDetail__trackingLiveIcon {
+  color: #15803d;
+}
+
+.OrderDetail__trackingLiveHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.OrderDetail__trackingLiveTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.OrderDetail__trackingLiveCard--shipped .OrderDetail__trackingLiveTag {
+  color: #0369a1;
+}
+
+.OrderDetail__trackingLiveCard--outForDelivery .OrderDetail__trackingLiveTag {
+  color: #6b21a8;
+}
+
+.OrderDetail__trackingLiveCard--delivered .OrderDetail__trackingLiveTag {
+  color: #166534;
+}
+
+.OrderDetail__trackingLivePulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: currentColor;
+  box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.6);
+  animation: trackingPulse 1.8s infinite;
+}
+
+@keyframes trackingPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.OrderDetail__trackingLiveHeading h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.OrderDetail__trackingLiveGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.OrderDetail__trackingLiveItem {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.OrderDetail__trackingLiveLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.OrderDetail__trackingLiveVal {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.OrderDetail__trackingLiveVal--date {
+  color: #6b21a8;
+  font-weight: 700;
+}
+
+.OrderDetail__trackingAgentPhone {
+  color: #2563eb;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+@media (max-width: 640px) {
+  .OrderDetail__trackingLiveCard {
+    padding: 14px 16px;
+  }
+  .OrderDetail__trackingLiveGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 2-Column Grid */
@@ -1561,27 +1795,979 @@
   text-decoration: underline;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
+/* =========================================================
+   PAYMENT MODAL & ACTION BUTTONS (FOR FAILED / PENDING ORDERS)
+   ========================================================= */
+
+.OrdersPage__compactActionBtn--pay {
+  background: #dc2626;
+  color: #ffffff;
+  border: 1px solid #dc2626;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+  font-weight: 700;
+}
+
+.OrdersPage__compactActionBtn--pay:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.OrderDetail__cancelledPayBtn {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.OrderDetail__cancelledPayBtn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.OrderDetail__actionBtn--payNow {
+  background: #12598f;
+  color: #ffffff;
+  border: 1px solid #12598f;
+  font-weight: 700;
+}
+
+.OrderDetail__actionBtn--payNow:hover {
+  background: #0d426b;
+  border-color: #0d426b;
+}
+
+/* Alert Banners */
+.OrdersPage__toastBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  animation: slideDown 0.3s ease;
+}
+
+.OrdersPage__toastBanner--success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.OrdersPage__toastBanner--error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.OrdersPage__toastClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+/* Modal Overlay */
+.OrdersPage__modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.25s ease;
+}
+
+/* Modal Card */
+.OrdersPage__modalCard {
+  background: #ffffff;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 16px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.35);
+  overflow: hidden;
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal Header */
+.OrdersPage__modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.OrdersPage__modalHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.OrdersPage__modalHeaderIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #fee2e2;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.OrdersPage__modalHeaderTitle h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.OrdersPage__modalOrderId {
+  font-family: monospace;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.OrdersPage__modalCloseBtn {
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.OrdersPage__modalCloseBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Modal Body */
+.OrdersPage__modalBody {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.OrdersPage__modalAlert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #9f1239;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.OrdersPage__modalAlert svg {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.OrdersPage__modalAlert strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+
+.OrdersPage__modalAlert p {
+  margin: 0;
+  color: #881337;
+}
+
+.OrdersPage__modalSectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Items List in Modal */
+.OrdersPage__modalItemsSummary {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.OrdersPage__modalItemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.OrdersPage__modalItemRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.OrdersPage__modalItemThumb {
+  width: 38px;
+  height: 48px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+}
+
+.OrdersPage__modalItemThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.OrdersPage__modalItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.OrdersPage__modalItemTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+.OrdersPage__modalItemMeta {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+/* Address in Modal */
+.OrdersPage__modalAddress {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.OrdersPage__modalAddress p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #334155;
+  line-height: 1.45;
+}
+
+/* Highlighted Price Box */
+.OrdersPage__modalPriceBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #0a3b49 0%, #12598f 100%);
+  color: #ffffff;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(18, 89, 143, 0.25);
+}
+
+.OrdersPage__modalPriceLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.OrdersPage__modalPriceLabel {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 600;
+}
+
+.OrdersPage__modalPriceAmount {
+  font-size: 28px;
+  font-weight: 800;
+  color: #facc15;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.OrdersPage__modalPriceSub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.OrdersPage__modalPriceTag {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.OrdersPage__modalError {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Modal Footer */
+.OrdersPage__modalFooter {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.OrdersPage__modalPayBtn {
+  width: 100%;
+  padding: 13px 20px;
+  background: #12598f;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(18, 89, 143, 0.3);
+}
+
+.OrdersPage__modalPayBtn:hover:not(:disabled) {
+  background: #0d426b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(18, 89, 143, 0.4);
+}
+
+.OrdersPage__modalPayBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.OrdersPage__modalDetailBtn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.OrdersPage__modalDetailBtn:hover {
+  color: #12598f;
+}
+
+.OrdersPage__miniSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Layout & All Elements */
+@media (max-width: 992px) {
   .OrdersPage__layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 14px;
   }
-  .OrdersPage__sidebar {
-    display: none;
-  }
+
   .OrderDetail__grid {
     grid-template-columns: 1fr;
-  }
-  .OrdersPage__compactCard {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .OrdersPage__compactCenter {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .OrdersPage__compactRight {
-    width: 100%;
-    justify-content: flex-end;
+    gap: 16px;
   }
 }
+
+@media (max-width: 860px) {
+  .OrdersPage {
+    padding: 12px 10px 45px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .OrdersPage__container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+
+  .OrdersPage__layout {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    gap: 12px;
+    box-sizing: border-box;
+  }
+
+  .OrdersPage__sidebar {
+    display: none !important;
+  }
+
+
+  .OrdersPage__content {
+    padding: 14px 12px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .OrdersPage__contentHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .OrdersPage__contentHeader h2 {
+    font-size: 19px;
+  }
+
+  .OrdersPage__headerActions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    box-sizing: border-box;
+  }
+
+  .OrdersPage__headerAddressLink {
+    justify-content: center;
+  }
+
+  .OrdersPage__searchWrap {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .OrdersPage__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Compact Card Layout for Mobile */
+  .OrdersPage__compactList {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .OrdersPage__compactCard {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 12px 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .OrdersPage__compactLeft {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .OrdersPage__compactThumb {
+    width: 44px;
+    height: 58px;
+    flex-shrink: 0;
+    border-radius: 4px;
+  }
+
+  .OrdersPage__compactInfo {
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 54px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    box-sizing: border-box;
+  }
+
+  .OrdersPage__compactTitle {
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .OrdersPage__compactMeta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+    min-width: 0;
+    margin-top: 2px;
+  }
+
+  .OrdersPage__compactDot {
+    display: none;
+  }
+
+  .OrdersPage__compactReceipt {
+    font-size: 11px;
+    color: #64748b;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    line-height: 1.4;
+  }
+
+  .OrdersPage__compactReceipt strong {
+    font-size: 11px;
+    font-family: monospace;
+  }
+
+  .OrdersPage__compactDate {
+    font-size: 10.5px;
+    color: #878787;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.4;
+  }
+
+  /* Price and Status: Fully visible on one line or cleanly wrapping */
+  .OrdersPage__compactCenter {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #e2e8f0;
+  }
+
+  .OrdersPage__compactPrice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-shrink: 0;
+  }
+
+  .OrdersPage__compactPriceLabel {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .OrdersPage__compactPriceVal {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+  }
+
+  .OrdersPage__compactBadges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .OrdersPage__paymentStatusTag,
+  .OrdersPage__statusBadge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.2;
+  }
+
+  /* Action Buttons: 50% / 50% Side-by-Side */
+  .OrdersPage__compactRight {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .OrdersPage__compactActionBtn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+    padding: 8px 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+
+  .OrdersPage__compactActionBtn svg {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Order Detail view on tablet */
+  .OrderDetail {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .OrderDetail__topNav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .OrderDetail__topActions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+
+  .OrderDetail__btn {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  .OrderDetail__stepperCard {
+    padding: 18px 14px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+
+  .OrderDetail__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .OrderDetail__colMain,
+  .OrderDetail__colSide {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .OrderDetail__sectionCard,
+  .OrderDetail__paymentCard {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .OrderDetail__stepTitle {
+    font-size: 11px;
+  }
+
+  .OrderDetail__infoRow {
+    flex-wrap: wrap;
+  }
+
+  .OrderDetail__copyWrap {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .OrderDetail__copyWrap code {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 540px) {
+  .OrdersPage {
+    padding: 10px 8px 40px;
+  }
+
+  .OrdersPage__container {
+    width: 100%;
+    padding: 0;
+  }
+
+  .OrdersPage__breadcrumb {
+    font-size: 11px;
+    margin-bottom: 8px;
+    gap: 4px;
+  }
+
+  .OrdersPage__content {
+    padding: 12px 10px;
+    border-radius: 10px;
+  }
+
+  .OrdersPage__contentHeader h2 {
+    font-size: 17px;
+  }
+
+  .OrdersPage__subtitle {
+    font-size: 11px;
+  }
+
+  .OrdersPage__filterTab {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .OrdersPage__compactCard {
+    padding: 10px 10px;
+  }
+
+  .OrdersPage__compactThumb {
+    width: 40px;
+    height: 52px;
+  }
+
+  .OrdersPage__compactTitle {
+    font-size: 13px;
+  }
+
+  .OrdersPage__compactReceipt {
+    font-size: 10.5px;
+  }
+
+  .OrdersPage__compactDate {
+    font-size: 10px;
+  }
+
+  .OrdersPage__compactPriceVal {
+    font-size: 14px;
+  }
+
+  .OrdersPage__paymentStatusTag,
+  .OrdersPage__statusBadge {
+    font-size: 10px;
+    padding: 2.5px 7px;
+  }
+
+  /* Stepper mobile compression */
+  .OrderDetail__stepperCard {
+    padding: 12px 8px;
+    overflow-x: auto;
+  }
+
+  .OrderDetail__stepMarker {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .OrderDetail__stepLine {
+    top: 12px;
+  }
+
+  .OrderDetail__stepTitle {
+    font-size: 9px;
+    margin-top: 4px;
+    word-break: break-word;
+  }
+
+  .OrderDetail__itemRow {
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .OrderDetail__itemThumb {
+    width: 40px;
+    height: 54px;
+  }
+
+  .OrderDetail__itemTitle {
+    font-size: 12.5px;
+  }
+
+  .OrderDetail__paymentBanner {
+    margin: 10px;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .OrderDetail__paymentBannerIcon {
+    font-size: 16px;
+  }
+
+  .OrderDetail__copyWrap code {
+    max-width: 120px;
+  }
+
+  /* Modal responsiveness */
+  .OrdersPage__modalOverlay {
+    padding: 8px;
+  }
+
+  .OrdersPage__modalCard {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .OrdersPage__modalHeader {
+    padding: 12px 14px;
+  }
+
+  .OrdersPage__modalBody {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .OrdersPage__modalPriceBox {
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .OrdersPage__modalPriceAmount {
+    font-size: 20px;
+  }
+
+  .OrdersPage__modalFooter {
+    padding: 10px 14px;
+  }
+
+  .OrdersPage__modalPayBtn {
+    padding: 10px 14px;
+    font-size: 13.5px;
+  }
+}
+
+
+

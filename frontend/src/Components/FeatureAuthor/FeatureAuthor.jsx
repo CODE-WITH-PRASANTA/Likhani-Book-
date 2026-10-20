@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { fetchFeaturedAuthors } from '../../api/booksService';
 import './FeatureAuthor.css';
 
-// 12 डमी डेटा (लेखक विवरण और फोटो)
-const authorsData = [
+// Fallback authors if API returns empty list
+const DEFAULT_AUTHORS = [
   {
     id: 1,
     name: "Brooklyn Simmons",
@@ -51,33 +53,9 @@ const authorsData = [
     books: "11 Published Books",
     image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80"
   },
-  {
-    id: 9,
-    name: "Savannah Nguyen",
-    books: "08 Published Books",
-    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 10,
-    name: "Robert Fox",
-    books: "14 Published Books",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 11,
-    name: "Kathryn Murphy",
-    books: "06 Published Books",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 12,
-    name: "Devon Lane",
-    books: "13 Published Books",
-    image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=200&auto=format&fit=crop&q=80"
-  }
 ];
 
-// गोल्डन लॉरेल रीथ SVG आइकन
+// Golden Laurel Wreath SVG Icon
 const LaurelWreathSVG = () => (
   <svg 
     className="laurel-wreath-icon" 
@@ -85,7 +63,7 @@ const LaurelWreathSVG = () => (
     fill="none" 
     xmlns="http://www.w3.org/2000/svg"
   >
-    {/* बायीं शाखा */}
+    {/* Left Branch */}
     <g fill="#c99738">
       <path d="M72,150 C40,146 16,118 16,80 C16,56 28,34 46,20" stroke="#c99738" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       <path d="M44,22 C41,20 37,25 39,28 C43,33 49,27 44,22 Z" />
@@ -97,7 +75,7 @@ const LaurelWreathSVG = () => (
       <path d="M39,132 C36,134 39,141 43,141 C52,143 53,134 39,132 Z" />
       <path d="M57,144 C55,146 60,152 64,151 C73,151 72,142 57,144 Z" />
     </g>
-    {/* दायीं शाखा */}
+    {/* Right Branch */}
     <g fill="#c99738">
       <path d="M88,150 C120,146 144,118 144,80 C144,56 132,34 114,20" stroke="#c99738" strokeWidth="2.5" fill="none" strokeLinecap="round" />
       <path d="M116,22 C119,20 123,25 121,28 C117,33 111,27 116,22 Z" />
@@ -113,37 +91,102 @@ const LaurelWreathSVG = () => (
 );
 
 const FeatureAuthor = () => {
+  const navigate = useNavigate();
+  const [authors, setAuthors] = useState(DEFAULT_AUTHORS);
+  const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [stepPx, setStepPx] = useState(0);
+  const trackRef = useRef(null);
 
-  // डेस्कटॉप पर 6 कार्ड्स दिखाई देते हैं
-  const visibleCards = 6;
-  const maxIndex = Math.max(0, authorsData.length - visibleCards);
-
-  // हर 2 सेकंड में धीमी स्लाइडिंग
+  // Fetch real authors dynamically from backend
   useEffect(() => {
-    if (isPaused) return;
+    let isMounted = true;
+    const loadAuthors = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchFeaturedAuthors();
+        if (isMounted) {
+          if (Array.isArray(data) && data.length > 0) {
+            setAuthors(data);
+          } else {
+            setAuthors(DEFAULT_AUTHORS);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load featured authors:", err);
+        if (isMounted) setAuthors(DEFAULT_AUTHORS);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadAuthors();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Compute exact sliding step (card width + 20px gap) on resize and author load
+  useEffect(() => {
+    const updateStep = () => {
+      if (!trackRef.current) return;
+      const firstCard = trackRef.current.querySelector('.author-card');
+      if (firstCard) {
+        const width = firstCard.getBoundingClientRect().width;
+        setStepPx(width + 20); // 20px gap
+      }
+    };
+
+    updateStep();
+    window.addEventListener('resize', updateStep);
+    return () => window.removeEventListener('resize', updateStep);
+  }, [authors.length]);
+
+  // Determine visible count based on window width
+  const getVisibleCount = () => {
+    if (typeof window === 'undefined') return 6;
+    if (window.innerWidth <= 400) return 1;
+    if (window.innerWidth <= 600) return 2;
+    if (window.innerWidth <= 850) return 3;
+    if (window.innerWidth <= 1150) return 4;
+    return 6;
+  };
+
+  const visibleCards = getVisibleCount();
+  const maxIndex = Math.max(0, authors.length - visibleCards);
+
+  // Auto-slide every 3.5 seconds (paused on hover)
+  useEffect(() => {
+    if (isPaused || maxIndex <= 0) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-    }, 2000); // 2 सेकंड
+    }, 3500);
 
     return () => clearInterval(interval);
   }, [isPaused, maxIndex]);
 
+  const handleAuthorClick = (authorName) => {
+    if (authorName) {
+      navigate(`/shop?search=${encodeURIComponent(authorName)}`);
+    }
+  };
+
   return (
     <section className="featured-author-section">
-      {/* हेडर भाग */}
+      {/* Header section */}
       <div className="author-header">
         <h2 className="author-title">Featured Author</h2>
         <p className="author-subtitle">
-          Interdum et malesuada fames ac ante ipsum primis in faucibus.
+          Discover distinguished authors and their published literary works in our collection.
           <br />
-          Donec at nulla nulla. Duis posuere ex lacus
+          Explore titles, philosophy, and stories written for avid readers.
         </p>
       </div>
 
-      {/* स्लाइडर व्यूपोर्ट */}
+      {/* Carousel viewport */}
       <div 
         className="author-carousel-viewport"
         onMouseEnter={() => setIsPaused(true)}
@@ -151,22 +194,37 @@ const FeatureAuthor = () => {
       >
         <div 
           className="author-slider-track"
+          ref={trackRef}
           style={{
-            /* 1 कार्ड + 20px गैप के हिसाब से धीमा शिफ्ट */
-            transform: `translateX(calc(-${currentIndex} * (100% / 6 + 20px / 6)))`
+            transform: stepPx > 0 ? `translateX(-${currentIndex * stepPx}px)` : 'translateX(0px)'
           }}
         >
-          {authorsData.map((author) => (
-            <div key={author.id} className="author-card">
-              {/* गोल्डन लॉरेल रीथ और गोल अवतार */}
+          {authors.map((author, index) => (
+            <div 
+              key={author.id || index} 
+              className="author-card"
+              onClick={() => handleAuthorClick(author.name)}
+              title={`View books by ${author.name}`}
+              style={{ cursor: 'pointer' }}
+            >
+              {/* Golden laurel wreath and circular avatar */}
               <div className="author-avatar-wrapper">
                 <LaurelWreathSVG />
                 <div className="author-img-container">
-                  <img src={author.image} alt={author.name} className="author-img" />
+                  <img 
+                    src={author.image || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"} 
+                    alt={author.name} 
+                    className="author-img"
+                    loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80";
+                    }}
+                  />
                 </div>
               </div>
 
-              {/* डैश्ड / डॉटेड इन्फो बॉक्स */}
+              {/* Dashed info box */}
               <div className="author-info-box">
                 <h4 className="author-name">{author.name}</h4>
                 <p className="author-books">{author.books}</p>
