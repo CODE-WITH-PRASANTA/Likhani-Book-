@@ -6,6 +6,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaBookmark,
+  FaClock,
 } from 'react-icons/fa';
 import API, { IMG_URL } from '../../api/axios';
 import './HomeNews.css';
@@ -16,7 +17,10 @@ const NEWS_ITEMS = [
     category: 'Activities',
     date: 'Feb 10, 2024',
     author: 'Admin',
+    readTime: '3 min read',
     title: 'Montes Suspendisse Massa Curae Malesuada',
+    description: 'Discover captivating literary discussions, author deep-dives, and timeless bookish adventures.',
+    tags: ['Reading', 'Literature'],
     image:
       'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=85',
     href: '#',
@@ -26,7 +30,10 @@ const NEWS_ITEMS = [
     category: 'Activities',
     date: 'Mar 20, 2024',
     author: 'Admin',
+    readTime: '2 min read',
     title: 'Playful Picks Paradise: Kids Essentials With Dash.',
+    description: 'Explore engaging tales and colorful pages designed to cultivate a joyful, lifelong reading habit.',
+    tags: ['Kids', 'Storytelling'],
     image:
       'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=85',
     href: '#',
@@ -36,7 +43,10 @@ const NEWS_ITEMS = [
     category: 'Activities',
     date: 'Jun 14, 2024',
     author: 'Admin',
+    readTime: '4 min read',
     title: "Tiny Emporium: Playful Picks For Kids' Delightful Days.",
+    description: 'Immerse in classic chronicles, timeless folklore, and educational collections for young thinkers.',
+    tags: ['Activities', 'Education'],
     image:
       'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=85',
     href: '#',
@@ -46,7 +56,10 @@ const NEWS_ITEMS = [
     category: 'Activities',
     date: 'Mar 12, 2024',
     author: 'Admin',
+    readTime: '3 min read',
     title: 'Eu Parturient Dictumst Fames Quam Tempor',
+    description: 'A thoughtful exploration of contemporary poetry, regional heritage, and classical writing.',
+    tags: ['Poetry', 'Culture'],
     image:
       'https://images.unsplash.com/photo-1524578271613-d550eacf6090?auto=format&fit=crop&w=600&q=85',
     href: '#',
@@ -56,7 +69,10 @@ const NEWS_ITEMS = [
     category: 'Activities',
     date: 'Apr 05, 2024',
     author: 'Admin',
+    readTime: '2 min read',
     title: 'Mastering Reading Habits in Modern Digital Age',
+    description: 'Actionable tips and mindful strategies to stay focused and rediscover deep, immersive reading.',
+    tags: ['Habits', 'Focus'],
     image:
       'https://images.unsplash.com/photo-1495640388908-05fa85288e61?auto=format&fit=crop&w=600&q=85',
     href: '#',
@@ -66,7 +82,10 @@ const NEWS_ITEMS = [
     category: 'Activities',
     date: 'May 19, 2024',
     author: 'Admin',
+    readTime: '5 min read',
     title: 'The Secret World of Classic Architectural Libraries',
+    description: 'Step inside majestic heritage libraries preserved with historical reverence and architectural beauty.',
+    tags: ['Architecture', 'History'],
     image:
       'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=600&q=85',
     href: '#',
@@ -102,23 +121,47 @@ const HomeNews = ({ onSelectArticle }) => {
       try {
         const res = await API.get('/blogs', { params: { limit: 8, status: 'Published' } });
         if (res.data?.success && res.data.data?.length > 0) {
-          const mapped = res.data.data.map((b) => ({
-            id: b._id,
-            category: b.category || 'Activities',
-            date: new Date(b.createdAt).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric',
-            }),
-            author: b.author || 'Admin',
-            title: b.title,
-            image: b.image
-              ? b.image.startsWith('http') || b.image.startsWith('data:')
-                ? b.image
-                : `${IMG_URL}${b.image.startsWith('/') ? '' : '/'}${b.image}`
-              : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=85',
-            href: `/blog/${b.slug || b._id}`,
-          }));
+          const mapped = res.data.data.map((b) => {
+            const rawDesc = (b.shortDescription || b.description || '')
+              .replace(/<[^>]+>/g, ' ')
+              .replace(/\s+/g, ' ')
+              .trim();
+            const description =
+              rawDesc ||
+              'Explore inspiring thoughts, literary discussions, and stories curated for passionate readers.';
+            const wordCount = (rawDesc || b.title || '').trim().split(/\s+/).filter(Boolean).length;
+            const readTime = `${Math.max(1, Math.ceil(wordCount / 50))} min read`;
+
+            let tags = [];
+            if (Array.isArray(b.tags) && b.tags.length > 0) {
+              tags = b.tags.filter(Boolean).slice(0, 3);
+            } else if (b.category) {
+              tags = [b.category];
+            } else {
+              tags = ['Books', 'Reading'];
+            }
+
+            return {
+              id: b._id,
+              category: b.category || 'Activities',
+              date: new Date(b.createdAt).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              }),
+              author: b.author || 'Admin',
+              title: b.title,
+              description,
+              readTime,
+              tags,
+              image: b.image
+                ? b.image.startsWith('http') || b.image.startsWith('data:')
+                  ? b.image
+                  : `${IMG_URL}${b.image.startsWith('/') ? '' : '/'}${b.image}`
+                : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=85',
+              href: `/blog/${b.slug || b._id}`,
+            };
+          });
           setNewsItems(mapped);
         }
       } catch (err) {
@@ -325,32 +368,59 @@ const HomeNews = ({ onSelectArticle }) => {
                     <div className="home-news__meta-info">
                       <span className="home-news__meta-item">
                         <FaCalendarAlt className="home-news__meta-icon" />
-                        {item.date}
+                        <span>{item.date}</span>
                       </span>
                       <span className="home-news__meta-divider" aria-hidden="true" />
-                      <span className="home-news__meta-item">
+                      <span className="home-news__meta-item home-news__meta-item--author" title={item.author}>
                         <FaUser className="home-news__meta-icon" />
-                        {item.author}
+                        <span className="home-news__author-name">{item.author}</span>
                       </span>
+                      {item.readTime && (
+                        <>
+                          <span className="home-news__meta-divider" aria-hidden="true" />
+                          <span className="home-news__meta-item">
+                            <FaClock className="home-news__meta-icon" />
+                            <span>{item.readTime}</span>
+                          </span>
+                        </>
+                      )}
                     </div>
 
                     <h3 className="home-news__title" title={item.title}>
                       {item.title}
                     </h3>
 
-                    <a
-                      className="home-news__read-more-btn"
-                      href={item.href}
-                      onClick={(e) => {
-                        if (onSelectArticle) {
-                          e.preventDefault();
-                          onSelectArticle(item);
-                        }
-                      }}
-                    >
-                      <span>Read More</span>
-                      <FaArrowRight className="home-news__read-icon" />
-                    </a>
+                    {item.description && (
+                      <p className="home-news__excerpt">
+                        {item.description}
+                      </p>
+                    )}
+
+                    {item.tags && item.tags.length > 0 && (
+                      <div className="home-news__tags-list">
+                        {item.tags.map((tag, idx) => (
+                          <span key={idx} className="home-news__tag-badge">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="home-news__footer">
+                      <a
+                        className="home-news__read-more-btn"
+                        href={item.href}
+                        onClick={(e) => {
+                          if (onSelectArticle) {
+                            e.preventDefault();
+                            onSelectArticle(item);
+                          }
+                        }}
+                      >
+                        <span>Read More</span>
+                        <FaArrowRight className="home-news__read-icon" />
+                      </a>
+                    </div>
                   </div>
                 </article>
               ))}

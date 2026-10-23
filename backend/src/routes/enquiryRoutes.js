@@ -44,6 +44,10 @@ router.get("/:id", getEnquiryById);
 // PUT /api/enquiries/:id
 // =====================================================
 
+const commentController = require("../controllers/commentController");
+router.patch("/:id/publish-comment", commentController.publishComment);
+router.patch("/:id/unpublish-comment", commentController.unpublishComment);
+
 router.put("/:id", updateEnquiry);
 
 // =====================================================

@@ -4,71 +4,12 @@ import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { fetchTopCategories } from '../../api/booksService';
 import './TopBook.css';
 
-const DEFAULT_FALLBACK_CATEGORIES = [
-  {
-    id: 'c1',
-    number: '01',
-    title: 'Fiction',
-    count: 2,
-    totalSold: 5,
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=85',
-  },
-  {
-    id: 'c2',
-    number: '02',
-    title: 'Demohhh',
-    count: 2,
-    totalSold: 1,
-    image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=85',
-  },
-  {
-    id: 'c3',
-    number: '03',
-    title: 'Business & Finance',
-    count: 3,
-    totalSold: 0,
-    image: 'https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&w=800&q=85',
-  },
-  {
-    id: 'c4',
-    number: '04',
-    title: 'Fiction & Literature',
-    count: 3,
-    totalSold: 0,
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=85',
-  },
-  {
-    id: 'c5',
-    number: '05',
-    title: 'History & Philosophy',
-    count: 3,
-    totalSold: 0,
-    image: 'https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=800&q=85',
-  },
-  {
-    id: 'c6',
-    number: '06',
-    title: 'Science & Technology',
-    count: 3,
-    totalSold: 0,
-    image: 'https://images.unsplash.com/photo-1532012164546-f432f2e3777f?auto=format&fit=crop&w=800&q=85',
-  },
-  {
-    id: 'c7',
-    number: '07',
-    title: 'Self-Help & Wellness',
-    count: 3,
-    totalSold: 0,
-    image: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=85',
-  },
-];
-
 const FALLBACK_IMG =
   'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=85';
 
 const TopBook = () => {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState(DEFAULT_FALLBACK_CATEGORIES);
+  const [categories, setCategories] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -81,11 +22,16 @@ const TopBook = () => {
       try {
         setLoading(true);
         const data = await fetchTopCategories();
-        if (isMounted && Array.isArray(data) && data.length > 0) {
-          setCategories(data);
+        if (isMounted) {
+          if (Array.isArray(data) && data.length > 0) {
+            setCategories(data);
+          } else {
+            setCategories([]);
+          }
         }
       } catch (err) {
         console.error('Failed to load top categories from database:', err);
+        if (isMounted) setCategories([]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -136,6 +82,10 @@ const TopBook = () => {
     }, 4500);
     return () => clearInterval(interval);
   }, [isPaused, totalItems]);
+
+  if (!loading && categories.length === 0) {
+    return null;
+  }
 
   return (
     <section className="top-book">

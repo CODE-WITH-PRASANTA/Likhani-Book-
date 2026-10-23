@@ -22,7 +22,7 @@ const enquirySchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
+      default: "N/A",
       trim: true,
       maxLength: [25, "Phone number cannot exceed 25 characters"],
     },
@@ -69,6 +69,12 @@ const enquirySchema = new mongoose.Schema(
 
     repliedAt: {
       type: Date,
+      default: null,
+    },
+
+    commentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment",
       default: null,
     },
   },

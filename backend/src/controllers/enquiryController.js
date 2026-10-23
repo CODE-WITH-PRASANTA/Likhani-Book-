@@ -16,10 +16,14 @@ const createEnquiry = async (req, res) => {
       message = "",
     } = req.body || {};
 
-    if (!name?.trim() || !email?.trim() || !phone?.trim()) {
+    const isBlogComment = type === "Blog Comment";
+
+    if (!name?.trim() || !email?.trim() || (!isBlogComment && !phone?.trim())) {
       return res.status(400).json({
         success: false,
-        message: "Name, email, and phone number are required.",
+        message: isBlogComment
+          ? "Name and email are required."
+          : "Name, email, and phone number are required.",
       });
     }
 
@@ -30,18 +34,20 @@ const createEnquiry = async (req, res) => {
       });
     }
 
-    const phoneDigits = String(phone).replace(/\D/g, "");
-    if (phoneDigits.length < 10) {
-      return res.status(400).json({
-        success: false,
-        message: "Please enter a valid 10-digit phone number.",
-      });
+    if (!isBlogComment && phone) {
+      const phoneDigits = String(phone).replace(/\D/g, "");
+      if (phoneDigits.length < 10) {
+        return res.status(400).json({
+          success: false,
+          message: "Please enter a valid 10-digit phone number.",
+        });
+      }
     }
 
     const enquiry = await Enquiry.create({
       name: name.trim(),
       email: email.trim().toLowerCase(),
-      phone: phone.trim(),
+      phone: phone?.trim() || "N/A",
       address: address ? address.trim() : "",
       type: type?.trim() || "General Enquiry",
       subject: subject?.trim() || "Website Enquiry",
@@ -256,6 +262,38 @@ const updateEnquiry = async (req, res) => {
 
     const updatedEnquiry = await enquiry.save();
 
+    // If this is a Blog Comment, synchronize fields and status, and recalculate blog count
+    if (enquiry.type === "Blog Comment") {
+      try {
+        const Comment = require("../models/Comment");
+        const Blog = require("../models/Blog");
+        let comment = null;
+        if (enquiry.commentId) {
+          comment = await Comment.findById(enquiry.commentId);
+        }
+        if (!comment) {
+          const slugFromAddress = (enquiry.address || "").replace(/^\/blog\//, "").trim();
+          comment = await Comment.findOne({ email: enquiry.email, blogSlug: slugFromAddress });
+        }
+        if (comment) {
+          if (name !== undefined) comment.name = name.trim();
+          if (email !== undefined) comment.email = email.trim().toLowerCase();
+          if (message !== undefined) comment.message = message.trim();
+          if (status !== undefined) {
+            comment.status = status === "Closed" ? "Published" : "Draft";
+          }
+          await comment.save();
+          const count = await Comment.countDocuments({
+            blog: comment.blog,
+            status: { $in: ["Published", "Approved"] },
+          });
+          await Blog.findByIdAndUpdate(comment.blog, { comments: count });
+        }
+      } catch (syncErr) {
+        console.error("Error syncing enquiry update to Comment model:", syncErr);
+      }
+    }
+
     return res.status(200).json({
       success: true,
       message: "Enquiry updated successfully.",
@@ -291,6 +329,35 @@ const deleteEnquiry = async (req, res) => {
         success: false,
         message: "Enquiry not found.",
       });
+    }
+
+    // If this is a Blog Comment, remove the corresponding comment and recalculate blog count
+    if (enquiry.type === "Blog Comment") {
+      try {
+        const Comment = require("../models/Comment");
+        const Blog = require("../models/Blog");
+        let comment = null;
+        if (enquiry.commentId) {
+          comment = await Comment.findById(enquiry.commentId);
+        }
+        if (!comment) {
+          const slugFromAddress = (enquiry.address || "").replace(/^\/blog\//, "").trim();
+          comment = await Comment.findOne({ email: enquiry.email, blogSlug: slugFromAddress });
+        }
+        if (comment) {
+          const blogId = comment.blog;
+          await comment.deleteOne();
+          if (blogId) {
+            const count = await Comment.countDocuments({
+              blog: blogId,
+              status: { $in: ["Published", "Approved"] },
+            });
+            await Blog.findByIdAndUpdate(blogId, { comments: count });
+          }
+        }
+      } catch (delSyncErr) {
+        console.error("Error syncing comment deletion from enquiry:", delSyncErr);
+      }
     }
 
     await Enquiry.findByIdAndDelete(id);

@@ -279,22 +279,10 @@
 
 .home-book__grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 72px) / 4);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
   width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2px 2px 12px;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.home-book__grid::-webkit-scrollbar {
-  display: none;
+  padding: 4px 2px 14px;
 }
 
 /* =========================================================
@@ -305,6 +293,7 @@
   position: relative;
   display: flex;
   min-width: 0;
+  height: 100%;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(35, 34, 43, 0.07);
@@ -1011,8 +1000,8 @@
   }
 
   .home-book__grid {
-    grid-auto-columns: calc((100% - 48px) / 3);
-    gap: 24px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
   }
 }
 
@@ -1032,8 +1021,8 @@
   }
 
   .home-book__grid {
-    grid-auto-columns: calc((100% - 20px) / 2);
-    gap: 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
   }
 
   .home-book__featured-head {
@@ -1126,16 +1115,16 @@
   }
 
   .home-book__grid {
-    grid-auto-columns: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
   }
 
   .home-book__card {
-    border-radius: 15px;
+    border-radius: 14px;
   }
 
   .home-book__card-media {
-    aspect-ratio: 5 / 4;
+    aspect-ratio: 4 / 4.8;
   }
 
   .home-book__cover-img {
@@ -1143,16 +1132,54 @@
   }
 
   .home-book__card-body {
-    padding: 17px;
+    padding: 12px 10px 14px;
+  }
+
+  .home-book__genre {
+    font-size: 11px;
+    margin-bottom: 4px;
   }
 
   .home-book__title {
     min-height: auto;
-    font-size: 18px;
+    font-size: 14px;
+    line-height: 1.3;
+    margin-bottom: 7px;
+  }
+
+  .home-book__price {
+    gap: 6px;
+    margin-bottom: 8px;
   }
 
   .home-book__price-current {
-    font-size: 19px;
+    font-size: 15px;
+  }
+
+  .home-book__price-original {
+    font-size: 11px;
+  }
+
+  .home-book__meta {
+    min-height: 24px;
+    margin-bottom: 10px;
+  }
+
+  .home-book__author {
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  .home-book__avatar {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .home-book__add-btn {
+    min-height: 36px;
+    padding: 8px 10px;
+    font-size: 11.5px;
   }
 
   .home-book__quick-btn {

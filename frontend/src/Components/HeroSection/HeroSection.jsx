@@ -125,7 +125,7 @@ const HeroSection = () => {
 
           <div className="hero-section__chip">
             <span className="hero-section__chip-stars">
-              <FaStar /> 4.9
+              5 <FaStar />
             </span>
             <span className="hero-section__chip-divider" />
             <span className="hero-section__chip-text">12k+ happy readers</span>

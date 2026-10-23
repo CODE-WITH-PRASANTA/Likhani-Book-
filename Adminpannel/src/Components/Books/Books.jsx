@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   Plus,
@@ -44,6 +45,7 @@ const getImageUrl = (imagePath) => {
 };
 
 const Books = () => {
+  const navigate = useNavigate();
   /* =========================================================
      STATES
   ========================================================= */
@@ -306,9 +308,7 @@ const Books = () => {
   ========================================================= */
 
   const openAddModal = () => {
-    resetForm();
-    setSelectedBook(null);
-    setModalType("add");
+    navigate("/book-posting");
   };
 
   const openViewModal = (book) => {
@@ -991,7 +991,28 @@ const Books = () => {
                       <p>
                         Try changing your filters or add a new book to your store.
                       </p>
-                      <button onClick={resetFilters}>Clear Filters</button>
+                      <div className="Books__emptyActions" style={{ display: "flex", gap: "12px", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
+                        <button onClick={resetFilters}>Clear Filters</button>
+                        <button
+                          onClick={() => navigate("/book-posting")}
+                          style={{
+                            background: "linear-gradient(135deg, #1677ff 0%, #1263d9 100%)",
+                            color: "#ffffff",
+                            border: "none",
+                            padding: "9px 18px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontWeight: 600,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            boxShadow: "0 4px 14px rgba(22, 119, 255, 0.25)"
+                          }}
+                        >
+                          <Plus size={16} />
+                          Add Book
+                        </button>
+                      </div>
                     </div>
                   </td>
                 </tr>

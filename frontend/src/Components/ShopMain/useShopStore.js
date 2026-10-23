@@ -6,8 +6,21 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
    book details page always show the same data.
 ========================================================= */
 
-const STORAGE_KEY = "likhani-shop-v1";
 const MAX_QTY = 10;
+
+/** Dynamic storage key: scopes cart/wishlist to logged-in user, or guest when logged out */
+export const getActiveStorageKey = () => {
+  try {
+    const token = typeof window !== "undefined" ? window.localStorage.getItem("lekhani_token") : null;
+    const raw = typeof window !== "undefined" ? window.localStorage.getItem("lekhani_user") : null;
+    if (token && raw) {
+      const u = JSON.parse(raw);
+      const uid = u?.id || u?._id || u?.email;
+      if (uid) return `likhani-shop-user_${uid}`;
+    }
+  } catch (e) {}
+  return "likhani-shop-guest";
+};
 
 /** Identifies old hardcoded numeric dummy IDs (e.g., 1, 2, 3... from mock data) */
 export const isLegacyDummyId = (id) => {
@@ -34,7 +47,21 @@ const sanitizeWishlist = (rawWishlist) => {
 
 const load = () => {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (typeof window === "undefined") return { wishlist: [], cart: {} };
+    const key = getActiveStorageKey();
+    let raw = window.localStorage.getItem(key);
+
+    // Migration helper: If user is logged in but user-key is empty, check legacy key
+    if (!raw && key !== "likhani-shop-guest") {
+      const legacy = window.localStorage.getItem("likhani-shop-v1");
+      if (legacy) {
+        raw = legacy;
+        try {
+          window.localStorage.removeItem("likhani-shop-v1");
+        } catch (e) {}
+      }
+    }
+
     if (raw) {
       const parsed = JSON.parse(raw);
       const cleanWishlist = sanitizeWishlist(parsed.wishlist);
@@ -42,9 +69,9 @@ const load = () => {
 
       const next = { wishlist: cleanWishlist, cart: cleanCart };
 
-      // Re-save sanitized state to localStorage immediately
+      // Re-save sanitized state to active storage key
       try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        window.localStorage.setItem(key, JSON.stringify(next));
       } catch (e) {}
 
       return next;
@@ -61,12 +88,37 @@ const listeners = new Set();
 const commit = (next) => {
   state = next;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (typeof window !== "undefined") {
+      const key = getActiveStorageKey();
+      window.localStorage.setItem(key, JSON.stringify(state));
+    }
   } catch (error) {
     /* ignore quota / privacy-mode errors */
   }
   listeners.forEach((listener) => listener());
 };
+
+export const reloadShopStore = () => {
+  state = load();
+  listeners.forEach((listener) => listener());
+};
+
+// React instantly to login/logout events across tabs and current window
+if (typeof window !== "undefined") {
+  window.addEventListener("lekhani_auth_change", () => {
+    reloadShopStore();
+  });
+  window.addEventListener("storage", (e) => {
+    if (
+      e.key === "lekhani_token" ||
+      e.key === "lekhani_user" ||
+      e.key === "likhani-shop-v1" ||
+      (e.key && e.key.startsWith("likhani-shop-"))
+    ) {
+      reloadShopStore();
+    }
+  });
+}
 
 const subscribe = (listener) => {
   listeners.add(listener);
@@ -125,6 +177,20 @@ export const updateCartQty = (id, newQty) => {
 export const clearCart = () => {
   commit({
     ...state,
+    cart: {},
+  });
+};
+
+export const clearWishlist = () => {
+  commit({
+    ...state,
+    wishlist: [],
+  });
+};
+
+export const resetShopStore = () => {
+  commit({
+    wishlist: [],
     cart: {},
   });
 };

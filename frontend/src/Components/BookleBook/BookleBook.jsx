@@ -11,53 +11,7 @@ import {
 import "./BookleBook.css";
 import { fetchTopSellingBooks, fetchAllCatalogBooks } from "../../api/booksService";
 import { addToCart as addShopToCart, useShopStore } from "../ShopMain/useShopStore";
-
-const FALLBACK_PRODUCTS = [
-  {
-    id: "p1",
-    category: "Design Low Book",
-    title: "Flovely And Unicom Erna",
-    price: 30,
-    originalPrice: 39.99,
-    author: "Albert",
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "p2",
-    category: "Design Low Book",
-    title: "Qple GPad With Retinay Sispla",
-    price: 30,
-    originalPrice: 39.99,
-    author: "Wilcon",
-    badge: "Hot",
-    image:
-      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "p3",
-    category: "Design Low Book",
-    title: "Simple Things You To Save BOOK",
-    price: 30,
-    originalPrice: 39.99,
-    author: "Wilcon",
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1524578271613-d550eacf6090?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "p4",
-    category: "Design Low Book",
-    title: "How Deal With Very Bad BOOK",
-    price: 30,
-    originalPrice: 39.99,
-    author: "Esther",
-    badge: "-30%",
-    image:
-      "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=85",
-  },
-];
+import { slugify } from "../ShopMain/ShopMain";
 
 const BookleBook = () => {
   const navigate = useNavigate();
@@ -111,12 +65,12 @@ const BookleBook = () => {
             // Keep the top 4 real books to maintain the clean 4-card shelf layout
             setBooks(list.slice(0, 4));
           } else {
-            setBooks(FALLBACK_PRODUCTS);
+            setBooks([]);
           }
         }
       } catch (err) {
         console.error("Failed to load real books for BookleBook:", err);
-        if (isMounted) setBooks(FALLBACK_PRODUCTS);
+        if (isMounted) setBooks([]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -205,11 +159,21 @@ const BookleBook = () => {
     navigate("/shop");
   };
 
-  const handleOpenBook = (id) => {
-    if (id) {
-      navigate(`/book/${id}`);
+  const handleOpenBook = (product) => {
+    if (!product) return;
+    const bookSlug =
+      product.slug ||
+      (product.title ? slugify(product.title) : null) ||
+      product.id ||
+      product._id;
+    if (bookSlug) {
+      navigate(`/shop/${bookSlug}`, { state: { product } });
     }
   };
+
+  if (!loading && books.length === 0) {
+    return null;
+  }
 
   return (
     <section className="bookle-book">
@@ -296,7 +260,7 @@ const BookleBook = () => {
                   >
                     <div
                       className="bookle-book__media"
-                      onClick={() => handleOpenBook(product.id)}
+                      onClick={() => handleOpenBook(product)}
                       style={{ cursor: "pointer" }}
                       title="View book details"
                     >
@@ -341,7 +305,7 @@ const BookleBook = () => {
                       <h3
                         className="bookle-book__title"
                         title={product.title}
-                        onClick={() => handleOpenBook(product.id)}
+                        onClick={() => handleOpenBook(product)}
                         style={{ cursor: "pointer" }}
                       >
                         {product.title}

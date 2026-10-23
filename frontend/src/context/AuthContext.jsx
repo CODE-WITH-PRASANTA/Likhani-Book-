@@ -63,8 +63,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("lekhani_token");
-    localStorage.removeItem("lekhani_user");
+    try {
+      localStorage.removeItem("lekhani_token");
+      localStorage.removeItem("lekhani_user");
+      localStorage.removeItem("likhani-saved-later");
+      localStorage.removeItem("likhani-shop-v1");
+      localStorage.setItem("likhani-shop-guest", JSON.stringify({ wishlist: [], cart: {} }));
+    } catch (e) {
+      console.error("Error clearing storage on logout:", e);
+    }
     setCurrentUser(null);
     setToken(null);
     window.dispatchEvent(new Event("lekhani_auth_change"));

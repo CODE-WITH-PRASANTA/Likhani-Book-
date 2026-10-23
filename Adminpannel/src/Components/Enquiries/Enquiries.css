@@ -931,6 +931,12 @@
   white-space: nowrap;
 }
 
+.Enquiries-typeBadge--blogComment {
+  color: #c2410c;
+  background: #ffedd5;
+  border: 1px solid #fed7aa;
+}
+
 .Enquiries-typeBadge--bookInfo {
   color: #0369a1;
   background: #e0f2fe;
@@ -1032,6 +1038,17 @@
   background: #16a34a;
 }
 
+.Enquiries-statusBadge--draft {
+  color: #c2410c;
+  background: #ffedd5;
+  border: 1px solid #fed7aa;
+}
+
+.Enquiries-statusBadge--draft
+.Enquiries-statusDot {
+  background: #ea580c;
+}
+
 /* =========================================================
    ACTION BUTTONS
    ========================================================= */
@@ -1088,16 +1105,290 @@
   border-color: #a5b4fc;
 }
 
-.Enquiries-actionBtn--reply:hover {
-  color: var(--Enquiries-green);
-  background: var(--Enquiries-green-bg);
-  border-color: #86efac;
+.Enquiries-actionBtn--edit:hover {
+  color: #2563eb;
+  background: #eff6ff;
+  border-color: #bfdbfe;
 }
 
 .Enquiries-actionBtn--delete:hover {
   color: #dc2626;
   background: #fee2e2;
   border-color: #fca5a5;
+}
+
+/* =========================================================
+   PUBLISH / DRAFT TOGGLE SWITCH
+   ========================================================= */
+
+.Enquiries-publishToggleWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  vertical-align: middle;
+}
+
+.Enquiries-toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.Enquiries-toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.Enquiries-toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fed7aa;
+  border: 1.5px solid #fdba74;
+  transition: all 0.25s ease;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.Enquiries-toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 2.5px;
+  background-color: #ea580c;
+  transition: all 0.25s ease;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.Enquiries-toggleSwitch input:checked + .Enquiries-toggleSlider {
+  background-color: #bbf7d0;
+  border-color: #86efac;
+}
+
+.Enquiries-toggleSwitch input:checked + .Enquiries-toggleSlider:before {
+  transform: translateX(19px);
+  background-color: #16a34a;
+}
+
+.Enquiries-toggleSwitch input:focus + .Enquiries-toggleSlider {
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+.Enquiries-toggleBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.Enquiries-toggleBadge.is-published {
+  color: #15803d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.Enquiries-toggleBadge.is-draft {
+  color: #c2410c;
+  background: #ffedd5;
+  border: 1px solid #fed7aa;
+}
+
+/* =========================================================
+   EDIT MODAL STYLES
+   ========================================================= */
+
+.Enquiries-modalCard--edit {
+  max-width: 600px;
+  width: 100%;
+}
+
+.Enquiries-modalHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.Enquiries-modalHeaderTitle svg {
+  color: var(--Enquiries-primary);
+  font-size: 18px;
+}
+
+.Enquiries-formRow2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 600px) {
+  .Enquiries-formRow2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.Enquiries-inputDisabled {
+  background: #f1f5f9 !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+}
+
+.Enquiries-editStatusToggle {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.Enquiries-statusRadioPill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--Enquiries-border);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.Enquiries-statusRadioPill input {
+  margin: 0;
+  accent-color: var(--Enquiries-primary);
+}
+
+.Enquiries-statusRadioPill.active-draft {
+  border-color: #ea580c;
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.Enquiries-statusRadioPill.active-published {
+  border-color: #16a34a;
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.Enquiries-modalFooterButtons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--Enquiries-border);
+}
+
+.Enquiries-modalCancelBtn {
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.Enquiries-modalCancelBtn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.Enquiries-modalSubmitBtn {
+  padding: 10px 24px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--Enquiries-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.25);
+}
+
+.Enquiries-modalSubmitBtn:hover {
+  background: #e85a25;
+  transform: translateY(-1px);
+}
+
+.Enquiries-modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid var(--Enquiries-border);
+  border-radius: 0 0 16px 16px;
+}
+
+.Enquiries-modalActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.Enquiries-modalActionBtn.publish {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.Enquiries-modalActionBtn.publish:hover {
+  background: #15803d;
+}
+
+.Enquiries-modalActionBtn.unpublish {
+  background: #d97706;
+  color: #ffffff;
+}
+
+.Enquiries-modalActionBtn.unpublish:hover {
+  background: #b45309;
+}
+
+.Enquiries-modalCloseBtn {
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--Enquiries-muted);
+  background: #ffffff;
+  border: 1px solid var(--Enquiries-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.Enquiries-modalCloseBtn:hover {
+  background: #f1f5f9;
+  color: var(--Enquiries-text);
 }
 
 /* =========================================================

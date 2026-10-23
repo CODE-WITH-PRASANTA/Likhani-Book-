@@ -23,6 +23,14 @@ router
   .put(upload, blogController.updateBlog)
   .delete(blogController.deleteBlog);
 
+const commentController = require("../controllers/commentController");
+
+// Blog Comments (sub-resource)
+router
+  .route("/:identifier/comments")
+  .get(commentController.getCommentsByBlog)
+  .post(commentController.createComment);
+
 // Toggle Status
 router.patch("/:id/status", blogController.toggleBlogStatus);
 

@@ -13,82 +13,7 @@ import {
 import "./TopSelling.css";
 import { fetchTopSellingBooks } from "../../api/booksService";
 import { useShopStore, addToCart as addShopToCart } from "../ShopMain/useShopStore";
-
-const FALLBACK_TOP_SELLING_BOOKS = [
-  {
-    id: "ts1",
-    category: "Design",
-    title: "How Deal With Very Bad BOOK",
-    price: 30.0,
-    originalPrice: 39.99,
-    author: "Alexander",
-    isHighestSelling: true,
-    totalSold: 12,
-    badge: "Top Selling",
-    image:
-      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "ts2",
-    category: "Technology",
-    title: "Qple GPad With Retina Sisplay",
-    price: 30.0,
-    originalPrice: 39.99,
-    author: "Esther",
-    totalSold: 8,
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1524578271613-d550eacf6090?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "ts3",
-    category: "Literature",
-    title: "The Silent Songbird",
-    price: 30.0,
-    originalPrice: 39.99,
-    author: "Hawkins",
-    totalSold: 6,
-    badge: "hot",
-    image:
-      "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "ts4",
-    category: "Self-Help",
-    title: "Simple Things You To Save BOOK",
-    price: 30.0,
-    originalPrice: 39.99,
-    author: "Albert",
-    totalSold: 5,
-    badge: null,
-    image:
-      "https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "ts5",
-    category: "Business",
-    title: "Startup Blueprint for Success",
-    price: 30.0,
-    originalPrice: 39.99,
-    author: "Wilson",
-    totalSold: 4,
-    badge: "sale",
-    image:
-      "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=600&q=85",
-  },
-  {
-    id: "ts6",
-    category: "Fiction",
-    title: "Castle In The Sky Odyssey",
-    price: 24.0,
-    originalPrice: 32.0,
-    author: "Marcus",
-    totalSold: 3,
-    badge: "hot",
-    image:
-      "https://images.unsplash.com/photo-1495640388908-05fa85288e61?auto=format&fit=crop&w=600&q=85",
-  },
-];
+import { slugify } from "../ShopMain/ShopMain";
 
 const getItemsPerView = (width) => {
   if (width <= 450) return 1;
@@ -126,12 +51,12 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
           if (Array.isArray(fetchedBooks) && fetchedBooks.length > 0) {
             setBooks(fetchedBooks);
           } else {
-            setBooks(FALLBACK_TOP_SELLING_BOOKS);
+            setBooks([]);
           }
         }
       } catch (err) {
         console.error("Error loading top selling books:", err);
-        if (isMounted) setBooks(FALLBACK_TOP_SELLING_BOOKS);
+        if (isMounted) setBooks([]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -171,9 +96,14 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
   };
 
   const handleBookClick = (book) => {
-    const bookId = book.id || book._id;
-    if (bookId) {
-      navigate(`/shop/${bookId}`);
+    if (!book) return;
+    const bookSlug =
+      book.slug ||
+      (book.title ? slugify(book.title) : null) ||
+      book.id ||
+      book._id;
+    if (bookSlug) {
+      navigate(`/shop/${bookSlug}`, { state: { product: book } });
     }
   };
 
@@ -254,6 +184,10 @@ const TopSelling = ({ onExploreMore, onAddToCart }) => {
       handleNext();
     }
   };
+
+  if (!loading && books.length === 0) {
+    return null;
+  }
 
   return (
     <section className="top-selling">

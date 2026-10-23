@@ -2,48 +2,8 @@ import React, { useState, useEffect } from 'react';
 import API, { IMG_URL } from '../../api/axios';
 import './Coustmerfeedback.css';
 
-// Curated fallback data so the carousel stays visually balanced if backend is empty
-const fallbackFeedback = [
-  {
-    id: 'fb-1',
-    quote: "One of the most powerful takeaways from this book is the emphasis on adopting a mindset of abundance and possibility. The idea that we can choose to see opportunities rather than limitations is a game-changer.",
-    name: "Ronald Richards",
-    role: "Marketing Coordinator",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-    company: "Lekhani Reads",
-    companyLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Envato_Logo_2020.svg/320px-Envato_Logo_2020.svg.png",
-    accentColor: "teal",
-    hasTopBorder: true
-  },
-  {
-    id: 'fb-2',
-    quote: "The idea that we can choose to see opportunities rather than limitations is a game-changer. The book encourages readers to step out of their comfort zones and embrace a more positive outlook on life.",
-    name: "Dianne Russell",
-    role: "Project Manager",
-    rating: 4,
-    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
-    company: "Book Lover",
-    companyLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/320px-Amazon_logo.svg.png",
-    accentColor: "black",
-    hasTopBorder: false
-  },
-  {
-    id: 'fb-3',
-    quote: "\"The Art of Possibility\" by Rosamund Stone Zander and Benjamin Zander is a transformative read that challenges conventional thinking and opens up new possibilities. As a reader, I found myself profoundly inspired.",
-    name: "Kathryn Murphy",
-    role: "Operations Lead",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-    company: "Lekhani Reads",
-    companyLogo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Envato_Logo_2020.svg/320px-Envato_Logo_2020.svg.png",
-    accentColor: "teal",
-    hasTopBorder: false
-  }
-];
-
 const Coustmerfeedback = () => {
-  const [reviews, setReviews] = useState(fallbackFeedback);
+  const [reviews, setReviews] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,21 +38,19 @@ const Coustmerfeedback = () => {
               rating: Math.min(Math.max(Number(r.rating) || 5, 1), 5),
               avatar: avatar,
               company: r.book || "Lekhani Book",
-              companyLogo: bookCover || "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Envato_Logo_2020.svg/320px-Envato_Logo_2020.svg.png",
+              companyLogo: bookCover,
               accentColor: index % 2 === 0 ? "teal" : "black",
               hasTopBorder: index % 3 === 0,
             };
           });
 
-          // Ensure at least 3 cards are present for the 3-column carousel layout
-          if (backendReviews.length < 3) {
-            setReviews([...backendReviews, ...fallbackFeedback.slice(backendReviews.length)]);
-          } else {
-            setReviews(backendReviews);
-          }
+          setReviews(backendReviews);
+        } else {
+          setReviews([]);
         }
       } catch (err) {
         console.error("Failed to fetch customer reviews for feedback section:", err);
+        setReviews([]);
       } finally {
         setIsLoading(false);
       }
@@ -115,6 +73,10 @@ const Coustmerfeedback = () => {
 
     return () => clearInterval(timer);
   }, [isPaused, maxIndex]);
+
+  if (!isLoading && reviews.length === 0) {
+    return null;
+  }
 
   return (
     <section className="feedback-section">

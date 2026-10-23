@@ -212,6 +212,10 @@ exports.createBlog = async (req, res) => {
       tags = [],
       status = "Published",
       image: textImage = "",
+      pageTitle = "",
+      metaTitle = "",
+      metaDescription = "",
+      metaKeywords = "",
     } = req.body || {};
 
     if (!title?.trim() || !category?.trim()) {
@@ -267,6 +271,10 @@ exports.createBlog = async (req, res) => {
       tags: tagsArray,
       status: ["Published", "Draft", "Trash"].includes(status) ? status : "Published",
       image: finalImage,
+      pageTitle: pageTitle ? pageTitle.trim() : "",
+      metaTitle: metaTitle ? metaTitle.trim() : "",
+      metaDescription: metaDescription ? metaDescription.trim() : "",
+      metaKeywords: metaKeywords ? metaKeywords.trim() : "",
     });
 
     res.status(201).json({
@@ -308,6 +316,10 @@ exports.updateBlog = async (req, res) => {
     if (updateData.author !== undefined) updateData.author = updateData.author.trim();
     if (updateData.shortDescription !== undefined) updateData.shortDescription = updateData.shortDescription.trim();
     if (updateData.description !== undefined) updateData.description = updateData.description.trim();
+    if (updateData.pageTitle !== undefined) updateData.pageTitle = updateData.pageTitle.trim();
+    if (updateData.metaTitle !== undefined) updateData.metaTitle = updateData.metaTitle.trim();
+    if (updateData.metaDescription !== undefined) updateData.metaDescription = updateData.metaDescription.trim();
+    if (updateData.metaKeywords !== undefined) updateData.metaKeywords = updateData.metaKeywords.trim();
 
     // Check slug uniqueness if changed
     if (updateData.slug && updateData.slug.trim()) {

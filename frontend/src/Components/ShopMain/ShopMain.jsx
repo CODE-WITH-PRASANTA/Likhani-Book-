@@ -119,11 +119,16 @@ const ShopMain = () => {
                   ? Math.round(((numericPrice - numericOffer) / numericPrice) * 100)
                   : 0;
 
+              const rawDesc = (b.description || "")
+                .replace(/<[^>]+>/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+
               map.set(id, {
                 id,
                 sku: b.sku || (b.isbn ? `ISBN-${b.isbn}` : null),
                 title: b.title || "Untitled Book",
-                author: b.author || "Likhani Author",
+                author: b.author?.trim() || "Likhani Author",
                 price: finalPrice,
                 oldPrice: oldPrice,
                 category: b.category || "Uncategorized",
@@ -139,10 +144,16 @@ const ShopMain = () => {
                       : `${BASE_URL}${b.image.startsWith("/") ? "" : "/"}${b.image}`)
                   : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=1000&auto=format&fit=crop&q=80",
                 inStock: b.stock === undefined || b.stock === null ? true : Number(b.stock) > 0,
+                stock: b.stock !== undefined && b.stock !== null ? Number(b.stock) : null,
+                pages: b.pages && Number(b.pages) > 0 ? Number(b.pages) : null,
+                language: b.language?.trim() || null,
+                publisher: b.publisher?.trim() || null,
+                rating: b.rating ? Number(b.rating) : 5,
                 onSale: onSale,
                 popularity: 90,
                 latestDate: b.createdAt || new Date().toISOString(),
                 description: b.description || "",
+                cleanDescription: rawDesc,
                 discount: discount,
                 isTopSelling: Boolean(b.isTopSelling),
                 isBestSeller: Boolean(b.isBestSeller),
@@ -782,7 +793,9 @@ const ShopMain = () => {
 
                     {/* Info */}
                     <div className="ShopMain__info">
-                      <span className="ShopMain__category">{product.category}</span>
+                      <div className="ShopMain__metaRow">
+                        <span className="ShopMain__category">{product.category}</span>
+                      </div>
 
                       <h3 className="ShopMain__title">
                         <Link
@@ -794,7 +807,32 @@ const ShopMain = () => {
                         </Link>
                       </h3>
 
-                      <p className="ShopMain__excerpt">{product.description}</p>
+                      <div className="ShopMain__authorRow">
+                        <span className="ShopMain__by">by</span>
+                        <span className="ShopMain__authorName">{product.author}</span>
+                      </div>
+
+                      {(product.pages || product.language || product.publisher) && (
+                        <div className="ShopMain__specChips">
+                          {product.pages ? (
+                            <span className="ShopMain__specChip">
+                              <FaBookOpen className="ShopMain__specIcon" /> {product.pages} pages
+                            </span>
+                          ) : null}
+                          {product.language ? (
+                            <span className="ShopMain__specChip">{product.language}</span>
+                          ) : null}
+                          {product.publisher ? (
+                            <span className="ShopMain__specChip ShopMain__specChip--pub" title={product.publisher}>
+                              {product.publisher}
+                            </span>
+                          ) : null}
+                        </div>
+                      )}
+
+                      {product.cleanDescription && (
+                        <p className="ShopMain__excerpt">{product.cleanDescription}</p>
+                      )}
 
                       <div className="ShopMain__priceRow">
                         <span className="ShopMain__price">{formatPrice(product.price)}</span>
@@ -802,6 +840,9 @@ const ShopMain = () => {
                           <span className="ShopMain__oldPrice">
                             {formatPrice(product.oldPrice)}
                           </span>
+                        )}
+                        {product.discount > 0 && (
+                          <span className="ShopMain__saveTag">{product.discount}% OFF</span>
                         )}
                       </div>
 

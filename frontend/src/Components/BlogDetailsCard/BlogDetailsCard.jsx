@@ -39,12 +39,14 @@ const BlogDetailsCard = () => {
   // Search & Comment states
   const [searchQuery, setSearchQuery] = useState('')
   const [comments, setComments] = useState([])
+  const [submittingComment, setSubmittingComment] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: '',
   })
   const [commentSuccess, setCommentSuccess] = useState('')
+  const [commentError, setCommentError] = useState('')
 
   // Helper to resolve image URLs
   const getImageUrl = (imgPath, fallback = mainHeroImg) => {
@@ -87,12 +89,15 @@ const BlogDetailsCard = () => {
         setIsLoading(true)
         setNotFound(false)
 
-        const [blogResult, catResult, recentResult] = await Promise.allSettled([
+        const [blogResult, catResult, recentResult, commentsResult] = await Promise.allSettled([
           targetIdentifier
             ? API.get(`/blogs/${encodeURIComponent(targetIdentifier)}`)
             : API.get('/blogs', { params: { limit: 1, status: 'Published' } }),
           API.get('/blogs/categories'),
           API.get('/blogs', { params: { limit: 4, status: 'Published', sort: 'latest' } }),
+          targetIdentifier
+            ? API.get(`/comments/blog/${encodeURIComponent(targetIdentifier)}`)
+            : Promise.resolve({ data: { success: true, data: [] } }),
         ])
 
         if (cancelled) return
@@ -121,6 +126,11 @@ const BlogDetailsCard = () => {
           const list = recentResult.value.data.data || []
           setRecentBlogs(list.filter((b) => b._id !== fetchedBlog?._id))
         }
+
+        // 4. Process comments strictly for this blog
+        if (commentsResult.status === 'fulfilled' && commentsResult.value?.data?.success) {
+          setComments(commentsResult.value.data.data || [])
+        }
       } catch (err) {
         console.error('Error in blog details loader:', err)
         if (!cancelled) setNotFound(true)
@@ -140,35 +150,100 @@ const BlogDetailsCard = () => {
     }
   }, [targetIdentifier])
 
+  // Dynamically set document title and meta tags based on current blog data
+  useEffect(() => {
+    if (currentBlog) {
+      const pageTitleText =
+        currentBlog.pageTitle || currentBlog.metaTitle || currentBlog.title || 'Blog Post'
+      document.title = `${pageTitleText} | Lekhani Books`
+
+      const setMetaTag = (attrName, attrVal, content) => {
+        if (!content) return
+        let tag = document.querySelector(`meta[${attrName}="${attrVal}"]`)
+        if (!tag) {
+          tag = document.createElement('meta')
+          tag.setAttribute(attrName, attrVal)
+          document.head.appendChild(tag)
+        }
+        tag.setAttribute('content', content)
+      }
+
+      setMetaTag(
+        'name',
+        'description',
+        currentBlog.metaDescription || currentBlog.shortDescription || currentBlog.title
+      )
+      setMetaTag(
+        'name',
+        'keywords',
+        currentBlog.metaKeywords || (Array.isArray(currentBlog.tags) ? currentBlog.tags.join(', ') : '')
+      )
+      setMetaTag('property', 'og:title', currentBlog.metaTitle || currentBlog.title)
+      setMetaTag(
+        'property',
+        'og:description',
+        currentBlog.metaDescription || currentBlog.shortDescription
+      )
+    }
+  }, [currentBlog])
+
   // Form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    if (commentError) setCommentError('')
   }
 
-  // Handle post comment
-  const handlePostComment = (e) => {
+  // Handle post comment with API integration and validation
+  const handlePostComment = async (e) => {
     e.preventDefault()
+    setCommentSuccess('')
+    setCommentError('')
+
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-      alert('Please fill out all required fields.')
+      setCommentError('Please fill out all required fields.')
       return
     }
 
-    const newComment = {
-      id: Date.now(),
-      name: formData.name.trim(),
-      date: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-      comment: formData.message.trim(),
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email.trim())) {
+      setCommentError('Please enter a valid email address.')
+      return
     }
 
-    setComments((prev) => [newComment, ...prev])
-    setFormData({ name: '', email: '', message: '' })
-    setCommentSuccess('Thank you! Your comment has been posted.')
-    setTimeout(() => setCommentSuccess(''), 4000)
+    const blogIdentifier = currentBlog?.slug || currentBlog?._id || targetIdentifier
+    if (!blogIdentifier) {
+      setCommentError('Unable to identify article. Please refresh the page.')
+      return
+    }
+
+    try {
+      setSubmittingComment(true)
+      const res = await API.post(`/comments/blog/${encodeURIComponent(blogIdentifier)}`, {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+      })
+
+      if (res.data?.success) {
+        setFormData({ name: '', email: '', message: '' })
+        setCommentSuccess(
+          res.data?.message ||
+            'Thank you! Your comment has been submitted as a draft and will appear on the blog once approved by admin.'
+        )
+        setTimeout(() => setCommentSuccess(''), 8000)
+      } else {
+        setCommentError(res.data?.message || 'Failed to post comment.')
+      }
+    } catch (err) {
+      console.error('Comment posting error:', err)
+      const errorMsg =
+        err.response?.data?.message ||
+        'Unable to post comment. Please try again later.'
+      setCommentError(errorMsg)
+    } finally {
+      setSubmittingComment(false)
+    }
   }
 
   // Handle sidebar search submit
@@ -389,6 +464,53 @@ const BlogDetailsCard = () => {
                 </a>
               </div>
             </div>
+
+            {/* Dynamic Meta & SEO Information Box */}
+            {(currentBlog.pageTitle ||
+              currentBlog.metaTitle ||
+              currentBlog.metaDescription ||
+              currentBlog.metaKeywords) && (
+              <div className="BlogDetailsCard-seo-panel">
+                <div className="BlogDetailsCard-seo-panel-header">
+                  <FaTag className="BlogDetailsCard-seo-icon" />
+                  <h4>Article Meta & SEO Information</h4>
+                </div>
+                <div className="BlogDetailsCard-seo-grid">
+                  {currentBlog.pageTitle && (
+                    <div className="BlogDetailsCard-seo-row">
+                      <span className="BlogDetailsCard-seo-label">Page Title:</span>
+                      <span className="BlogDetailsCard-seo-value">{currentBlog.pageTitle}</span>
+                    </div>
+                  )}
+                  {currentBlog.metaTitle && (
+                    <div className="BlogDetailsCard-seo-row">
+                      <span className="BlogDetailsCard-seo-label">Meta Title:</span>
+                      <span className="BlogDetailsCard-seo-value">{currentBlog.metaTitle}</span>
+                    </div>
+                  )}
+                  {currentBlog.metaDescription && (
+                    <div className="BlogDetailsCard-seo-row">
+                      <span className="BlogDetailsCard-seo-label">Meta Description:</span>
+                      <span className="BlogDetailsCard-seo-value">
+                        {currentBlog.metaDescription}
+                      </span>
+                    </div>
+                  )}
+                  {currentBlog.metaKeywords && (
+                    <div className="BlogDetailsCard-seo-row">
+                      <span className="BlogDetailsCard-seo-label">Meta Keywords:</span>
+                      <div className="BlogDetailsCard-keywords-wrap">
+                        {currentBlog.metaKeywords.split(',').map((kw, i) => (
+                          <span key={i} className="BlogDetailsCard-keyword-chip">
+                            #{kw.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </article>
 
           {/* Comments Section */}
@@ -404,15 +526,17 @@ const BlogDetailsCard = () => {
             ) : (
               <div className="BlogDetailsCard-comments-list">
                 {comments.map((item) => (
-                  <div key={item.id} className="BlogDetailsCard-comment-item">
+                  <div key={item._id || item.id} className="BlogDetailsCard-comment-item">
                     <div className="BlogDetailsCard-comment-body">
                       <div className="BlogDetailsCard-comment-header">
                         <div>
                           <h4 className="BlogDetailsCard-commenter-name">{item.name}</h4>
-                          <span className="BlogDetailsCard-comment-date">{item.date}</span>
+                          <span className="BlogDetailsCard-comment-date">
+                            {formatDate(item.createdAt || item.date)}
+                          </span>
                         </div>
                       </div>
-                      <p className="BlogDetailsCard-comment-text">{item.comment}</p>
+                      <p className="BlogDetailsCard-comment-text">{item.message || item.comment}</p>
                     </div>
                   </div>
                 ))}
@@ -436,6 +560,21 @@ const BlogDetailsCard = () => {
                 {commentSuccess}
               </div>
             )}
+            {commentError && (
+              <div
+                style={{
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  color: '#991b1b',
+                  padding: '12px 16px',
+                  borderRadius: '6px',
+                  marginBottom: '20px',
+                  fontSize: '14px',
+                }}
+              >
+                {commentError}
+              </div>
+            )}
             <form onSubmit={handlePostComment} className="BlogDetailsCard-form">
               <div className="BlogDetailsCard-form-row">
                 <div className="BlogDetailsCard-field-group">
@@ -447,6 +586,7 @@ const BlogDetailsCard = () => {
                     placeholder="Your Name"
                     value={formData.name}
                     onChange={handleInputChange}
+                    disabled={submittingComment}
                     required
                   />
                 </div>
@@ -459,6 +599,7 @@ const BlogDetailsCard = () => {
                     placeholder="Your Email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    disabled={submittingComment}
                     required
                   />
                 </div>
@@ -473,12 +614,21 @@ const BlogDetailsCard = () => {
                   placeholder="Write your comment..."
                   value={formData.message}
                   onChange={handleInputChange}
+                  disabled={submittingComment}
                   required
                 ></textarea>
               </div>
 
-              <button type="submit" className="BlogDetailsCard-submit-btn">
-                Post Comment <FaArrowRight />
+              <button
+                type="submit"
+                className="BlogDetailsCard-submit-btn"
+                disabled={submittingComment}
+                style={{
+                  opacity: submittingComment ? 0.7 : 1,
+                  cursor: submittingComment ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {submittingComment ? 'Posting Comment...' : 'Post Comment'} <FaArrowRight />
               </button>
             </form>
           </div>

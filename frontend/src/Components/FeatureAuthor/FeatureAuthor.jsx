@@ -3,58 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { fetchFeaturedAuthors } from '../../api/booksService';
 import './FeatureAuthor.css';
 
-// Fallback authors if API returns empty list
-const DEFAULT_AUTHORS = [
-  {
-    id: 1,
-    name: "Brooklyn Simmons",
-    books: "15 Published Books",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 2,
-    name: "Leslie Alexander",
-    books: "05 Published Books",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 3,
-    name: "Guy Hawkins",
-    books: "12 Published Books",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 4,
-    name: "Esther Howard",
-    books: "10 Published Books",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 5,
-    name: "Shikhon Islam",
-    books: "07 Published Books",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 6,
-    name: "Kawser Ahmed",
-    books: "04 Published Books",
-    image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 7,
-    name: "Eleanor Pena",
-    books: "09 Published Books",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&auto=format&fit=crop&q=80"
-  },
-  {
-    id: 8,
-    name: "Cody Fisher",
-    books: "11 Published Books",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80"
-  },
-];
-
 // Golden Laurel Wreath SVG Icon
 const LaurelWreathSVG = () => (
   <svg 
@@ -92,7 +40,7 @@ const LaurelWreathSVG = () => (
 
 const FeatureAuthor = () => {
   const navigate = useNavigate();
-  const [authors, setAuthors] = useState(DEFAULT_AUTHORS);
+  const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -110,12 +58,12 @@ const FeatureAuthor = () => {
           if (Array.isArray(data) && data.length > 0) {
             setAuthors(data);
           } else {
-            setAuthors(DEFAULT_AUTHORS);
+            setAuthors([]);
           }
         }
       } catch (err) {
         console.error("Failed to load featured authors:", err);
-        if (isMounted) setAuthors(DEFAULT_AUTHORS);
+        if (isMounted) setAuthors([]);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -173,6 +121,10 @@ const FeatureAuthor = () => {
       navigate(`/shop?search=${encodeURIComponent(authorName)}`);
     }
   };
+
+  if (!loading && authors.length === 0) {
+    return null;
+  }
 
   return (
     <section className="featured-author-section">
