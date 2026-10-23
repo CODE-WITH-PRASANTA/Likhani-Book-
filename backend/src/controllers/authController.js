@@ -661,3 +661,71 @@ exports.resetPassword = async (req, res) => {
     });
   }
 };
+
+// =========================================================
+// CHANGE / RESET PASSWORD (LOGGED IN USER)
+// =========================================================
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body || {};
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long.",
+      });
+    }
+
+    if (confirmPassword !== undefined && newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "New password and Confirm password do not match.",
+      });
+    }
+
+    const user = await User.findById(req.user._id).select("+password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User account not found." });
+    }
+
+    // If user has a password already set, verify currentPassword
+    if (user.password) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is required.",
+        });
+      }
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({
+          success: false,
+          message: "Incorrect current password. Please try again.",
+        });
+      }
+    }
+
+    user.password = newPassword;
+    user.resetPasswordOtp = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    // Send confirmation email asynchronously
+    sendPasswordResetSuccessEmail({
+      to: user.email,
+      name: user.name || user.firstName || "Reader",
+    }).catch((e) => console.warn("Notice: password change email error:", e.message));
+
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully!",
+    });
+  } catch (error) {
+    console.error("CHANGE PASSWORD ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to change password.",
+    });
+  }
+};
+

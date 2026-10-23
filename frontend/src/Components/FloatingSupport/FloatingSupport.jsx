@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../api/axios";
 import "./FloatingSupport.css";
-
-// Backend support API
-const API_ENDPOINT =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api/supports";
 
 const FloatingSupport = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,22 +47,15 @@ const FloatingSupport = () => {
     setSubmitStatus({ success: null, message: "" });
 
     try {
-      const response = await axios.post(
-        API_ENDPOINT,
-        {
-          name,
-          mobile: `+91 ${phone}`,
-          email,
-          message,
-          status: "New",
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await API.post("/supports", {
+        name,
+        mobile: `+91 ${phone}`,
+        phone: `+91 ${phone}`,
+        email,
+        message,
+        source: "Need Help",
+        status: "New",
+      });
 
       if (response.data && response.data.success) {
         setSubmitStatus({

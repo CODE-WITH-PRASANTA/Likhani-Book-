@@ -20,6 +20,8 @@ exports.getSupports = async (req, res) => {
         { mobile: regex },
         { email: regex },
         { message: regex },
+        { address: regex },
+        { source: regex },
       ];
     }
 
@@ -34,12 +36,14 @@ exports.getSupports = async (req, res) => {
 // @route   POST /api/supports
 exports.createSupport = async (req, res) => {
   try {
-    const { name, mobile, email, message, status } = req.body || {};
+    const { name, mobile, phone, email, message, address, source, status } = req.body || {};
 
-    if (!name?.trim() || !mobile?.trim() || !email?.trim() || !message?.trim()) {
+    const contactPhone = (mobile || phone || "").trim();
+
+    if (!name?.trim() || !contactPhone || !email?.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Please provide all required fields: name, mobile, email, message",
+        message: "Please provide all required fields: name, mobile/phone, email",
       });
     }
 
@@ -50,11 +54,18 @@ exports.createSupport = async (req, res) => {
       });
     }
 
+    const finalMessage = (
+      message?.trim() ||
+      (address?.trim() ? `Address: ${address.trim()}` : "Customer request from website")
+    ).trim();
+
     const newSupport = await Support.create({
       name: name.trim(),
-      mobile: mobile.trim(),
+      mobile: contactPhone,
       email: email.trim().toLowerCase(),
-      message: message.trim(),
+      message: finalMessage,
+      address: address?.trim() || "",
+      source: source?.trim() || "Need Help",
       status: status || "New",
     });
 

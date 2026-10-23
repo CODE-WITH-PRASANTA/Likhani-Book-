@@ -64,14 +64,29 @@ exports.getBooks = async (req, res) => {
 
     // 5. Sort Configuration
     let sortConfig = { createdAt: -1 };
-    if (sort === "Sort By: A-Z") {
+    const normalizedSort = String(sort || "").toLowerCase().trim();
+    if (normalizedSort.includes("a-z") || normalizedSort.includes("title")) {
       sortConfig = { title: 1 };
-    } else if (sort === "Sort By: Price Low") {
+    } else if (
+      normalizedSort.includes("price low") ||
+      normalizedSort.includes("price_asc") ||
+      normalizedSort.includes("price-asc") ||
+      normalizedSort.includes("low to high")
+    ) {
       sortConfig = { price: 1 };
-    } else if (sort === "Sort By: Price High") {
+    } else if (
+      normalizedSort.includes("price high") ||
+      normalizedSort.includes("price_desc") ||
+      normalizedSort.includes("price-desc") ||
+      normalizedSort.includes("high to low")
+    ) {
       sortConfig = { price: -1 };
-    } else if (sort === "Sort By: Stock") {
+    } else if (normalizedSort.includes("stock")) {
       sortConfig = { stock: -1 };
+    } else if (normalizedSort.includes("oldest")) {
+      sortConfig = { createdAt: 1 };
+    } else {
+      sortConfig = { createdAt: -1 };
     }
 
     // Concurrent execution of data fetch and global stats

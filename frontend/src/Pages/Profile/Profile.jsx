@@ -12,6 +12,13 @@ import {
   FiInfo,
   FiAlertTriangle,
   FiX,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiRefreshCw,
+  FiKey,
+  FiShield,
+  FiMail,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../api/axios";
@@ -40,6 +47,23 @@ const Profile = () => {
   const [feedback, setFeedback] = useState(null);
   const [errors, setErrors] = useState({});
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
+
+  // Password & Security Reset states
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [submittingPassword, setSubmittingPassword] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState({});
+
+  // Reset via Email OTP states
+  const [resetMethod, setResetMethod] = useState("direct"); // "direct" | "otp"
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   // Sync state from currentUser
   useEffect(() => {
@@ -220,6 +244,155 @@ const Profile = () => {
     setEditingPhone(false);
   };
 
+  // ================= FIELD RESET HANDLERS =================
+  const handleResetPersonalFields = () => {
+    const parts = (currentUser?.name || "").trim().split(" ");
+    setFirstName(currentUser?.firstName || parts[0] || "");
+    setLastName(currentUser?.lastName || parts.slice(1).join(" ") || "");
+    setGender(currentUser?.gender || "Male");
+    setErrors((prev) => ({ ...prev, firstName: undefined, lastName: undefined }));
+    showToast("Personal details reset to saved values.", "info");
+  };
+
+  const handleResetEmailFields = () => {
+    setEmail(currentUser?.email || "");
+    setErrors((prev) => ({ ...prev, email: undefined }));
+    showToast("Email address reset to saved value.", "info");
+  };
+
+  const handleResetPhoneFields = () => {
+    setPhone(currentUser?.phone || "");
+    setErrors((prev) => ({ ...prev, phone: undefined }));
+    showToast("Phone number reset to saved value.", "info");
+  };
+
+  // ================= PASSWORD RESET HANDLERS =================
+  const handleResetPasswordForm = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordErrors({});
+    setOtpCode("");
+    setOtpSent(false);
+    showToast("Password form reset.", "info");
+  };
+
+  const handleChangePassword = async (e) => {
+    if (e) e.preventDefault();
+    const newErrs = {};
+
+    if (currentUser?.authProvider !== "google" && !currentPassword) {
+      newErrs.currentPassword = "Current password is required.";
+    }
+    if (!newPassword || newPassword.length < 6) {
+      newErrs.newPassword = "Password must be at least 6 characters.";
+    }
+    if (newPassword !== confirmPassword) {
+      newErrs.confirmPassword = "Passwords do not match.";
+    }
+
+    if (Object.keys(newErrs).length > 0) {
+      setPasswordErrors(newErrs);
+      return;
+    }
+
+    try {
+      setSubmittingPassword(true);
+      setPasswordErrors({});
+      const res = await API.put("/auth/change-password", {
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      if (res.data?.success) {
+        showToast(res.data.message || "Password updated successfully!", "success");
+        handleResetPasswordForm();
+      } else {
+        throw new Error(res.data?.message || "Failed to update password.");
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || err.message || "Failed to update password.";
+      showToast(msg, "error");
+      setPasswordErrors({ form: msg });
+    } finally {
+      setSubmittingPassword(false);
+    }
+  };
+
+  const handleSendOtpForReset = async () => {
+    const targetEmail = currentUser?.email || email;
+    if (!targetEmail) {
+      showToast("No email associated with this account.", "error");
+      return;
+    }
+    try {
+      setSendingOtp(true);
+      const res = await API.post("/auth/forgot-password", { email: targetEmail });
+      if (res.data?.success) {
+        setOtpSent(true);
+        showToast(`Verification OTP sent to ${targetEmail}`, "success");
+      } else {
+        throw new Error(res.data?.message || "Failed to send OTP.");
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || err.message || "Failed to send reset OTP.";
+      showToast(msg, "error");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleResetPasswordWithOtp = async (e) => {
+    if (e) e.preventDefault();
+    const newErrs = {};
+    if (!otpCode || otpCode.trim().length !== 6) {
+      newErrs.otpCode = "Please enter the 6-digit verification code.";
+    }
+    if (!newPassword || newPassword.length < 6) {
+      newErrs.newPassword = "New password must be at least 6 characters.";
+    }
+    if (newPassword !== confirmPassword) {
+      newErrs.confirmPassword = "Passwords do not match.";
+    }
+
+    if (Object.keys(newErrs).length > 0) {
+      setPasswordErrors(newErrs);
+      return;
+    }
+
+    try {
+      setVerifyingOtp(true);
+      setPasswordErrors({});
+      const targetEmail = currentUser?.email || email;
+      const res = await API.post("/auth/reset-password", {
+        email: targetEmail,
+        otp: otpCode.trim(),
+        newPassword,
+        confirmPassword,
+      });
+
+      if (res.data?.success) {
+        showToast(
+          "Password reset successfully! Confirmation email sent.",
+          "success"
+        );
+        handleResetPasswordForm();
+      } else {
+        throw new Error(res.data?.message || "Failed to reset password.");
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message || err.message || "Failed to reset password.";
+      showToast(msg, "error");
+      setPasswordErrors({ form: msg });
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
   if (!currentUser) return null;
 
   return (
@@ -269,6 +442,17 @@ const Profile = () => {
                   <FiUser />
                   <span>Profile Information</span>
                 </Link>
+                <a
+                  href="#security-reset"
+                  className="ProfilePage__navLink"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById("security-reset")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  <FiLock />
+                  <span>Reset & Security</span>
+                </a>
                 <Link to="/addresses" className="ProfilePage__navLink">
                   <FiMapPin />
                   <span>Manage Addresses</span>
@@ -367,13 +551,24 @@ const Profile = () => {
                   </div>
 
                   {editingPersonal && (
-                    <button
-                      type="submit"
-                      className="ProfilePage__saveBtn"
-                      disabled={submittingPersonal}
-                    >
-                      {submittingPersonal ? "SAVING..." : "SAVE"}
-                    </button>
+                    <div className="ProfilePage__actionBtnGroup">
+                      <button
+                        type="submit"
+                        className="ProfilePage__saveBtn"
+                        disabled={submittingPersonal}
+                      >
+                        {submittingPersonal ? "SAVING..." : "SAVE"}
+                      </button>
+                      <button
+                        type="button"
+                        className="ProfilePage__resetBtn"
+                        onClick={handleResetPersonalFields}
+                        title="Reset fields to saved values"
+                      >
+                        <FiRefreshCw />
+                        <span>RESET</span>
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -461,13 +656,24 @@ const Profile = () => {
                   </div>
 
                   {editingEmail && (
-                    <button
-                      type="submit"
-                      className="ProfilePage__saveBtn"
-                      disabled={submittingEmail}
-                    >
-                      {submittingEmail ? "SAVING..." : "SAVE"}
-                    </button>
+                    <div className="ProfilePage__actionBtnGroup">
+                      <button
+                        type="submit"
+                        className="ProfilePage__saveBtn"
+                        disabled={submittingEmail}
+                      >
+                        {submittingEmail ? "SAVING..." : "SAVE"}
+                      </button>
+                      <button
+                        type="button"
+                        className="ProfilePage__resetBtn"
+                        onClick={handleResetEmailFields}
+                        title="Reset email to saved value"
+                      >
+                        <FiRefreshCw />
+                        <span>RESET</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               </form>
@@ -515,16 +721,336 @@ const Profile = () => {
                   </div>
 
                   {editingPhone && (
-                    <button
-                      type="submit"
-                      className="ProfilePage__saveBtn"
-                      disabled={submittingPhone}
-                    >
-                      {submittingPhone ? "SAVING..." : "SAVE"}
-                    </button>
+                    <div className="ProfilePage__actionBtnGroup">
+                      <button
+                        type="submit"
+                        className="ProfilePage__saveBtn"
+                        disabled={submittingPhone}
+                      >
+                        {submittingPhone ? "SAVING..." : "SAVE"}
+                      </button>
+                      <button
+                        type="button"
+                        className="ProfilePage__resetBtn"
+                        onClick={handleResetPhoneFields}
+                        title="Reset phone to saved value"
+                      >
+                        <FiRefreshCw />
+                        <span>RESET</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               </form>
+            </div>
+
+            {/* SECTION 4: PASSWORD RESET & SECURITY */}
+            <div className="ProfilePage__section" id="security-reset">
+              <div className="ProfilePage__sectionHeader">
+                <div className="ProfilePage__securityHeaderWrap">
+                  <div className="ProfilePage__securityIconBox">
+                    <FiLock />
+                  </div>
+                  <div>
+                    <h2 className="ProfilePage__sectionTitle">Reset & Change Password</h2>
+                    <p className="ProfilePage__sectionSubtitle">
+                      Update your login password or request a 6-digit verification code to reset it securely.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mode switch: Direct change vs Email OTP */}
+              <div className="ProfilePage__methodTabs">
+                <button
+                  type="button"
+                  className={`ProfilePage__methodTab ${
+                    resetMethod === "direct" ? "ProfilePage__methodTab--active" : ""
+                  }`}
+                  onClick={() => {
+                    setResetMethod("direct");
+                    setPasswordErrors({});
+                  }}
+                >
+                  <FiKey />
+                  <span>Direct Password Change</span>
+                </button>
+                <button
+                  type="button"
+                  className={`ProfilePage__methodTab ${
+                    resetMethod === "otp" ? "ProfilePage__methodTab--active" : ""
+                  }`}
+                  onClick={() => {
+                    setResetMethod("otp");
+                    setPasswordErrors({});
+                  }}
+                >
+                  <FiMail />
+                  <span>Reset via Email OTP</span>
+                </button>
+              </div>
+
+              {passwordErrors.form && (
+                <div className="ProfilePage__passwordAlert">
+                  <FiAlertCircle />
+                  <span>{passwordErrors.form}</span>
+                </div>
+              )}
+
+              {/* TAB 1: DIRECT PASSWORD CHANGE */}
+              {resetMethod === "direct" && (
+                <form onSubmit={handleChangePassword} className="ProfilePage__passwordForm">
+                  {currentUser?.authProvider !== "google" && (
+                    <div className="ProfilePage__passwordField">
+                      <label className="ProfilePage__fieldLabel">Current Password</label>
+                      <div className="ProfilePage__passwordInputWrap">
+                        <input
+                          type={showCurrentPassword ? "text" : "password"}
+                          className={`ProfilePage__input ${
+                            passwordErrors.currentPassword ? "ProfilePage__input--error" : ""
+                          }`}
+                          placeholder="Enter your current password"
+                          value={currentPassword}
+                          onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="ProfilePage__eyeToggleBtn"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          aria-label={showCurrentPassword ? "Hide password" : "Show password"}
+                        >
+                          {showCurrentPassword ? <FiEyeOff /> : <FiEye />}
+                        </button>
+                      </div>
+                      {passwordErrors.currentPassword && (
+                        <span className="ProfilePage__errorMsg">
+                          {passwordErrors.currentPassword}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="ProfilePage__passwordGrid">
+                    <div className="ProfilePage__passwordField">
+                      <label className="ProfilePage__fieldLabel">New Password</label>
+                      <div className="ProfilePage__passwordInputWrap">
+                        <input
+                          type={showNewPassword ? "text" : "password"}
+                          className={`ProfilePage__input ${
+                            passwordErrors.newPassword ? "ProfilePage__input--error" : ""
+                          }`}
+                          placeholder="At least 6 characters"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="ProfilePage__eyeToggleBtn"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          aria-label={showNewPassword ? "Hide password" : "Show password"}
+                        >
+                          {showNewPassword ? <FiEyeOff /> : <FiEye />}
+                        </button>
+                      </div>
+                      {passwordErrors.newPassword && (
+                        <span className="ProfilePage__errorMsg">{passwordErrors.newPassword}</span>
+                      )}
+                    </div>
+
+                    <div className="ProfilePage__passwordField">
+                      <label className="ProfilePage__fieldLabel">Confirm New Password</label>
+                      <div className="ProfilePage__passwordInputWrap">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          className={`ProfilePage__input ${
+                            passwordErrors.confirmPassword ? "ProfilePage__input--error" : ""
+                          }`}
+                          placeholder="Re-enter new password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="ProfilePage__eyeToggleBtn"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                        >
+                          {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                        </button>
+                      </div>
+                      {passwordErrors.confirmPassword && (
+                        <span className="ProfilePage__errorMsg">
+                          {passwordErrors.confirmPassword}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="ProfilePage__passwordActions">
+                    <button
+                      type="submit"
+                      className="ProfilePage__saveBtn"
+                      disabled={submittingPassword}
+                    >
+                      {submittingPassword ? "UPDATING..." : "UPDATE PASSWORD"}
+                    </button>
+                    <button
+                      type="button"
+                      className="ProfilePage__resetBtn"
+                      onClick={handleResetPasswordForm}
+                      title="Clear and reset password inputs"
+                    >
+                      <FiRefreshCw />
+                      <span>RESET FORM</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* TAB 2: RESET VIA EMAIL OTP */}
+              {resetMethod === "otp" && (
+                <div className="ProfilePage__otpFlow">
+                  <div className="ProfilePage__otpNotice">
+                    <FiShield />
+                    <div>
+                      <strong>Secure OTP Verification</strong>
+                      <p>
+                        We will send a 6-digit verification code to{" "}
+                        <strong>{currentUser?.email || email}</strong> to confirm your identity before resetting your password.
+                      </p>
+                    </div>
+                  </div>
+
+                  {!otpSent ? (
+                    <div className="ProfilePage__otpSendWrap">
+                      <button
+                        type="button"
+                        className="ProfilePage__sendOtpBtn"
+                        onClick={handleSendOtpForReset}
+                        disabled={sendingOtp}
+                      >
+                        {sendingOtp ? (
+                          <>
+                            <FiRefreshCw className="ProfilePage__spinIcon" />
+                            <span>SENDING CODE...</span>
+                          </>
+                        ) : (
+                          <>
+                            <FiMail />
+                            <span>SEND 6-DIGIT OTP CODE</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleResetPasswordWithOtp} className="ProfilePage__passwordForm">
+                      <div className="ProfilePage__passwordField">
+                        <div className="ProfilePage__otpPromptHeader">
+                          <label className="ProfilePage__fieldLabel">Enter 6-Digit OTP Code</label>
+                          <button
+                            type="button"
+                            className="ProfilePage__resendOtpBtn"
+                            onClick={handleSendOtpForReset}
+                            disabled={sendingOtp}
+                          >
+                            Resend Code
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          className={`ProfilePage__input ProfilePage__input--otp ${
+                            passwordErrors.otpCode ? "ProfilePage__input--error" : ""
+                          }`}
+                          placeholder="e.g. 583920"
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
+                        />
+                        {passwordErrors.otpCode && (
+                          <span className="ProfilePage__errorMsg">{passwordErrors.otpCode}</span>
+                        )}
+                      </div>
+
+                      <div className="ProfilePage__passwordGrid">
+                        <div className="ProfilePage__passwordField">
+                          <label className="ProfilePage__fieldLabel">New Password</label>
+                          <div className="ProfilePage__passwordInputWrap">
+                            <input
+                              type={showNewPassword ? "text" : "password"}
+                              className={`ProfilePage__input ${
+                                passwordErrors.newPassword ? "ProfilePage__input--error" : ""
+                              }`}
+                              placeholder="At least 6 characters"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              className="ProfilePage__eyeToggleBtn"
+                              onClick={() => setShowNewPassword(!showNewPassword)}
+                              aria-label={showNewPassword ? "Hide password" : "Show password"}
+                            >
+                              {showNewPassword ? <FiEyeOff /> : <FiEye />}
+                            </button>
+                          </div>
+                          {passwordErrors.newPassword && (
+                            <span className="ProfilePage__errorMsg">
+                              {passwordErrors.newPassword}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="ProfilePage__passwordField">
+                          <label className="ProfilePage__fieldLabel">Confirm New Password</label>
+                          <div className="ProfilePage__passwordInputWrap">
+                            <input
+                              type={showConfirmPassword ? "text" : "password"}
+                              className={`ProfilePage__input ${
+                                passwordErrors.confirmPassword ? "ProfilePage__input--error" : ""
+                              }`}
+                              placeholder="Re-enter new password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              className="ProfilePage__eyeToggleBtn"
+                              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                            >
+                              {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                            </button>
+                          </div>
+                          {passwordErrors.confirmPassword && (
+                            <span className="ProfilePage__errorMsg">
+                              {passwordErrors.confirmPassword}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="ProfilePage__passwordActions">
+                        <button
+                          type="submit"
+                          className="ProfilePage__saveBtn"
+                          disabled={verifyingOtp}
+                        >
+                          {verifyingOtp ? "VERIFYING & RESETTING..." : "RESET PASSWORD NOW"}
+                        </button>
+                        <button
+                          type="button"
+                          className="ProfilePage__resetBtn"
+                          onClick={handleResetPasswordForm}
+                          title="Reset OTP inputs"
+                        >
+                          <FiRefreshCw />
+                          <span>RESET FORM</span>
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* SECTION 4: FAQS (Flipkart Style) */}

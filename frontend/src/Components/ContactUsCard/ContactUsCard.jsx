@@ -13,7 +13,7 @@ import './ContactUsCard.css'
 
 const PHONE_DISPLAY = '+91 9692075298'
 const PHONE_LINK = 'tel:+919692075298'
-const EMAIL = 'example@gmail.com'
+const EMAIL = 'publicationlekhani@gmail.com'
 const ADDRESS = 'Srikoruan, Near Indoor Stadium, Gopalpur, Cuttack, Odisha - 753011'
 const DIRECTIONS_URL =
   'https://www.google.com/maps/search/?api=1&query=Indoor+Stadium+Gopalpur+Cuttack+Odisha+753011'
@@ -104,8 +104,18 @@ const ContactUsCard = () => {
     try {
       setLoading(true)
 
-      // Post enquiry with customer's actual contact information
-      await API.post('/enquiries', {
+      // Post support ticket and enquiry with customer's contact information
+      const supportPayload = {
+        name,
+        email,
+        mobile: phone,
+        phone,
+        message,
+        source: 'Contact Us Page',
+        status: 'New',
+      }
+
+      const enquiryPayload = {
         name,
         email,
         phone,
@@ -113,7 +123,15 @@ const ContactUsCard = () => {
         type: 'General Enquiry',
         subject: 'Website Contact Us Form',
         address: '',
-      })
+      }
+
+      await Promise.all([
+        API.post('/supports', supportPayload),
+        API.post('/enquiries', enquiryPayload).catch((err) => {
+          console.warn('Enquiries backup sync warning:', err)
+          return null
+        }),
+      ])
 
       Swal.fire({
         icon: 'success',

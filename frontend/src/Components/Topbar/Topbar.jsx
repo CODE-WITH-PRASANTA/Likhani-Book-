@@ -36,7 +36,7 @@ const Topbar = () => {
 
           {/* Email */}
           <a
-            href="mailto:info@example.com"
+            href="mailto:publicationlekhani@gmail.com"
             className="topbar__item topbar__link"
             aria-label="Send email"
           >
@@ -53,7 +53,7 @@ const Topbar = () => {
               <rect x="2" y="4" width="20" height="16" rx="2" />
               <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
             </svg>
-            <span>info@example.com</span>
+            <span>publicationlekhani@gmail.com</span>
           </a>
 
           <span className="topbar__divider topbar__divider--hide-tablet" aria-hidden="true" />
@@ -77,9 +77,9 @@ const Topbar = () => {
           </div>
         </div>
 
-        {/* Right Section: Login / User */}
+        {/* Right Section: Login (only shown before login) */}
         <div className="topbar__right">
-          {!currentUser ? (
+          {!currentUser && (
             <Link
               to="/login"
               className="topbar__login-btn"
@@ -99,27 +99,6 @@ const Topbar = () => {
                 <circle cx="12" cy="7" r="4" />
               </svg>
               <span>Login</span>
-            </Link>
-          ) : (
-            <Link
-              to="/my-account"
-              className="topbar__login-btn"
-              aria-label="My Account"
-            >
-              <svg
-                className="topbar__icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span>{currentUser.name ? currentUser.name.split(' ')[0] : 'Account'}</span>
             </Link>
           )}
         </div>

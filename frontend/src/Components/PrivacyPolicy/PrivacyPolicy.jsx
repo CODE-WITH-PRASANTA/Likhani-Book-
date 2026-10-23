@@ -224,7 +224,7 @@ const PrivacyPolicy = () => {
               </p>
 
               <a
-                href="mailto:example@gmail.com"
+                href="mailto:publicationlekhani@gmail.com"
                 className="PrivacyPolicy-help-button"
               >
                 <FiMail />

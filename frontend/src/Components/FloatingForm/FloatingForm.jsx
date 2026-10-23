@@ -225,14 +225,28 @@ const FloatingForm = ({
           `Address: ${address}`,
       };
 
-      const response = await API.post(
-        "/enquiries",
-        payload
-      );
+      const supportPayload = {
+        name,
+        email,
+        mobile: phone,
+        phone,
+        address,
+        message: `Let's Talk enquiry. Address: ${address}`,
+        source: "Let's Talk",
+        status: "New",
+      };
+
+      const [response] = await Promise.all([
+        API.post("/enquiries", payload),
+        API.post("/supports", supportPayload).catch((err) => {
+          console.warn("Failed to sync to supports:", err);
+          return null;
+        }),
+      ]);
 
       console.log(
-        "ENQUIRY CREATED:",
-        response.data
+        "ENQUIRY & SUPPORT CREATED:",
+        response?.data
       );
 
       // =================================================

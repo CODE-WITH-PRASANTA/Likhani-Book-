@@ -758,4 +758,320 @@
   }
 }
 
+/* =========================================================
+   ACTION BUTTON GROUP & RESET BUTTON
+========================================================= */
+
+.ProfilePage__actionBtnGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ProfilePage__resetBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 20px;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ProfilePage__resetBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.ProfilePage__resetBtn svg {
+  font-size: 13px;
+}
+
+/* =========================================================
+   PASSWORD RESET & SECURITY SECTION
+========================================================= */
+
+.ProfilePage__securityHeaderWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ProfilePage__securityIconBox {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #e0f2fe;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ProfilePage__sectionSubtitle {
+  margin: 3px 0 0;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+/* Method Tabs */
+.ProfilePage__methodTabs {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 20px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.ProfilePage__methodTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ProfilePage__methodTab:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ProfilePage__methodTab--active {
+  background: #12598f;
+  color: #ffffff;
+  border-color: #12598f;
+}
+
+.ProfilePage__methodTab--active:hover {
+  background: #0d426a;
+  color: #ffffff;
+}
+
+/* Form alert */
+.ProfilePage__passwordAlert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Password Form */
+.ProfilePage__passwordForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+}
+
+.ProfilePage__passwordGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ProfilePage__passwordField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ProfilePage__fieldLabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.ProfilePage__passwordInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.ProfilePage__passwordInputWrap .ProfilePage__input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.ProfilePage__eyeToggleBtn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  font-size: 17px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.ProfilePage__eyeToggleBtn:hover {
+  color: #0f172a;
+}
+
+.ProfilePage__passwordActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* OTP Flow */
+.ProfilePage__otpFlow {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+}
+
+.ProfilePage__otpNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  color: #166534;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ProfilePage__otpNotice svg {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ProfilePage__otpNotice strong {
+  display: block;
+  font-size: 13.5px;
+  margin-bottom: 2px;
+  color: #14532d;
+}
+
+.ProfilePage__otpNotice p {
+  margin: 0;
+  color: #166534;
+}
+
+.ProfilePage__otpSendWrap {
+  margin: 6px 0 12px;
+}
+
+.ProfilePage__sendOtpBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #12598f;
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ProfilePage__sendOtpBtn:hover:not(:disabled) {
+  background: #0d426a;
+}
+
+.ProfilePage__sendOtpBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.ProfilePage__otpPromptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ProfilePage__resendOtpBtn {
+  background: none;
+  border: none;
+  color: #12598f;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.ProfilePage__resendOtpBtn:hover:not(:disabled) {
+  color: #0d426a;
+}
+
+.ProfilePage__input--otp {
+  font-size: 20px;
+  letter-spacing: 6px;
+  font-weight: 700;
+  text-align: center;
+  max-width: 220px;
+}
+
+.ProfilePage__spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .ProfilePage__passwordGrid {
+    grid-template-columns: 1fr;
+  }
+  .ProfilePage__actionBtnGroup {
+    flex-direction: row;
+    width: 100%;
+  }
+  .ProfilePage__passwordActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ProfilePage__passwordActions .ProfilePage__saveBtn,
+  .ProfilePage__passwordActions .ProfilePage__resetBtn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+
 

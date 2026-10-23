@@ -378,6 +378,7 @@ exports.createBookPosting = async (req, res) => {
   try {
     const {
       title,
+      isbn = "",
       author,
       category,
       price,
@@ -444,6 +445,7 @@ exports.createBookPosting = async (req, res) => {
 
     const bookPost = await BookPosting.create({
       title: title.trim(),
+      isbn: typeof isbn === "string" ? isbn.trim() : "",
       author: author.trim(),
       category: category.trim(),
       price: numericPrice,
@@ -501,6 +503,9 @@ exports.updateBookPosting = async (req, res) => {
     const updateData = { ...req.body };
 
     if (updateData.title !== undefined) updateData.title = updateData.title.trim();
+    if (updateData.isbn !== undefined) {
+      updateData.isbn = typeof updateData.isbn === "string" ? updateData.isbn.trim() : "";
+    }
     if (updateData.author !== undefined) updateData.author = updateData.author.trim();
     if (updateData.category !== undefined) updateData.category = updateData.category.trim();
     if (updateData.description !== undefined) updateData.description = updateData.description.trim();

@@ -14,6 +14,11 @@ const bookPostingSchema = new mongoose.Schema(
       trim: true,
       maxlength: [120, "Author name cannot exceed 120 characters"],
     },
+    isbn: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     category: {
       type: String,
       required: [true, "Category is required"],

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Editor } from "@tinymce/tinymce-react";
 import {
   FaPlus,
@@ -27,6 +28,7 @@ import {
   FaTelegramPlane,
   FaEnvelope,
   FaTag,
+  FaArrowLeft,
 } from "react-icons/fa";
 import API, { BASE_URL } from "../../api/axios";
 import "./BookPosting.css";
@@ -45,6 +47,11 @@ const getImageUrl = (imagePath) => {
 };
 
 const BookPosting = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const editHandledRef = useRef(null);
+
   /* =========================================================
       CONSTANTS
   ========================================================= */
@@ -53,6 +60,7 @@ const BookPosting = () => {
 
   const emptyForm = {
     title: "",
+    isbn: "",
     author: "",
     category: "",
     price: "",
@@ -86,6 +94,7 @@ const BookPosting = () => {
 
   const [modal, setModal] = useState({ open: false, type: "", book: null });
   const [editingId, setEditingId] = useState(null);
+  const [floatExpanded, setFloatExpanded] = useState(true);
 
   /* =========================================================
       API FETCH CATEGORIES & BOOKS
@@ -290,6 +299,10 @@ const BookPosting = () => {
     setFormData(emptyForm);
     setSelectedImages([]);
     setEditingId(null);
+    editHandledRef.current = null;
+    if (searchParams.get("edit") || searchParams.get("id")) {
+      navigate("/book-posting", { replace: true });
+    }
   };
 
   /* =========================================================
@@ -330,6 +343,7 @@ const BookPosting = () => {
     try {
       const payload = {
         title: formData.title.trim(),
+        isbn: formData.isbn ? formData.isbn.trim() : "",
         author: formData.author.trim(),
         category: formData.category,
         price: Number(formData.price),
@@ -369,18 +383,21 @@ const BookPosting = () => {
       EDIT
   ========================================================= */
 
-  const handleEdit = (book) => {
-    setEditingId(book.id);
+  const handleEdit = useCallback((book) => {
+    if (!book) return;
+    const bId = book.id || book._id;
+    setEditingId(bId);
 
     setFormData({
       title: book.title || "",
+      isbn: book.isbn || "",
       author: book.author || "",
       category: book.category || "",
-      price: book.price !== undefined ? book.price : "",
-      offerPrice: book.offerPrice !== undefined ? book.offerPrice : "",
-      stock: book.stock !== undefined ? book.stock : "",
+      price: book.price !== undefined && book.price !== null ? book.price : "",
+      offerPrice: book.offerPrice !== undefined && book.offerPrice !== null ? book.offerPrice : "",
+      stock: book.stock !== undefined && book.stock !== null ? book.stock : "",
       status: book.status === true || book.status === "Published",
-      featured: book.featured || false,
+      featured: Boolean(book.featured),
       isTopSelling: Boolean(book.isTopSelling),
       isBestSeller: Boolean(book.isBestSeller),
       publisher: book.publisher || "",
@@ -399,14 +416,66 @@ const BookPosting = () => {
 
     setSelectedImages(
       bookImages.map((src, index) => ({
-        id: `existing-${book.id}-${index}`,
+        id: `existing-${bId}-${index}`,
         preview: src,
       }))
     );
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-    showToast("Book loaded for editing");
-  };
+    showToast(`Loaded "${book.title || "Book"}" for editing`);
+  }, []);
+
+  /* =========================================================
+      AUTO LOAD EDIT BOOK FROM NAVIGATION OR QUERY PARAM
+  ========================================================= */
+
+  useEffect(() => {
+    const editQueryId = searchParams.get("edit") || searchParams.get("id");
+    const passedBook = location.state?.editBook;
+    const targetId =
+      editQueryId ||
+      location.state?.bookId ||
+      (passedBook ? passedBook.id || passedBook._id : null);
+
+    if (!targetId) return;
+    if (editHandledRef.current === targetId) return;
+
+    if (passedBook) {
+      editHandledRef.current = targetId;
+      handleEdit(passedBook);
+      return;
+    }
+
+    const foundInList = books.find(
+      (b) => String(b.id || b._id) === String(targetId)
+    );
+    if (foundInList) {
+      editHandledRef.current = targetId;
+      handleEdit(foundInList);
+      return;
+    }
+
+    // Direct fetch by ID from API
+    API.get(`/book-posting/${targetId}`)
+      .then((res) => {
+        if (res.data?.success && res.data.data) {
+          editHandledRef.current = targetId;
+          handleEdit(res.data.data);
+        }
+      })
+      .catch(() => {
+        API.get(`/books/${targetId}`)
+          .then((res) => {
+            if (res.data?.success && res.data.data) {
+              editHandledRef.current = targetId;
+              handleEdit(res.data.data);
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to load book for editing:", err);
+          });
+      });
+  }, [location.state, searchParams, books, handleEdit]);
 
   /* =========================================================
       DELETE
@@ -809,21 +878,41 @@ const BookPosting = () => {
       <section className="BookPosting-formCard">
         <div className="BookPosting-cardHeader">
           <div className="BookPosting-cardTitle">
-            <span>
-              <FaPlus />
+            <span className="BookPosting-cardIcon">
+              {editingId ? <FaEdit /> : <FaPlus />}
             </span>
 
-            <h2>{editingId ? "Edit Book" : "Add New Book"}</h2>
+            <h2>{editingId ? "Edit Book Details" : "Add New Book"}</h2>
           </div>
 
-          <button
-            type="button"
-            className="BookPosting-clearButton"
-            onClick={resetForm}
-          >
-            <FaRedo />
-            Clear Form
-          </button>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            {editingId && (
+              <button
+                type="button"
+                className="BookPosting-clearButton"
+                onClick={() => navigate("/books")}
+                style={{
+                  background: "#f1f5f9",
+                  color: "#334155",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <FaArrowLeft />
+                Back to Books
+              </button>
+            )}
+
+            <button
+              type="button"
+              className="BookPosting-clearButton"
+              onClick={resetForm}
+            >
+              <FaRedo />
+              {editingId ? "Cancel Edit" : "Clear Form"}
+            </button>
+          </div>
         </div>
 
         <form className="BookPosting-form" onSubmit={handleSubmit}>
@@ -1026,8 +1115,20 @@ const BookPosting = () => {
             </div>
           </div>
 
-          {/* ROW 3 - PUBLISHER, PAGES, LANGUAGE, YEAR */}
+          {/* ROW 3 - ISBN, PUBLISHER, PAGES, LANGUAGE, YEAR */}
           <div className="BookPosting-formGrid">
+            <div className="BookPosting-field">
+              <label>ISBN</label>
+
+              <input
+                type="text"
+                name="isbn"
+                value={formData.isbn || ""}
+                onChange={handleInputChange}
+                placeholder="e.g. 978-0-123456-47-2"
+              />
+            </div>
+
             <div className="BookPosting-field">
               <label>Publisher</label>
 
@@ -1847,6 +1948,87 @@ const BookPosting = () => {
           </div>
 
           <span>{toast.message}</span>
+        </div>
+      )}
+
+      {/* FLOATING ACTION TOOLBAR / CHATBOT-STYLE WIDGET (BOTTOM-RIGHT) */}
+      {editingId && (
+        <div className="BookPosting-floatingWidget">
+          {/* TOOLTIP ON HOVER (WHEN COLLAPSED) */}
+          {!floatExpanded && (
+            <div className="BookPosting-floatingTooltip">
+              <span>✏️ Editing Mode Active</span>
+              <small>{formData.title ? `"${formData.title.slice(0, 24)}${formData.title.length > 24 ? '...' : ''}"` : "Click to view options"}</small>
+            </div>
+          )}
+
+          {floatExpanded ? (
+            <div className="BookPosting-floatingDock">
+              <div className="BookPosting-floatingDockHeader">
+                <div className="BookPosting-floatingDockTitle">
+                  <span className="BookPosting-dockPulse" />
+                  <FaEdit className="BookPosting-dockEditIcon" />
+                  <strong>Editing Book</strong>
+                </div>
+
+                <button
+                  type="button"
+                  className="BookPosting-dockCloseBtn"
+                  onClick={() => setFloatExpanded(false)}
+                  title="Minimize floating widget"
+                  aria-label="Minimize"
+                >
+                  <FaTimes />
+                </button>
+              </div>
+
+              <div className="BookPosting-floatingDockBody">
+                <div className="BookPosting-dockBookInfo">
+                  <span className="BookPosting-dockBookLabel">Currently Editing</span>
+                  <p className="BookPosting-dockBookTitle" title={formData.title}>
+                    📖 {formData.title || "Untitled Book"}
+                  </p>
+                  {formData.author && (
+                    <span className="BookPosting-dockBookAuthor">
+                      Author: {formData.author}
+                    </span>
+                  )}
+                </div>
+
+                <div className="BookPosting-dockActions">
+                  <button
+                    type="button"
+                    className="BookPosting-dockBtn BookPosting-dockBtn--back"
+                    onClick={() => navigate("/books")}
+                    title="Return to books list"
+                  >
+                    <FaArrowLeft /> Books List
+                  </button>
+
+                  <button
+                    type="button"
+                    className="BookPosting-dockBtn BookPosting-dockBtn--cancel"
+                    onClick={resetForm}
+                    title="Discard changes and clear form"
+                  >
+                    <FaRedo /> Cancel Edit
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="BookPosting-floatingLauncher"
+              onClick={() => setFloatExpanded(true)}
+              title="Editing Mode Active - Click to view details"
+              aria-label="Expand editing toolbar"
+            >
+              <span className="BookPosting-launcherPulse" />
+              <FaEdit />
+              <span className="BookPosting-launcherBadge">1</span>
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -26,9 +26,19 @@ const supportSchema = new mongoose.Schema(
     },
     message: {
       type: String,
-      required: [true, "Message is required"],
       trim: true,
       maxLength: [2000, "Message cannot exceed 2000 characters"],
+      default: "",
+    },
+    address: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    source: {
+      type: String,
+      trim: true,
+      default: "Need Help",
     },
     status: {
       type: String,

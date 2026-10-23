@@ -9,6 +9,7 @@ const {
   forgotPassword,
   verifyResetOtp,
   resetPassword,
+  changePassword,
 } = require("../controllers/authController");
 const { protect } = require("../middleware/auth");
 
@@ -26,6 +27,7 @@ router.post("/reset-password", resetPassword);
 // Protected routes
 router.get("/me", protect, getMe);
 router.put("/profile", protect, updateProfile);
+router.put("/change-password", protect, changePassword);
 
 // Address management routes
 const addressController = require("../controllers/addressController");

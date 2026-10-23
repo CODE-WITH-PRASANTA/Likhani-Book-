@@ -211,7 +211,8 @@
   gap: 11px;
 }
 
-.BookPosting-cardTitle span {
+.BookPosting-cardTitle .BookPosting-cardIcon,
+.BookPosting-cardTitle > span:first-child {
   width: 32px;
   height: 32px;
   border-radius: 9px;
@@ -220,6 +221,7 @@
   justify-content: center;
   color: var(--BookPosting-primary);
   background: #fff2eb;
+  flex-shrink: 0;
 }
 
 .BookPosting-cardTitle h2 {
@@ -2163,3 +2165,304 @@
     align-items: flex-start;
   }
 }
+
+/* =========================================================
+   FLOATING ACTION TOOLBAR / CHATBOT-STYLE WIDGET
+========================================================= */
+
+.BookPosting-floatingWidget {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 9998;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: auto;
+  font-family: inherit;
+}
+
+/* Tooltip when collapsed */
+.BookPosting-floatingTooltip {
+  background: #0b192c;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  box-shadow: 0 8px 24px rgba(11, 25, 44, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  animation: BookPostingTooltipFade 0.25s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.BookPosting-floatingTooltip small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.BookPosting-floatingTooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  right: 20px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #0b192c;
+}
+
+@keyframes BookPostingTooltipFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Collapsed Launcher Button (looks like modern chatbot icon) */
+.BookPosting-floatingLauncher {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #0b192c 0%, #1e3a5f 100%);
+  color: #ffffff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(11, 25, 44, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.15);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.BookPosting-floatingLauncher:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 14px 30px rgba(11, 25, 44, 0.45), 0 0 0 2px var(--BookPosting-primary);
+}
+
+.BookPosting-launcherPulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--BookPosting-primary);
+  opacity: 0.8;
+  animation: BookPostingPulse 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes BookPostingPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+.BookPosting-launcherBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  background: #ff7228;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+/* Expanded Floating Dock */
+.BookPosting-floatingDock {
+  width: 320px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(11, 25, 44, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: BookPostingDockIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes BookPostingDockIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.BookPosting-floatingDockHeader {
+  background: #0b192c;
+  color: #ffffff;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.BookPosting-floatingDockTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.BookPosting-dockPulse {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.4);
+  animation: BookPostingGreenPulse 1.8s infinite;
+}
+
+@keyframes BookPostingGreenPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
+}
+
+.BookPosting-dockEditIcon {
+  color: #ff7228;
+  font-size: 14px;
+}
+
+.BookPosting-dockCloseBtn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.BookPosting-dockCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.BookPosting-floatingDockBody {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.BookPosting-dockBookInfo {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.BookPosting-dockBookLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ff7228;
+}
+
+.BookPosting-dockBookTitle {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0b192c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.BookPosting-dockBookAuthor {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.BookPosting-dockActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.BookPosting-dockBtn {
+  border: none;
+  outline: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.BookPosting-dockBtn--back {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.BookPosting-dockBtn--back:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.BookPosting-dockBtn--cancel {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.BookPosting-dockBtn--cancel:hover {
+  background: #fecaca;
+  color: #b91c1c;
+}
+
+@media (max-width: 480px) {
+  .BookPosting-floatingWidget {
+    right: 14px;
+    bottom: 14px;
+  }
+  .BookPosting-floatingDock {
+    width: 280px;
+  }
+}

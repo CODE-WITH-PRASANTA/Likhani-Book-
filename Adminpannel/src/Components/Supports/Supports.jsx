@@ -1,10 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import API from "../../api/axios";
 import "./Supports.css";
-
-// Direct backend endpoint with fallback to port 5000
-const API_ENDPOINT =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api/supports";
 
 const Supports = () => {
   const [messages, setMessages] = useState([]);
@@ -33,6 +29,7 @@ const Supports = () => {
     mobile: "",
     email: "",
     message: "",
+    address: "",
     status: "New",
   });
 
@@ -43,9 +40,7 @@ const Supports = () => {
     try {
       setLoading(true);
       setErrorMessage("");
-      const res = await axios.get(API_ENDPOINT, {
-        withCredentials: true,
-      });
+      const res = await API.get("/supports");
 
       if (res.data && res.data.success) {
         setMessages(res.data.data);
@@ -174,6 +169,7 @@ const Supports = () => {
       mobile: item.mobile || "",
       email: item.email || "",
       message: item.message || "",
+      address: item.address || "",
       status: item.status || "New",
     });
     setModalType("edit");
@@ -189,11 +185,7 @@ const Supports = () => {
     if (!editForm.name.trim() || !selectedMessage) return;
 
     try {
-      const res = await axios.put(
-        `${API_ENDPOINT}/${selectedMessage._id}`,
-        editForm,
-        { withCredentials: true }
-      );
+      const res = await API.put(`/supports/${selectedMessage._id}`, editForm);
       if (res.data && res.data.success) {
         setMessages((prev) =>
           prev.map((msg) =>
@@ -219,10 +211,7 @@ const Supports = () => {
     if (!selectedMessage) return;
 
     try {
-      const res = await axios.delete(
-        `${API_ENDPOINT}/${selectedMessage._id}`,
-        { withCredentials: true }
-      );
+      const res = await API.delete(`/supports/${selectedMessage._id}`);
       if (res.data && res.data.success) {
         setMessages((prev) =>
           prev.filter((item) => item._id !== selectedMessage._id)
@@ -244,11 +233,7 @@ const Supports = () => {
     if (!selectedIds.length) return;
 
     try {
-      const res = await axios.post(
-        `${API_ENDPOINT}/bulk-delete`,
-        { ids: selectedIds },
-        { withCredentials: true }
-      );
+      const res = await API.post("/supports/bulk-delete", { ids: selectedIds });
       if (res.data && res.data.success) {
         setMessages((prev) =>
           prev.filter((item) => !selectedIds.includes(item._id))
@@ -471,6 +456,32 @@ const Supports = () => {
                     <td>{startIndex + index + 1}</td>
                     <td>
                       <div className="Supports-name">{item.name}</div>
+                      {item.source && (
+                        <span
+                          style={{
+                            display: "inline-block",
+                            fontSize: "10.5px",
+                            fontWeight: 700,
+                            padding: "2px 7px",
+                            borderRadius: "4px",
+                            background:
+                              item.source === "Contact Us Page"
+                                ? "#e0f2fe"
+                                : item.source === "Let's Talk"
+                                ? "#fef3c7"
+                                : "#ecfdf5",
+                            color:
+                              item.source === "Contact Us Page"
+                                ? "#0369a1"
+                                : item.source === "Let's Talk"
+                                ? "#92400e"
+                                : "#047857",
+                            marginTop: "4px",
+                          }}
+                        >
+                          {item.source}
+                        </span>
+                      )}
                     </td>
                     <td>
                       <span className="Supports-mobile">{item.mobile}</span>
@@ -643,6 +654,18 @@ const Supports = () => {
                 <span>Time</span>
                 <strong>{selectedMessage.time || "N/A"}</strong>
               </div>
+              {selectedMessage.source && (
+                <div className="Supports-detailBox">
+                  <span>Source</span>
+                  <strong>{selectedMessage.source}</strong>
+                </div>
+              )}
+              {selectedMessage.address && (
+                <div className="Supports-detailBox" style={{ gridColumn: "1 / -1" }}>
+                  <span>Customer Address</span>
+                  <strong>{selectedMessage.address}</strong>
+                </div>
+              )}
             </div>
 
             <div className="Supports-messageBox">

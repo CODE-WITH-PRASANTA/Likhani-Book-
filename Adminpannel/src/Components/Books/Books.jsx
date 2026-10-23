@@ -143,6 +143,7 @@ const Books = () => {
         const fetched = (res.data.data || []).map((b) => ({
           ...b,
           id: b._id || b.id,
+          image: b.image || (Array.isArray(b.images) && b.images[0]) || "",
         }));
         setBooks(fetched);
         if (res.data.pagination) {
@@ -317,28 +318,14 @@ const Books = () => {
   };
 
   const openEditModal = (book) => {
-    setSelectedBook(book);
-
-    setFormData({
-      title: book.title || "",
-      isbn: book.isbn || "",
-      author: book.author || "",
-      category: book.category || (categories[0] || ""),
-      price: book.price !== undefined ? book.price : "",
-      stock: book.stock !== undefined ? book.stock : "",
-      status: book.status || "Published",
-      description: book.description || "",
-      publisher: book.publisher || "",
-      pages: book.pages || "",
-      language: book.language || "English",
-      year: book.year || new Date().getFullYear(),
-      image: book.image || "",
+    if (!book) return;
+    const bookId = book.id || book._id;
+    navigate(`/book-posting?edit=${bookId}`, {
+      state: {
+        editBook: book,
+        bookId: bookId,
+      },
     });
-
-    setImageFile(null);
-    setImagePreview(book.image ? getImageUrl(book.image) : "");
-    setErrors({});
-    setModalType("edit");
   };
 
   const openDeleteModal = (book) => {
@@ -1407,7 +1394,11 @@ const Books = () => {
               </button>
               <button
                 className="Books__saveButton"
-                onClick={() => openEditModal(selectedBook)}
+                onClick={() => {
+                  const b = selectedBook;
+                  closeModal();
+                  openEditModal(b);
+                }}
               >
                 Edit Book
               </button>

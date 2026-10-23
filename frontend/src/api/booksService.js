@@ -132,23 +132,28 @@ export const fetchFeaturedBooks = async () => {
       params: {
         featured: "true",
         status: "Published",
-        limit: 50,
+        limit: 100,
       },
     });
 
     const list = [];
-    const seen = new Set();
+    const seenIds = new Set();
+    const seenTitles = new Set();
+
+    const addUnique = (item) => {
+      if (!item || (!item._id && !item.id)) return;
+      const norm = normalizeBook(item);
+      if (!norm) return;
+      const titleKey = (norm.title || "").trim().toLowerCase();
+      if (!seenIds.has(norm.id) && !seenTitles.has(titleKey)) {
+        seenIds.add(norm.id);
+        seenTitles.add(titleKey);
+        list.push(norm);
+      }
+    };
 
     if (postingRes.data?.success && Array.isArray(postingRes.data.data)) {
-      postingRes.data.data.forEach((item) => {
-        if (item && (item._id || item.id) && item.featured) {
-          const norm = normalizeBook(item);
-          if (norm && !seen.has(norm.id)) {
-            seen.add(norm.id);
-            list.push(norm);
-          }
-        }
-      });
+      postingRes.data.data.forEach(addUnique);
     }
 
     // 2. Also check /books in case books were added there
@@ -157,23 +162,34 @@ export const fetchFeaturedBooks = async () => {
         params: {
           featured: "true",
           status: "Published",
-          limit: 50,
+          limit: 100,
         },
       });
 
       if (booksRes.data?.success && Array.isArray(booksRes.data.data)) {
-        booksRes.data.data.forEach((item) => {
-          if (item && (item._id || item.id) && item.featured) {
-            const norm = normalizeBook(item);
-            if (norm && !seen.has(norm.id)) {
-              seen.add(norm.id);
-              list.push(norm);
-            }
-          }
-        });
+        booksRes.data.data.forEach(addUnique);
       }
     } catch (e) {
       // Ignore fallback errors
+    }
+
+    // 3. If fewer than 16 books exist, supplement with top published books to keep grid attractive
+    if (list.length < 16) {
+      try {
+        const [fallbackPosting, fallbackBooks] = await Promise.allSettled([
+          API.get("/book-posting", { params: { status: "Published", limit: 50 } }),
+          API.get("/books", { params: { status: "Published", limit: 50 } }),
+        ]);
+
+        if (fallbackPosting.status === "fulfilled" && Array.isArray(fallbackPosting.value?.data?.data)) {
+          fallbackPosting.value.data.data.forEach(addUnique);
+        }
+        if (fallbackBooks.status === "fulfilled" && Array.isArray(fallbackBooks.value?.data?.data)) {
+          fallbackBooks.value.data.data.forEach(addUnique);
+        }
+      } catch (e) {
+        // Ignore fallback errors
+      }
     }
 
     return list;

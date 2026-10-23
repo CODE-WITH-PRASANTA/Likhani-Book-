@@ -1229,22 +1229,104 @@
   font-size: 18px;
 }
 
+.Enquiries-modalCard--edit {
+  max-width: 620px;
+  width: 100%;
+}
+
+.Enquiries-formGroup {
+  width: 100%;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.Enquiries-formGroup:last-child {
+  margin-bottom: 0;
+}
+
+.Enquiries-formGroup label,
+.Enquiries-formLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 7px;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.15px;
+}
+
+.Enquiries-formGroup label span {
+  color: #ef4444;
+  font-weight: 800;
+}
+
+.Enquiries-formGroup input[type="text"],
+.Enquiries-formGroup input[type="email"],
+.Enquiries-formGroup input[type="tel"],
+.Enquiries-formGroup select,
+.Enquiries-formGroup textarea,
+.Enquiries-textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 9px;
+  outline: none;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.Enquiries-formGroup input:hover,
+.Enquiries-formGroup select:hover,
+.Enquiries-formGroup textarea:hover {
+  border-color: #94a3b8;
+}
+
+.Enquiries-formGroup input:focus,
+.Enquiries-formGroup select:focus,
+.Enquiries-formGroup textarea:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.Enquiries-formGroup textarea {
+  min-height: 95px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.Enquiries-formGroup select {
+  cursor: pointer;
+}
+
 .Enquiries-formRow2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 16px;
+  width: 100%;
 }
 
 @media (max-width: 600px) {
   .Enquiries-formRow2 {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
 
-.Enquiries-inputDisabled {
-  background: #f1f5f9 !important;
-  color: #64748b !important;
+.Enquiries-inputDisabled,
+.Enquiries-formGroup input:disabled {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
   cursor: not-allowed !important;
+  font-weight: 500;
 }
 
 .Enquiries-editStatusToggle {

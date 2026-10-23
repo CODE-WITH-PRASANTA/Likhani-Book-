@@ -1597,7 +1597,12 @@ const Enquiries = () => {
                 </h3>
               </div>
 
-              <button onClick={() => setEditModalData(null)}>
+              <button
+                type="button"
+                className="Enquiries-closeModalBtn"
+                onClick={() => setEditModalData(null)}
+                aria-label="Close modal"
+              >
                 <FiX />
               </button>
             </div>

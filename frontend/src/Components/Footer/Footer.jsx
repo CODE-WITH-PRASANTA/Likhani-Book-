@@ -18,9 +18,22 @@ import {
   FiInstagram,
 } from "react-icons/fi";
 
+import API from "../../api/axios";
+
+const DEFAULT_CATEGORIES = [
+  { label: "Fiction", href: `/shop?category=${encodeURIComponent("Fiction")}` },
+  { label: "History & Philosophy", href: `/shop?category=${encodeURIComponent("History & Philosophy")}` },
+  { label: "Self-Help & Wellness", href: `/shop?category=${encodeURIComponent("Self-Help & Wellness")}` },
+  { label: "Business & Finance", href: `/shop?category=${encodeURIComponent("Business & Finance")}` },
+  { label: "Fiction & Literature", href: `/shop?category=${encodeURIComponent("Fiction & Literature")}` },
+  { label: "Science & Technology", href: `/shop?category=${encodeURIComponent("Science & Technology")}` },
+];
+
 const Footer = () => {
   const [email, setEmail] = useState("");
   const [showTopBtn, setShowTopBtn] = useState(false);
+  const [categoryLinks, setCategoryLinks] = useState(DEFAULT_CATEGORIES);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,6 +43,62 @@ const Footer = () => {
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Fetch dynamic top-selling categories (strictly max 6)
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchTopSellingCategories = async () => {
+      try {
+        // Try fetching top-selling ranked categories first
+        let rawCats = [];
+        try {
+          const res = await API.get("/categories/top-selling");
+          if (res.data?.success && Array.isArray(res.data.data)) {
+            rawCats = res.data.data;
+          }
+        } catch {
+          // Fallback to standard /categories
+          const fallbackRes = await API.get("/categories");
+          rawCats = fallbackRes.data?.data || fallbackRes.data || [];
+        }
+
+        if (Array.isArray(rawCats) && rawCats.length > 0 && isMounted) {
+          const mapped = rawCats
+            .filter((c) => {
+              if (!c) return false;
+              const name = (c.title || c.name || "").trim();
+              // Filter out empty or placeholder 'Category'
+              return name && name.toLowerCase() !== "category";
+            })
+            .map((c) => {
+              const name = (c.title || c.name).trim();
+              return {
+                label: name,
+                href: `/shop?category=${encodeURIComponent(name)}`,
+              };
+            });
+
+          if (mapped.length > 0) {
+            // Strictly maximum 6 top-selling categories in footer
+            setCategoryLinks(mapped.slice(0, 6));
+          }
+        }
+      } catch (err) {
+        console.warn("[Footer] Could not fetch top-selling categories:", err.message);
+      } finally {
+        if (isMounted) {
+          setLoadingCategories(false);
+        }
+      }
+    };
+
+    fetchTopSellingCategories();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -52,27 +121,16 @@ const Footer = () => {
     { label: "My Orders", href: "/orders" },
     { label: "Manage Addresses", href: "/addresses" },
     { label: "Contact Us", href: "/contact" },
-    { label: "Return Policy", href: "/refund-policy" },
     { label: "Terms & Conditions", href: "/terms-and-conditions" },
     { label: "Privacy Policy", href: "/privacy-policy" },
     { label: "Refund Policy", href: "/refund-policy" },
-  ];
-
-  const categoryLinks = [
-    { label: "Novel Books", href: "#novel-books" },
-    { label: "Poetry Books", href: "#poetry-books" },
-    { label: "Political Books", href: "#political-books" },
-    { label: "History Books", href: "#history-books" },
-    { label: "Children Books", href: "#children-books" },
-    { label: "Science Books", href: "#science-books" },
-    { label: "Self Help Books", href: "#self-help-books" },
   ];
 
   const renderLinks = (links) =>
     links.map((item) => (
       <li key={item.label}>
         {item.href.startsWith("/") ? (
-          <Link to={item.href}>
+          <Link to={item.href} onClick={scrollToTop}>
             <FiChevronsRight className="footer-link-arrow" />
             <span>{item.label}</span>
           </Link>
@@ -109,8 +167,8 @@ const Footer = () => {
 
             <div className="footer-contact-text">
               <span className="footer-contact-label">Make a Quote</span>
-              <h4 className="footer-contact-value">
-                <a href="mailto:example@gmail.com">example@gmail.com</a>
+              <h4 className="footer-contact-value footer-contact-email">
+                <a href="mailto:publicationlekhani@gmail.com">publicationlekhani@gmail.com</a>
               </h4>
             </div>
           </div>
@@ -252,7 +310,7 @@ const Footer = () => {
             </h3>
 
             <ul className="footer-links">
-              {renderLinks(categoryLinks)}
+              {renderLinks(categoryLinks.slice(0, 6))}
             </ul>
           </div>
 

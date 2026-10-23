@@ -239,7 +239,7 @@ export const downloadInvoice = async (order) => {
           <div class="brand-text">
             <h1>LEKHANI BOOKS</h1>
             <p>Direct Publications & Distribution • Odisha, India</p>
-            <p>Email: support@lekhani.com • Phone: +91 9692075298</p>
+            <p>Email: publicationlekhani@gmail.com • Phone: +91 9692075298</p>
           </div>
         </div>
         <div class="invoice-meta">

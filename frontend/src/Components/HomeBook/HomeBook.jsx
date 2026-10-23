@@ -9,7 +9,6 @@ import {
   FaArrowRight,
   FaHeart,
   FaRegHeart,
-  FaShareAlt,
   FaEye,
   FaShoppingBasket,
   FaCheck,
@@ -157,32 +156,6 @@ const HomeBook = () => {
     }, 1800);
   };
 
-  const handleShare = async (book) => {
-    const shareData = {
-      title: book.title,
-      text: `Check out "${book.title}" by ${book.author} on Lekhani Books!`,
-      url: window.location.href,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          showToast("Unable to share this book.");
-        }
-      }
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      showToast(`Link copied for "${book.title}"!`);
-    } catch {
-      showToast("Unable to copy the link.");
-    }
-  };
-
 
 
   return (
@@ -213,10 +186,8 @@ const HomeBook = () => {
         <div className="home-book__featured">
         <div className="home-book__featured-head">
           <div>
-            <span className="home-book__eyebrow">OUR COLLECTION</span>
-            <h2 className="home-book__featured-title">
-              Featured Books
-            </h2>
+            <span className="home-book__eyebrow">OUR CURATED COLLECTION</span>
+            <h2 className="home-book__featured-title">Featured Books</h2>
           </div>
 
           <div className="home-book__featured-controls">
@@ -323,14 +294,6 @@ const HomeBook = () => {
                           {isWished ? <FaHeart style={{ color: "#dc2626" }} /> : <FaRegHeart />}
                         </button>
 
-                        <button
-                          type="button"
-                          className="home-book__quick-btn"
-                          aria-label={`Share ${book.title}`}
-                          onClick={() => handleShare(book)}
-                        >
-                          <FaShareAlt />
-                        </button>
 
                         <button
                           type="button"
@@ -345,6 +308,7 @@ const HomeBook = () => {
 
                     <div className="home-book__card-body">
                       <p className="home-book__genre">{book.genre || book.category || "Literature"}</p>
+
                       <h3
                         className="home-book__title"
                         onClick={() => setModalBook(book)}

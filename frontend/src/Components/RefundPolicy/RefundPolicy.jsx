@@ -180,7 +180,7 @@ const RefundPolicy = () => {
               </p>
 
               <a
-                href="mailto:example@gmail.com"
+                href="mailto:publicationlekhani@gmail.com"
                 className="RefundPolicy-help-button"
               >
                 <FiMail />

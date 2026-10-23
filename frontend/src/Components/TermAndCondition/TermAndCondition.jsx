@@ -180,7 +180,7 @@ const TermAndCondition = () => {
               </p>
 
               <a
-                href="mailto:example@gmail.com"
+                href="mailto:publicationlekhani@gmail.com"
                 className="TermAndCondition-help-button"
               >
                 Contact Support <FiChevronRight />
@@ -261,9 +261,9 @@ const TermAndCondition = () => {
 
                     {term.contact && (
                       <div className="TermAndCondition-contact-details">
-                        <a href="mailto:example@gmail.com">
+                        <a href="mailto:publicationlekhani@gmail.com">
                           <FiMail />
-                          example@gmail.com
+                          publicationlekhani@gmail.com
                         </a>
 
                         <a href="tel:+919692075298">
