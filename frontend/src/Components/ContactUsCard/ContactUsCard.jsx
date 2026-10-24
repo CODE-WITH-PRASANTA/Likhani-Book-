@@ -173,18 +173,23 @@ const ContactUsCard = () => {
 
             <ul className="ContactUsCard-info-list">
               {CONTACT_ITEMS.map(({ key, icon: Icon, label, value, href }) => (
-                <li key={key} className="ContactUsCard-info-item">
+                <li key={key} className={`ContactUsCard-info-item ContactUsCard-info-item-${key}`}>
                   <div className="ContactUsCard-icon-wrapper">
                     <Icon className="ContactUsCard-icon" />
                   </div>
                   <div className="ContactUsCard-info-text">
                     <span>{label}</span>
                     {href ? (
-                      <a href={href} className="ContactUsCard-info-value">
+                      <a
+                        href={href}
+                        className={`ContactUsCard-info-value ContactUsCard-info-value-${key}`}
+                      >
                         {value}
                       </a>
                     ) : (
-                      <p className="ContactUsCard-info-value">{value}</p>
+                      <p className={`ContactUsCard-info-value ContactUsCard-info-value-${key}`}>
+                        {value}
+                      </p>
                     )}
                   </div>
                 </li>
