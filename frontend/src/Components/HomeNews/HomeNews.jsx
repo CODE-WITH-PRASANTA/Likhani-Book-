@@ -11,87 +11,6 @@ import {
 import API, { IMG_URL } from '../../api/axios';
 import './HomeNews.css';
 
-const NEWS_ITEMS = [
-  {
-    id: 'news1',
-    category: 'Activities',
-    date: 'Feb 10, 2024',
-    author: 'Admin',
-    readTime: '3 min read',
-    title: 'Montes Suspendisse Massa Curae Malesuada',
-    description: 'Discover captivating literary discussions, author deep-dives, and timeless bookish adventures.',
-    tags: ['Reading', 'Literature'],
-    image:
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=85',
-    href: '#',
-  },
-  {
-    id: 'news2',
-    category: 'Activities',
-    date: 'Mar 20, 2024',
-    author: 'Admin',
-    readTime: '2 min read',
-    title: 'Playful Picks Paradise: Kids Essentials With Dash.',
-    description: 'Explore engaging tales and colorful pages designed to cultivate a joyful, lifelong reading habit.',
-    tags: ['Kids', 'Storytelling'],
-    image:
-      'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=85',
-    href: '#',
-  },
-  {
-    id: 'news3',
-    category: 'Activities',
-    date: 'Jun 14, 2024',
-    author: 'Admin',
-    readTime: '4 min read',
-    title: "Tiny Emporium: Playful Picks For Kids' Delightful Days.",
-    description: 'Immerse in classic chronicles, timeless folklore, and educational collections for young thinkers.',
-    tags: ['Activities', 'Education'],
-    image:
-      'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=600&q=85',
-    href: '#',
-  },
-  {
-    id: 'news4',
-    category: 'Activities',
-    date: 'Mar 12, 2024',
-    author: 'Admin',
-    readTime: '3 min read',
-    title: 'Eu Parturient Dictumst Fames Quam Tempor',
-    description: 'A thoughtful exploration of contemporary poetry, regional heritage, and classical writing.',
-    tags: ['Poetry', 'Culture'],
-    image:
-      'https://images.unsplash.com/photo-1524578271613-d550eacf6090?auto=format&fit=crop&w=600&q=85',
-    href: '#',
-  },
-  {
-    id: 'news5',
-    category: 'Activities',
-    date: 'Apr 05, 2024',
-    author: 'Admin',
-    readTime: '2 min read',
-    title: 'Mastering Reading Habits in Modern Digital Age',
-    description: 'Actionable tips and mindful strategies to stay focused and rediscover deep, immersive reading.',
-    tags: ['Habits', 'Focus'],
-    image:
-      'https://images.unsplash.com/photo-1495640388908-05fa85288e61?auto=format&fit=crop&w=600&q=85',
-    href: '#',
-  },
-  {
-    id: 'news6',
-    category: 'Activities',
-    date: 'May 19, 2024',
-    author: 'Admin',
-    readTime: '5 min read',
-    title: 'The Secret World of Classic Architectural Libraries',
-    description: 'Step inside majestic heritage libraries preserved with historical reverence and architectural beauty.',
-    tags: ['Architecture', 'History'],
-    image:
-      'https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=600&q=85',
-    href: '#',
-  },
-];
-
 const AUTOPLAY_MS = 5000;
 
 // Mirrors the breakpoints defined in HomeNews.css so the JS "pages"
@@ -104,7 +23,8 @@ const getItemsPerView = (width) => {
 };
 
 const HomeNews = ({ onSelectArticle }) => {
-  const [newsItems, setNewsItems] = useState(NEWS_ITEMS);
+  const [newsItems, setNewsItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [itemsPerView, setItemsPerView] = useState(() =>
     typeof window !== 'undefined' ? getItemsPerView(window.innerWidth) : 4
   );
@@ -117,10 +37,13 @@ const HomeNews = ({ onSelectArticle }) => {
   const isSyncingScroll = useRef(false);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchHomeBlogs = async () => {
       try {
+        setLoading(true);
         const res = await API.get('/blogs', { params: { limit: 8, status: 'Published' } });
-        if (res.data?.success && res.data.data?.length > 0) {
+        if (!isMounted) return;
+        if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
           const mapped = res.data.data.map((b) => {
             const rawDesc = (b.shortDescription || b.description || '')
               .replace(/<[^>]+>/g, ' ')
@@ -144,11 +67,13 @@ const HomeNews = ({ onSelectArticle }) => {
             return {
               id: b._id,
               category: b.category || 'Activities',
-              date: new Date(b.createdAt).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              }),
+              date: b.createdAt
+                ? new Date(b.createdAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })
+                : '',
               author: b.author || 'Admin',
               title: b.title,
               description,
@@ -163,12 +88,20 @@ const HomeNews = ({ onSelectArticle }) => {
             };
           });
           setNewsItems(mapped);
+        } else {
+          setNewsItems([]);
         }
       } catch (err) {
         console.error('Failed to load home blogs:', err);
+        if (isMounted) setNewsItems([]);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
     fetchHomeBlogs();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const totalPages = Math.max(1, Math.ceil(newsItems.length / itemsPerView));
@@ -266,6 +199,10 @@ const HomeNews = ({ onSelectArticle }) => {
       handleNext();
     }
   };
+
+  if (newsItems.length === 0) {
+    return null;
+  }
 
   return (
     <section className="home-news">

@@ -817,19 +817,42 @@ exports.getMyOrders = async (req, res) => {
  */
 exports.getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
+    // 1. Reconcile any pending orders with Razorpay in background
+    try {
+      const pendingOrders = await Order.find({
+        "paymentInfo.status": "Pending",
+        "paymentInfo.razorpayOrderId": { $exists: true, $ne: "" },
+      })
+        .sort({ createdAt: -1 })
+        .limit(20);
+
+      if (pendingOrders.length > 0) {
+        await Promise.all(pendingOrders.map((o) => syncOrderPaymentWithRazorpay(o)));
+      }
+    } catch (reconcileErr) {
+      console.warn("[PaymentController] Pending order reconciliation warning:", reconcileErr.message);
+    }
+
+    // 2. Build query filter: by default, only return paid/successful orders
+    const { paymentStatus } = req.query;
+    const query = {};
+
+    if (paymentStatus && paymentStatus.toLowerCase() !== "all") {
+      if (paymentStatus.toLowerCase() === "paid" || paymentStatus.toLowerCase() === "success") {
+        query["paymentInfo.status"] = { $in: ["Paid", "paid", "success", "Success", "Refunded", "refunded"] };
+      } else {
+        query["paymentInfo.status"] = new RegExp(`^${paymentStatus}$`, "i");
+      }
+    } else if (!paymentStatus) {
+      // By default: only return successfully paid (or refunded) orders for admin management
+      query["paymentInfo.status"] = { $in: ["Paid", "paid", "success", "Success", "Refunded", "refunded"] };
+    }
+
+    const orders = await Order.find(query)
       .populate("user", "name email phone firstName lastName")
       .sort({ createdAt: -1 });
 
-    // Reconcile pending orders with Razorpay
-    const pendingOrders = orders.filter(
-      (o) => o.paymentInfo?.status === "Pending" && o.paymentInfo?.razorpayOrderId
-    );
-    if (pendingOrders.length > 0) {
-      await Promise.all(pendingOrders.map((o) => syncOrderPaymentWithRazorpay(o)));
-    }
-
-    // Ensure every order has a clean, professional orderId
+    // 3. Ensure every order has a clean, professional orderId
     for (const ord of orders) {
       if (!ord.orderId) {
         const dCode = ord.createdAt

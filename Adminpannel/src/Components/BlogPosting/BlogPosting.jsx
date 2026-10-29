@@ -629,7 +629,7 @@ const BlogPosting = () => {
                   </div>
                   <div className="BlogPosting-editorWrapper">
                     <Editor
-                      apiKey="jeq7g2k84sqpi9364o8x9ptqf09aoesaq8jxmp49dl4sh57z"
+                      apiKey="czj65v9x2uy3y9jz7l7xmjpm3hnnass9rwcy9zhzx46lxpis"
                       value={formData.description}
                       onEditorChange={handleEditorChange}
                       init={{

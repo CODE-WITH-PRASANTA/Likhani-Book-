@@ -1192,7 +1192,7 @@ const BookPosting = () => {
 
               <div className="BookPosting-editorWrapper">
                 <Editor
-                  apiKey="8hswbe7bfeeneui9eb9gjgsym8ku30nx5gwre9808ajdzniu"
+                  apiKey="czj65v9x2uy3y9jz7l7xmjpm3hnnass9rwcy9zhzx46lxpis"
                   value={formData.description}
                   onEditorChange={(content) =>
                     setFormData((prev) => ({

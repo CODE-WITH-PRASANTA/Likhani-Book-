@@ -40,9 +40,13 @@ const Order = () => {
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await API.get("/orders");
+      const res = await API.get("/orders", { params: { paymentStatus: "Paid" } });
       if (res.data && res.data.success && Array.isArray(res.data.orders)) {
-        const formatted = res.data.orders.map((order, idx) => {
+        const paidOnlyOrders = res.data.orders.filter((order) => {
+          const s = (order.paymentInfo?.status || "").toLowerCase();
+          return s === "paid" || s === "success" || s === "refunded";
+        });
+        const formatted = paidOnlyOrders.map((order, idx) => {
           const orderDate = new Date(order.createdAt || Date.now());
           const dateStr = orderDate.toLocaleDateString("en-IN", {
             day: "2-digit",
@@ -83,9 +87,8 @@ const Order = () => {
             amount: Number(order.pricing?.totalAmount || 0),
             payment: (() => {
               const s = (order.paymentInfo?.status || "").toLowerCase();
-              if (s === "paid" || s === "success") return "Paid";
-              if (s === "failed") return "Failed";
-              return "Pending";
+              if (s === "refunded") return "Refunded";
+              return "Paid";
             })(),
             paymentMethod: order.paymentInfo?.method || "Online Payment",
             paymentId: order.paymentInfo?.razorpayPaymentId || "",
@@ -886,9 +889,6 @@ const Order = () => {
             >
               <option>All Payment Status</option>
               <option>Paid</option>
-              <option>Pending</option>
-              <option>COD</option>
-              <option>Failed</option>
               <option>Refunded</option>
             </select>
             <FiChevronDown />
@@ -1463,9 +1463,6 @@ const Order = () => {
                     }
                   >
                     <option>Paid</option>
-                    <option>Pending</option>
-                    <option>COD</option>
-                    <option>Failed</option>
                     <option>Refunded</option>
                   </select>
                   <FiChevronDown />
