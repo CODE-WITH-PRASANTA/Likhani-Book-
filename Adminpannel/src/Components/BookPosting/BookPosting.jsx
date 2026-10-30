@@ -1201,16 +1201,33 @@ const BookPosting = () => {
                     }))
                   }
                   init={{
-                    height: 260,
+                    height: 280,
                     menubar: true,
                     branding: false,
                     resize: true,
-                    plugins:
-                      "advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount",
+                    plugins: [
+                      "advlist",
+                      "autolink",
+                      "lists",
+                      "link",
+                      "image",
+                      "charmap",
+                      "preview",
+                      "anchor",
+                      "searchreplace",
+                      "visualblocks",
+                      "code",
+                      "fullscreen",
+                      "insertdatetime",
+                      "media",
+                      "table",
+                      "help",
+                      "wordcount",
+                    ],
                     toolbar:
-                      "undo redo | blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | table | removeformat | fullscreen",
+                      "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | blockquote code fullscreen | removeformat",
                     content_style:
-                      "body { font-family: Inter, Arial, sans-serif; font-size:14px; line-height:1.7; padding:12px; }",
+                      "body { font-family: Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; font-size: 14px; line-height: 1.7; color: #1e293b; padding: 12px; }",
                     placeholder:
                       "Write a detailed description about the book...",
                   }}

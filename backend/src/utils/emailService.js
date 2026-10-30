@@ -629,8 +629,10 @@ const sendOrderShippedEmail = async (order, trackingInfo = {}) => {
     const orderId = order.orderId || order._id;
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 
-    const carrier = trackingInfo.carrier || "Standard Expedited Courier";
-    const trackingNumber = trackingInfo.trackingNumber || `LKN-${orderId.toString().replace(/[^0-9A-Z]/gi, "").slice(-8)}`;
+    const carrier = order.deliveryPartner || trackingInfo.carrier || "India Post Speed Post";
+    const trackingNumber = order.trackingId || trackingInfo.trackingNumber || `LKN-${orderId.toString().replace(/[^0-9A-Z]/gi, "").slice(-8)}`;
+    const currentHub = order.currentLocation || order.currentHub || "";
+    const estimatedDate = order.expectedDeliveryDate || order.dateOfDelivery || "Within 2-5 Business Days";
 
     const html = generateEmailTemplate({
       headerTitle: "Order Shipped",
@@ -652,9 +654,17 @@ const sendOrderShippedEmail = async (order, trackingInfo = {}) => {
               <td style="color: #64748b; padding: 3px 0;">Tracking ID / AWB:</td>
               <td align="right" style="font-weight: 700; color: #0284c7;">${trackingNumber}</td>
             </tr>
+            ${
+              currentHub
+                ? `<tr>
+              <td style="color: #64748b; padding: 3px 0;">Current Courier Hub:</td>
+              <td align="right" style="font-weight: 600; color: #0369a1;">${currentHub}</td>
+            </tr>`
+                : ""
+            }
             <tr>
-              <td style="color: #64748b; padding: 3px 0;">Estimated Delivery:</td>
-              <td align="right" style="font-weight: 600; color: #16a34a;">Within 2-5 Business Days</td>
+              <td style="color: #64748b; padding: 3px 0;">Expected Delivery Date:</td>
+              <td align="right" style="font-weight: 600; color: #16a34a;">${estimatedDate}</td>
             </tr>
           </table>
         </div>
@@ -693,8 +703,9 @@ const sendOrderOutForDeliveryEmail = async (order, trackingInfo = {}) => {
     const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
 
     const carrier = order.deliveryPartner || trackingInfo.carrier || "Delivery Executive";
-    const agentPhone = order.deliveryAgentPhone || "";
-    const expectedDate = order.expectedDeliveryDate || "Today";
+    const agentPhone = order.deliveryAgentPhone || order.agentNo || "";
+    const expectedDate = order.expectedDeliveryDate || order.dateOfDelivery || "Today";
+    const currentHub = order.currentLocation || order.currentHub || "";
 
     const html = generateEmailTemplate({
       headerTitle: "Out for Delivery",
@@ -708,22 +719,31 @@ const sendOrderOutForDeliveryEmail = async (order, trackingInfo = {}) => {
         <p>Your package for order <strong>#${orderId}</strong> is <strong>Out for Delivery</strong> and will be arriving at your doorstep today.</p>
         <div style="background-color: #fffbeb; border: 1px dashed #fde68a; border-radius: 8px; padding: 14px; margin: 16px 0;">
           <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 13px;">
-            <tr>
-              <td style="color: #64748b; padding: 3px 0;">Delivery Partner:</td>
-              <td align="right" style="font-weight: 700; color: #0f172a;">${carrier}</td>
-            </tr>
             ${
               agentPhone
                 ? `
             <tr>
-              <td style="color: #64748b; padding: 3px 0;">Delivery Agent Contact:</td>
+              <td style="color: #64748b; padding: 3px 0;">Agent Contact No:</td>
               <td align="right" style="font-weight: 700; color: #d97706;"><a href="tel:${agentPhone}" style="color: #d97706; text-decoration: none;">${agentPhone}</a></td>
             </tr>`
                 : ""
             }
+            ${
+              currentHub
+                ? `
             <tr>
-              <td style="color: #64748b; padding: 3px 0;">Expected Delivery:</td>
+              <td style="color: #64748b; padding: 3px 0;">Current Dispatch Hub:</td>
+              <td align="right" style="font-weight: 600; color: #78350f;">${currentHub}</td>
+            </tr>`
+                : ""
+            }
+            <tr>
+              <td style="color: #64748b; padding: 3px 0;">Date of Delivery:</td>
               <td align="right" style="font-weight: 600; color: #d97706;">${expectedDate}</td>
+            </tr>
+            <tr>
+              <td style="color: #64748b; padding: 3px 0;">Delivery Partner:</td>
+              <td align="right" style="font-weight: 700; color: #0f172a;">${carrier}</td>
             </tr>
           </table>
         </div>

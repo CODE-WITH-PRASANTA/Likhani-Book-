@@ -426,7 +426,7 @@ const Orders = () => {
                   const shippingFee = order.pricing?.shippingFee || 0;
                   const paymentId = order.paymentInfo?.razorpayPaymentId;
                   const razorpayOrderId = order.paymentInfo?.razorpayOrderId;
-                  const status = order.orderStatus || "Placed";
+                  const status = order.orderStatus || order.status || "Placed";
                   const payStatusRaw = (
                     order.paymentInfo?.status || "Pending"
                   ).toLowerCase();
@@ -434,6 +434,7 @@ const Orders = () => {
                     payStatusRaw === "paid" || payStatusRaw === "success";
                   const isFailed = payStatusRaw === "failed";
                   const isCancelled = status.toLowerCase() === "cancelled";
+                  const isDelivered = status.toLowerCase() === "delivered";
 
                   // Order stages for progress stepper
                   const stages = [
@@ -467,7 +468,7 @@ const Orders = () => {
                         </button>
 
                         <div className="OrderDetail__topActions">
-                          {isPaid && (
+                          {isPaid && isDelivered && (
                             <button
                               type="button"
                               className="OrderDetail__btn OrderDetail__btn--invoice"
@@ -636,41 +637,56 @@ const Orders = () => {
                             </div>
 
                             <div className="OrderDetail__trackingLiveGrid">
-                              {/* 1. Location field: shown when shipped or provided */}
-                              {(order.currentLocation || status === "Shipped") && (
+                              {/* 1. Location / Hub field */}
+                              {(order.currentLocation || order.currentHub || status === "Shipped" || status === "Out for Delivery") && (
                                 <div className="OrderDetail__trackingLiveItem">
                                   <span className="OrderDetail__trackingLiveLabel">
-                                    <FiMapPin /> Current Hub / Location
+                                    <FiMapPin />{" "}
+                                    {status === "Shipped"
+                                      ? "Current Courier Hub"
+                                      : status === "Out for Delivery"
+                                      ? "Current Hub"
+                                      : "Current Hub / Location"}
                                   </span>
                                   <strong className="OrderDetail__trackingLiveVal">
                                     {order.currentLocation ||
-                                      "In Transit via Nearest Hub"}
+                                      order.currentHub ||
+                                      (status === "Shipped"
+                                        ? "Speed Post Sorting Facility"
+                                        : "Local Dispatch Facility")}
                                   </strong>
                                 </div>
                               )}
 
-                              {/* 2. Expected Delivery Date: shown when out for delivery or provided */}
+                              {/* 2. Expected Delivery Date / Date of Delivery */}
                               {(order.expectedDeliveryDate ||
-                                status === "Out for Delivery") && (
+                                order.dateOfDelivery ||
+                                status === "Out for Delivery" ||
+                                status === "Shipped") && (
                                 <div className="OrderDetail__trackingLiveItem">
                                   <span className="OrderDetail__trackingLiveLabel">
-                                    <FiCalendar /> Expected Delivery Date
+                                    <FiCalendar />{" "}
+                                    {status === "Out for Delivery"
+                                      ? "Date of Delivery"
+                                      : "Expected Delivery Date"}
                                   </span>
                                   <strong className="OrderDetail__trackingLiveVal OrderDetail__trackingLiveVal--date">
-                                    {order.expectedDeliveryDate || "Arriving Today"}
+                                    {order.expectedDeliveryDate ||
+                                      order.dateOfDelivery ||
+                                      (status === "Out for Delivery" ? "Arriving Today" : "Within 2-4 Days")}
                                   </strong>
                                 </div>
                               )}
 
-                              {/* 3 & 4. Delivery Partner & Tracking ID: cleanly separated */}
+                              {/* 3 & 4. Delivery Partner / Speed Post, Agent No & Tracking ID */}
                               {(() => {
-                                let displayAgentPhone = (order.deliveryAgentPhone || "").trim();
+                                let displayAgentPhone = (order.deliveryAgentPhone || order.agentNo || "").trim();
                                 let displayTrackingId = (order.trackingId || "").trim();
 
                                 if (displayAgentPhone && displayAgentPhone.includes("/")) {
                                   const parts = displayAgentPhone.split("/");
                                   displayAgentPhone = parts[0].trim();
-                                  if (!displayTrackingId || displayTrackingId === order.deliveryAgentPhone) {
+                                  if (!displayTrackingId || displayTrackingId === (order.deliveryAgentPhone || order.agentNo)) {
                                     displayTrackingId = parts.slice(1).join("/").trim();
                                   }
                                 } else if (displayTrackingId && displayTrackingId.includes("/") && !displayAgentPhone) {
@@ -687,27 +703,43 @@ const Orders = () => {
 
                                 return (
                                   <>
-                                    {(order.deliveryPartner ||
-                                      status === "Out for Delivery") && (
+                                    {/* Delivery Agent Phone (Out for Delivery) */}
+                                    {displayAgentPhone && (
                                       <div className="OrderDetail__trackingLiveItem">
                                         <span className="OrderDetail__trackingLiveLabel">
-                                          <FiTruck /> Delivery Partner
+                                          <FiPhone /> Agent No
                                         </span>
                                         <strong className="OrderDetail__trackingLiveVal">
-                                          {order.deliveryPartner || "Courier Partner"}
-                                          {displayAgentPhone ? (
-                                            <span className="OrderDetail__trackingAgentPhone">
-                                              {" "}• <FiPhone style={{ verticalAlign: "-2px" }} /> {displayAgentPhone}
-                                            </span>
-                                          ) : null}
+                                          <a
+                                            href={`tel:${displayAgentPhone}`}
+                                            style={{ color: "#d97706", textDecoration: "none" }}
+                                          >
+                                            📞 {displayAgentPhone}
+                                          </a>
                                         </strong>
                                       </div>
                                     )}
 
+                                    {/* Delivery Tracking Speed Post / Courier Partner */}
+                                    {(order.deliveryPartner || status === "Shipped") && (
+                                      <div className="OrderDetail__trackingLiveItem">
+                                        <span className="OrderDetail__trackingLiveLabel">
+                                          <FiTruck />{" "}
+                                          {status === "Shipped"
+                                            ? "Delivery Tracking Speed Post"
+                                            : "Delivery Partner"}
+                                        </span>
+                                        <strong className="OrderDetail__trackingLiveVal">
+                                          {order.deliveryPartner || "India Post Speed Post"}
+                                        </strong>
+                                      </div>
+                                    )}
+
+                                    {/* Tracking ID */}
                                     {displayTrackingId && (
                                       <div className="OrderDetail__trackingLiveItem">
                                         <span className="OrderDetail__trackingLiveLabel">
-                                          <FiPackage /> Tracking Number (AWB)
+                                          <FiPackage /> {status === "Shipped" ? "Tracking ID" : "Tracking Number (AWB)"}
                                         </span>
                                         <div className="OrderDetail__copyWrap">
                                           <code>{displayTrackingId}</code>
@@ -975,7 +1007,7 @@ const Orders = () => {
 
                             {/* Quick Help & Invoices in Payment Card */}
                             <div className="OrderDetail__paymentActions">
-                              {isPaid && (
+                              {isPaid && isDelivered && (
                                 <button
                                   type="button"
                                   className="OrderDetail__actionBtn OrderDetail__actionBtn--invoice"
@@ -1129,12 +1161,13 @@ const Orders = () => {
                           ? `ORD-${order._id.slice(-6).toUpperCase()}`
                           : "ORD-ORDER");
                       const total = order.pricing?.totalAmount || 0;
-                      const status = order.orderStatus || "Placed";
+                      const status = order.orderStatus || order.status || "Placed";
                       const payStatusRaw = (
                         order.paymentInfo?.status || "Pending"
                       ).toLowerCase();
                       const isPaid =
                         payStatusRaw === "paid" || payStatusRaw === "success";
+                      const isDelivered = status.toLowerCase() === "delivered";
                       const isFailed =
                         payStatusRaw === "failed" ||
                         (!isPaid && status.toLowerCase() === "cancelled");
@@ -1209,20 +1242,20 @@ const Orders = () => {
                                   <FiTruck />
                                   <span>
                                     Out for Delivery
-                                    {order.expectedDeliveryDate
-                                      ? ` • Expected ${order.expectedDeliveryDate}`
+                                    {order.expectedDeliveryDate || order.dateOfDelivery
+                                      ? ` • Date: ${order.expectedDeliveryDate || order.dateOfDelivery}`
                                       : ""}
-                                    {order.deliveryPartner
-                                      ? ` via ${order.deliveryPartner}`
+                                    {order.deliveryAgentPhone || order.agentNo
+                                      ? ` • Agent: ${order.deliveryAgentPhone || order.agentNo}`
                                       : ""}
                                   </span>
                                 </div>
                               )}
 
-                              {status === "Shipped" && order.currentLocation && (
+                              {status === "Shipped" && (order.currentLocation || order.currentHub) && (
                                 <div className="OrdersPage__compactLocationAlert">
                                   <FiMapPin />
-                                  <span>Current Hub: {order.currentLocation}</span>
+                                  <span>Current Courier Hub: {order.currentLocation || order.currentHub}</span>
                                 </div>
                               )}
                             </div>
@@ -1273,7 +1306,7 @@ const Orders = () => {
                             className="OrdersPage__compactRight"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            {isPaid && (
+                            {isPaid && isDelivered && (
                               <button
                                 type="button"
                                 className="OrdersPage__compactActionBtn OrdersPage__compactActionBtn--invoice"

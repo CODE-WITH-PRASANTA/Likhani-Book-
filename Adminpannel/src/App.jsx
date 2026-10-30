@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   BrowserRouter,
@@ -26,11 +25,47 @@ import Login from "./Components/Login/Login";
 import MyProfile from "./Components/MyProfile/MyProfile";
 import BookPosting from "./Components/BookPosting/BookPosting";
 
+import { isAdminAuthenticated } from "./api/axios";
+
+// Protected Route Guard
+const ProtectedRoute = ({ children }) => {
+  if (!isAdminAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+// Public Route Guard (Redirects to dashboard if already authenticated)
+const PublicRoute = ({ children }) => {
+  if (isAdminAuthenticated()) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
+
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Mainlayout />}>
+        {/* Public Login Route */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        {/* Protected Admin Workspace */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Mainlayout />
+            </ProtectedRoute>
+          }
+        >
           <Route
             index
             element={<Navigate to="/dashboard" replace />}
@@ -42,9 +77,8 @@ const App = () => {
           {/* Books */}
           <Route path="books" element={<Books />} />
           <Route path="categories" element={<Categories />} />
-          <Route path="book-posting" element={<BookPosting/>} />
+          <Route path="book-posting" element={<BookPosting />} />
 
-        
           {/* Orders and customers */}
           <Route path="orders" element={<Order />} />
           <Route path="users" element={<Users />} />
@@ -53,12 +87,10 @@ const App = () => {
 
           {/* Content management */}
           <Route path="gallery" element={<Gallery />} />
-
           <Route
             path="testimonial"
             element={<TestimonialManagement />}
           />
-
           <Route path="reviews" element={<Reviews />} />
           <Route path="coupons" element={<Coupons />} />
 
@@ -67,7 +99,6 @@ const App = () => {
             path="blogs/management"
             element={<BlogManagement />}
           />
-
           <Route
             path="blogs/create"
             element={<BlogPosting />}
@@ -75,22 +106,17 @@ const App = () => {
 
           {/* Profile */}
           <Route path="my-profile" element={<MyProfile />} />
-
           <Route
             path="profile"
             element={<Navigate to="/my-profile" replace />}
           />
-
           <Route
             path="settings"
             element={<Navigate to="/my-profile" replace />}
           />
-
-          {/* Login */}
-          <Route path="login" element={<Login />} />
         </Route>
 
-        {/* Unknown URLs */}
+        {/* Fallback for unknown URLs */}
         <Route
           path="*"
           element={<Navigate to="/dashboard" replace />}

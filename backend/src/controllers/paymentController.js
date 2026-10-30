@@ -938,18 +938,46 @@ exports.updateOrderStatus = async (req, res) => {
       }
     }
 
-    if (req.body.currentLocation !== undefined) {
-      order.currentLocation = req.body.currentLocation ? String(req.body.currentLocation).trim() : "";
+    const hubValue =
+      req.body.currentCourierHub !== undefined
+        ? req.body.currentCourierHub
+        : req.body.currentHub !== undefined
+        ? req.body.currentHub
+        : req.body.currentLocation;
+    if (hubValue !== undefined) {
+      const sanitizedHub = hubValue ? String(hubValue).trim() : "";
+      order.currentLocation = sanitizedHub;
+      order.currentHub = sanitizedHub;
     }
-    if (req.body.expectedDeliveryDate !== undefined) {
-      order.expectedDeliveryDate = req.body.expectedDeliveryDate ? String(req.body.expectedDeliveryDate).trim() : "";
+
+    const deliveryDateValue =
+      req.body.expectedDeliveryDate !== undefined
+        ? req.body.expectedDeliveryDate
+        : req.body.dateOfDelivery;
+    if (deliveryDateValue !== undefined) {
+      const sanitizedDate = deliveryDateValue ? String(deliveryDateValue).trim() : "";
+      order.expectedDeliveryDate = sanitizedDate;
+      order.dateOfDelivery = sanitizedDate;
     }
-    if (req.body.deliveryPartner !== undefined) {
-      order.deliveryPartner = req.body.deliveryPartner ? String(req.body.deliveryPartner).trim() : "";
+
+    const partnerValue =
+      req.body.deliveryTrackingSpeedPost !== undefined
+        ? req.body.deliveryTrackingSpeedPost
+        : req.body.deliveryPartner;
+    if (partnerValue !== undefined) {
+      order.deliveryPartner = partnerValue ? String(partnerValue).trim() : "";
     }
-    if (req.body.deliveryAgentPhone !== undefined) {
-      order.deliveryAgentPhone = req.body.deliveryAgentPhone ? String(req.body.deliveryAgentPhone).trim() : "";
+
+    const agentValue =
+      req.body.agentNo !== undefined
+        ? req.body.agentNo
+        : req.body.deliveryAgentPhone;
+    if (agentValue !== undefined) {
+      const sanitizedAgent = agentValue ? String(agentValue).trim() : "";
+      order.deliveryAgentPhone = sanitizedAgent;
+      order.agentNo = sanitizedAgent;
     }
+
     if (req.body.trackingId !== undefined) {
       order.trackingId = req.body.trackingId ? String(req.body.trackingId).trim() : "";
     }
@@ -965,8 +993,8 @@ exports.updateOrderStatus = async (req, res) => {
       newPayment,
       failureReason: req.body.reason || req.body.failureReason,
       trackingInfo: req.body.trackingInfo || {
-        carrier: req.body.carrier,
-        trackingNumber: req.body.trackingNumber || req.body.awb,
+        carrier: order.deliveryPartner || req.body.carrier || "India Post Speed Post",
+        trackingNumber: order.trackingId || req.body.trackingNumber || req.body.awb || "",
       },
     }).catch((err) => {
       console.error("[EmailService] Error sending status update email:", err.message);

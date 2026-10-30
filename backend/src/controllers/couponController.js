@@ -18,6 +18,7 @@ exports.getCoupons = async (req, res) => {
       search = "",
       status = "",
       discount = "",
+      type = "",
       sort = "latest",
       page = 1,
       limit = 50,
@@ -38,6 +39,12 @@ exports.getCoupons = async (req, res) => {
     // Status filter
     if (status && status !== "All Status" && status !== "All") {
       query.status = status.trim();
+    }
+
+    // Type filter (public / private)
+    if (type && type !== "All Types" && type !== "All") {
+      const cleanType = type.toLowerCase().trim();
+      query.$or = [{ type: cleanType }, { visibility: cleanType }];
     }
 
     // Discount range filter
@@ -63,7 +70,7 @@ exports.getCoupons = async (req, res) => {
     const limitNum = Math.min(Math.max(parseInt(limit, 10) || 50, 1), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const [total, coupons, globalTotal, activeCount, scheduledCount, expiredCount] =
+    const [total, coupons, globalTotal, activeCount, scheduledCount, expiredCount, publicCount, privateCount] =
       await Promise.all([
         Coupon.countDocuments(query),
         Coupon.find(query).sort(sortOptions).skip(skip).limit(limitNum).lean(),
@@ -71,12 +78,16 @@ exports.getCoupons = async (req, res) => {
         Coupon.countDocuments({ status: "Active" }),
         Coupon.countDocuments({ status: "Scheduled" }),
         Coupon.countDocuments({ status: "Expired" }),
+        Coupon.countDocuments({ $or: [{ type: "public" }, { visibility: "public" }, { type: { $exists: false } }] }),
+        Coupon.countDocuments({ $or: [{ type: "private" }, { visibility: "private" }] }),
       ]);
 
     // Format output with mapped id
     const formatted = coupons.map((c) => ({
       ...c,
       id: c._id.toString(),
+      type: c.type || c.visibility || "public",
+      visibility: c.visibility || c.type || "public",
     }));
 
     res.status(200).json({
@@ -94,6 +105,8 @@ exports.getCoupons = async (req, res) => {
         active: activeCount,
         scheduled: scheduledCount,
         expired: expiredCount,
+        public: publicCount,
+        private: privateCount,
       },
     });
   } catch (error) {
@@ -149,7 +162,11 @@ exports.createCoupon = async (req, res) => {
       startDate,
       endDate,
       status,
+      type = "public",
+      visibility = "public",
     } = req.body || {};
+
+    const cleanType = (type || visibility || "public").toLowerCase().trim() === "private" ? "private" : "public";
 
     // 1. Validate Code
     if (!code || typeof code !== "string" || !code.trim()) {
@@ -247,6 +264,8 @@ exports.createCoupon = async (req, res) => {
       startDate,
       endDate,
       status: computedStatus,
+      type: cleanType,
+      visibility: cleanType,
     });
 
     res.status(201).json({
@@ -296,6 +315,8 @@ exports.updateCoupon = async (req, res) => {
       startDate,
       endDate,
       status,
+      type,
+      visibility,
     } = req.body || {};
 
     // 1. Code update & uniqueness check
@@ -375,6 +396,12 @@ exports.updateCoupon = async (req, res) => {
 
     if (startDate) coupon.startDate = startDate;
     if (endDate) coupon.endDate = endDate;
+
+    if (type !== undefined || visibility !== undefined) {
+      const cleanType = (type || visibility || "public").toLowerCase().trim() === "private" ? "private" : "public";
+      coupon.type = cleanType;
+      coupon.visibility = cleanType;
+    }
 
     if (status && ["Active", "Scheduled", "Expired", "Disabled"].includes(status)) {
       coupon.status = status;
@@ -509,6 +536,7 @@ exports.toggleCouponStatus = async (req, res) => {
 
 // =========================================================
 // GET ACTIVE PUBLIC COUPONS FOR CART / SHOP
+// Strictly returns only public coupons (never private)
 // =========================================================
 exports.getActiveCoupons = async (req, res) => {
   try {
@@ -517,6 +545,19 @@ exports.getActiveCoupons = async (req, res) => {
       status: { $ne: "Disabled" },
       startDate: { $lte: today },
       endDate: { $gte: today },
+      $and: [
+        {
+          $or: [
+            { type: "public" },
+            { visibility: "public" },
+            { type: { $exists: false }, visibility: { $exists: false } },
+          ],
+        },
+        {
+          type: { $ne: "private" },
+          visibility: { $ne: "private" },
+        },
+      ],
     })
       .sort({ discountPercent: -1 })
       .lean();
@@ -532,6 +573,8 @@ exports.getActiveCoupons = async (req, res) => {
         discountPercent: c.discountPercent,
         minimumPurchase: c.minimumPurchase,
         endDate: c.endDate,
+        type: "public",
+        visibility: "public",
       })),
     });
   } catch (error) {
@@ -622,6 +665,7 @@ exports.validateCouponForCart = async (req, res) => {
         finalAmount,
         minimumPurchase: coupon.minimumPurchase,
         endDate: coupon.endDate,
+        type: coupon.type || coupon.visibility || "public",
       },
     });
   } catch (error) {

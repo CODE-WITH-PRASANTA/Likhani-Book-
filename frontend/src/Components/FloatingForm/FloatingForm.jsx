@@ -22,8 +22,17 @@ const FloatingForm = ({
   isOpen: controlledIsOpen,
   onClose,
 }) => {
-  const [internalOpen, setInternalOpen] =
-    useState(true);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpen = () => setInternalOpen(true);
+    window.addEventListener("openFloatingForm", handleOpen);
+    window.addEventListener("openLetsTalk", handleOpen);
+    return () => {
+      window.removeEventListener("openFloatingForm", handleOpen);
+      window.removeEventListener("openLetsTalk", handleOpen);
+    };
+  }, []);
 
   const [formData, setFormData] =
     useState(EMPTY_FORM);

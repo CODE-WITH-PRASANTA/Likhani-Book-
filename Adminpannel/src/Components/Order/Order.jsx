@@ -100,10 +100,13 @@ const Order = () => {
             more: items.length > 2 ? items.length - 2 : 0,
             pricing: order.pricing,
             couponCode: order.pricing?.couponCode || "",
-            currentLocation: order.currentLocation || "",
-            expectedDeliveryDate: order.expectedDeliveryDate || "",
+            currentLocation: order.currentLocation || order.currentHub || "",
+            currentHub: order.currentHub || order.currentLocation || "",
+            expectedDeliveryDate: order.expectedDeliveryDate || order.dateOfDelivery || "",
+            dateOfDelivery: order.dateOfDelivery || order.expectedDeliveryDate || "",
             deliveryPartner: order.deliveryPartner || "",
-            deliveryAgentPhone: order.deliveryAgentPhone || "",
+            deliveryAgentPhone: order.deliveryAgentPhone || order.agentNo || "",
+            agentNo: order.agentNo || order.deliveryAgentPhone || "",
             trackingId: order.trackingId || "",
             rawOrder: order,
           };
@@ -281,7 +284,12 @@ const Order = () => {
     setIsClosingModal(false);
     setEditOrder(order);
 
-    let initialPhone = order.deliveryAgentPhone || order.rawOrder?.deliveryAgentPhone || "";
+    let initialPhone =
+      order.deliveryAgentPhone ||
+      order.agentNo ||
+      order.rawOrder?.deliveryAgentPhone ||
+      order.rawOrder?.agentNo ||
+      "";
     let initialTracking = order.trackingId || order.rawOrder?.trackingId || "";
 
     // If phone and tracking were previously saved together with a slash, split them cleanly
@@ -312,9 +320,22 @@ const Order = () => {
       amount: order.amount,
       payment: order.payment,
       status: order.status,
-      currentLocation: order.currentLocation || order.rawOrder?.currentLocation || "",
-      expectedDeliveryDate: order.expectedDeliveryDate || order.rawOrder?.expectedDeliveryDate || "",
-      deliveryPartner: order.deliveryPartner || order.rawOrder?.deliveryPartner || "",
+      currentLocation:
+        order.currentLocation ||
+        order.currentHub ||
+        order.rawOrder?.currentLocation ||
+        order.rawOrder?.currentHub ||
+        "",
+      expectedDeliveryDate:
+        order.expectedDeliveryDate ||
+        order.dateOfDelivery ||
+        order.rawOrder?.expectedDeliveryDate ||
+        order.rawOrder?.dateOfDelivery ||
+        "",
+      deliveryPartner:
+        order.deliveryPartner ||
+        order.rawOrder?.deliveryPartner ||
+        (order.status === "Shipped" ? "India Post Speed Post" : ""),
       deliveryAgentPhone: initialPhone,
       trackingId: initialTracking,
     });
@@ -332,9 +353,14 @@ const Order = () => {
           orderStatus: editForm.status,
           paymentStatus: editForm.payment,
           currentLocation: editForm.currentLocation || "",
+          currentHub: editForm.currentLocation || "",
+          currentCourierHub: editForm.currentLocation || "",
           expectedDeliveryDate: editForm.expectedDeliveryDate || "",
+          dateOfDelivery: editForm.expectedDeliveryDate || "",
           deliveryPartner: editForm.deliveryPartner || "",
+          deliveryTrackingSpeedPost: editForm.deliveryPartner || "",
           deliveryAgentPhone: editForm.deliveryAgentPhone || "",
+          agentNo: editForm.deliveryAgentPhone || "",
           trackingId: editForm.trackingId || "",
         });
       }
@@ -344,6 +370,9 @@ const Order = () => {
             ? {
                 ...order,
                 ...editForm,
+                currentHub: editForm.currentLocation || "",
+                dateOfDelivery: editForm.expectedDeliveryDate || "",
+                agentNo: editForm.deliveryAgentPhone || "",
                 amount: Number(editForm.amount),
               }
             : order
@@ -1253,7 +1282,13 @@ const Order = () => {
                 <div className="OrderDetailItem">
                   <FiMapPin />
                   <div>
-                    <span>Current Hub / Location</span>
+                    <span>
+                      {viewOrder.status === "Shipped"
+                        ? "Current Courier Hub"
+                        : viewOrder.status === "Out for Delivery"
+                        ? "Current Hub"
+                        : "Current Hub / Location"}
+                    </span>
                     <strong>{viewOrder.currentLocation}</strong>
                   </div>
                 </div>
@@ -1263,7 +1298,11 @@ const Order = () => {
                 <div className="OrderDetailItem">
                   <FiCalendar />
                   <div>
-                    <span>Expected Delivery</span>
+                    <span>
+                      {viewOrder.status === "Out for Delivery"
+                        ? "Date of Delivery"
+                        : "Expected Delivery Date"}
+                    </span>
                     <strong>{viewOrder.expectedDeliveryDate}</strong>
                   </div>
                 </div>
@@ -1273,13 +1312,35 @@ const Order = () => {
                 <div className="OrderDetailItem">
                   <FiTruck />
                   <div>
-                    <span>Delivery Partner</span>
+                    <span>
+                      {viewOrder.status === "Shipped"
+                        ? "Delivery Tracking Speed Post"
+                        : "Delivery Partner"}
+                    </span>
                     <strong>
                       {viewOrder.deliveryPartner}
                       {viewOrder.deliveryAgentPhone &&
-                      viewOrder.deliveryAgentPhone !== viewOrder.trackingId
+                      viewOrder.deliveryAgentPhone !== viewOrder.trackingId &&
+                      viewOrder.status !== "Out for Delivery"
                         ? ` (📞 ${viewOrder.deliveryAgentPhone.split('/')[0].trim()})`
                         : ""}
+                    </strong>
+                  </div>
+                </div>
+              )}
+
+              {viewOrder.deliveryAgentPhone && viewOrder.status === "Out for Delivery" && (
+                <div className="OrderDetailItem">
+                  <FiPhone />
+                  <div>
+                    <span>Agent No</span>
+                    <strong>
+                      <a
+                        href={`tel:${viewOrder.deliveryAgentPhone.split('/')[0].trim()}`}
+                        style={{ color: "inherit", textDecoration: "none" }}
+                      >
+                        📞 {viewOrder.deliveryAgentPhone.split('/')[0].trim()}
+                      </a>
                     </strong>
                   </div>
                 </div>
@@ -1289,7 +1350,7 @@ const Order = () => {
                 <div className="OrderDetailItem">
                   <FiPackage />
                   <div>
-                    <span>Tracking Number (AWB)</span>
+                    <span>{viewOrder.status === "Shipped" ? "Tracking ID" : "Tracking Number (AWB)"}</span>
                     <strong>
                       {viewOrder.trackingId.includes('/')
                         ? viewOrder.trackingId.split('/').slice(1).join('/').trim() || viewOrder.trackingId
@@ -1508,169 +1569,179 @@ const Order = () => {
                   ))}
                 </div>
 
-                {/* Dynamic Field: When status is Shipped */}
+                {/* Dynamic Fields: When status is Shipped */}
                 {editForm.status === "Shipped" && (
                   <div
                     style={{
                       marginTop: "16px",
                       padding: "16px",
-                      background: "#f0f7ff",
-                      borderRadius: "10px",
-                      border: "1px solid #bfdbfe",
-                    }}
-                  >
-                    <div className="OrderFormGroup" style={{ margin: 0 }}>
-                      <label
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: 700,
-                          color: "#1e3a8a",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        <FiMapPin style={{ color: "#2563eb" }} /> Current Hub / Dispatch Location
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Bhubaneswar Sorting Center / In Transit via Cuttack Hub"
-                        value={editForm.currentLocation || ""}
-                        onChange={(e) =>
-                          setEditForm((prev) => ({
-                            ...prev,
-                            currentLocation: e.target.value,
-                          }))
-                        }
-                      />
-                      <small
-                        style={{
-                          fontSize: "11.5px",
-                          color: "#3b82f6",
-                          marginTop: "6px",
-                          display: "block",
-                          fontWeight: 500,
-                        }}
-                      >
-                        ✓ This location will be shown live to the customer on their order tracking screen.
-                      </small>
-                    </div>
-                  </div>
-                )}
-
-                {/* Dynamic Fields: When status is Out for Delivery */}
-                {editForm.status === "Out for Delivery" && (
-                  <div
-                    style={{
-                      marginTop: "16px",
-                      padding: "16px",
-                      background: "#faf5ff",
-                      borderRadius: "10px",
-                      border: "1px solid #e9d5ff",
+                      background: "linear-gradient(180deg, #f0f7ff 0%, #e0f2fe 100%)",
+                      borderRadius: "12px",
+                      border: "1px solid #bae6fd",
                       display: "flex",
                       flexDirection: "column",
-                      gap: "12px",
+                      gap: "14px",
                     }}
                   >
-                    <div className="OrderFormGroup" style={{ margin: 0 }}>
-                      <label
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span
                         style={{
-                          fontSize: "13px",
+                          fontSize: "12px",
                           fontWeight: 700,
-                          color: "#581c87",
+                          letterSpacing: "0.5px",
+                          textTransform: "uppercase",
+                          color: "#0369a1",
                           display: "flex",
                           alignItems: "center",
                           gap: "6px",
-                          marginBottom: "6px",
                         }}
                       >
-                        <FiCalendar style={{ color: "#7e22ce" }} /> Expected Delivery Date
-                      </label>
-                      <input
-                        type="date"
-                        value={editForm.expectedDeliveryDate || ""}
-                        onChange={(e) =>
-                          setEditForm((prev) => ({
-                            ...prev,
-                            expectedDeliveryDate: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-
-                    <div className="OrderFormGroup" style={{ margin: 0 }}>
-                      <label
+                        <FiTruck /> Shipped Details & Speed Post Tracking
+                      </span>
+                      <span
                         style={{
-                          fontSize: "13px",
-                          fontWeight: 700,
-                          color: "#581c87",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          marginBottom: "6px",
+                          fontSize: "11px",
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          background: "#0284c7",
+                          color: "#fff",
+                          fontWeight: 600,
                         }}
                       >
-                        <FiTruck style={{ color: "#7e22ce" }} /> Delivery Partner / Courier
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Delhivery / Blue Dart / DTDC / Saroj"
-                        value={editForm.deliveryPartner || ""}
-                        onChange={(e) =>
-                          setEditForm((prev) => ({
-                            ...prev,
-                            deliveryPartner: e.target.value,
-                          }))
-                        }
-                      />
+                        Shipped In-Transit
+                      </span>
                     </div>
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {/* 1. Current Courier Hub */}
                       <div className="OrderFormGroup" style={{ margin: 0 }}>
                         <label
                           style={{
-                            fontSize: "13px",
+                            fontSize: "12.5px",
                             fontWeight: 700,
-                            color: "#581c87",
+                            color: "#0c4a6e",
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
                             marginBottom: "6px",
                           }}
                         >
-                          <FiPhone style={{ color: "#7e22ce" }} /> Delivery Agent Phone
+                          <FiMapPin style={{ color: "#0284c7" }} /> Current Courier Hub
                         </label>
                         <input
                           type="text"
-                          placeholder="e.g. +91 8117048317"
-                          value={editForm.deliveryAgentPhone || ""}
+                          placeholder="e.g. Bhubaneswar Speed Post Sorting Hub"
+                          value={editForm.currentLocation || ""}
                           onChange={(e) =>
                             setEditForm((prev) => ({
                               ...prev,
-                              deliveryAgentPhone: e.target.value,
+                              currentLocation: e.target.value,
                             }))
                           }
                         />
                       </div>
 
+                      {/* 2. Expected Delivery Date */}
                       <div className="OrderFormGroup" style={{ margin: 0 }}>
                         <label
                           style={{
-                            fontSize: "13px",
+                            fontSize: "12.5px",
                             fontWeight: 700,
-                            color: "#581c87",
+                            color: "#0c4a6e",
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
                             marginBottom: "6px",
                           }}
                         >
-                          <FiPackage style={{ color: "#7e22ce" }} /> Tracking Number (AWB ID)
+                          <FiCalendar style={{ color: "#0284c7" }} /> Expected Delivery Date
+                        </label>
+                        <input
+                          type="date"
+                          value={editForm.expectedDeliveryDate || ""}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              expectedDeliveryDate: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {/* 3. Delivery Tracking Speed Post */}
+                      <div className="OrderFormGroup" style={{ margin: 0 }}>
+                        <label
+                          style={{
+                            fontSize: "12.5px",
+                            fontWeight: 700,
+                            color: "#0c4a6e",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          <FiTruck style={{ color: "#0284c7" }} /> Delivery Tracking Speed Post
                         </label>
                         <input
                           type="text"
-                          placeholder="e.g. AWM5678904"
+                          placeholder="e.g. India Post Speed Post"
+                          value={editForm.deliveryPartner || ""}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              deliveryPartner: e.target.value,
+                            }))
+                          }
+                        />
+                        <div style={{ display: "flex", gap: "6px", marginTop: "6px", flexWrap: "wrap" }}>
+                          {["India Post Speed Post", "Speed Post", "Blue Dart", "Delhivery"].map((carrier) => (
+                            <button
+                              key={carrier}
+                              type="button"
+                              onClick={() =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  deliveryPartner: carrier,
+                                }))
+                              }
+                              style={{
+                                fontSize: "11px",
+                                padding: "2px 8px",
+                                borderRadius: "6px",
+                                border: "1px solid #bae6fd",
+                                background: editForm.deliveryPartner === carrier ? "#0284c7" : "#fff",
+                                color: editForm.deliveryPartner === carrier ? "#fff" : "#0369a1",
+                                cursor: "pointer",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {carrier}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 4. Tracking ID */}
+                      <div className="OrderFormGroup" style={{ margin: 0 }}>
+                        <label
+                          style={{
+                            fontSize: "12.5px",
+                            fontWeight: 700,
+                            color: "#0c4a6e",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          <FiPackage style={{ color: "#0284c7" }} /> Tracking ID
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. SP987654321IN / AWB889104"
                           value={editForm.trackingId || ""}
                           onChange={(e) =>
                             setEditForm((prev) => ({
@@ -1685,12 +1756,153 @@ const Order = () => {
                     <small
                       style={{
                         fontSize: "11.5px",
+                        color: "#0284c7",
+                        display: "block",
+                        fontWeight: 500,
+                      }}
+                    >
+                      ✓ Customer and admin can track live status with this Speed Post Tracking ID and Expected Delivery Date.
+                    </small>
+                  </div>
+                )}
+
+                {/* Dynamic Fields: When status is Out for Delivery */}
+                {editForm.status === "Out for Delivery" && (
+                  <div
+                    style={{
+                      marginTop: "16px",
+                      padding: "16px",
+                      background: "linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%)",
+                      borderRadius: "12px",
+                      border: "1px solid #e9d5ff",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "14px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 700,
+                          letterSpacing: "0.5px",
+                          textTransform: "uppercase",
+                          color: "#6b21a8",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <FiTruck /> Out for Delivery Details
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          background: "#9333ea",
+                          color: "#fff",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Doorstep Delivery
+                      </span>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                      {/* 1. Agent No */}
+                      <div className="OrderFormGroup" style={{ margin: 0 }}>
+                        <label
+                          style={{
+                            fontSize: "12.5px",
+                            fontWeight: 700,
+                            color: "#581c87",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          <FiPhone style={{ color: "#9333ea" }} /> Agent No
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. +91 8117048317"
+                          value={editForm.deliveryAgentPhone || ""}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              deliveryAgentPhone: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+
+                      {/* 2. Current Hub */}
+                      <div className="OrderFormGroup" style={{ margin: 0 }}>
+                        <label
+                          style={{
+                            fontSize: "12.5px",
+                            fontWeight: 700,
+                            color: "#581c87",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          <FiMapPin style={{ color: "#9333ea" }} /> Current Hub
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Local Delivery Facility / Unit 4 Hub"
+                          value={editForm.currentLocation || ""}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              currentLocation: e.target.value,
+                            }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    {/* 3. Date of Delivery */}
+                    <div className="OrderFormGroup" style={{ margin: 0 }}>
+                      <label
+                        style={{
+                          fontSize: "12.5px",
+                          fontWeight: 700,
+                          color: "#581c87",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          marginBottom: "6px",
+                        }}
+                      >
+                        <FiCalendar style={{ color: "#9333ea" }} /> Date of Delivery
+                      </label>
+                      <input
+                        type="date"
+                        value={editForm.expectedDeliveryDate || ""}
+                        onChange={(e) =>
+                          setEditForm((prev) => ({
+                            ...prev,
+                            expectedDeliveryDate: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <small
+                      style={{
+                        fontSize: "11.5px",
                         color: "#7e22ce",
                         display: "block",
                         fontWeight: 500,
                       }}
                     >
-                      ✓ Customer will see the expected delivery date & courier partner details immediately.
+                      ✓ Customer can see the delivery agent's contact number, current hub, and arrival date on their tracking screen.
                     </small>
                   </div>
                 )}

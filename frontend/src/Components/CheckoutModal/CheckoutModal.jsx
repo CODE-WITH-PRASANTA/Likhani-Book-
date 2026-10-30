@@ -395,15 +395,17 @@ const CheckoutModal = ({
             </div>
 
             <div className="CheckoutModal__successActions">
-              <button
-                type="button"
-                className="CheckoutModal__downloadInvoiceBtn"
-                onClick={() => downloadInvoice(completedOrder)}
-                title="Download Official Tax Invoice"
-              >
-                <FiDownload />
-                Download Invoice
-              </button>
+              {completedOrder?.orderStatus === "Delivered" && (
+                <button
+                  type="button"
+                  className="CheckoutModal__downloadInvoiceBtn"
+                  onClick={() => downloadInvoice(completedOrder)}
+                  title="Download Official Tax Invoice"
+                >
+                  <FiDownload />
+                  Download Invoice
+                </button>
+              )}
               <button
                 type="button"
                 className="CheckoutModal__ordersBtn"

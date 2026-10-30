@@ -2111,4 +2111,149 @@
   to {
     transform: rotate(360deg);
   }
-}
+}
+/* =========================================================
+   COUPON TYPE (PUBLIC / PRIVATE) TOGGLE & BADGES
+========================================================= */
+
+.Coupons__typeToggleGroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.Coupons__typeToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.Coupons__typeToggleBtn:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.Coupons__typeToggleBtn--activePublic {
+  border-color: #10b981 !important;
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+}
+
+.Coupons__typeToggleBtn--activePublic svg {
+  color: #059669;
+}
+
+.Coupons__typeToggleBtn--activePrivate {
+  border-color: #8b5cf6 !important;
+  background: #f5f3ff !important;
+  color: #5b21b6 !important;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+}
+
+.Coupons__typeToggleBtn--activePrivate svg {
+  color: #7c3aed;
+}
+
+.Coupons__typeToggleText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.Coupons__typeToggleText strong {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.Coupons__typeToggleText span {
+  font-size: 11px;
+  opacity: 0.85;
+  line-height: 1.2;
+}
+
+.Coupons__hintPublic {
+  color: #059669 !important;
+  font-weight: 700;
+}
+
+.Coupons__hintPrivate {
+  color: #7c3aed !important;
+  font-weight: 700;
+}
+
+/* Table Badge */
+.Coupons__typeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.Coupons__typeBadge--public {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.Coupons__typeBadge--private {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+/* Ticket Preview Header & Badge */
+.Coupons__ticketHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.Coupons__ticketHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.Coupons__ticketTypeBadge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.Coupons__ticketTypeBadge--public {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.Coupons__ticketTypeBadge--private {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+@media (max-width: 640px) {
+  .Coupons__typeToggleGroup {
+    grid-template-columns: 1fr;
+  }
+}

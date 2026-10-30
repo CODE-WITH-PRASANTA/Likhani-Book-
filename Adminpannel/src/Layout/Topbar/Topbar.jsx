@@ -1,6 +1,10 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import API, {
+  getAdminUser,
+  getAdminRefreshToken,
+  clearAdminAuth,
+} from "../../api/axios";
 import "./Topbar.css";
 
 import {
@@ -10,14 +14,13 @@ import {
   LuChevronDown,
   LuX,
   LuUserRound,
-  LuSettings,
   LuLogOut,
   LuShieldCheck,
   LuBookOpen,
   LuArrowUpRight,
 } from "react-icons/lu";
 
-const ADMIN_AVATAR =
+const DEFAULT_ADMIN_AVATAR =
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80";
 
 const Topbar = ({ onToggleSidebar }) => {
@@ -25,6 +28,7 @@ const Topbar = ({ onToggleSidebar }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [adminUser, setAdminUser] = useState(() => getAdminUser());
 
   const profileRef = useRef(null);
   const notificationRef = useRef(null);
@@ -33,7 +37,30 @@ const Topbar = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Close menus when clicking outside.
+  // Load latest admin profile on mount
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCurrentAdmin = async () => {
+      try {
+        const { data } = await API.get("/admin/me");
+        if (data.success && data.admin && isMounted) {
+          setAdminUser(data.admin);
+          const isLocal = !!localStorage.getItem("adminAccessToken");
+          const storage = isLocal ? localStorage : sessionStorage;
+          storage.setItem("adminUser", JSON.stringify(data.admin));
+        }
+      } catch (err) {
+        // Fallback to local stored user
+      }
+    };
+
+    fetchCurrentAdmin();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -52,20 +79,19 @@ const Topbar = ({ onToggleSidebar }) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
-  // Close dropdowns when navigating to another route.
+  // Close dropdowns on route changes
   useEffect(() => {
     setIsProfileOpen(false);
     setIsNotificationsOpen(false);
     setIsSearchOpen(false);
   }, [location.pathname]);
 
-  // Focus the search input when mobile search opens.
+  // Focus search input when mobile search opens
   useEffect(() => {
     if (isSearchOpen) {
       searchRef.current?.focus();
@@ -79,63 +105,66 @@ const Topbar = ({ onToggleSidebar }) => {
     navigate("/my-profile");
   };
 
-  const handleSettingsNavigation = () => {
-    setIsProfileOpen(false);
-    setIsNotificationsOpen(false);
-    navigate("/settings");
-  };
-
-  const handleSecurityNavigation = () => {
-    setIsProfileOpen(false);
-    setIsNotificationsOpen(false);
-    navigate("/settings");
-  };
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsProfileOpen(false);
     setIsNotificationsOpen(false);
 
-    sessionStorage.removeItem("isAdminAuthenticated");
-    localStorage.removeItem("isAdminAuthenticated");
-
-    // Keep unrelated application storage intact.
-    navigate("/login", { replace: true });
+    try {
+      const refreshToken = getAdminRefreshToken();
+      await API.post("/admin/logout", { refreshToken });
+    } catch (err) {
+      console.warn("Logout note:", err.message);
+    } finally {
+      clearAdminAuth();
+      navigate("/login", { replace: true });
+    }
   };
 
   const toggleMobileSearch = () => {
-    setIsSearchOpen((previous) => !previous);
+    setIsSearchOpen((prev) => !prev);
   };
 
   const toggleProfileDropdown = () => {
-    setIsProfileOpen((previous) => !previous);
+    setIsProfileOpen((prev) => !prev);
     setIsNotificationsOpen(false);
   };
 
   const toggleNotifications = () => {
-    setIsNotificationsOpen((previous) => !previous);
+    setIsNotificationsOpen((prev) => !prev);
     setIsProfileOpen(false);
   };
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
-
     const query = search.trim();
-
     if (!query) return;
 
-    // Pass the search query to the destination page.
-    // The destination page must read location.state.query
-    // and implement the actual search.
     navigate("/books", {
       state: { query },
     });
-
     setIsSearchOpen(false);
   };
 
+  const avatarUrl = adminUser?.avatar || DEFAULT_ADMIN_AVATAR;
+  const adminName = adminUser?.name || "Administrator";
+  const adminRole = adminUser?.role || "Admin";
+  const adminEmail = adminUser?.email || "admin@likhani.com";
+  const [avatarError, setAvatarError] = useState(false);
+
+  const getInitials = (name) => {
+    if (!name) return "AD";
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const initials = getInitials(adminName);
+  const hasCustomAvatar = adminUser?.avatar && !avatarError;
+
+
   return (
     <header className="topbar">
-      {/* Left section */}
+      {/* Left Section */}
       <div className="topbar-left">
         <button
           type="button"
@@ -154,7 +183,7 @@ const Topbar = ({ onToggleSidebar }) => {
           <span>Likhani Books</span>
         </div>
 
-        {/* Desktop and expanded mobile search */}
+        {/* Search Box */}
         <form
           className={`search-box ${isSearchOpen ? "search-open" : ""}`}
           onSubmit={handleSearchSubmit}
@@ -196,7 +225,7 @@ const Topbar = ({ onToggleSidebar }) => {
         </form>
       </div>
 
-      {/* Right section */}
+      {/* Right Section */}
       <div className="topbar-right">
         <button
           type="button"
@@ -212,9 +241,7 @@ const Topbar = ({ onToggleSidebar }) => {
         <div className="topbar-notification-wrapper" ref={notificationRef}>
           <button
             type="button"
-            className={`notification-btn ${
-              isNotificationsOpen ? "active" : ""
-            }`}
+            className={`notification-btn ${isNotificationsOpen ? "active" : ""}`}
             onClick={toggleNotifications}
             aria-label="Notifications"
             aria-expanded={isNotificationsOpen}
@@ -254,68 +281,75 @@ const Topbar = ({ onToggleSidebar }) => {
 
         <span className="topbar-divider" />
 
-        {/* Admin profile */}
+        {/* Admin Profile */}
         <div className="user-profile-wrapper" ref={profileRef}>
           <button
             type="button"
-            className={`user-profile ${
-              isProfileOpen ? "active" : ""
-            }`}
+            className={`user-profile ${isProfileOpen ? "active" : ""}`}
             onClick={toggleProfileDropdown}
             aria-expanded={isProfileOpen}
             aria-haspopup="true"
           >
             <span className="avatar-wrapper">
-              <img
-                src={ADMIN_AVATAR}
-                alt="Admin"
-                className="avatar"
-              />
+              {hasCustomAvatar ? (
+                <img
+                  src={avatarUrl}
+                  alt={adminName}
+                  className="avatar"
+                  onError={() => setAvatarError(true)}
+                />
+              ) : (
+                <span className="avatar-initials">{initials}</span>
+              )}
               <span className="avatar-online-dot" />
             </span>
 
             <span className="user-profile-info">
-              <span className="user-name">Admin</span>
-              <span className="user-role">Super Admin</span>
+              <span className="user-name">{adminName}</span>
+              <span className="user-role-badge">
+                <LuShieldCheck size={10} />
+                <span>{adminRole}</span>
+              </span>
             </span>
 
-            <LuChevronDown
-              className={`chevron-icon ${
-                isProfileOpen ? "rotated" : ""
-              }`}
-            />
+            <span className={`chevron-pill ${isProfileOpen ? "active" : ""}`}>
+              <LuChevronDown
+                className={`chevron-icon ${isProfileOpen ? "rotated" : ""}`}
+              />
+            </span>
           </button>
 
           {isProfileOpen && (
             <div className="profile-dropdown">
               <div className="dropdown-header">
                 <div className="dropdown-avatar-wrapper">
-                  <img
-                    src={ADMIN_AVATAR}
-                    alt=""
-                    className="dropdown-avatar"
-                  />
+                  {hasCustomAvatar ? (
+                    <img
+                      src={avatarUrl}
+                      alt={adminName}
+                      className="dropdown-avatar"
+                      onError={() => setAvatarError(true)}
+                    />
+                  ) : (
+                    <span className="dropdown-avatar-initials">{initials}</span>
+                  )}
                   <span className="avatar-online-dot" />
                 </div>
 
                 <div className="dropdown-header-info">
-                  <p className="dropdown-user-name">Admin User</p>
-                  <p className="dropdown-user-email">
-                    admin@likhanibooks.com
-                  </p>
+                  <p className="dropdown-user-name">{adminName}</p>
+                  <p className="dropdown-user-email">{adminEmail}</p>
 
                   <span className="role-badge">
                     <LuShieldCheck />
-                    Super Admin
+                    {adminRole}
                   </span>
                 </div>
               </div>
 
               <div className="dropdown-divider" />
 
-              <p className="dropdown-section-label">
-                ACCOUNT
-              </p>
+              <p className="dropdown-section-label">ACCOUNT</p>
 
               <ul className="dropdown-menu">
                 <li>
@@ -330,45 +364,7 @@ const Topbar = ({ onToggleSidebar }) => {
 
                     <span className="dropdown-menu-text">
                       <strong>My Profile</strong>
-                      <small>Manage your personal details</small>
-                    </span>
-
-                    <LuArrowUpRight className="dropdown-menu-arrow" />
-                  </button>
-                </li>
-
-                <li>
-                  <button
-                    type="button"
-                    className="dropdown-menu-link"
-                    onClick={handleSettingsNavigation}
-                  >
-                    <span className="dropdown-menu-icon">
-                      <LuSettings />
-                    </span>
-
-                    <span className="dropdown-menu-text">
-                      <strong>Account Settings</strong>
-                      <small>Manage your preferences</small>
-                    </span>
-
-                    <LuArrowUpRight className="dropdown-menu-arrow" />
-                  </button>
-                </li>
-
-                <li>
-                  <button
-                    type="button"
-                    className="dropdown-menu-link"
-                    onClick={handleSecurityNavigation}
-                  >
-                    <span className="dropdown-menu-icon">
-                      <LuShieldCheck />
-                    </span>
-
-                    <span className="dropdown-menu-text">
-                      <strong>Security</strong>
-                      <small>Account security settings</small>
+                      <small>Manage your personal details & security</small>
                     </span>
 
                     <LuArrowUpRight className="dropdown-menu-arrow" />

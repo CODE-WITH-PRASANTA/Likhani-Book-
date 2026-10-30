@@ -1452,3 +1452,107 @@
     scroll-behavior: auto !important;
   }
 }
+
+
+/* ==========================================
+   SECURITY & FORGOT / RESET PASSWORD WITH OTP
+========================================== */
+
+.myprofile-security-card {
+  margin-top: 24px;
+}
+
+.myprofile-otp-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.myprofile-otp-input {
+  letter-spacing: 4px;
+  font-weight: 700;
+  font-size: 1.1rem !important;
+  text-align: center;
+}
+
+.myprofile-send-otp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  background: var(--mp-navy);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.myprofile-send-otp-btn:hover:not(:disabled) {
+  background: var(--mp-navy-light);
+  transform: translateY(-1px);
+}
+
+.myprofile-send-otp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.myprofile-otp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.myprofile-password-eye-btn {
+  background: transparent;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  transition: color 0.15s ease;
+}
+
+.myprofile-password-eye-btn:hover {
+  color: #1a202c;
+}
+
+.myprofile-tab-pills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: #edf2f7;
+  padding: 4px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.myprofile-tab-pill {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myprofile-tab-pill.active {
+  background: #ffffff;
+  color: #0b1528;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}

@@ -26,6 +26,7 @@ import {
   Copy,
   Check,
   Lock,
+  Globe,
   Infinity as InfinityIcon,
 } from "lucide-react";
 
@@ -171,6 +172,8 @@ const copyToClipboard = async (text) => {
 
 const createEmptyForm = (code = "") => ({
   code,
+  type: "public",
+  visibility: "public",
   title: "",
   description: "",
   discountPercent: "",
@@ -193,6 +196,7 @@ const Coupons = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
+  const [typeFilter, setTypeFilter] = useState("All Types");
   const [discountFilter, setDiscountFilter] = useState("All Discounts");
   const [sortFilter, setSortFilter] = useState("Sort By: Latest");
 
@@ -315,7 +319,7 @@ const Coupons = () => {
     }
 
     return result;
-  }, [coupons, searchTerm, statusFilter, discountFilter, sortFilter]);
+  }, [coupons, searchTerm, statusFilter, discountFilter, sortFilter, typeFilter]);
 
   /* =========================================================
      PAGINATION
@@ -393,11 +397,7 @@ const Coupons = () => {
   const openAddModal = () => {
     setSelectedCoupon(null);
     setFormErrors({});
-    setFormData(
-      createEmptyForm(
-        generateUniqueCode(coupons.map((coupon) => coupon.code))
-      )
-    );
+    setFormData(createEmptyForm(""));
     setModalType("add");
   };
 
@@ -413,6 +413,8 @@ const Coupons = () => {
 
     setFormData({
       code: coupon.code,
+      type: coupon.type || coupon.visibility || "public",
+      visibility: coupon.visibility || coupon.type || "public",
       title: coupon.title,
       description: coupon.description,
       discountPercent: String(coupon.discountPercent),
@@ -634,6 +636,8 @@ const Coupons = () => {
 
     const payload = {
       code: formData.code.trim().toUpperCase(),
+      type: formData.type || "public",
+      visibility: formData.type || "public",
       title: formData.title.trim(),
       description: formData.description.trim(),
       discountPercent: Number(formData.discountPercent),
@@ -1073,7 +1077,7 @@ const Coupons = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="11" className="Coupons__empty">
+                  <td colSpan="12" className="Coupons__empty">
                     <div className="Coupons__emptyContent">
                       <div className="Coupons__emptyIcon">
                         <RefreshCw size={30} className="Coupons__spin" />
@@ -1362,65 +1366,137 @@ const Coupons = () => {
               <div className="Coupons__formLayout">
                 {/* FIELDS */}
                 <div className="Coupons__formFields">
-                  {/* CODE */}
+                  {/* CODE (MANUAL CREATION) */}
                   <div className="Coupons__field">
                     <label>
-                      Coupon Code
-                      <em>
-                        {modalType === "add" ? "Auto-generated" : "Locked"}
-                      </em>
+                      Coupon Code *
+                      <em>Enter manually</em>
                     </label>
 
                     <div className="Coupons__codeRow">
-                      <div className="Coupons__inputWrapper Coupons__inputWrapper--readonly Coupons__inputWrapper--code">
+                      <div className="Coupons__inputWrapper Coupons__inputWrapper--code">
                         <Hash size={17} />
 
                         <input
+                          type="text"
                           name="code"
                           value={formData.code}
-                          readOnly
+                          onChange={(e) => {
+                            const val = e.target.value
+                              .toUpperCase()
+                              .replace(/[^A-Z0-9_-]/g, "");
+                            setFormData((prev) => ({ ...prev, code: val }));
+                            if (formErrors.code) clearError("code");
+                          }}
+                          placeholder="e.g. SUMMER50, FESTIVE20"
+                          maxLength={30}
+                          autoFocus={modalType === "add"}
                           aria-label="Coupon code"
                         />
-
-                        {modalType === "edit" && <Lock size={14} />}
                       </div>
 
-                      {modalType === "add" && (
+                      {formData.code && (
                         <button
                           type="button"
                           className="Coupons__iconButton"
-                          onClick={regenerateCode}
-                          title="Generate a new code"
-                          aria-label="Generate a new code"
+                          onClick={() => handleCopyCode(formData.code)}
+                          title="Copy code"
+                          aria-label="Copy code"
                         >
-                          <RefreshCw size={17} />
+                          {copiedCode === formData.code ? (
+                            <Check size={17} />
+                          ) : (
+                            <Copy size={17} />
+                          )}
                         </button>
                       )}
-
-                      <button
-                        type="button"
-                        className="Coupons__iconButton"
-                        onClick={() => handleCopyCode(formData.code)}
-                        title="Copy code"
-                        aria-label="Copy code"
-                      >
-                        {copiedCode === formData.code ? (
-                          <Check size={17} />
-                        ) : (
-                          <Copy size={17} />
-                        )}
-                      </button>
                     </div>
 
                     {formErrors.code ? (
                       <small className="Coupons__error">{formErrors.code}</small>
                     ) : (
                       <small className="Coupons__hint">
-                        {modalType === "add"
-                          ? "A unique code is created for you. Tap refresh for another."
-                          : "Codes can't be changed after a coupon is created."}
+                        Type a custom code (letters, numbers, hyphens, and underscores).
                       </small>
                     )}
+                  </div>
+
+                  {/* VISIBILITY / TYPE TOGGLE (PUBLIC VS PRIVATE) */}
+                  <div className="Coupons__field">
+                    <label>
+                      Coupon Visibility Type *
+                      <em
+                        className={
+                          formData.type === "private"
+                            ? "Coupons__hintPrivate"
+                            : "Coupons__hintPublic"
+                        }
+                      >
+                        {formData.type === "private"
+                          ? "🔒 Private (Hidden from store)"
+                          : "🌐 Public (Visible on store)"}
+                      </em>
+                    </label>
+
+                    <div
+                      className="Coupons__typeToggleGroup"
+                      role="radiogroup"
+                      aria-label="Coupon visibility type"
+                    >
+                      <button
+                        type="button"
+                        className={`Coupons__typeToggleBtn ${
+                          formData.type === "public"
+                            ? "Coupons__typeToggleBtn--activePublic"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            type: "public",
+                            visibility: "public",
+                          }))
+                        }
+                        role="radio"
+                        aria-checked={formData.type === "public"}
+                      >
+                        <Globe size={18} />
+                        <div className="Coupons__typeToggleText">
+                          <strong>Public Coupon</strong>
+                          <span>Shown on checkout for 1-click apply</span>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        className={`Coupons__typeToggleBtn ${
+                          formData.type === "private"
+                            ? "Coupons__typeToggleBtn--activePrivate"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            type: "private",
+                            visibility: "private",
+                          }))
+                        }
+                        role="radio"
+                        aria-checked={formData.type === "private"}
+                      >
+                        <Lock size={18} />
+                        <div className="Coupons__typeToggleText">
+                          <strong>Private Coupon</strong>
+                          <span>Hidden; requires manual code typing</span>
+                        </div>
+                      </button>
+                    </div>
+
+                    <small className="Coupons__hint">
+                      {formData.type === "public"
+                        ? "Public coupons appear on the frontend order/cart page so customers can select and apply them."
+                        : "Private coupons do not appear on the frontend order page. Customers must manually type the code."}
+                    </small>
                   </div>
 
                   {/* TITLE */}

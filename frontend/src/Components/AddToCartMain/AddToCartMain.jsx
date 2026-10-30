@@ -273,7 +273,9 @@ const AddToCartMain = () => {
       try {
         const res = await API.get("/coupons/active");
         if (isMounted && res.data?.success && Array.isArray(res.data.data)) {
-          setAvailableCoupons(res.data.data);
+          // Strictly show only public coupons; do not show private
+          const publicCoupons = res.data.data.filter(c => c.type !== 'private' && c.visibility !== 'private');
+          setAvailableCoupons(publicCoupons);
         }
       } catch (err) {
         console.warn("Could not load active coupons:", err?.message);
@@ -867,7 +869,7 @@ const AddToCartMain = () => {
                 <div className="AddToCartMain__couponInput">
                   <input
                     type="text"
-                    placeholder="Enter coupon code (e.g. BKPADUM3)"
+                    placeholder="Enter coupon code (e.g. SUMMER50)"
                     value={coupon}
                     disabled={Boolean(appliedCoupon) || couponLoading}
                     onChange={(event) => {

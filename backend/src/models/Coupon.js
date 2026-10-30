@@ -63,6 +63,20 @@ const couponSchema = new mongoose.Schema(
       enum: ["Active", "Scheduled", "Expired", "Disabled"],
       default: "Active",
     },
+    type: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+      lowercase: true,
+      trim: true,
+    },
+    visibility: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+      lowercase: true,
+      trim: true,
+    },
   },
   {
     timestamps: true,
@@ -71,6 +85,8 @@ const couponSchema = new mongoose.Schema(
 
 // Indexes
 couponSchema.index({ status: 1 });
+couponSchema.index({ type: 1 });
+couponSchema.index({ visibility: 1 });
 couponSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("Coupon", couponSchema);
