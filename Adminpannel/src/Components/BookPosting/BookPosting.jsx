@@ -94,7 +94,6 @@ const BookPosting = () => {
 
   const [modal, setModal] = useState({ open: false, type: "", book: null });
   const [editingId, setEditingId] = useState(null);
-  const [floatExpanded, setFloatExpanded] = useState(true);
 
   /* =========================================================
       API FETCH CATEGORIES & BOOKS
@@ -1965,87 +1964,6 @@ const BookPosting = () => {
           </div>
 
           <span>{toast.message}</span>
-        </div>
-      )}
-
-      {/* FLOATING ACTION TOOLBAR / CHATBOT-STYLE WIDGET (BOTTOM-RIGHT) */}
-      {editingId && (
-        <div className="BookPosting-floatingWidget">
-          {/* TOOLTIP ON HOVER (WHEN COLLAPSED) */}
-          {!floatExpanded && (
-            <div className="BookPosting-floatingTooltip">
-              <span>✏️ Editing Mode Active</span>
-              <small>{formData.title ? `"${formData.title.slice(0, 24)}${formData.title.length > 24 ? '...' : ''}"` : "Click to view options"}</small>
-            </div>
-          )}
-
-          {floatExpanded ? (
-            <div className="BookPosting-floatingDock">
-              <div className="BookPosting-floatingDockHeader">
-                <div className="BookPosting-floatingDockTitle">
-                  <span className="BookPosting-dockPulse" />
-                  <FaEdit className="BookPosting-dockEditIcon" />
-                  <strong>Editing Book</strong>
-                </div>
-
-                <button
-                  type="button"
-                  className="BookPosting-dockCloseBtn"
-                  onClick={() => setFloatExpanded(false)}
-                  title="Minimize floating widget"
-                  aria-label="Minimize"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-
-              <div className="BookPosting-floatingDockBody">
-                <div className="BookPosting-dockBookInfo">
-                  <span className="BookPosting-dockBookLabel">Currently Editing</span>
-                  <p className="BookPosting-dockBookTitle" title={formData.title}>
-                    📖 {formData.title || "Untitled Book"}
-                  </p>
-                  {formData.author && (
-                    <span className="BookPosting-dockBookAuthor">
-                      Author: {formData.author}
-                    </span>
-                  )}
-                </div>
-
-                <div className="BookPosting-dockActions">
-                  <button
-                    type="button"
-                    className="BookPosting-dockBtn BookPosting-dockBtn--back"
-                    onClick={() => navigate("/books")}
-                    title="Return to books list"
-                  >
-                    <FaArrowLeft /> Books List
-                  </button>
-
-                  <button
-                    type="button"
-                    className="BookPosting-dockBtn BookPosting-dockBtn--cancel"
-                    onClick={resetForm}
-                    title="Discard changes and clear form"
-                  >
-                    <FaRedo /> Cancel Edit
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              className="BookPosting-floatingLauncher"
-              onClick={() => setFloatExpanded(true)}
-              title="Editing Mode Active - Click to view details"
-              aria-label="Expand editing toolbar"
-            >
-              <span className="BookPosting-launcherPulse" />
-              <FaEdit />
-              <span className="BookPosting-launcherBadge">1</span>
-            </button>
-          )}
         </div>
       )}
     </div>

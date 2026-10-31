@@ -11,9 +11,9 @@ const upload = require("../middleware/multer");
 // Admin login
 router.post("/login", adminAuthController.loginAdmin);
 
-// Create / register admin user
-router.post("/create", adminAuthController.createAdmin);
-router.post("/register", adminAuthController.createAdmin);
+// Create / register admin user (Protected - requires authenticated admin)
+router.post("/create", protectAdmin, adminAuthController.createAdmin);
+router.post("/register", protectAdmin, adminAuthController.createAdmin);
 
 // Refresh access token
 router.post("/refresh-token", adminAuthController.refreshToken);

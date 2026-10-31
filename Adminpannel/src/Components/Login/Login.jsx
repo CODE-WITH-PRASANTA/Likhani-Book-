@@ -11,9 +11,6 @@ import {
   FiBookmark,
   FiShield,
   FiFeather,
-  FiUser,
-  FiPhone,
-  FiUserPlus,
   FiLogIn,
   FiKey,
   FiArrowLeft,
@@ -25,22 +22,13 @@ import "./Login.css";
 import likhaniImage from "../../assets/login.png";
 
 const Login = () => {
-  const [mode, setMode] = useState("login"); // "login" | "create" | "forgot"
+  const [mode, setMode] = useState("login"); // "login" | "forgot"
 
   // Login form state
   const [loginData, setLoginData] = useState({
     identifier: "",
     password: "",
     rememberMe: true,
-  });
-
-  // Create Admin form state (Role defaults to Admin)
-  const [createData, setCreateData] = useState({
-    name: "",
-    email: "",
-    username: "",
-    password: "",
-    phone: "",
   });
 
   // Forgot Password / OTP state
@@ -83,15 +71,6 @@ const Login = () => {
     setLoginData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }));
-    if (errorMessage) setErrorMessage("");
-  };
-
-  const handleCreateChange = (e) => {
-    const { name, value } = e.target;
-    setCreateData((prev) => ({
-      ...prev,
-      [name]: value,
     }));
     if (errorMessage) setErrorMessage("");
   };
@@ -183,39 +162,6 @@ const Login = () => {
           }, 1400);
         } else {
           setErrorMessage(data.message || "Invalid credentials.");
-        }
-      } else if (mode === "create") {
-        const payload = {
-          name: createData.name.trim(),
-          email: createData.email.trim(),
-          username: createData.username.trim(),
-          password: createData.password,
-          role: "Admin", // Defaults to Admin
-          phone: createData.phone.trim(),
-        };
-
-        const res = await API.post("/admin/create", payload);
-        const { data } = res;
-
-        if (data.success && data.accessToken) {
-          setAdminAuth({
-            accessToken: data.accessToken,
-            refreshToken: data.refreshToken,
-            admin: data.admin,
-            rememberMe: true,
-          });
-
-          setSuccessTitle("ADMIN CREATED");
-          setSuccessSubtitle(
-            `Admin account created for ${data.admin?.name || "Administrator"}`
-          );
-          setIsSuccess(true);
-
-          setTimeout(() => {
-            navigate("/dashboard", { replace: true });
-          }, 1400);
-        } else {
-          setErrorMessage(data.message || "Failed to create admin.");
         }
       } else if (mode === "forgot") {
         if (!forgotData.otp || forgotData.otp.length !== 6) {
@@ -404,45 +350,13 @@ const Login = () => {
             <h2>
               {mode === "login"
                 ? "Welcome Back"
-                : mode === "create"
-                ? "Create Admin Account"
                 : "Reset Admin Password"}
             </h2>
             <p>
               {mode === "login"
                 ? "Sign in with your verified administrator credentials to access your control panel."
-                : mode === "create"
-                ? "Register a new administrator profile to manage the bookstore platform."
                 : "Enter your admin email to receive a 6-digit OTP verification code."}
             </p>
-          </div>
-
-          {/* MODE TOGGLE TABS (ONLY SIGN IN & CREATE ADMIN) */}
-          <div className="Login-mode-tabs">
-            <button
-              type="button"
-              className={`Login-tab-btn ${mode === "login" ? "active" : ""}`}
-              onClick={() => {
-                setMode("login");
-                setErrorMessage("");
-                setSuccessBanner("");
-              }}
-            >
-              <FiLogIn size={13} />
-              Sign In
-            </button>
-            <button
-              type="button"
-              className={`Login-tab-btn ${mode === "create" ? "active" : ""}`}
-              onClick={() => {
-                setMode("create");
-                setErrorMessage("");
-                setSuccessBanner("");
-              }}
-            >
-              <FiUserPlus size={13} />
-              Create Admin
-            </button>
           </div>
 
           {/* ERROR ALERT */}
@@ -466,116 +380,7 @@ const Login = () => {
 
           {/* AUTH FORM */}
           <form onSubmit={handleSubmit} className="Login-form">
-            {mode === "create" ? (
-              <>
-                {/* Full Name & Username */}
-                <div className="Login-two-col">
-                  <div className="Login-input-wrapper">
-                    <label htmlFor="create-name" className="Login-input-label">
-                      Full Name *
-                    </label>
-                    <div className="Login-input-group">
-                      <FiUser className="Login-input-icon" size={15} />
-                      <input
-                        id="create-name"
-                        type="text"
-                        name="name"
-                        placeholder="e.g. Aditi Sharma"
-                        value={createData.name}
-                        onChange={handleCreateChange}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="Login-input-wrapper">
-                    <label
-                      htmlFor="create-username"
-                      className="Login-input-label"
-                    >
-                      Username (Optional)
-                    </label>
-                    <div className="Login-input-group">
-                      <FiUser className="Login-input-icon" size={15} />
-                      <input
-                        id="create-username"
-                        type="text"
-                        name="username"
-                        placeholder="e.g. aditi_admin"
-                        value={createData.username}
-                        onChange={handleCreateChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Email & Phone */}
-                <div className="Login-two-col">
-                  <div className="Login-input-wrapper">
-                    <label htmlFor="create-email" className="Login-input-label">
-                      Admin Email *
-                    </label>
-                    <div className="Login-input-group">
-                      <FiMail className="Login-input-icon" size={15} />
-                      <input
-                        id="create-email"
-                        type="email"
-                        name="email"
-                        placeholder="admin@likhani.com"
-                        value={createData.email}
-                        onChange={handleCreateChange}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="Login-input-wrapper">
-                    <label htmlFor="create-phone" className="Login-input-label">
-                      Phone Number (Optional)
-                    </label>
-                    <div className="Login-input-group">
-                      <FiPhone className="Login-input-icon" size={15} />
-                      <input
-                        id="create-phone"
-                        type="text"
-                        name="phone"
-                        placeholder="+91 9876543210"
-                        value={createData.phone}
-                        onChange={handleCreateChange}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="Login-input-wrapper">
-                  <label htmlFor="create-password" className="Login-input-label">
-                    Password (min 6 chars) *
-                  </label>
-                  <div className="Login-input-group">
-                    <FiLock className="Login-input-icon" size={15} />
-                    <input
-                      id="create-password"
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      placeholder="Create secure admin password"
-                      value={createData.password}
-                      onChange={handleCreateChange}
-                      minLength={6}
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="Login-password-toggle"
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label="Toggle password"
-                    >
-                      {showPassword ? <FiEyeOff size={15} /> : <FiEye size={15} />}
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : mode === "forgot" ? (
+            {mode === "forgot" ? (
               <>
                 {/* FORGOT PASSWORD FORM */}
                 <div className="Login-input-wrapper">
@@ -816,8 +621,6 @@ const Login = () => {
                   <span>
                     {mode === "login"
                       ? "Enter Dashboard"
-                      : mode === "create"
-                      ? "Create Admin Account"
                       : "Verify OTP & Reset Password"}
                   </span>
                   <FiArrowRight size={16} />

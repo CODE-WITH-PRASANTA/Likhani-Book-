@@ -75,10 +75,7 @@ const Dashboard = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  // Interactive Chart & Metric Filters
-  const [activeMetric, setActiveMetric] = useState("revenue"); // "revenue" | "orders" | "aov"
-  const [salesTimeframe, setSalesTimeframe] = useState("30D"); // "7D" | "30D" | "12M"
-  const [hoveredPoint, setHoveredPoint] = useState(null);
+  // Filters & Tabs
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   // Books Showcase Active Tab
@@ -105,7 +102,7 @@ const Dashboard = () => {
         API.get("/supports"),
         API.get("/enquiries"),
         API.get("/reviews"),
-        API.get("/coupons"),
+        API.get("/coupons?limit=100"),
       ]);
 
       if (ordersRes.status === "fulfilled" && ordersRes.value.data) {
@@ -166,7 +163,14 @@ const Dashboard = () => {
 
       if (couponsRes.status === "fulfilled" && couponsRes.value.data) {
         const cpData = couponsRes.value.data;
-        setCoupons(Array.isArray(cpData.data) ? cpData.data : []);
+        const cpList = Array.isArray(cpData.data)
+          ? cpData.data
+          : Array.isArray(cpData.coupons)
+          ? cpData.coupons
+          : Array.isArray(cpData)
+          ? cpData
+          : [];
+        setCoupons(cpList);
       }
 
       setLastUpdated(new Date());
@@ -214,17 +218,17 @@ const Dashboard = () => {
       else placedCount++;
     });
 
-    const displayGrossRevenue = totalRevenue > 0 ? totalRevenue : 148950;
-    const displayPaidRevenue = paidRevenue > 0 ? paidRevenue : Math.round(displayGrossRevenue * 0.91);
-    const displayTotalOrders = totalOrdersCount > 0 ? totalOrdersCount : 42;
-    const displayBooksCount = books.length > 0 ? books.length : 19;
-    const displayUsersCount = users.length > 0 ? users.length : 12;
+    const displayGrossRevenue = totalRevenue;
+    const displayPaidRevenue = paidRevenue;
+    const displayTotalOrders = totalOrdersCount;
+    const displayBooksCount = books.length;
+    const displayUsersCount = users.length;
 
     const aov = displayTotalOrders > 0 ? Math.round(displayGrossRevenue / displayTotalOrders) : 0;
     const fulfillmentRate =
       displayTotalOrders > 0
-        ? Math.round(((deliveredCount || 28) / displayTotalOrders) * 100)
-        : 82;
+        ? Math.round((deliveredCount / displayTotalOrders) * 100)
+        : 0;
 
     // Book Special Subsets
     const topSellingCount = books.filter((b) => b.isTopSelling).length;
@@ -238,11 +242,11 @@ const Dashboard = () => {
     // Customer Care / Supports Analytics
     const totalCareTickets = supports.length + enquiries.length;
     const newTickets =
-      supports.filter((s) => s.status === "New").length +
+      supports.filter((s) => s.status === "New" || s.status === "Pending").length +
       enquiries.filter((e) => e.status === "New" || e.status === "Pending").length;
     const resolvedTickets =
-      supports.filter((s) => s.status === "Replied" || s.status === "Resolved").length +
-      enquiries.filter((e) => e.status === "Replied" || e.status === "Resolved").length;
+      supports.filter((s) => s.status === "Replied" || s.status === "Resolved" || s.status === "Closed").length +
+      enquiries.filter((e) => e.status === "Replied" || e.status === "Resolved" || e.status === "Closed").length;
 
     // Reviews & Rating Analytics
     const avgRating =
@@ -250,7 +254,19 @@ const Dashboard = () => {
         ? (
             reviews.reduce((sum, r) => sum + Number(r.rating || 5), 0) / reviews.length
           ).toFixed(1)
-        : "4.9";
+        : "5.0";
+
+    // Coupons Analytics
+    const totalCouponsCount = Array.isArray(coupons) ? coupons.length : 0;
+    const activeCouponsCount = Array.isArray(coupons)
+      ? coupons.filter((c) => (c.status || "Active").toLowerCase() === "active").length
+      : 0;
+    const publicCouponsCount = Array.isArray(coupons)
+      ? coupons.filter(
+          (c) => (c.type || c.visibility || "public").toLowerCase() === "public"
+        ).length
+      : 0;
+    const privateCouponsCount = Math.max(0, totalCouponsCount - publicCouponsCount);
 
     return {
       grossRevenue: displayGrossRevenue,
@@ -265,136 +281,51 @@ const Dashboard = () => {
       onSaleCount,
       lowStockCount,
       outOfStockCount,
-      totalCareTickets: totalCareTickets || 7,
-      newTickets: newTickets || 2,
-      resolvedTickets: resolvedTickets || 5,
-      totalReviews: reviews.length || 4,
+      totalCareTickets,
+      newTickets,
+      resolvedTickets,
+      totalReviews: reviews.length,
       avgRating,
-      activeCoupons: coupons.length || 2,
+      totalCoupons: totalCouponsCount,
+      activeCoupons: activeCouponsCount,
+      publicCoupons: publicCouponsCount,
+      privateCoupons: privateCouponsCount,
       pipeline: {
-        placed: placedCount || 5,
-        processing: processingCount || 4,
-        shipped: shippedCount || 6,
-        outForDelivery: outForDeliveryCount || 3,
-        delivered: deliveredCount || 22,
-        cancelled: cancelledCount || 2,
+        placed: placedCount,
+        processing: processingCount,
+        shipped: shippedCount,
+        outForDelivery: outForDeliveryCount,
+        delivered: deliveredCount,
+        cancelled: cancelledCount,
       },
     };
   }, [orders, books, users, supports, enquiries, reviews, coupons]);
 
   // ==========================================
-  // DYNAMIC REVENUE VELOCITY CHART DATASET
-  // ==========================================
-  const salesDatasets = useMemo(() => {
-    if (salesTimeframe === "7D") {
-      return {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        revenue: [18400, 24500, 21900, 34200, 42800, 56400, 49200],
-        orders: [12, 16, 14, 22, 28, 38, 32],
-        aov: [1533, 1531, 1564, 1554, 1528, 1484, 1537],
-        peak: "₹ 56,400 (Sat)",
-        avgDaily: "₹ 35,400/day",
-        growth: "+24.8%",
-      };
-    }
-    if (salesTimeframe === "12M") {
-      return {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        revenue: [92000, 108000, 134000, 126000, 152000, 178000, 164000, 192000, 210000, 235000, 260000, 295000],
-        orders: [68, 79, 98, 92, 112, 131, 122, 144, 158, 176, 195, 224],
-        aov: [1352, 1367, 1367, 1369, 1357, 1358, 1344, 1333, 1329, 1335, 1333, 1316],
-        peak: "₹ 2,95,000 (Dec)",
-        avgDaily: "₹ 1,78,000/mo",
-        growth: "+48.6%",
-      };
-    }
-    return {
-      labels: ["Day 1-5", "Day 6-10", "Day 11-15", "Day 16-20", "Day 21-25", "Day 26-30"],
-      revenue: [28500, 42600, 39400, 58200, 71500, 89300],
-      orders: [19, 28, 26, 38, 47, 58],
-      aov: [1500, 1521, 1515, 1531, 1521, 1539],
-      peak: "₹ 89,300 (Wk 6)",
-      avgDaily: "₹ 54,900/wk",
-      growth: "+31.2%",
-    };
-  }, [salesTimeframe]);
-
-  const currentMetricValues = salesDatasets[activeMetric] || salesDatasets.revenue;
-
-  const chartSVGCoords = useMemo(() => {
-    const minVal = Math.min(...currentMetricValues) * 0.7;
-    const maxVal = Math.max(...currentMetricValues) * 1.15;
-    const range = maxVal - minVal || 1;
-
-    const width = 640;
-    const height = 220;
-    const paddingX = 40;
-    const paddingY = 25;
-    const effectiveWidth = width - paddingX * 2;
-    const effectiveHeight = height - paddingY * 2;
-
-    const points = currentMetricValues.map((val, idx) => {
-      const x = paddingX + (idx / (currentMetricValues.length - 1)) * effectiveWidth;
-      const normalizedY = (val - minVal) / range;
-      const y = height - paddingY - normalizedY * effectiveHeight;
-      return { x, y, val };
-    });
-
-    let pathD = `M ${points[0].x},${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const cp1x = p0.x + (p1.x - p0.x) / 2;
-      const cp1y = p0.y;
-      const cp2x = p0.x + (p1.x - p0.x) / 2;
-      const cp2y = p1.y;
-      pathD += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p1.x},${p1.y}`;
-    }
-
-    const lastPt = points[points.length - 1];
-    const fillPathD = `${pathD} L ${lastPt.x},${height - paddingY} L ${points[0].x},${height - paddingY} Z`;
-
-    return { points, pathD, fillPathD, width, height, minVal, maxVal };
-  }, [currentMetricValues]);
-
-  // ==========================================
-  // TOP SELLING, BEST SELLERS & ON SALE BOOKS
+  // TOP SELLING, BEST SELLERS & ON SALE BOOKS (100% REAL)
   // ==========================================
   const displayedBooks = useMemo(() => {
     if (!books || books.length === 0) return [];
 
-    let list = [];
     if (activeBookTab === "topSelling") {
-      list = books.filter((b) => b.isTopSelling);
-      if (list.length === 0) {
-        list = [...books].sort((a, b) => (b.totalSold || 0) - (a.totalSold || 0)).slice(0, 8);
-      }
-    } else if (activeBookTab === "bestSeller") {
-      list = books.filter((b) => b.isBestSeller);
-      if (list.length === 0) {
-        list = [...books].sort((a, b) => Number(b.price || 0) - Number(a.price || 0)).slice(0, 8);
-      }
-    } else if (activeBookTab === "onSale") {
-      list = books.filter(
+      return books.filter((b) => Boolean(b.isTopSelling));
+    }
+    if (activeBookTab === "bestSeller") {
+      return books.filter((b) => Boolean(b.isBestSeller));
+    }
+    if (activeBookTab === "onSale") {
+      return books.filter(
         (b) => Number(b.offerPrice) > 0 && Number(b.offerPrice) < Number(b.price)
       );
-      if (list.length === 0) {
-        list = [...books].slice(0, 6);
-      }
-    } else if (activeBookTab === "lowStock") {
-      list = books.filter((b) => Number(b.stock || 0) < 10);
-      if (list.length === 0) {
-        list = [...books].slice(0, 6);
-      }
-    } else {
-      list = books;
     }
-
-    return list;
+    if (activeBookTab === "lowStock") {
+      return books.filter((b) => Number(b.stock || 0) < 10);
+    }
+    return books;
   }, [books, activeBookTab]);
 
   // ==========================================
-  // CATEGORY MARKET SHARE DONUT SEGMENTS
+  // CATEGORY DISTRIBUTION DONUT (100% REAL FROM BOOKS & CATEGORIES)
   // ==========================================
   const categoryChartData = useMemo(() => {
     const colorPalette = [
@@ -408,114 +339,85 @@ const Dashboard = () => {
       "#64748b",
     ];
 
-    let catList = [];
-    if (categories.length > 0) {
-      catList = categories.slice(0, 6).map((c, idx) => ({
-        name: c.name || "Genre",
-        count: Number(c.bookCount || c.count || Math.floor(12 + (idx * 5) % 25)),
-        color: c.color || colorPalette[idx % colorPalette.length],
-      }));
-    } else {
-      catList = [
-        { name: "Fiction & Novels", count: 42, color: "#6366f1" },
-        { name: "Academic & Tech", count: 31, color: "#06b6d4" },
-        { name: "Self Help & Growth", count: 24, color: "#10b981" },
-        { name: "Kids & Young Readers", count: 18, color: "#f59e0b" },
-        { name: "Odia Literature", count: 15, color: "#ec4899" },
-        { name: "Philosophy & Arts", count: 12, color: "#8b5cf6" },
-      ];
+    // Compute live book counts grouped by genre/category
+    const countMap = {};
+    books.forEach((b) => {
+      const cName = (b.category || b.categoryName || "General").trim();
+      countMap[cName] = (countMap[cName] || 0) + 1;
+    });
+
+    // Also register any category defined in the category collection
+    categories.forEach((cat) => {
+      const cName = (cat.name || "").trim();
+      if (cName && countMap[cName] === undefined) {
+        countMap[cName] = 0;
+      }
+    });
+
+    const entries = Object.entries(countMap).sort((a, b) => b[1] - a[1]);
+    const totalCount = books.length || 0;
+
+    if (entries.length === 0) {
+      return { segments: [], totalCount: 0 };
     }
 
-    const totalCount = catList.reduce((sum, c) => sum + c.count, 0) || 1;
-    let accumulatedAngle = 0;
     const circumference = 2 * Math.PI * 38;
+    let accumulatedAngle = 0;
 
-    const segments = catList.map((cat) => {
-      const percentage = (cat.count / totalCount) * 100;
+    const segments = entries.slice(0, 6).map(([name, count], idx) => {
+      const percentage = totalCount > 0 ? (count / totalCount) * 100 : 0;
       const dashLength = (percentage / 100) * circumference;
       const dashSpace = circumference - dashLength;
       const dashOffset = -accumulatedAngle;
       accumulatedAngle += dashLength;
 
       return {
-        ...cat,
+        name,
+        count,
         percentage: Math.round(percentage),
+        color: colorPalette[idx % colorPalette.length],
         dashArray: `${dashLength} ${dashSpace}`,
         dashOffset,
       };
     });
 
     return { segments, totalCount };
-  }, [categories]);
+  }, [books, categories]);
 
   // ==========================================
-  // RECENT ORDERS STREAM
+  // RECENT ORDERS STREAM (100% REAL FROM DATABASE)
   // ==========================================
   const recentOrdersList = useMemo(() => {
-    if (orders.length > 0) {
-      return orders.slice(0, 6).map((ord) => ({
-        id: ord.orderId || (ord._id ? `#${ord._id.slice(-6).toUpperCase()}` : "#ORD-902"),
-        customer: ord.shippingAddress?.fullName || ord.user?.name || "Customer",
-        amount: `₹ ${(ord.pricing?.totalAmount || ord.totalAmount || 0).toLocaleString("en-IN")}`,
-        status: ord.orderStatus || ord.status || "Placed",
-        payment: ord.paymentInfo?.status || ord.paymentStatus || "Paid",
-        itemsCount: ord.items?.length || 1,
-        date: ord.createdAt
-          ? new Date(ord.createdAt).toLocaleDateString("en-IN", {
-              day: "2-digit",
-              month: "short",
-            })
-          : "Today",
-      }));
+    if (!Array.isArray(orders) || orders.length === 0) {
+      return [];
     }
 
-    return [
-      {
-        id: "#LB-8921",
-        customer: "Saroj Kumar",
-        amount: "₹ 1,499",
-        status: "Out for Delivery",
-        payment: "Paid",
-        itemsCount: 3,
-        date: "Today",
-      },
-      {
-        id: "#LB-8920",
-        customer: "Ananya Mishra",
-        amount: "₹ 799",
-        status: "Shipped",
-        payment: "Paid",
-        itemsCount: 1,
-        date: "Today",
-      },
-      {
-        id: "#LB-8919",
-        customer: "Priyabrata Das",
-        amount: "₹ 2,340",
-        status: "Processing",
-        payment: "Paid",
-        itemsCount: 4,
-        date: "Yesterday",
-      },
-      {
-        id: "#LB-8918",
-        customer: "Debashis Rout",
-        amount: "₹ 499",
-        status: "Delivered",
-        payment: "Paid",
-        itemsCount: 1,
-        date: "22 Oct",
-      },
-      {
-        id: "#LB-8917",
-        customer: "Sneha Mohapatra",
-        amount: "₹ 1,120",
-        status: "Delivered",
-        payment: "Paid",
-        itemsCount: 2,
-        date: "21 Oct",
-      },
-    ];
+    // Sort by latest createdAt timestamp descending
+    const sorted = [...orders].sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    return sorted.slice(0, 8).map((ord) => ({
+      id: ord.orderId || (ord._id ? `#${ord._id.slice(-6).toUpperCase()}` : "#ORD"),
+      customer:
+        ord.shippingAddress?.fullName ||
+        ord.user?.name ||
+        ord.userId?.name ||
+        ord.customerName ||
+        "Customer",
+      amount: `₹ ${(ord.pricing?.totalAmount || ord.totalAmount || 0).toLocaleString("en-IN")}`,
+      status: ord.orderStatus || ord.status || "Placed",
+      payment: ord.paymentInfo?.status || ord.paymentStatus || "Paid",
+      itemsCount: ord.items?.length || 1,
+      date: ord.createdAt
+        ? new Date(ord.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+          })
+        : "Recent",
+    }));
   }, [orders]);
 
   const getStageBadgeClass = (status) => {
@@ -547,41 +449,52 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="DashHeader__actions">
-          <button
-            type="button"
-            className={`DashHeader__btn DashHeader__btn--refresh ${
-              isRefreshing ? "DashHeader__btn--spinning" : ""
-            }`}
-            onClick={fetchDashboardData}
-            title="Reload live database telemetry"
-          >
-            <FiRefreshCw />
-            <span>Sync Live</span>
-          </button>
+        <div className="DashHeader__right">
+          <div className="DashHeader__metaChip" title="Last background synchronisation">
+            <FiClock className="DashHeader__metaIcon" />
+            <span>
+              Synced {lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            </span>
+          </div>
 
-          <button
-            type="button"
-            className="DashHeader__btn DashHeader__btn--primary"
-            onClick={() => navigate("/book-posting")}
-          >
-            <FiPlusCircle />
-            <span>Add New Book</span>
-          </button>
+          <div className="DashHeader__actions">
+            <button
+              type="button"
+              className={`DashHeader__btn DashHeader__btn--refresh ${
+                isRefreshing ? "DashHeader__btn--spinning" : ""
+              }`}
+              onClick={fetchDashboardData}
+              title="Reload live database telemetry"
+            >
+              <FiRefreshCw />
+              <span>Sync Live</span>
+            </button>
 
-          <button
-            type="button"
-            className="DashHeader__btn DashHeader__btn--secondary"
-            onClick={() => navigate("/orders")}
-          >
-            <FiTruck />
-            <span>Dispatches ({analytics.pipeline.outForDelivery})</span>
-          </button>
+            <button
+              type="button"
+              className="DashHeader__btn DashHeader__btn--secondary"
+              onClick={() => navigate("/orders")}
+              title="View live dispatches & logistics"
+            >
+              <FiTruck />
+              <span>Dispatches ({analytics.pipeline.outForDelivery})</span>
+            </button>
+
+            <button
+              type="button"
+              className="DashHeader__btn DashHeader__btn--primary"
+              onClick={() => navigate("/book-posting")}
+              title="Add a new book title"
+            >
+              <FiPlusCircle />
+              <span>Add New Book</span>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* ========================================================
-          TIER 1: 6-CARD WHOLE-PROJECT EXECUTIVE KPI MATRIX
+          TIER 1: 6-CARD EXECUTIVE KPI ROW (ALL IN ONE ROW)
       ======================================================== */}
       <section className="DashKpiGrid">
         {/* Card 1: Gross & Paid Revenue */}
@@ -591,17 +504,12 @@ const Dashboard = () => {
               <FiDollarSign />
             </div>
             <span className="DashKpiCard__trend DashKpiCard__trend--up">
-              <FiTrendingUp /> +28.4% MoM
+              <FiTrendingUp /> Live
             </span>
           </div>
           <div className="DashKpiCard__body">
-            <span className="DashKpiCard__label">Gross Project Revenue</span>
+            <span className="DashKpiCard__label">Gross Revenue</span>
             <h2 className="DashKpiCard__value">₹ {analytics.grossRevenue.toLocaleString("en-IN")}</h2>
-            <div className="DashKpiCard__footer">
-              <span className="DashKpiCard__subtext">
-                Paid: ₹ {analytics.paidRevenue.toLocaleString("en-IN")} • AOV ₹ {analytics.aov}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -612,17 +520,12 @@ const Dashboard = () => {
               <FiShoppingCart />
             </div>
             <span className="DashKpiCard__trend DashKpiCard__trend--up">
-              <FiZap /> {analytics.fulfillmentRate}% fulfilled
+              <FiZap /> {analytics.fulfillmentRate}%
             </span>
           </div>
           <div className="DashKpiCard__body">
-            <span className="DashKpiCard__label">Total Client Orders</span>
+            <span className="DashKpiCard__label">Total Orders</span>
             <h2 className="DashKpiCard__value">{analytics.totalOrders.toLocaleString("en-IN")}</h2>
-            <div className="DashKpiCard__footer">
-              <span className="DashKpiCard__subtext">
-                {analytics.pipeline.outForDelivery} out for delivery • {analytics.pipeline.delivered} delivered
-              </span>
-            </div>
           </div>
         </div>
 
@@ -633,17 +536,12 @@ const Dashboard = () => {
               <FiBookOpen />
             </div>
             <span className="DashKpiCard__trend DashKpiCard__trend--accent">
-              <FiTag /> {analytics.onSaleCount} on sale
+              <FiTag /> {analytics.onSaleCount} Sale
             </span>
           </div>
           <div className="DashKpiCard__body">
-            <span className="DashKpiCard__label">Active Book Titles</span>
+            <span className="DashKpiCard__label">Active Books</span>
             <h2 className="DashKpiCard__value">{analytics.totalBooks}</h2>
-            <div className="DashKpiCard__footer">
-              <span className="DashKpiCard__subtext">
-                🔥 {analytics.topSellingCount} Top Sellers • ⭐ {analytics.bestSellerCount} Best Sellers
-              </span>
-            </div>
           </div>
         </div>
 
@@ -658,11 +556,8 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="DashKpiCard__body">
-            <span className="DashKpiCard__label">Registered Readers</span>
+            <span className="DashKpiCard__label">Readers & Users</span>
             <h2 className="DashKpiCard__value">{analytics.totalUsers}</h2>
-            <div className="DashKpiCard__footer">
-              <span className="DashKpiCard__subtext">Verified bookstore buyer accounts</span>
-            </div>
           </div>
         </div>
 
@@ -673,38 +568,33 @@ const Dashboard = () => {
               <FiMessageSquare />
             </div>
             <span className="DashKpiCard__trend DashKpiCard__trend--up">
-              <FiCheckCircle /> {analytics.resolvedTickets} answered
+              <FiCheckCircle /> {analytics.resolvedTickets} Done
             </span>
           </div>
           <div className="DashKpiCard__body">
-            <span className="DashKpiCard__label">Customer Care Requests</span>
+            <span className="DashKpiCard__label">Care Requests</span>
             <h2 className="DashKpiCard__value">{analytics.totalCareTickets}</h2>
-            <div className="DashKpiCard__footer">
-              <span className="DashKpiCard__subtext">
-                {analytics.newTickets} new tickets pending reply
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* Card 6: Reader Satisfaction & Reviews */}
-        <div className="DashKpiCard DashKpiCard--amber">
+        {/* Card 6: Coupon Codes & Promotional Discounts */}
+        <div
+          className="DashKpiCard DashKpiCard--amber"
+          onClick={() => navigate("/coupons")}
+          style={{ cursor: "pointer" }}
+          title="Click to manage coupon codes and promotions"
+        >
           <div className="DashKpiCard__top">
             <div className="DashKpiCard__iconWrap DashKpiCard__iconWrap--amber">
-              <FiStar />
+              <FiTag />
             </div>
             <span className="DashKpiCard__trend DashKpiCard__trend--gold">
-              ★ {analytics.avgRating} / 5.0
+              <FiCheckCircle /> {analytics.activeCoupons} Active
             </span>
           </div>
           <div className="DashKpiCard__body">
-            <span className="DashKpiCard__label">Store Reviews & Feedback</span>
-            <h2 className="DashKpiCard__value">{analytics.totalReviews} Reviews</h2>
-            <div className="DashKpiCard__footer">
-              <span className="DashKpiCard__subtext">
-                {analytics.activeCoupons} active discount coupons live
-              </span>
-            </div>
+            <span className="DashKpiCard__label">Coupon Codes</span>
+            <h2 className="DashKpiCard__value">{analytics.totalCoupons}</h2>
           </div>
         </div>
       </section>
@@ -735,7 +625,7 @@ const Dashboard = () => {
               }`}
               onClick={() => setActiveBookTab("topSelling")}
             >
-              🔥 Top Selling ({analytics.topSellingCount || books.length})
+              🔥 Top Selling ({analytics.topSellingCount})
             </button>
 
             <button
@@ -745,7 +635,7 @@ const Dashboard = () => {
               }`}
               onClick={() => setActiveBookTab("bestSeller")}
             >
-              ⭐ Best Sellers ({analytics.bestSellerCount || books.length})
+              ⭐ Best Sellers ({analytics.bestSellerCount})
             </button>
 
             <button
@@ -755,7 +645,7 @@ const Dashboard = () => {
               }`}
               onClick={() => setActiveBookTab("onSale")}
             >
-              🏷️ On Sale & Deals ({analytics.onSaleCount || books.length})
+              🏷️ On Sale & Deals ({analytics.onSaleCount})
             </button>
 
             <button
@@ -824,16 +714,6 @@ const Dashboard = () => {
                           "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80";
                       }}
                     />
-                    <div className="DashBookCard__coverOverlay">
-                      <button
-                        type="button"
-                        className="DashBookCard__quickEdit"
-                        onClick={() => navigate(`/book-posting?edit=${book._id || book.id}`)}
-                        title="Edit Book Details"
-                      >
-                        <FiEdit3 /> Edit Book
-                      </button>
-                    </div>
                   </div>
 
                   {/* Body Content */}
@@ -915,209 +795,7 @@ const Dashboard = () => {
       </section>
 
       {/* ========================================================
-          TIER 3: ADVANCED REVENUE VELOCITY MULTI-WAVE AREA CHART
-      ======================================================== */}
-      <section className="DashSectionCard">
-        <div className="DashSectionHeader">
-          <div className="DashSectionHeader__meta">
-            <div className="DashSectionHeader__tag">
-              <FiActivity /> FINANCIAL TRAJECTORY
-            </div>
-            <h2 className="DashSectionHeader__title">Revenue & Sales Velocity Analytics</h2>
-            <p className="DashSectionHeader__desc">
-              Interactive Bézier curve tracking turnover, volume order trends, and unit yield across the store.
-            </p>
-          </div>
-
-          <div className="DashSectionHeader__controls">
-            {/* Metric Switcher */}
-            <div className="DashMetricPills">
-              <button
-                type="button"
-                className={`DashMetricPill ${
-                  activeMetric === "revenue" ? "DashMetricPill--active" : ""
-                }`}
-                onClick={() => setActiveMetric("revenue")}
-              >
-                Revenue (₹)
-              </button>
-              <button
-                type="button"
-                className={`DashMetricPill ${
-                  activeMetric === "orders" ? "DashMetricPill--active" : ""
-                }`}
-                onClick={() => setActiveMetric("orders")}
-              >
-                Orders (Qty)
-              </button>
-              <button
-                type="button"
-                className={`DashMetricPill ${
-                  activeMetric === "aov" ? "DashMetricPill--active" : ""
-                }`}
-                onClick={() => setActiveMetric("aov")}
-              >
-                AOV (₹)
-              </button>
-            </div>
-
-            {/* Timeframe Selector */}
-            <div className="DashTimeframePills">
-              {["7D", "30D", "12M"].map((tf) => (
-                <button
-                  key={tf}
-                  type="button"
-                  className={`DashTimeframePill ${
-                    salesTimeframe === tf ? "DashTimeframePill--active" : ""
-                  }`}
-                  onClick={() => setSalesTimeframe(tf)}
-                >
-                  {tf}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Executive Summary Stats Bar Above Chart */}
-        <div className="DashChartStatsBar">
-          <div className="DashChartStat">
-            <span className="DashChartStat__label">Peak Volume</span>
-            <strong className="DashChartStat__val">{salesDatasets.peak}</strong>
-          </div>
-          <div className="DashChartStat">
-            <span className="DashChartStat__label">Pace Run-Rate</span>
-            <strong className="DashChartStat__val">{salesDatasets.avgDaily}</strong>
-          </div>
-          <div className="DashChartStat">
-            <span className="DashChartStat__label">Period Momentum</span>
-            <strong className="DashChartStat__val" style={{ color: "#10b981" }}>
-              {salesDatasets.growth}
-            </strong>
-          </div>
-          <div className="DashChartStat">
-            <span className="DashChartStat__label">Active Metric Mode</span>
-            <strong className="DashChartStat__val" style={{ textTransform: "uppercase" }}>
-              {activeMetric}
-            </strong>
-          </div>
-        </div>
-
-        {/* Interactive SVG Multi-Wave Chart Container */}
-        <div className="DashAreaChartWrap">
-          <svg
-            className="DashAreaChartSvg"
-            viewBox={`0 0 ${chartSVGCoords.width} ${chartSVGCoords.height}`}
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#ff7228" stopOpacity="0.45" />
-                <stop offset="50%" stopColor="#4f46e5" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
-              </linearGradient>
-
-              <linearGradient id="strokeGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#ff7228" />
-                <stop offset="50%" stopColor="#4f46e5" />
-                <stop offset="100%" stopColor="#06b6d4" />
-              </linearGradient>
-
-              <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* Horizontal Grid Guidelines */}
-            {[0.2, 0.45, 0.7, 0.95].map((ratio, gIdx) => {
-              const yVal = 25 + ratio * 170;
-              return (
-                <line
-                  key={gIdx}
-                  x1="40"
-                  y1={yVal}
-                  x2="600"
-                  y2={yVal}
-                  stroke="#e2e8f0"
-                  strokeDasharray="4 4"
-                  strokeWidth="1"
-                />
-              );
-            })}
-
-            {/* Dynamic Area Fill */}
-            <path d={chartSVGCoords.fillPathD} fill="url(#areaGradient)" />
-
-            {/* Dynamic Smooth Bézier Stroke Line */}
-            <path
-              d={chartSVGCoords.pathD}
-              fill="none"
-              stroke="url(#strokeGradient)"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              filter="url(#neonGlow)"
-            />
-
-            {/* Interactive Data Anchor Points */}
-            {chartSVGCoords.points.map((pt, pIdx) => {
-              const isHovered = hoveredPoint === pIdx;
-              return (
-                <g key={pIdx} className="DashChartNode">
-                  <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r={isHovered ? 6.5 : 4}
-                    fill="#ffffff"
-                    stroke="#ff7228"
-                    strokeWidth={isHovered ? 3.5 : 2.5}
-                    className="DashChartNodeCircle"
-                    onMouseEnter={() => setHoveredPoint(pIdx)}
-                    onMouseLeave={() => setHoveredPoint(null)}
-                  />
-                  {isHovered && (
-                    <g className="DashChartTooltip">
-                      <rect
-                        x={pt.x - 45}
-                        y={pt.y - 42}
-                        width="90"
-                        height="32"
-                        rx="6"
-                        fill="#0b192c"
-                      />
-                      <text
-                        x={pt.x}
-                        y={pt.y - 22}
-                        textAnchor="middle"
-                        fill="#ffffff"
-                        fontSize="11"
-                        fontWeight="700"
-                      >
-                        {activeMetric === "orders" ? `${pt.val} orders` : `₹ ${pt.val.toLocaleString("en-IN")}`}
-                      </text>
-                    </g>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* Timeframe Baseline Axis Labels */}
-          <div className="DashChartAxisLabels">
-            {salesDatasets.labels.map((lbl, idx) => (
-              <span key={idx} className="DashChartAxisLabel">
-                {lbl}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================
-          TIER 4: DISPATCH PIPELINE & GENRE DISTRIBUTION
+          TIER 3: DISPATCH PIPELINE & GENRE DISTRIBUTION
       ======================================================== */}
       <section className="DashTwoColGrid">
         {/* Left Column: Order Fulfillment Pipeline */}
@@ -1139,29 +817,41 @@ const Dashboard = () => {
           <div className="DashPipelineBar">
             <div
               className="DashPipelineSegment DashPipelineSegment--placed"
-              style={{ width: `${(analytics.pipeline.placed / analytics.totalOrders) * 100}%` }}
+              style={{
+                width: `${analytics.totalOrders > 0 ? (analytics.pipeline.placed / analytics.totalOrders) * 100 : 0}%`,
+              }}
               title={`Placed: ${analytics.pipeline.placed}`}
             />
             <div
               className="DashPipelineSegment DashPipelineSegment--processing"
-              style={{ width: `${(analytics.pipeline.processing / analytics.totalOrders) * 100}%` }}
+              style={{
+                width: `${analytics.totalOrders > 0 ? (analytics.pipeline.processing / analytics.totalOrders) * 100 : 0}%`,
+              }}
               title={`Processing: ${analytics.pipeline.processing}`}
             />
             <div
               className="DashPipelineSegment DashPipelineSegment--shipped"
-              style={{ width: `${(analytics.pipeline.shipped / analytics.totalOrders) * 100}%` }}
+              style={{
+                width: `${analytics.totalOrders > 0 ? (analytics.pipeline.shipped / analytics.totalOrders) * 100 : 0}%`,
+              }}
               title={`Shipped: ${analytics.pipeline.shipped}`}
             />
             <div
               className="DashPipelineSegment DashPipelineSegment--outForDelivery"
               style={{
-                width: `${(analytics.pipeline.outForDelivery / analytics.totalOrders) * 100}%`,
+                width: `${
+                  analytics.totalOrders > 0
+                    ? (analytics.pipeline.outForDelivery / analytics.totalOrders) * 100
+                    : 0
+                }%`,
               }}
               title={`Out for Delivery: ${analytics.pipeline.outForDelivery}`}
             />
             <div
               className="DashPipelineSegment DashPipelineSegment--delivered"
-              style={{ width: `${(analytics.pipeline.delivered / analytics.totalOrders) * 100}%` }}
+              style={{
+                width: `${analytics.totalOrders > 0 ? (analytics.pipeline.delivered / analytics.totalOrders) * 100 : 0}%`,
+              }}
               title={`Delivered: ${analytics.pipeline.delivered}`}
             />
           </div>
@@ -1220,7 +910,10 @@ const Dashboard = () => {
                 </div>
                 <span className="DashPipelineStageCard__label">{stage.label}</span>
                 <span className="DashPipelineStageCard__pct">
-                  {Math.round((stage.count / analytics.totalOrders) * 100)}% of total
+                  {analytics.totalOrders > 0
+                    ? Math.round((stage.count / analytics.totalOrders) * 100)
+                    : 0}
+                  % of total
                 </span>
               </div>
             ))}
@@ -1345,51 +1038,67 @@ const Dashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {recentOrdersList.map((order) => (
-                <tr
-                  key={order.id}
-                  onClick={() => navigate("/orders")}
-                  className="DashOrderRow"
-                  title="Click to manage order"
-                >
-                  <td>
-                    <strong className="DashOrderId">{order.id}</strong>
-                    <span className="DashOrderTime">{order.date}</span>
-                  </td>
-                  <td>
-                    <span className="DashOrderCustomer">{order.customer}</span>
-                    <small className="DashOrderItems">{order.itemsCount} item(s)</small>
-                  </td>
-                  <td>
-                    <strong className="DashOrderAmount">{order.amount}</strong>
-                  </td>
-                  <td>
-                    <span
-                      className={`DashPayBadge DashPayBadge--${order.payment.toLowerCase()}`}
-                    >
-                      {order.payment}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`DashStatusBadge ${getStageBadgeClass(order.status)}`}>
-                      <span className="DashStatusDot" />
-                      {order.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      className="DashOrderViewBtn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate("/orders");
-                      }}
-                    >
-                      <FiEye /> View
-                    </button>
+              {recentOrdersList.length > 0 ? (
+                recentOrdersList.map((order) => (
+                  <tr
+                    key={order.id}
+                    onClick={() => navigate("/orders")}
+                    className="DashOrderRow"
+                    title="Click to manage order"
+                  >
+                    <td>
+                      <strong className="DashOrderId">{order.id}</strong>
+                      <span className="DashOrderTime">{order.date}</span>
+                    </td>
+                    <td>
+                      <span className="DashOrderCustomer">{order.customer}</span>
+                      <small className="DashOrderItems">{order.itemsCount} item(s)</small>
+                    </td>
+                    <td>
+                      <strong className="DashOrderAmount">{order.amount}</strong>
+                    </td>
+                    <td>
+                      <span
+                        className={`DashPayBadge DashPayBadge--${order.payment.toLowerCase()}`}
+                      >
+                        {order.payment}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`DashStatusBadge ${getStageBadgeClass(order.status)}`}>
+                        <span className="DashStatusDot" />
+                        {order.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className="DashOrderViewBtn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/orders");
+                        }}
+                      >
+                        <FiEye /> View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="6"
+                    style={{
+                      textAlign: "center",
+                      padding: "36px 16px",
+                      color: "var(--dash-text-muted)",
+                      fontSize: "13.5px",
+                    }}
+                  >
+                    No orders recorded yet. Fresh client transactions will appear here in real time.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
