@@ -838,22 +838,56 @@ exports.getAllAdmins = async (req, res) => {
 };
 
 // =========================================================
-// SEED DEFAULT ADMIN IF NONE EXISTS
+// SEED OR SYNC DEFAULT ADMIN FROM ENVIRONMENT VARIABLES
 // =========================================================
 exports.seedInitialAdmin = async () => {
   try {
-    const count = await AdminUser.countDocuments();
-    if (count === 0) {
-      const defaultAdmin = new AdminUser({
-        name: "Likhani Master Admin",
-        email: "admin@likhani.com",
-        username: "likhani",
-        password: "password123",
+    const adminEmail = (process.env.ADMIN_EMAIL || "lekhani@publication.com").trim().toLowerCase();
+    const adminPassword = process.env.ADMIN_PASSWORD || "Lekhani@123";
+    const adminName = process.env.ADMIN_NAME || "Lekhani Master Admin";
+    const adminUsername = (process.env.ADMIN_USERNAME || "lekhani").trim().toLowerCase();
+
+    let admin = await AdminUser.findOne({
+      $or: [{ email: adminEmail }, { username: adminUsername }],
+    }).select("+password");
+
+    if (!admin) {
+      admin = new AdminUser({
+        name: adminName,
+        email: adminEmail,
+        username: adminUsername,
+        password: adminPassword,
         role: "SuperAdmin",
         status: "Active",
+        permissions: ["all"],
       });
-      await defaultAdmin.save();
-      console.log("✅ Initial Admin created: admin@likhani.com / password123 (or username: likhani)");
+      await admin.save();
+      console.log(`✅ Master Admin seeded from env: ${adminEmail}`);
+    } else {
+      // Ensure credentials and status match .env
+      const isPasswordMatch = await admin.comparePassword(adminPassword);
+      let modified = false;
+
+      if (!isPasswordMatch) {
+        admin.password = adminPassword;
+        modified = true;
+      }
+      if (admin.email !== adminEmail) {
+        admin.email = adminEmail;
+        modified = true;
+      }
+      if (admin.status !== "Active") {
+        admin.status = "Active";
+        modified = true;
+      }
+      if (admin.role !== "SuperAdmin") {
+        admin.role = "SuperAdmin";
+        modified = true;
+      }
+      if (modified) {
+        await admin.save();
+        console.log(`✅ Master Admin credentials synchronized from env: ${adminEmail}`);
+      }
     }
   } catch (err) {
     console.error("Seed admin error:", err.message);
